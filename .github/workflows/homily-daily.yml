@@ -1,0 +1,39 @@
+name: homily-daily
+
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'      # 01:00 UTC = 09:00 SGT, Mon–Fri
+  workflow_dispatch: {}         # manual "Run workflow" button
+
+permissions:
+  contents: write               # allow committing champion/log state back
+
+concurrency:
+  group: homily-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run daily Homily digest + auto-refine
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python daily_run.py
+
+      - name: Self-test (keeps the algo honest)
+        run: python homily_validate.py
+
+      - name: Commit refined champion + log
+        run: |
+          git config user.name "homily-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add homily_champion.json homily_refine_log.csv 2>/dev/null || true
+          git commit -m "daily refine $(date -u +%F)" || echo "no state change"
+          git push || echo "nothing to push"
