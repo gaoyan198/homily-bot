@@ -309,6 +309,35 @@ not proven.</li>
 </ul>
 </div>
 
+<h3>Correction: Danny's concentration is emergent, not picked</h3>
+<p>He never selected a core-4 — he buys dips only while a name's trend is
+intact, never sells in a bull market, and the compounders <em>grow into</em>
+the core. <span class="mono">homily_emergent_backtest.py</span> replays
+exactly that mechanic on the control universe and measures what
+concentration appears by itself:</p>
+<table>
+<tr><th>Never-sell dip buying (same $1/month)</th><th>MOIC</th><th>TWR</th>
+<th>MaxDD</th><th>final top-3 / top-4 share</th></tr>
+<tr><td>Equal-weight adds across ⭐ names</td><td><strong>2.10</strong></td>
+<td>22.2%</td><td>−30%</td><td><strong>53% / 62%</strong> (peak 69%)</td></tr>
+<tr><td>Conviction-weighted adds</td><td>2.09</td><td>22.0%</td><td>−30%</td>
+<td>54% / 62%</td></tr>
+</table>
+<ul>
+<li><strong>Concentration emerged exactly as described:</strong> from 27
+names ever bought, PLTR compounded into ~30% of the final book, top-4 into
+62% (and rising — Danny's 85/90% is what this looks like after a decade,
+not five years). Winners built the core; the trend gate quietly stopped
+feeding the losers.</li>
+<li><strong>Emergent beat engineered:</strong> same return as the flat ⭐
+strategy (it IS the ⭐ strategy) with −30% drawdown, vs −68% for the forced
+annual re-pick core-4 — because the losers were never given 22.5% of the
+book to destroy.</li>
+<li><strong>Conviction-weighting the adds changed nothing</strong> (2.09 vs
+2.10): the ⭐ state gate does all the work; sizing refinement within it is
+noise. Skip the complexity.</li>
+</ul>
+
 <h2>5c · The other honest backtests (kept in the digest daily)</h2>
 <table>
 <tr><th>Test</th><th>File</th><th>Verdict</th></tr>

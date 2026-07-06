@@ -184,6 +184,17 @@ Adopted guidance: concentration cuts both ways (−61…−72% dd on 90% of
 book); survivable structure = ~50% index core + ~50% annual-re-pick core-4
 (~2.3×, ~−40% dd, linear approx). Published in docs/index.html §5b.
 
+**Correction (same day, user insight):** Danny's core is EMERGENT — dips
+bought while trend intact, never sold, winners grow into the core.
+`homily_emergent_backtest.py` confirms: never-sell ⭐ accumulation on the
+control universe → 2.10× (vs QQQ 1.74×) at −30% dd, with top-4 emerging at
+62% of book (peak 69%, PLTR alone ~30%) from 27 names ever bought.
+Emergent-concentration beats the engineered core-4 (−30% vs −68% dd, losers
+never handed 22.5% of the book). Conviction-weighted adds vs equal adds:
+no difference (2.09 vs 2.10) — the ⭐ gate does the work; skip sizing
+complexity. THIS is the method the digest encodes; adopted as the standing
+recommendation.
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
