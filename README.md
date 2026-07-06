@@ -66,6 +66,16 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 All IBKR holdings + Danny-core **ASML** (marked `†` = not held). SOXL is
 excluded (3x leveraged ETF — leverage is out of scope by design).
 
+## When to sell — market regime 🐂/🐻
+Per-stock selling loses (see backtests) but **index-level** timing has a real
+record: month-end 10m-SMA rule on SPY **and** QQQ. Both below = 🐻 BEAR =
+the decisive sell (halt adds, exit satellites, raise dry powder, index core
+stays); both above = 🐂 BULL. 33y/26y backtest
+(`homily_regime_backtest.py`): QQQ timed = same final wealth, −37% vs −81%
+MaxDD; SPY timed pays ~1% CAGR for −24% vs −52% MaxDD. Fails in flash
+crashes (COVID), lags strong bulls — full tables in
+[docs/index.html](docs/index.html) §4. Banner tops every digest.
+
 ## Multi-bagger conviction screen 🚀
 Every name (held or not) runs through 5 hard gates — size (<$5B/day dollar
 volume), trend (monthly UP + weekly RED), leader RS (12m ≥ SPY+20pts), basis

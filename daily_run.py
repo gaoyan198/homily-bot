@@ -13,6 +13,7 @@ import os, datetime, urllib.request, urllib.parse, urllib.error
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_conviction import conviction
+from homily_regime import market_regime
 from homily_refine import daily_refine
 
 # IBKR holding -> Yahoo symbol
@@ -104,7 +105,20 @@ def build_digest():
     sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
     disco = screen(UNIVERSE, errs, spy)
 
-    lines = [f"*Homily × Danny digest — {datetime.date.today()}*", ""]
+    lines = [f"*Homily × Danny digest — {datetime.date.today()}*"]
+    try:
+        r = market_regime()
+        icon = {"BULL": "🐂", "BEAR": "🐻", "MIXED": "⚖️"}[r.label]
+        gap = " / ".join(f"{sym} {pct:+.1f}%"
+                         for sym, (_, _, pct, _) in r.detail.items())
+        lines.append(f"{icon} *REGIME: {r.label}* — {gap} vs 10m SMA")
+        lines.append(f"_{r.action}_")
+        if r.label == "BEAR":
+            lines.append("🚨 *THE DECISIVE SELL SIGNAL IS ON* — see protocol"
+                         " above; this fires a handful of times a decade.")
+    except Exception:
+        lines.append("⚖️ regime check unavailable today")
+    lines.append("")
     cur = None
     for s, c in sigs:
         if s.state != cur:

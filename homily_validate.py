@@ -184,4 +184,20 @@ assert not c_mega.gates_ok and "G1 size" in c_mega.gates_failed \
 print(f"[11] Conviction: leader -> {c_lead.tier} {c_lead.score}, "
       f"megacap laggard fails {len(c_mega.gates_failed)} gates ....... PASS")
 
+# --- 12. Regime: 10m-SMA month-end rule on synthetic monthly closes ---------
+from homily_regime import sma10_state
+
+up_m = [(_dt.date(2020 + i // 12, i % 12 + 1, 1), 100 * 1.02 ** i)
+        for i in range(30)]
+last, sma, live = sma10_state(up_m)
+assert last > sma, "rising market not above its 10m SMA!"
+dn_m = [(d, 200 * 0.97 ** i) for i, (d, _) in enumerate(up_m)]
+last, sma, live = sma10_state(dn_m)
+assert last < sma, "falling market not below its 10m SMA!"
+# partial current month must NOT affect the month-end judgement
+spiked = dn_m[:-1] + [(dn_m[-1][0], 1e6)]
+l2, s2, _ = sma10_state(spiked)
+assert (l2, s2) == (last, sma) or l2 < s2, "partial month leaked into signal!"
+print("[12] Regime 10m-SMA: up->BULL, down->BEAR, partial month ignored ..... PASS")
+
 print("\nAll structural assertions passed.")

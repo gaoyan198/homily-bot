@@ -164,7 +164,58 @@ names; real mcap needs authed APIs (backlog).</td></tr>
 account including existing position. Concentration risk is already carried
 elsewhere in the book.</p>
 
-<h2>4 · The honest backtests (kept in the digest daily)</h2>
+<h2>4 · When to SELL — the market regime signal</h2>
+<p>Per-stock selling failed our backtests twice, but <strong>index-level</strong>
+regime timing is the one trend rule with a long honest record: the classic
+10-month SMA rule. At each <strong>month end</strong>, if the index closes
+below its 10-month simple moving average → BEAR; above → BULL. It is slow on
+purpose — it fires a handful of times a decade, which is what makes it
+decisive rather than noisy.</p>
+<table>
+<tr><th>Regime</th><th>Condition (month-end closes)</th><th>Protocol</th></tr>
+<tr><td><span class="pill p-green">🐂 BULL</span></td>
+<td>SPY <em>and</em> QQQ above their 10m SMA</td>
+<td>stay invested, add via ⭐/🚀 screens</td></tr>
+<tr><td><span class="pill p-amber">⚖️ MIXED</span></td>
+<td>one above, one below</td>
+<td>no action — judge at the next month-end</td></tr>
+<tr><td><span class="pill p-red">🐻 BEAR</span></td>
+<td>SPY <em>and</em> QQQ below their 10m SMA</td>
+<td><strong>the decisive sell:</strong> halt adds, exit satellite/🚀
+positions, raise dry powder; long-horizon index core stays; re-enter when a
+month-end close regains the SMA</td></tr>
+</table>
+
+<h3>How it fares vs buy-and-hold (real backtest, homily_regime_backtest.py)</h3>
+<p class="dim">Month-end signals, no look-ahead, 5bps per switch, cash yields
+0% (conservative). SPY: 33 years (1993→2026). QQQ: 26 years (1999→2026).</p>
+<table>
+<tr><th></th><th>CAGR</th><th>Max drawdown</th><th>$1 became</th></tr>
+<tr><td>SPY buy &amp; hold</td><td>8.9%</td><td>−52%</td><td>$16.0</td></tr>
+<tr><td>SPY 10m-SMA timed</td><td>7.9%</td><td><strong>−24%</strong></td><td>$12.0</td></tr>
+<tr><td>QQQ buy &amp; hold</td><td>7.5%</td><td>−81%</td><td>$6.7</td></tr>
+<tr><td>QQQ 10m-SMA timed</td><td>7.5%</td><td><strong>−37%</strong></td><td>$6.7</td></tr>
+</table>
+<table>
+<tr><th>Episode</th><th>QQQ timed</th><th>QQQ B&amp;H</th><th>SPY timed</th><th>SPY B&amp;H</th></tr>
+<tr><td>dot-com 2000-09→2002-09</td><td><strong>−12.7%</strong></td><td>−79.6%</td><td><strong>−11.3%</strong></td><td>−46.3%</td></tr>
+<tr><td>GFC 2007-10→2009-02</td><td><strong>−20.8%</strong></td><td>−46.5%</td><td><strong>−4.2%</strong></td><td>−51.5%</td></tr>
+<tr><td>COVID 2020-01→2020-03</td><td>−10.5%</td><td>−10.4%</td><td>−8.0%</td><td>−19.9%</td></tr>
+<tr><td>2022 bear 2022-01→2022-09</td><td><strong>−8.8%</strong></td><td>−32.8%</td><td>−16.3%</td><td>−24.8%</td></tr>
+<tr><td>bull run 2023-01→2025-12</td><td>+88.1%</td><td><strong>+130.7%</strong></td><td>+45.5%</td><td><strong>+78.3%</strong></td></tr>
+</table>
+<div class="card warn">
+<strong>Honest verdict.</strong> On QQQ the sell signal earned identical
+final wealth with less than half the pain — it is genuinely valuable in
+long, grinding bears (2000, 2008, 2022). It is <em>useless in flash
+crashes</em> (COVID fell too fast; the signal fired near the bottom) and it
+<em>costs real upside in strong bulls</em> (2023–25: 48 whipsaw switches on
+SPY over 33y each clip returns). You are paying ~1% CAGR on SPY as an
+insurance premium against −50% drawdowns. That is the deal — take it
+knowingly.
+</div>
+
+<h2>5 · The honest backtests (kept in the digest daily)</h2>
 <table>
 <tr><th>Test</th><th>File</th><th>Verdict</th></tr>
 <tr><td>Hold 🔴 / cut ⚪ vs buy-and-hold, 5y weekly</td>
@@ -188,7 +239,7 @@ vetoes.</td></tr>
 in the PRD backlog). Treat tiers as a research shortlist until then.</td></tr>
 </table>
 
-<h2>5 · Data & plumbing</h2>
+<h2>6 · Data & plumbing</h2>
 <ul>
 <li>Daily OHLCV: Yahoo v8 chart API, key-free, 5y range; weekly/monthly
 resampled from daily. Pure Python stdlib — no pip, no server.</li>
@@ -202,7 +253,7 @@ math, no look-ahead, chip POC placement, decay behaviour, hole detection and
 composite states on synthetic data — run in CI every day.</li>
 </ul>
 
-<h2>6 · Known limitations</h2>
+<h2>7 · Known limitations</h2>
 <ul>
 <li>Dollar-volume ≠ market cap; hot names look "bigger" than they are.</li>
 <li>No fundamentals: revenue growth, margins, dilution, insider activity are

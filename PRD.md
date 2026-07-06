@@ -128,6 +128,22 @@ sizing, methodology exposed as a page.
   enabling GitHub Pages would make the page public — kept as an in-repo file
   to open locally; enable Pages only as a deliberate decision.
 
+## 5e. Addendum 2026-07-06 — market regime / decisive sell signal
+
+User request: a strong decisive bull-over signal to sell into, hold dry
+powder, re-accumulate in bears.
+
+* `homily_regime.py` — classic 10-month-SMA month-end rule on BOTH SPY and
+  QQQ: both above = 🐂 BULL, both below = 🐻 BEAR (the decisive sell), split
+  = ⚖️ MIXED (wait for month-end). Digest banner at the top every day;
+  BEAR carries the protocol (halt adds, exit satellites/🚀, raise dry
+  powder, index core stays, re-enter on month-end reclaim).
+* `homily_regime_backtest.py` — 33y SPY / 26y QQQ, no look-ahead, 5bps per
+  switch, cash at 0%: QQQ timed = same final wealth with −37% vs −81% MaxDD;
+  SPY timed = 7.9% vs 8.9% CAGR with −24% vs −52% MaxDD. Great in grinding
+  bears (dot-com QQQ −12.7% vs −79.6%), useless in flash crashes (COVID),
+  lags strong bulls (2023-25). Full tables on docs/index.html §4.
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
