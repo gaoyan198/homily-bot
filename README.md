@@ -50,6 +50,8 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_chips.py` | Chip/cost-distribution engine: decayed volume-at-price → POC, support/resistance peaks |
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |
+| `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |
+| `docs/index.html` | Full methodology page (engines, gates, rubric, honest backtests, limits) |
 | `homily_vol_backtest.py` | Event study of hole resolutions vs unconditional baseline |
 | `homily_clone.py` | Original red/white-circle weekly engine (EMA ribbon + MACD + trend slope) |
 | `homily_validate.py` | Self-tests: EMA/MACD math, no look-ahead, chip POC/decay, composite states |
@@ -63,6 +65,16 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 ## Watchlist
 All IBKR holdings + Danny-core **ASML** (marked `†` = not held). SOXL is
 excluded (3x leveraged ETF — leverage is out of scope by design).
+
+## Multi-bagger conviction screen 🚀
+Every name (held or not) runs through 5 hard gates — size (<$5B/day dollar
+volume), trend (monthly UP + weekly RED), leader RS (12m ≥ SPY+20pts), basis
+(price > POC), data (≥200 bars) — then a transparent 0–100 score sets the
+sizing tier: **≥75 CONVICTION ≤5% of account · 60–74 STARTER ≤2% · hard cap
+10%/name incl. existing**. Max 5 rows daily; most days most names fail — by
+design. Full rubric: [docs/index.html](docs/index.html) (open locally; repo
+is private so GitHub Pages would make it public — enable deliberately if
+wanted). NOTE: the score itself is not yet backtested (PRD backlog #1).
 
 ## Discovery screen
 A ~37-name universe of liquid names **not held** (megacap tech, semis/AI

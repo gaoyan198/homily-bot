@@ -12,6 +12,7 @@ Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 import os, datetime, urllib.request, urllib.parse, urllib.error
 from homily_data import fetch_daily
 from homily_danny import danny_signal
+from homily_conviction import conviction
 from homily_refine import daily_refine
 
 # IBKR holding -> Yahoo symbol
@@ -41,6 +42,11 @@ UNIVERSE = {
     "LLY":"LLY","NVO":"NVO","V":"V","MA":"MA","COST":"COST","JPM":"JPM",
     # HK/China liquid names beyond BABA
     "0700":"0700.HK","3690":"3690.HK","1810":"1810.HK",
+    # growth mid-caps — the multi-bagger hunting ground
+    "RKLB":"RKLB","ASTS":"ASTS","SOFI":"SOFI","HIMS":"HIMS","DUOL":"DUOL",
+    "AXON":"AXON","TOST":"TOST","RBLX":"RBLX","IOT":"IOT","CRDO":"CRDO",
+    "TMDX":"TMDX","CAVA":"CAVA","ONON":"ONON","SE":"SE","GRAB":"GRAB",
+    "NBIS":"NBIS","ALAB":"ALAB",
 }
 
 ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","BOTTOMING":"🔵",
@@ -67,32 +73,61 @@ def fmt_row(s, watch=False):
             f"d{s.candle[0]}{vh}")
 
 
-def screen(book, errs):
-    sigs = []
+def screen(book, errs, spy):
+    """-> list of (DannySignal, Conviction), digest-sorted."""
+    out = []
     for tk, sym in book.items():
         try:
-            sigs.append(danny_signal(tk, fetch_daily(sym, rng="5y")))
+            bars = fetch_daily(sym, rng="5y")
+            sig = danny_signal(tk, bars)
+            out.append((sig, conviction(sig, bars, spy)))
         except Exception:
             errs.append(tk)
-    sigs.sort(key=lambda s: (ORDER[s.state], s.ticker))
-    return sigs
+    out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
+    return out
+
+
+def fmt_rocket(s, c, held):
+    tag = "" if held else "†"
+    top = sorted(c.parts.items(), key=lambda kv: -kv[1])[:2]
+    why = ", ".join(f"{k} {v}" for k, v in top)
+    size = "≤5% CONVICTION" if c.tier == "CONVICTION" else "≤2% STARTER"
+    zone = (f" · add {g(s.add_zone[0])}-{g(s.add_zone[1])}"
+            if s.add_zone else "")
+    return (f"🚀 `{s.ticker:<5}`{tag} score {c.score} → {size} · "
+            f"RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · {why}")
 
 
 def build_digest():
     errs = []
-    sigs = screen({**HOLDINGS, **WATCH}, errs)
-    disco = screen(UNIVERSE, errs)
+    spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
+    sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
+    disco = screen(UNIVERSE, errs, spy)
 
     lines = [f"*Homily × Danny digest — {datetime.date.today()}*", ""]
     cur = None
-    for s in sigs:
+    for s, c in sigs:
         if s.state != cur:
             cur = s.state
             lines.append(f"*{ICON[cur]} {cur}*")
         lines.append(fmt_row(s, s.ticker in WATCH))
 
+    # multi-bagger watch: stringent 5-gate screen across EVERYTHING
+    rockets = sorted([(s, c) for s, c in sigs + disco if c.gates_ok],
+                     key=lambda x: -x[1].score)
+    lines += ["", "*🚀 MULTI-BAGGER WATCH (5 hard gates: size, trend, "
+              "leader-RS, basis, data)*"]
+    if rockets:
+        lines += [fmt_rocket(s, c, s.ticker in HOLDINGS)
+                  for s, c in rockets[:5]]
+        lines.append("_sizing guide: CONVICTION ≤5% of account · STARTER "
+                     "≤2% · hard cap 10%/name incl. existing · add at ⭐ "
+                     "zones only_")
+    else:
+        lines.append("no name passes all 5 gates today — that's the point")
+
     # discovery: new-money setups among names not held (⭐/🔵 only)
-    hits = [s for s in disco if s.state in ("ACCUMULATE", "BOTTOMING")]
+    hits = [s for s, c in disco if s.state in ("ACCUMULATE", "BOTTOMING")]
     lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(UNIVERSE)} names "
               "screened, not held)*"]
     if hits:

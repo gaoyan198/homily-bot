@@ -111,7 +111,51 @@ through the same composite engine; only ⭐ ACCUMULATE / 🔵 BOTTOMING setups
 surface (max 8 rows + overflow tickers). Exclusions stand: no leveraged
 ETFs, no crypto-beta names. Telegram sends now split at 4000 chars.
 
-## 6. Out of scope
+## 5d. Addendum 2026-07-06 — multi-bagger conviction screen + methodology page
+
+User request: multi-bagger potentials, stringent recommendations, conviction
+sizing, methodology exposed as a page.
+
+* `homily_conviction.py` — 5 hard gates (size-by-$vol < $5B/d, monthly UP +
+  weekly RED, 12m RS ≥ SPY+20pts, price > POC, ≥200 bars) then a 0–100 score
+  (trend 25 · RS 25 · structure 15 · vol-hole 10 · size/room 15 · age 10).
+  Tiers: ≥75 CONVICTION ≤5% of account · 60–74 STARTER ≤2% · hard cap
+  10%/name incl. existing. 🚀 section in digest, max 5, held + not-held.
+* Universe +17 growth mid-caps (RKLB ASTS SOFI HIMS DUOL AXON TOST RBLX IOT
+  CRDO TMDX CAVA ONON SE GRAB NBIS ALAB).
+* `docs/index.html` — self-contained methodology page (engines, gates,
+  rubric, sizing, honest-backtest table, limitations). Repo is private, so
+  enabling GitHub Pages would make the page public — kept as an in-repo file
+  to open locally; enable Pages only as a deliberate decision.
+
+## 6. Improvement backlog (queued for next runs)
+
+Ranked; each item should ship with its own honest validation before the
+digest starts trusting it.
+
+1. **Backtest the conviction score** — replay 5y point-in-time (gates +
+   score each day, no look-ahead), report forward 6m/12m returns by score
+   decile and tier. Until then the 🚀 tier is a shortlist, not an edge.
+2. **Real market cap** — replace the dollar-volume proxy in G1 (Yahoo crumb
+   auth, or a monthly-refreshed static map committed to the repo).
+3. **State-change alerts** — a second, tiny Telegram message only when a
+   name CHANGES state (⭐ appears, 🔵 fires, hole resolves) so the signal
+   isn't buried in the daily wall.
+4. **Fundamental overlay for 🚀** — revenue growth / dilution from free SEC
+   EDGAR facts API; multi-baggers need a growth engine, not just RS.
+5. **Supervised Homily fit** — if the user exports real red/white-circle
+   readings from a Homily terminal, fit the clone against actual labels
+   (the only path that truly converges to Homily).
+6. **Universe hygiene** — quarterly review: drop names that lost liquidity,
+   auto-flag new liquid IPOs passing G5 for manual inclusion.
+7. **Earnings awareness** — flag rows with earnings inside 7 days (dates via
+   free sources are flaky — validate coverage first).
+8. **HK depth** — 9992.HK chip profile is HKD-denominated and thinner;
+   consider SEHK-specific volume normalisation before trusting HK zones.
+9. **Weekly deep-dive** — Sunday digest: full chip histogram sparklines per
+   holding, conviction score drift over the week, refine-log summary.
+
+## 7. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
 paid Patreon content; any claim of replicating Homily's or Danny's

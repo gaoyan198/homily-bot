@@ -165,4 +165,23 @@ s_bot = danny_signal("BOT", _vbars(specs))
 assert s_bot.state == "BOTTOMING", f"expected BOTTOMING, got {s_bot.state}!"
 print(f"[10] Composite: decline + hole breakout -> {s_bot.state} .............. PASS")
 
+# --- 11. Conviction: synthetic leader passes gates, megacap laggard fails ---
+from homily_conviction import conviction
+
+spy_flat = [100.0 * 1.0003 ** i for i in range(900)]        # ~8%/yr benchmark
+leader_px = [10 * 1.004 ** i for i in range(900)]           # strong leader
+leader = [(d, o, h, l, c, 2e6) for d, o, h, l, c, v in
+          _vbars([(p, p * 0.01) for p in leader_px])]       # small $vol
+c_lead = conviction(danny_signal("LEAD", leader), leader, spy_flat)
+assert c_lead.gates_ok, f"synthetic leader failed gates: {c_lead.gates_failed}"
+assert c_lead.tier in ("CONVICTION", "STARTER"), f"tier {c_lead.tier}?"
+
+mega = [(d, o, h, l, c, 5e9) for d, o, h, l, c, v in
+        _vbars([(p, p * 0.01) for p in spy_flat])]          # huge $vol, no RS
+c_mega = conviction(danny_signal("MEGA", mega), mega, spy_flat)
+assert not c_mega.gates_ok and "G1 size" in c_mega.gates_failed \
+    and "G3 leader" in c_mega.gates_failed, "megacap laggard passed gates!"
+print(f"[11] Conviction: leader -> {c_lead.tier} {c_lead.score}, "
+      f"megacap laggard fails {len(c_mega.gates_failed)} gates ....... PASS")
+
 print("\nAll structural assertions passed.")

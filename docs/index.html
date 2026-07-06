@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>homily-bot — methodology</title>
+<style>
+  :root { --bg:#0f1117; --card:#181b24; --ink:#e8eaf0; --dim:#9aa3b2;
+          --red:#ff5d5d; --green:#4ade80; --amber:#fbbf24; --blue:#60a5fa;
+          --line:#2a2f3d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:48px 24px 96px; }
+  h1 { font-size:2rem; margin:0 0 4px; }
+  h2 { font-size:1.35rem; margin:56px 0 12px; border-bottom:1px solid var(--line);
+       padding-bottom:8px; }
+  h3 { font-size:1.05rem; margin:28px 0 8px; }
+  .sub { color:var(--dim); margin-bottom:32px; }
+  .card { background:var(--card); border:1px solid var(--line);
+          border-radius:10px; padding:18px 22px; margin:16px 0; }
+  .warn { border-left:4px solid var(--amber); }
+  code, .mono { font-family:ui-monospace,"SF Mono",Menlo,monospace;
+                font-size:.9em; background:#232837; border-radius:4px;
+                padding:1px 6px; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:.95rem; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line);
+           vertical-align:top; }
+  th { color:var(--dim); font-weight:600; }
+  .dim { color:var(--dim); }
+  .pill { display:inline-block; border-radius:999px; padding:0 10px;
+          font-size:.85rem; font-weight:600; }
+  .p-red{background:#3d1f2a;color:var(--red)} .p-green{background:#1c3229;color:var(--green)}
+  .p-amber{background:#39301a;color:var(--amber)} .p-blue{background:#1c2a3d;color:var(--blue)}
+  .p-grey{background:#262b38;color:var(--dim)}
+  ul { padding-left:22px; } li { margin:6px 0; }
+  a { color:var(--blue); }
+</style>
+</head>
+<body>
+<main>
+<h1>homily-bot methodology</h1>
+<p class="sub">A transparent approximation of how
+<a href="https://x.com/dannycheng2022">@dannycheng2022</a> uses Homily charts —
+long-term accumulation guidance, chip support/resistance, volatility holes and
+a stringent multi-bagger conviction screen. Every formula below is exactly
+what the code does; nothing proprietary, nothing hidden.</p>
+
+<div class="card warn">
+<strong>Read this first.</strong> Danny's real indicators are proprietary
+("can never be duplicated" — his words) and his posted results are
+self-reported, unaudited and levered. This bot approximates his
+<em>documented behaviour</em> from public posts. Its own backtests are run
+honestly and two of them <em>fail</em> — those failures are kept in the daily
+digest on purpose. Nothing here is financial advice or a promise of returns.
+</div>
+
+<h2>1 · Philosophy (what we copied from Danny)</h2>
+<ul>
+<li><strong>Never trade.</strong> Signals time <em>adds</em> on conviction
+names. There is no sell state anywhere in the system. The worst state,
+CAUTION, only pauses new buying.</li>
+<li><strong>A fixed watchlist, charted forever.</strong> The same names every
+day — holdings plus a curated universe — rather than chasing whatever moved
+yesterday.</li>
+<li><strong>Structure over candles.</strong> Levels come from where volume
+actually traded (chips) and where volatility collapsed (holes), not from
+chart patterns.</li>
+<li><strong>What we deliberately did NOT copy:</strong> leverage/margin
+(his $800k→$3.6M year used it), leveraged ETFs (SOXL), and crypto-beta
+names.</li>
+</ul>
+
+<h2>2 · The four signal engines</h2>
+
+<h3>2.1 Weekly circle (trend regime)</h3>
+<p>Four weekly-close checks, one point each:
+price &gt; 30-week EMA · 10-week EMA &gt; 30-week EMA · MACD histogram &gt; 0
+with MACD line &gt; 0 · 30-week SMA rising vs 4 weeks ago.</p>
+<p><span class="pill p-red">RED = 3–4</span>&nbsp;
+<span class="pill p-amber">AMBER = 2</span>&nbsp;
+<span class="pill p-grey">WHITE = 0–1</span></p>
+
+<h3>2.2 Chip distribution (筹码 — support / resistance / POC)</h3>
+<p>Each day's volume is spread triangularly across that day's high–low range,
+then decayed with a <strong>60-trading-day half-life</strong> so recent
+accumulation dominates (the "dynamic POC" behaviour Danny describes; true
+chip models decay by turnover against float, which isn't available
+key-free).</p>
+<ul>
+<li><strong>POC</strong> — heaviest price bin: the crowd's cost basis.</li>
+<li><strong>Support</strong> — biggest chip peaks at/below price (holders in
+profit defend their basis). The top one becomes the <code>add</code> zone:
+peak −2% to +3%.</li>
+<li><strong>Resistance</strong> — peaks above price (trapped holders sell
+into rallies).</li>
+<li><strong>% in profit</strong> — share of chip weight below the close.</li>
+</ul>
+
+<h3>2.3 Volatility hole (Danny: "the most crucial part")</h3>
+<p>A hole day = 5-day average-true-range ÷ close makes a <strong>new 60-day
+low</strong>. Consecutive hole days (gaps ≤ 3) form a cluster; the cluster's
+high/low is the zone; it stays "in force" ≤ 90 bars. Judged off the latest
+close: <strong>↑ BREAKOUT</strong> above the upper boundary,
+<strong>↓ BREAKDOWN</strong> below the lower, <strong>◻ INSIDE</strong>
+otherwise.</p>
+
+<h3>2.4 Composite state (what the digest prints)</h3>
+<table>
+<tr><th>State</th><th>Condition</th><th>Meaning</th></tr>
+<tr><td><span class="pill p-red">⭐ ACCUMULATE</span></td>
+<td>monthly close &gt; rising 10-month EMA, weekly RED, price within 3% of a
+major chip-support peak</td><td>Danny-style add zone</td></tr>
+<tr><td><span class="pill p-green">🟢 HOLD</span></td>
+<td>trend intact, extended above support</td><td>wait for the pullback</td></tr>
+<tr><td><span class="pill p-amber">🟡 PULLBACK</span></td>
+<td>weekly AMBER while monthly up</td><td>dip forming — stalk the zone</td></tr>
+<tr><td><span class="pill p-blue">🔵 BOTTOMING</span></td>
+<td>trend broken BUT price closed above its volatility hole</td>
+<td>early recovery signal, wait for trend engines to confirm</td></tr>
+<tr><td><span class="pill p-grey">⚪ CAUTION</span></td>
+<td>weekly WHITE or monthly trend down</td>
+<td>pause adds — thesis review, never a mechanical sell</td></tr>
+</table>
+
+<h2>3 · Multi-bagger conviction screen (stringent by design)</h2>
+<p>Every name — held or not — must pass <strong>all five hard gates</strong>
+before it can appear as 🚀. Most days most names fail; that is the point.</p>
+<table>
+<tr><th>Gate</th><th>Rule</th><th>Why</th></tr>
+<tr><td>G1 size</td><td>avg 20-day dollar volume &lt; $5B/day</td>
+<td>megacaps (NVDA trades ~$32B/day) can't 5x quickly.
+<em>Dollar volume is a market-cap proxy</em> — it over-counts hot momentum
+names; real mcap needs authed APIs (backlog).</td></tr>
+<tr><td>G2 trend</td><td>monthly UP and weekly RED</td>
+<td>leaders only — no falling knives, no bottom-fishing</td></tr>
+<tr><td>G3 leader</td><td>12-month return ≥ SPY + 20 points</td>
+<td>relative strength: multi-baggers lead before they multi-bag</td></tr>
+<tr><td>G4 basis</td><td>price above POC</td>
+<td>the crowd's cost basis is defended, not trapped</td></tr>
+<tr><td>G5 data</td><td>≥ 200 daily bars</td>
+<td>too-fresh IPOs are unratable — skip, don't guess</td></tr>
+</table>
+
+<h3>Score (0–100) ranks the survivors</h3>
+<table>
+<tr><th>Component</th><th>Max</th><th>Points</th></tr>
+<tr><td>Trend</td><td>25</td><td>monthly UP +10 · weekly RED +10 · RED streak ≥ 8w +5</td></tr>
+<tr><td>Relative strength</td><td>25</td><td>12m excess vs SPY: ≥20pts +10 / ≥50 +15 / ≥100 +20 · 6m excess ≥10pts +5</td></tr>
+<tr><td>Structure</td><td>15</td><td>above POC +5 · ≥60% chips in profit +5 · in ⭐ add zone +5</td></tr>
+<tr><td>Volatility hole</td><td>10</td><td>breakout ≤30d old +10 · inside (coiling) +5</td></tr>
+<tr><td>Size / room</td><td>15</td><td>$vol &lt; 0.5B/d +15 / &lt;1.5B +12 / &lt;3B +8 / &lt;5B +4</td></tr>
+<tr><td>Listing age</td><td>10</td><td>&lt; 4.5y of history +10, else +5</td></tr>
+</table>
+
+<h3>Sizing tiers (guidance, not orders)</h3>
+<table>
+<tr><th>Score</th><th>Tier</th><th>New capital per name</th></tr>
+<tr><td>≥ 75</td><td>🚀 CONVICTION</td><td>up to 5% of account — add only at ⭐ zones</td></tr>
+<tr><td>60–74</td><td>🚀 STARTER</td><td>up to 2% — prove itself before sizing up</td></tr>
+<tr><td>&lt; 60 or any gate fails</td><td>watch</td><td>no capital</td></tr>
+</table>
+<p class="dim">Hard cap regardless of score: no single name above 10% of the
+account including existing position. Concentration risk is already carried
+elsewhere in the book.</p>
+
+<h2>4 · The honest backtests (kept in the digest daily)</h2>
+<table>
+<tr><th>Test</th><th>File</th><th>Verdict</th></tr>
+<tr><td>Hold 🔴 / cut ⚪ vs buy-and-hold, 5y weekly</td>
+<td class="mono">homily_backtest.py</td>
+<td><strong>Loses on return in every name.</strong> Only benefit: smaller
+drawdowns. Hence: no sell state.</td></tr>
+<tr><td>⭐-gated buying vs monthly DCA, 5y daily, same budget</td>
+<td class="mono">homily_danny_backtest.py</td>
+<td><strong>Worse average cost on every name (−1% to −13%).</strong> Waiting
+costs more than the dip saves. Levels = context, not a reason to sit in
+cash.</td></tr>
+<tr><td>Volatility-hole event study, 8 names × 5y</td>
+<td class="mono">homily_vol_backtest.py</td>
+<td>Breakouts: +4.4% fwd 20d vs +2.8% baseline — <strong>modest real
+edge</strong>. Breakdowns: +15.7% fwd 60d, <em>above</em> baseline —
+<strong>bearish side unsupported</strong>, so breakdowns are notes, never
+vetoes.</td></tr>
+<tr><td>Conviction-score forward returns</td>
+<td class="mono">—</td>
+<td><strong>Not yet backtested</strong> (needs point-in-time score history —
+in the PRD backlog). Treat tiers as a research shortlist until then.</td></tr>
+</table>
+
+<h2>5 · Data & plumbing</h2>
+<ul>
+<li>Daily OHLCV: Yahoo v8 chart API, key-free, 5y range; weekly/monthly
+resampled from daily. Pure Python stdlib — no pip, no server.</li>
+<li>Runs 09:00 SGT Mon–Fri on GitHub Actions; digest via Telegram bot API;
+auto-refine state committed back to the repo each run.</li>
+<li>The weekly-circle parameters self-refine daily but a challenger is only
+adopted if it beats the champion <strong>out-of-sample</strong>
+(walk-forward), never on in-sample fit.</li>
+<li>Self-tests (<span class="mono">homily_validate.py</span>) assert EMA
+math, no look-ahead, chip POC placement, decay behaviour, hole detection and
+composite states on synthetic data — run in CI every day.</li>
+</ul>
+
+<h2>6 · Known limitations</h2>
+<ul>
+<li>Dollar-volume ≠ market cap; hot names look "bigger" than they are.</li>
+<li>No fundamentals: revenue growth, margins, dilution, insider activity are
+all invisible to this screen.</li>
+<li>Chip decay uses a fixed half-life, not true float turnover.</li>
+<li>Survivorship: the universe is hand-picked liquid names; the backtests run
+on today's list.</li>
+<li>The conviction score is un-backtested (see §4) — stringency is a design
+choice, not yet a proven edge.</li>
+</ul>
+
+<p class="dim" style="margin-top:48px">Generated for the private
+<span class="mono">homily-bot</span> repo · spec and changelog in
+<span class="mono">PRD.md</span> · last updated 2026-07-06</p>
+</main>
+</body>
+</html>
