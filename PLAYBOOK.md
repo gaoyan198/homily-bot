@@ -46,7 +46,9 @@ required for action.
 1. Open today's digest. Banner 🐂? Continue. (🐻 → §4. ⚖️ → still continue,
    ⚖️ only pauses *selling* decisions.)
 2. Take your monthly DCA amount (see §7).
-3. Half of it → Bucket A (index). Always. No thinking.
+3. Half of it → Bucket A (index). **Your SRS contributions ARE this half**
+   (provided the SRS cash is actually deployed into SPY/QQQ, not idle) —
+   if SRS is funded and invested, your cash DCA may go fully to step 4.
 4. Other half → split **equally** across the ⭐ names (holdings + discovery,
    max 5 names). Skip any name that would exceed 10% of your stock book.
    Prefer F:2+ names when choosing among many.
@@ -139,7 +141,8 @@ monthly investable =
   − margin paydown (until zero — this outranks investing)
   − emergency fund top-up (until 6 months of expenses)
 ```
-Whatever remains: **50% Bucket A / 50% ⭐ routine** (§3). If a −50% month on
+Whatever remains: **50% Bucket A / 50% ⭐ routine** (§3). SRS counts as
+the Bucket-A half while its contributions are actually invested. If a −50% month on
 the stock half would make you break the rules, shift the split toward A
 until it wouldn't. The split you can hold through a bear beats the split
 that's optimal on paper.
