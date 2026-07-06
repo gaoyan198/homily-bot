@@ -82,6 +82,26 @@ refine loop, GitHub Actions schedule (09:00 SGT Mon–Fri).
 5. Digest retains the standing disclaimer that signals are guidance, not a
    promise of Danny's returns.
 
+## 5b. Addendum 2026-07-06 — volatility hole
+
+Added on request: Danny calls the volatility hole "the most crucial and
+important part of my technical analysis" for temporary topping/bottoming.
+From his posts: a volatility-collapse spot printed as a zone with upper and
+lower boundaries, valid until invalidated by either side; a close above the
+upper boundary has preceded strong rallies (his SPY monthly study).
+
+Implementation: `homily_vol.py` — a hole day is a new 60-day low in relative
+volatility (ATR5/close); consecutive hole days form a cluster; the zone is
+the cluster's high/low; status = BREAKOUT / BREAKDOWN / INSIDE from the
+latest close. Composite gains a 🔵 BOTTOMING state (broken trend + upside
+hole breakout) and a ⚠ topping note (uptrend + downside breakdown).
+
+Event-study verdict (`homily_vol_backtest.py`, 8 names × 5y, no look-ahead):
+breakouts beat baseline modestly (+4.4% vs +2.8% fwd 20d; +11.5% vs +8.5%
+fwd 60d) — directionally supports Danny's claim. Breakdowns did NOT predict
+weakness (+15.7% fwd 60d, above baseline) — so breakdowns are a warning
+note only and never veto adds.
+
 ## 6. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his

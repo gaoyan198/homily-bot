@@ -134,4 +134,35 @@ assert s_dn.state == "CAUTION" and not s_dn.monthly_up, \
     f"steady downtrend not CAUTION (got {s_dn.state})!"
 print(f"[8] Composite: uptrend -> {s_up.state}, downtrend -> {s_dn.state} ...... PASS")
 
+# --- 9. Volatility hole: quiet cluster after a decline, then breakout -------
+from homily_vol import find_hole
+
+def _vbars(specs):
+    """specs: list of (price, range) -> daily bars with that H-L range."""
+    d0 = _dt.date(2024, 1, 1)
+    return [(d0 + _dt.timedelta(days=i), p, p + r, p - r, p, 1e6)
+            for i, (p, r) in enumerate(specs)]
+
+decline = [(200 - i, 4.0) for i in range(80)]            # volatile downtrend
+quiet   = [(120, 0.3)] * 10                              # volatility hole
+vh = find_hole(_vbars(decline + quiet))
+assert vh is not None and vh.trend_before == "DOWN", "hole not found after decline!"
+assert vh.status == "INSIDE", f"expected INSIDE, got {vh.status}"
+assert vh.lower >= 119 and vh.upper <= 121.5, f"zone {vh.lower}-{vh.upper} off!"
+brk = find_hole(_vbars(decline + quiet + [(125, 2.0)] * 3))
+assert brk is not None and brk.status == "BREAKOUT", "upside resolve not BREAKOUT!"
+dn = find_hole(_vbars(decline + quiet + [(112, 2.0)] * 3))
+assert dn is not None and dn.status == "BREAKDOWN", "downside resolve not BREAKDOWN!"
+print("[9] Volatility hole: found after decline, zone tight, both resolutions  PASS")
+
+# --- 10. Volatility hole feeds the composite: BOTTOMING state ---------------
+# volatile decline (trend broken) then quiet base then upside breakout
+vol_dn = [100 * 0.997 ** i for i in range(800)]
+specs = [(p, p * 0.03) for p in vol_dn] + \
+        [(vol_dn[-1], vol_dn[-1] * 0.002)] * 10 + \
+        [(vol_dn[-1] * 1.05, vol_dn[-1] * 0.01)] * 3
+s_bot = danny_signal("BOT", _vbars(specs))
+assert s_bot.state == "BOTTOMING", f"expected BOTTOMING, got {s_bot.state}!"
+print(f"[10] Composite: decline + hole breakout -> {s_bot.state} .............. PASS")
+
 print("\nAll structural assertions passed.")

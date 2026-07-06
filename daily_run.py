@@ -23,8 +23,10 @@ HOLDINGS = {
 # Danny-core names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML"}
 
-ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","CAUTION":"⚪"}
-ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"CAUTION":3}
+ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","BOTTOMING":"🔵",
+        "CAUTION":"⚪"}
+ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"BOTTOMING":3,"CAUTION":4}
+VH_ARROW = {"BREAKOUT":"↑","BREAKDOWN":"↓","INSIDE":"◻"}
 
 
 def g(x):
@@ -36,11 +38,13 @@ def fmt_row(s, watch=False):
     zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
     res = g(c.resistance[0][0]) if c.resistance else "ATH air"
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
+    h = s.vol_hole
+    vh = (f" · VH {g(h.lower)}-{g(h.upper)}{VH_ARROW[h.status]}" if h else "")
     return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
             f"add {zone} · POC {g(c.poc)} · res {res} · "
             f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}")
+            f"d{s.candle[0]}{vh}")
 
 
 def build_digest():
@@ -65,7 +69,9 @@ def build_digest():
 
     champ, chal, oos_chal, oos_def, champ_oos, adopted = daily_refine()
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
-              " control · res = nearest chip resistance · † = watch-only_",
+              " control · res = nearest chip resistance · VH = volatility"
+              " hole zone (↑ broke above = bottoming confirm, ↓ broke below"
+              " = topping risk, ◻ inside) · † = watch-only_",
               "", "*Algo health (auto-refine, OOS-gated):*",
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
