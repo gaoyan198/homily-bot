@@ -208,8 +208,12 @@ digest starts trusting it.
 3. **State-change alerts** — a second, tiny Telegram message only when a
    name CHANGES state (⭐ appears, 🔵 fires, hole resolves) so the signal
    isn't buried in the daily wall.
-4. **Fundamental overlay for 🚀** — revenue growth / dilution from free SEC
-   EDGAR facts API; multi-baggers need a growth engine, not just RS.
+4. ~~**Fundamental overlay for 🚀**~~ — **DONE 2026-07-06** (`homily_fund.py`):
+   EDGAR companyconcept, 3 checks (revenue growth >10% / NI>0 or OCF>0 /
+   dilution <12%), `F:n/m` tag on 🚀 + discovery rows, info-only by design
+   (fundamentals gate the universe & the hold-through-CAUTION decision, the
+   tape gates money flow — Danny's lag point respected). 7-day cache
+   committed by workflow; non-US names print `F:—`.
 5. **Supervised Homily fit** — if the user exports real red/white-circle
    readings from a Homily terminal, fit the clone against actual labels
    (the only path that truly converges to Homily).

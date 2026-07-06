@@ -51,6 +51,7 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |
 | `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |
+| `homily_fund.py` | EDGAR fundamentals flag (F:n/m — growth/profit/dilution), info-only, 7-day cache |
 | `homily_regime.py` + `homily_regime_backtest.py` | Month-end 10m-SMA regime on SPY+QQQ (🐂/⚖️/🐻 banner) + 33y timing backtest |
 | `homily_strategy_backtest.py` | THE test: full ⭐-dip strategy vs SPY/QQQ DCA, hindsight + 2021-control universes |
 | `homily_core4_backtest.py` | Danny-style 90%-in-top-4 concentration vs index: hindsight, pick-once, annual re-pick |

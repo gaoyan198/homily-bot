@@ -200,4 +200,24 @@ l2, s2, _ = sma10_state(spiked)
 assert (l2, s2) == (last, sma) or l2 < s2, "partial month leaked into signal!"
 print("[12] Regime 10m-SMA: up->BULL, down->BEAR, partial month ignored ..... PASS")
 
+# --- 13. Fundamentals verdict logic (offline, no EDGAR calls) ----------------
+from homily_fund import checks_from
+
+grower = checks_from(rev=[("2024-12-31", 100), ("2025-12-31", 140)],
+                     ni=[("2024-12-31", -5), ("2025-12-31", 10)],
+                     ocf=[("2024-12-31", 1), ("2025-12-31", 20)],
+                     sh=(100e6, 105e6))
+assert grower == {"growth": True, "profit": True, "dilution": True}, grower
+burner = checks_from(rev=[("2024-12-31", 100), ("2025-12-31", 104)],
+                     ni=[("2024-12-31", -50), ("2025-12-31", -80)],
+                     ocf=[("2024-12-31", -30), ("2025-12-31", -40)],
+                     sh=(100e6, 140e6))
+assert burner == {"growth": False, "profit": False, "dilution": False}, burner
+assert checks_from(None, None, None, None) == {}, "no data must mean no checks"
+# OCF rescues a GAAP-loss compounder (e.g. early AMZN pattern)
+mixed = checks_from(rev=[("a", 100), ("b", 130)], ni=[("a", -1), ("b", -1)],
+                    ocf=[("a", 5), ("b", 9)], sh=None)
+assert mixed["profit"] is True and "dilution" not in mixed
+print("[13] Fundamentals: grower 3/3, cash-burner 0/3, OCF rescue, no-data—  PASS")
+
 print("\nAll structural assertions passed.")

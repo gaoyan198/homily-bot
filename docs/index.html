@@ -379,8 +379,12 @@ composite states on synthetic data — run in CI every day.</li>
 <h2>7 · Known limitations</h2>
 <ul>
 <li>Dollar-volume ≠ market cap; hot names look "bigger" than they are.</li>
-<li>No fundamentals: revenue growth, margins, dilution, insider activity are
-all invisible to this screen.</li>
+<li>Fundamentals are informational only: the <span class="mono">F:n/m</span>
+tag on 🚀/discovery rows (EDGAR: revenue growth &gt;10% · profit or positive
+operating cash flow · dilution &lt;12%/yr) never gates timing — by design,
+per the lag argument — so a tape-only trap with rotten financials still
+prints its signal, just with a visible <span class="mono">F:0/3</span>.
+Margins and insider activity remain invisible.</li>
 <li>Chip decay uses a fixed half-life, not true float turnover.</li>
 <li>Survivorship: the universe is hand-picked liquid names; the backtests run
 on today's list.</li>

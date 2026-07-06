@@ -13,6 +13,7 @@ import os, datetime, urllib.request, urllib.parse, urllib.error
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_conviction import conviction
+from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
 
@@ -96,7 +97,8 @@ def fmt_rocket(s, c, held):
     zone = (f" · add {g(s.add_zone[0])}-{g(s.add_zone[1])}"
             if s.add_zone else "")
     return (f"🚀 `{s.ticker:<5}`{tag} score {c.score} → {size} · "
-            f"RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · {why}")
+            f"RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · {why} · "
+            f"{fund_tag(s.ticker)}")
 
 
 def build_digest():
@@ -145,7 +147,8 @@ def build_digest():
     lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(UNIVERSE)} names "
               "screened, not held)*"]
     if hits:
-        lines += [fmt_row(s, watch=True) for s in hits[:8]]
+        lines += [fmt_row(s, watch=True) + f" · {fund_tag(s.ticker)}"
+                  for s in hits[:8]]
         if len(hits) > 8:
             more = ", ".join(s.ticker for s in hits[8:])
             lines.append(f"…and {len(hits) - 8} more: {more}")
@@ -158,7 +161,9 @@ def build_digest():
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
               " control · res = nearest chip resistance · VH = volatility"
               " hole zone (↑ broke above = bottoming confirm, ↓ broke below"
-              " = topping risk, ◻ inside) · † = not held_",
+              " = topping risk, ◻ inside) · F:n/m = EDGAR fundamentals"
+              " checks passed (growth/profit/dilution; info only, never a"
+              " timing input) · † = not held_",
               "", "*Algo health (auto-refine, OOS-gated):*",
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
