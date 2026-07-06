@@ -165,6 +165,25 @@ pure cost in a V-recovery window — keep BEAR protocol scoped to satellites
 + pause-adds, index core never sells (digest already words it this way);
 (3) re-run this test yearly as data accrues (added to backlog).
 
+## 5g. Addendum 2026-07-06 — core-4 concentration test (Danny's 85/90% method)
+
+User: full-time job, can't execute broad dip-buying; prefers Danny's 90%-in-
+top-4 concentration. `homily_core4_backtest.py` (2021-07→2026-07, $1/mo
+split across core, 10bps, point-in-time):
+
+* DCA SPY 1.50 / QQQ 1.74 MOIC.
+* Danny's literal 4 (NVDA PLTR AMD HOOD) fixed: 5.56 / 46.3% CAGR / −61%
+  dd — PURE HINDSIGHT upper bound (HOOD was a fresh meme-IPO in 2021).
+* Engine-picked once in 2021 (NET ZS LCID CRWD), held: 1.76 / 6.4% / −72%
+  — one wreck (LCID) dragged it to index-level. The cautionary tale.
+* **Engine-picked, re-picked each July: 3.14 / 26.7% / −68% — beat QQQ**,
+  one decision/year, executable. Picks churned through some garbage (BYND,
+  CHWY 2022) but momentum re-selection recovered.
+
+Adopted guidance: concentration cuts both ways (−61…−72% dd on 90% of
+book); survivable structure = ~50% index core + ~50% annual-re-pick core-4
+(~2.3×, ~−40% dd, linear approx). Published in docs/index.html §5b.
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the

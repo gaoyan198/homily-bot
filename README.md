@@ -53,6 +53,7 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |
 | `homily_regime.py` + `homily_regime_backtest.py` | Month-end 10m-SMA regime on SPY+QQQ (🐂/⚖️/🐻 banner) + 33y timing backtest |
 | `homily_strategy_backtest.py` | THE test: full ⭐-dip strategy vs SPY/QQQ DCA, hindsight + 2021-control universes |
+| `homily_core4_backtest.py` | Danny-style 90%-in-top-4 concentration vs index: hindsight, pick-once, annual re-pick |
 | `docs/index.html` | Full methodology page (engines, gates, rubric, honest backtests, limits) |
 | `homily_vol_backtest.py` | Event study of hole resolutions vs unconditional baseline |
 | `homily_clone.py` | Original red/white-circle weekly engine (EMA ribbon + MACD + trend slope) |

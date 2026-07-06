@@ -267,7 +267,49 @@ invested.</li>
 </ul>
 </div>
 
-<h2>5b · The other honest backtests (kept in the digest daily)</h2>
+<h2>5b · Danny-style concentration — 90% of the book in a top-4 core</h2>
+<p>The executable version for a full-time working adult: $1/month split
+across four core names, five minutes a month
+(<span class="mono">homily_core4_backtest.py</span>, July 2021 → July 2026,
+10bps, no look-ahead). Three cores tested: Danny's literal four (NVDA PLTR
+AMD HOOD — <em>pure hindsight</em>: in July 2021 HOOD was a fresh meme-IPO),
+an engine-picked four chosen once in 2021 by point-in-time conviction score
+over the loser-salted control pool, and the realistic version — re-picked
+every July, one decision a year.</p>
+<table>
+<tr><th>Core (same $1/month)</th><th>MOIC</th><th>TWR CAGR</th><th>MaxDD</th></tr>
+<tr><td>DCA SPY — benchmark</td><td>1.50</td><td>11.3%</td><td>−23%</td></tr>
+<tr><td>DCA QQQ — benchmark</td><td>1.74</td><td>14.7%</td><td>−34%</td></tr>
+<tr><td>Danny's 4, fixed <span class="dim">(hindsight upper bound)</span></td>
+<td>5.56</td><td>46.3%</td><td><strong>−61%</strong></td></tr>
+<tr><td>Engine-picked once 2021, fixed <span class="dim">(picked NET ZS
+<strong>LCID</strong> CRWD)</span></td><td>1.76</td><td>6.4%</td>
+<td><strong>−72%</strong></td></tr>
+<tr><td><strong>Engine-picked, re-picked each July</strong></td>
+<td><strong>3.14</strong></td><td><strong>26.7%</strong></td>
+<td><strong>−68%</strong></td></tr>
+</table>
+<div class="card warn">
+<strong>What concentration actually costs.</strong>
+<ul>
+<li>The annual re-pick core <strong>beat QQQ 3.14× vs 1.74×</strong> in this
+window — real, executable, one decision a year. But look at the path:
+<strong>−68% max drawdown on 90% of the book</strong>, and the 2021 pick
+included LCID (−95% from there). Concentration is symmetric: it made
+Danny's numbers <em>and</em> it is how a NAV gets destroyed.</li>
+<li>The pick-once variant is the cautionary tale: one wreck out of four
+(LCID) dragged five years of returns to index-level with a −72% drawdown.
+Danny held through because his four happened to survive — that is only
+knowable afterwards.</li>
+<li>Blend for a survivable version: ~50% index core + ~50% annual-re-pick
+core-4 ≈ 2.3× MOIC at roughly −40% drawdown (linear approximation) — most
+of the upside, half the pain, still one decision a year.</li>
+<li>Same disclaimers as §5: one window, residual survivorship, promising
+not proven.</li>
+</ul>
+</div>
+
+<h2>5c · The other honest backtests (kept in the digest daily)</h2>
 <table>
 <tr><th>Test</th><th>File</th><th>Verdict</th></tr>
 <tr><td>Hold 🔴 / cut ⚪ vs buy-and-hold, 5y weekly</td>
