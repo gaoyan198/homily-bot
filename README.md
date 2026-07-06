@@ -6,7 +6,9 @@ long-term **accumulate-on-dip guidance** anchored on chip (cost-distribution)
 support/resistance — plus the original red/white-circle weekly regime engine
 and its daily out-of-sample-gated auto-refine loop. Telegram digest via GitHub
 Actions cron — no server, no paid data, pure stdlib. See `PRD.md` for the full
-spec and the honesty constraints.
+spec and the honesty constraints. **Start with [PLAYBOOK.md](PLAYBOOK.md)** —
+the plain-English operating manual (bear-market steps, core vs satellite,
+trim rules, how to read the digest in 2 minutes).
 
 > ⚠️ **Two honest backtest results are baked into the digest on purpose:**
 > 1. Mechanically holding 🔴 and cutting ⚪ trails buy-and-hold on return

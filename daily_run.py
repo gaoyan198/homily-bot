@@ -168,6 +168,7 @@ def build_digest():
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
               f"{'  → ADOPTED' if adopted else ''}",
+              "📖 _2-min guide + bear playbook: PLAYBOOK.md in the repo_",
               "_Reminder: approximation of Danny/Homily behaviour, not their "
               "proprietary formulas. 5y backtest: waiting for ⭐ zones got a "
               "WORSE avg cost than immediate DCA on every name tested — treat "
