@@ -61,8 +61,16 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_champion.json`, `homily_refine_log.csv` | Persisted state (committed daily by the workflow) |
 
 ## Watchlist
-All IBKR holdings + Danny-core **ASML** (watch-only, marked `*`). SOXL is
+All IBKR holdings + Danny-core **ASML** (marked `†` = not held). SOXL is
 excluded (3x leveraged ETF — leverage is out of scope by design).
+
+## Discovery screen
+A ~37-name universe of liquid names **not held** (megacap tech, semis/AI
+hardware, growth software, quality diversifiers, HK liquid names) is screened
+with the same composite engine every run; only actionable ⭐ ACCUMULATE and
+🔵 BOTTOMING setups surface in the digest (max 8 rows + overflow tickers).
+Leveraged ETFs and crypto-beta names are deliberately excluded from the
+universe. Edit `UNIVERSE` in `daily_run.py` to change coverage.
 
 ## Schedule
 `.github/workflows/homily-daily.yml` runs **09:00 SGT Mon–Fri** (`0 1 * * 1-5`

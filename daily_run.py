@@ -23,6 +23,26 @@ HOLDINGS = {
 # Danny-core names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML"}
 
+# Discovery universe: liquid names NOT held, screened for new-money setups.
+# Only ⭐/🔵 states surface in the digest. Deliberately excluded: leveraged
+# ETFs (SOXL, MSTR-style proxies) and crypto-beta names (COIN) — out of
+# scope per PRD; and anything already in HOLDINGS/WATCH.
+UNIVERSE = {
+    # megacap tech
+    "MSFT":"MSFT","AMZN":"AMZN","META":"META","NFLX":"NFLX","ORCL":"ORCL",
+    # semis / AI hardware
+    "MU":"MU","QCOM":"QCOM","ARM":"ARM","ANET":"ANET","VRT":"VRT",
+    "LRCX":"LRCX","AMAT":"AMAT","KLAC":"KLAC","INTC":"INTC","MRVL":"MRVL",
+    # software / growth
+    "CRM":"CRM","ADBE":"ADBE","CRWD":"CRWD","PANW":"PANW","NET":"NET",
+    "DDOG":"DDOG","SNOW":"SNOW","ZS":"ZS","APP":"APP","SHOP":"SHOP",
+    "UBER":"UBER","HOOD":"HOOD","MDB":"MDB",
+    # quality diversifiers
+    "LLY":"LLY","NVO":"NVO","V":"V","MA":"MA","COST":"COST","JPM":"JPM",
+    # HK/China liquid names beyond BABA
+    "0700":"0700.HK","3690":"3690.HK","1810":"1810.HK",
+}
+
 ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","BOTTOMING":"🔵",
         "CAUTION":"⚪"}
 ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"BOTTOMING":3,"CAUTION":4}
@@ -47,23 +67,41 @@ def fmt_row(s, watch=False):
             f"d{s.candle[0]}{vh}")
 
 
-def build_digest():
-    sigs, errs = [], []
-    for tk, sym in {**HOLDINGS, **WATCH}.items():
+def screen(book, errs):
+    sigs = []
+    for tk, sym in book.items():
         try:
-            sigs.append((danny_signal(tk, fetch_daily(sym, rng="5y")),
-                         tk in WATCH))
+            sigs.append(danny_signal(tk, fetch_daily(sym, rng="5y")))
         except Exception:
             errs.append(tk)
-    sigs.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
+    sigs.sort(key=lambda s: (ORDER[s.state], s.ticker))
+    return sigs
+
+
+def build_digest():
+    errs = []
+    sigs = screen({**HOLDINGS, **WATCH}, errs)
+    disco = screen(UNIVERSE, errs)
 
     lines = [f"*Homily × Danny digest — {datetime.date.today()}*", ""]
     cur = None
-    for s, watch in sigs:
+    for s in sigs:
         if s.state != cur:
             cur = s.state
             lines.append(f"*{ICON[cur]} {cur}*")
-        lines.append(fmt_row(s, watch))
+        lines.append(fmt_row(s, s.ticker in WATCH))
+
+    # discovery: new-money setups among names not held (⭐/🔵 only)
+    hits = [s for s in disco if s.state in ("ACCUMULATE", "BOTTOMING")]
+    lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(UNIVERSE)} names "
+              "screened, not held)*"]
+    if hits:
+        lines += [fmt_row(s, watch=True) for s in hits[:8]]
+        if len(hits) > 8:
+            more = ", ".join(s.ticker for s in hits[8:])
+            lines.append(f"…and {len(hits) - 8} more: {more}")
+    else:
+        lines.append("no ⭐/🔵 setups in the universe today")
     if errs:
         lines.append(f"⚠️ fetch failed: {', '.join(errs)}")
 
@@ -71,7 +109,7 @@ def build_digest():
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
               " control · res = nearest chip resistance · VH = volatility"
               " hole zone (↑ broke above = bottoming confirm, ↓ broke below"
-              " = topping risk, ◻ inside) · † = watch-only_",
+              " = topping risk, ◻ inside) · † = not held_",
               "", "*Algo health (auto-refine, OOS-gated):*",
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
@@ -84,6 +122,19 @@ def build_digest():
     return "\n".join(lines)
 
 
+def chunks(text, limit=4000):
+    """Split on line boundaries under Telegram's 4096-char message cap."""
+    out, cur = [], ""
+    for line in text.split("\n"):
+        if cur and len(cur) + len(line) + 1 > limit:
+            out.append(cur); cur = line
+        else:
+            cur = f"{cur}\n{line}" if cur else line
+    if cur:
+        out.append(cur)
+    return out
+
+
 def send(text):
     tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
     if not (tok and chat):
@@ -94,15 +145,17 @@ def send(text):
         body = urllib.parse.urlencode(params).encode()
         urllib.request.urlopen(urllib.request.Request(url, data=body),
                                timeout=20)
-    try:
-        post({"chat_id": chat, "text": text, "parse_mode": "Markdown"})
-        print("[sent to Telegram]")
-    except urllib.error.HTTPError as e:
-        # Markdown entity-parse failures return 400 — deliver plain rather
-        # than dropping the digest
-        print(f"[Markdown send failed: {e.code} {e.read().decode(errors='replace')[:200]}]")
-        post({"chat_id": chat, "text": text})
-        print("[sent to Telegram — plain-text fallback]")
+    for part in chunks(text):
+        try:
+            post({"chat_id": chat, "text": part, "parse_mode": "Markdown"})
+            print("[sent to Telegram]")
+        except urllib.error.HTTPError as e:
+            # Markdown entity-parse failures return 400 — deliver plain
+            # rather than dropping the digest
+            print(f"[Markdown send failed: {e.code} "
+                  f"{e.read().decode(errors='replace')[:200]}]")
+            post({"chat_id": chat, "text": part})
+            print("[sent to Telegram — plain-text fallback]")
 
 
 if __name__ == "__main__":

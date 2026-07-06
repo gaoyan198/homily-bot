@@ -102,6 +102,15 @@ fwd 60d) — directionally supports Danny's claim. Breakdowns did NOT predict
 weakness (+15.7% fwd 60d, above baseline) — so breakdowns are a warning
 note only and never veto adds.
 
+## 5c. Addendum 2026-07-06 — discovery screen (names not held)
+
+User request: no loyalty to current holdings — screen for money elsewhere
+too. `UNIVERSE` in `daily_run.py` (~37 liquid names: megacap tech, semis/AI
+hardware, growth software, quality diversifiers, HK liquid names) runs
+through the same composite engine; only ⭐ ACCUMULATE / 🔵 BOTTOMING setups
+surface (max 8 rows + overflow tickers). Exclusions stand: no leveraged
+ETFs, no crypto-beta names. Telegram sends now split at 4000 chars.
+
 ## 6. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
