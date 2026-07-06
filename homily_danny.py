@@ -32,6 +32,7 @@ from homily_clone import ema, macd, homily_circle
 from homily_chips import build_profile
 from homily_data import weekly_closes, monthly_closes
 from homily_vol import find_hole
+from homily_whale import whale_read
 
 NEAR_SUPPORT_PCT = 3.0   # "at support" = within 3% above the peak (or below it)
 
@@ -46,6 +47,7 @@ class DannySignal:
     chips: object       # homily_chips.ChipProfile
     add_zone: tuple     # (lo, hi) suggested accumulate zone, or None
     vol_hole: object    # homily_vol.VolHole or None
+    whale: object       # homily_whale.WhaleRead
     note: str
 
 
@@ -75,6 +77,7 @@ def danny_signal(ticker, bars):
         s_price = chips.support[0][0]
         near_support = last <= s_price * (1 + NEAR_SUPPORT_PCT / 100)
         add_zone = (round(s_price * 0.98, 2), round(s_price * 1.03, 2))
+    whale = whale_read(bars, chips.support[0][0] if chips.support else None)
 
     hole = find_hole(bars)
     # any upside resolution counts (Danny: "every volatility hole, once
@@ -106,8 +109,10 @@ def danny_signal(ticker, bars):
         note = "trend intact but extended above support — wait for pullback"
     if topping:
         note += f" · ⚠ topping-process breakdown below {hole.lower:.0f}-{hole.upper:.0f}"
+    if whale.whale and state in ("CAUTION", "PULLBACK"):
+        note += " · 🐳 whale-accumulation footprint in the dip"
     return DannySignal(ticker, state, monthly_up, weekly, candle, chips,
-                       add_zone, hole, note)
+                       add_zone, hole, whale, note)
 
 
 if __name__ == "__main__":

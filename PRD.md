@@ -195,10 +195,46 @@ no difference (2.09 vs 2.10) — the ⭐ gate does the work; skip sizing
 complexity. THIS is the method the digest encodes; adopted as the standing
 recommendation.
 
+## 5h. Addendum 2026-07-06 — whale-accumulation tag + WHALE-DIP tier (#12)
+
+`homily_whale.py` approximates Homily's main-force line from public OHLCV.
+🐳 = an actual dip (close ≥5% below the 60d closing high) + ≥2 of 3
+footprints: **absorption** (a ≥1.3×-volume day probing within 3% of the
+20d min low yet closing in the top half of its range — PLTR 2026-06-26 is
+the calibration print), **flow divergence** (OBV or A/D line ≥ its
+pre-dip-peak level while price is down), **shelf stability** (decayed chip
+weight in the ±2% shelf band fully replenished over 10 bars while price
+sits on the shelf). Point-in-time replay reproduces the motivating case:
+🐳 fires on PLTR June 26-30 at the 113-119 shelf, before the July-1 rip to
+125 — it cannot tag June 23-25 because the footprint only completes in the
+data on the 26th; the tag follows evidence, not conviction.
+
+Gate (`homily_whale_backtest.py`: 58 names = current univ + 2021 hype
+controls, 5y daily point-in-time, $1 per qualifying day, vs the all-days
+DCA baseline):
+
+| arm (ALL combined) | days | episodes | fwd20 | fwd60 |
+|---|---|---|---|---|
+| DCA baseline | 53,987 | — | +3.1% | +9.5% |
+| ⚪ dip unconditioned | 19,166 | 670 | +3.2% | +9.7% |
+| ⚪ dip at shelf (🎯 only) | 10,714 | 1,047 | +3.0% | +9.0% |
+| ⚪ dip 🎯+🐳 | 4,791 | 744 | **+3.5%** | **+10.9%** |
+
+The conditioned arm beats baseline AND the unconditioned arm at both
+horizons — including on the hype-2021 control alone (+8.1% vs +5.6% fwd60)
+— so per the pre-registered rule it is **PROMOTED: ⚪+🎯+🐳 = WHALE-DIP
+tier**, the one case a ⚪ name may be added. Discretionary, ≤2% of account
+per name, same monthly budget (never extra money), 10%/name hard cap.
+Honesty notes: the edge is modest (+1.4pts fwd60 over DCA); day-rows
+cluster (~6 days/episode — judge by episodes); one 5y window; and the
+shelf alone (🎯 without 🐳) actually LOST to the plain dip arm — the whale
+footprint, not the level, carries the edge, which is exactly Danny's point.
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
-digest starts trusting it.
+digest starts trusting it. *(2026-07-06: #1–12 are absorbed into the §8
+roadmap phases — kept here for numbering continuity, referenced as #n.)*
 
 1. **Backtest the conviction score** — replay 5y point-in-time (gates +
    score each day, no look-ahead), report forward 6m/12m returns by score
@@ -235,23 +271,273 @@ digest starts trusting it.
     Web Service** (user enables a Flex Query for positions in Client
     Portal → token + queryId as repo secrets → fetch at run start).
     Until then: tell Claude after trades, or edit holdings.json.
-12. **Whale-accumulation pattern** (added 2026-07-06 after the PLTR case:
-    Danny added aggressively at the 113-119 chip shelf during the June
-    22-26 dip to 106 while the bot said ⚪ pause — the level agreed, the
-    trend gate blocked it, and the bounce proved him right that week).
-    Approximate Homily's main-force cost line from public OHLCV:
-    high-volume down-day absorption (close well off lows on heavy volume),
-    OBV/accumulation-distribution divergence vs price during the dip, and
-    chip-shelf stability (support peak NOT decaying while price sits on it
-    = holders absorbing, not fleeing). Output a per-name `whale` tag.
-    **Gate before shipping:** backtest ⚪-state dip-buys *conditioned on
-    the shelf + whale tag* vs unconditioned ⚪ dip-buys, full universe
-    incl. 2021 hype controls, point-in-time. Promote ⚪+🎯 to a real
-    discretionary tier (own sizing cap) only if the conditioned version
-    beats DCA; otherwise ship the tag as info-only context.
+12. ~~**Whale-accumulation pattern**~~ — **DONE 2026-07-06**
+    (`homily_whale.py` + gate `homily_whale_backtest.py`, addendum §5h):
+    🐳 = dip + ≥2 of 3 footprints (absorption print / OBV-A/D divergence /
+    shelf replenished). Gate PASSED on the combined 58-name universe incl.
+    2021 wrecks → ⚪+🎯+🐳 promoted to the WHALE-DIP discretionary tier
+    (≤2% of account, same budget, 10% hard cap). The PLTR June case
+    reproduces point-in-time (🐳 fires Jun 26-30 at the 113-119 shelf).
+    Closes roadmap item 22 (⚪ arm; the 🟡 variant untested — 🎯 on 🟡
+    keeps its existing discretionary framing).
 
 ## 7. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
 paid Patreon content; any claim of replicating Homily's or Danny's
 proprietary formulas.
+
+## 8. Roadmap 2026H2 — the full plan (added 2026-07-06, execution deferred)
+
+Everything queued, organised into phases by *which lever it actually pulls*.
+Items #1–12 from §6 are absorbed into these phases (referenced as #n). This
+section is the spec; nothing here is built yet.
+
+### 8.0 What actually moves returns here (read before picking an item)
+
+Our own backtests already rank the levers — the plan honours that ranking
+instead of chasing more indicators:
+
+| Lever | Evidence | Phase |
+|---|---|---|
+| **R0 Executing the monthly routine at all** | PLAYBOOK §8: savings rate + discipline dominate any indicator change we will ever ship | E |
+| **R1 Not corrupting the signal we already have** | one bad Yahoo fetch, an unnoticed split, or a bug shipped before self-tests poisons every level the digest prints | B |
+| **R2 Cross-sectional selection** (which names get the ⭐ money) | THE test (§5f): the edge came from selection + never-sell (2.10× on the control), NOT entry timing — per-name ⭐-waiting *lost* to DCA on every name | C |
+| **R3 Portfolio shape** (concentration, caps, buckets) | §5g: emergent concentration beat the engineered core-4 by −30% vs −68% MaxDD; today's book is essentially one correlated AI/semi trade and nothing measures it | D |
+| **R4 Entry-timing refinements** | smallest measured lever; VH bullish edge is modest, whale tag gated + promoted 2026-07-06 (§5h) | C (gated) |
+
+Implication adopted: execution (E) and integrity (B) outrank another timing
+signal every time. "Maximise returns" = maximise *executed, risk-shaped
+exposure to the validated edge* — not more signals.
+
+Standing rules for every item below:
+
+* point-in-time backtest with the hype-2021 control before anything gates
+  money; ships info-only until promoted (the #12 pattern);
+* **one live-behaviour change at a time**, 90 ledger-days between promotions
+  of anything that redirects money;
+* stdlib-only / no-server / no-secrets constraints stand, except items 37–38
+  which relax them *deliberately and reversibly*;
+* every shipped item adds a `homily_validate.py` test + an honesty line in
+  README if it touches the digest.
+
+Effort tags: S = one sitting · M = 1–2 days · L = multi-day.
+
+### Phase A — measure first: the live track record (keystone)
+
+The bot has honest *backtests* but no *live* record of its own calls. Fix
+that before improving anything, or improvements are unmeasurable.
+
+13. **Signals ledger** (S) — `homily_ledger.py`: every run appends one row
+    per screened name to `homily_signals_log.csv` (committed by the
+    workflow like the refine log): date, ticker, held?, close, state, zone
+    lo/hi, POC, %-in-profit, weekly circle/score/weeks, monthlyUP, VH
+    status, 🐳 bools, conviction score + failed gates, F-tag. Idempotent per
+    (date, ticker) — re-runs overwrite, no dupes (the refine log currently
+    logs 12 rows on a 12-run day). Also emits `docs/snapshot.json` — full
+    structured state for the dashboard track (F) and for Claude sessions to
+    answer questions without refetching. Append-only history = point-in-time
+    by construction, no look-ahead. Everything in phases C–F consumes this.
+    **Gate:** none (pure measurement).
+14. **Live out-of-sample scorecard** (M; needs 13 + ~3 months of rows) —
+    monthly digest section + docs page: forward 1/3/6-month returns of every
+    past ⭐/🔵/🚀 row vs same-day SPY, split by state and by conviction
+    decile. Converts "promising, not proven" into an accruing live record —
+    THE credibility artifact, and the referee for every later promotion.
+    **Gate:** n/a — it *is* the gate for everything else.
+15. **State-change alerts** (#3) (S; needs 13) — diff today's ledger vs
+    yesterday's; send a second, tiny Telegram message ONLY on transitions
+    (⭐ appears/lapses, 🔵 fires, 🐳 appears, 🐂/🐻 flips, 🚀 enters/exits).
+    Quiet day = no second message; the signal stops drowning in the wall.
+    **Gate:** none (delivery only).
+
+### Phase B — protect the signal (integrity before intelligence)
+
+16. **Self-tests gate the send** (S) — the workflow currently runs
+    `daily_run.py` (which sends) *then* `homily_validate.py`: a broken
+    engine ships its digest, then fails CI. Reorder: validate → digest. On
+    failure send one line — "⚠️ digest suppressed, self-tests failed" — so
+    silence is never ambiguous. **Gate:** none.
+17. **Fetch hardening** (M) — `homily_data.py` has no retry, no fallback,
+    and ~75 sequential 5y fetches per run. Add: retry with backoff + jitter,
+    query1/query2 host rotation, `ThreadPoolExecutor` (stdlib) fan-out,
+    Stooq daily CSV as key-free fallback (rows tagged `src:stooq` when
+    used), and a partial-digest banner ("screened 61/71 — fetch failed:
+    …") instead of a silent short list. **Gate:** validate test with a
+    mocked flaky fetch.
+18. **Total-return correctness** (M) — all return math (RS12/G3, THE test,
+    scorecard) uses raw closes: dividends are invisible, so payers (V MA
+    COST LLY NVO, SPY itself) are systematically docked vs zero-div growth
+    names. Parse `adjclose` from the same Yahoo response; use it for ALL
+    return/RS computations; keep raw OHLC for chip levels (levels must be
+    tradeable prices). Re-run G3 both ways and publish the delta.
+    **Gate:** validate test: NVO RS12 (raw) < RS12 (adj); backtest tables
+    regenerated with a footnote.
+19. **Corporate-action sanity check** (S) — a mis-adjusted split poisons the
+    chip histogram and every level printed for weeks. Detector: |1-day
+    move| > 45% on a volume spike → suppress that name's chip levels for the
+    day ("levels suspended — corporate action?"), keep the state row.
+    **Gate:** validate test on a synthetic 10:1 split series.
+
+### Phase C — make the scores mean something (selection quality, R2)
+
+20. **Conviction-score backtest** (#1, elevated) (L) — point-in-time daily
+    replay 5y, both universes (current + hype-2021 control): gates + score
+    each day, no look-ahead; report forward 6m/12m by score decile, tier
+    hit-rates (2×/5×/10× within 24m), and the wreck list the gates let
+    through. Promote/demote score weights only if OOS deciles are
+    monotone-ish; if flat, the 🚀 section gets relabelled "shortlist, no
+    measured edge" in the digest footer. **Gate:** the backtest itself.
+21. **Re-point the daily refine loop** (M) — quiet misalignment: the loop
+    tunes circle params for hold-🔴/cut-⚪ Calmar — a strategy §1 retired.
+    The circle's actual job is *gating composite states*. New objective:
+    walk-forward score = mean forward-60d excess return of days the param
+    set would print ⭐, minus a false-block penalty (⚪ days followed by
+    ≥+15% in 60d — the PLTR June class). Same OOS-adoption margin as today.
+    Run both objectives in parallel for 30 days (log-only) before switching
+    the champion's meaning. **Gate:** parallel-run comparison in the log.
+22. ~~**Whale gate**~~ — **DONE 2026-07-06** with #12 (§5h): the ⚪ arm was
+    tested and PROMOTED (`homily_whale_backtest.py`). Residual: the 🟡+🐳
+    variant is untested — fold it into the confluence studies (23).
+23. **Confluence studies** (M; cheaper once 13 accrues) — three one-table
+    questions: 🔵+🐳 vs 🔵 alone; ⭐+F:3/3 vs ⭐+F:0; fresh ⭐ (first week)
+    vs stale ⭐. Adopt at most ONE new modifier per quarter — degrees of
+    freedom are the enemy. **Gate:** each table, control included.
+24. **⭐ overflow ranking** (M) — when >5 ⭐ names compete for the monthly
+    buy, today's pick is effectively alphabetical. Test RS12-ranked top-5
+    vs equal-weight-all vs random-5 (the honesty benchmark), point-in-time.
+    Adopt ranking only if it beats *random-5* OOS — guards against
+    momentum overfit. **Gate:** the three-way test.
+25. **Real market cap** (#2) (S) — replace the $-volume proxy in G1 with a
+    monthly-refreshed static map committed to the repo (curated from public
+    sources; ~60 names is 10 minutes of maintenance) + a staleness warning
+    in validate. Kills the known over-counting of hot momentum names.
+    **Gate:** spot-check vs three known caps in validate.
+26. **Breadth canary** (S, info-only) — % of universe above 200d SMA and %
+    weekly RED, one line under the regime banner when <30% ("hostile tape —
+    historically poor month for new adds"). Never gates anything until a
+    year of ledger data says it should. **Gate:** info-only by design.
+
+### Phase D — portfolio & risk lens (returns are portfolio-level, R3)
+
+27. **Position-aware digest** (M) — extend `holdings.json` to
+    `{symbol, shares, cost}` (`"_v": 2`; synced via IBKR MCP in Claude
+    sessions until #11/32 automates it). Unlocks: per-name % of stock book
+    printed on its row, automatic Bucket A/B/C classification per PLAYBOOK
+    §1 (earned vs bought via cost basis + ledger add-history), and 10%-cap
+    proximity warnings ("NVDA 9.4% — next add breaches the cap").
+    **Gate:** validate test on a fixture book.
+28. **Trim-rule flags** (S; needs 27) — PLAYBOOK §5 becomes executable
+    flags, not prose: "⚠️ RULE 1: RDDT 12% — bought-not-earned, trim to
+    10%"; "⚠️ RULE 2 REVIEW: ZETA ⚪ 13w + F:1/3 — sell-half rule". Flags
+    only — there is still no SELL state; the PRD §1 principle survives.
+    **Gate:** rules mirror PLAYBOOK §5 verbatim; validate fixtures.
+29. **Concentration / correlation lens** (M) — 90d daily-return correlation
+    across held names (stdlib), greedy clustering, one digest line: "book
+    clusters: AI/semis 68% (NVDA AMD AVGO TSM MU DRAM VST) · software 14% ·
+    other 18%" + a warning when a ⭐ add would deepen a >60% cluster
+    ("⭐ MU deepens the 68% cluster — non-cluster ⭐ first per §3").
+    Info-only, but this is the highest-expected-value risk feature in the
+    plan: the current book is one trade wearing 15 tickers.
+    **Gate:** correlation math test; info-only.
+30. **Bear-readiness line** (S; needs 27) — first-Monday digest: satellites%
+    vs core%, margin=0 confirmation, and the pre-computed 🐻 sell list in
+    PLAYBOOK §4 order ("if 🐻 fired tomorrow you would sell: …"). The bear
+    playbook stays rehearsed instead of theoretical. **Gate:** none.
+
+### Phase E — execution copilot (R0 — the highest-ROI phase in the plan)
+
+31. **Buy-day copilot** (M; needs 27) — on the first trading day each month
+    (SGT), the digest leads with a 🛒 BUY DAY section: the ⭐ list resolved
+    into exact orders from `BUY_BUDGET_USD` (repo *variable*, not secret):
+    50% → Bucket A per §3, remainder equal-split across ⭐ (max 5),
+    respecting the 10% cap (27), cluster warning (29), F-preference; prints
+    IBKR-ready lines — "BUY 3 TSM @ mkt (~$1,302)". No ⭐ → "full amount →
+    Bucket A" per §3.5. Turns the 10-minute routine into 2. **Gate:**
+    fixture test: budget in → orders out, caps respected; info-only (it
+    prints orders, never places them — §7 stands).
+32. **IBKR Flex auto-sync** (#11, unchanged) (M) — Flex Web Service token +
+    queryId as secrets → positions fetched at run start → feeds 27 without
+    manual syncs. Fallback stays: tell Claude after trades / edit the JSON.
+33. **Sunday deep-dive** (#9, now concrete) (M; needs 13, 36) — weekly
+    edition = the F2 dashboard regenerated + one summary message: per-holding
+    state timeline (12w), conviction drift, distance-to-zone, the week's
+    🐳/VH events, scorecard refresh (14). Replaces "more text" with the
+    dashboard link/file.
+
+### Phase F — frontend: from wall-of-text to glanceable
+
+Phased so each step is useful alone and the no-server rule is only relaxed
+at the step that truly needs it.
+
+34. **F0 — digest typography v2** (S) — switch sends to Telegram HTML parse
+    mode (kills the Markdown-entity fallback class of bugs in
+    `daily_run.py send()`); align rows in `<pre>` blocks; unicode chip
+    sparklines per row (`▁▃█▅▂` with a price marker — the histogram in 8
+    chars); fold the legend + algo-health footer into an expandable
+    blockquote so the actionable digest is ~10 lines tall. **Gate:**
+    validate test for HTML entity escaping.
+35. **F1 — chart cards, stdlib PNG** (M) — `homily_png.py`: a pure-stdlib
+    PNG writer (`zlib` + `struct`, filter-0 scanlines, ~200 lines) drawing
+    1y price + zone/POC/res bands + chip-histogram side panel + state
+    ribbon; `sendPhoto` (multipart via urllib) the top-3 actionable names
+    (⭐/🔵/🎯) daily. The digest becomes glanceable without any dependency
+    or host. **Gate:** deterministic pixel-hash test on fixture bars.
+36. **F2 — daily dashboard, self-contained HTML** (L; needs 13) —
+    `homily_dashboard.py` renders `docs/dashboard.html` nightly: inline-SVG
+    interactive (hover = values, zero external assets): every holding's
+    card (price + levels + chip histogram), ledger state-history heatmap,
+    scorecard tables (14), conviction drift, refine log chart. Committed by
+    the workflow AND sent via `sendDocument` — private in the chat, one tap
+    to open, works offline, repo stays private, nothing hosted. **Gate:**
+    HTML self-containment test (no external URLs) in validate.
+37. **F3 — Telegram Mini App** (L; *deliberate no-server relaxation*; only
+    if 2 weeks of F2 shows file-open friction) — host the same dashboard
+    behind Telegram WebApp auth: Cloudflare Pages + a tiny Worker verifying
+    `initData` HMAC against the bot token, allowlisted to your chat_id;
+    the digest gains a persistent "📊 Open dashboard" inline button.
+    Costs: CF account, one secret, a deploy step. Revisit §7 wording first.
+38. **F4 — interactive commands** (parked) — `/why NVDA`, `/size 2500`
+    answered by the same Worker reading `docs/snapshot.json` via the GitHub
+    API. Parked until F3 proves its keep; explicitly NOT a trading surface.
+
+### Phase G — research queue (one per quarter, July re-test cadence)
+
+39. **Bootstrap CIs on THE test** (M) — block-bootstrap the monthly returns
+    of strategy vs DCA (stdlib `random`); publish 5–95% MOIC bands. Turns
+    "one window" into a distribution honestly. **Gate:** the CI table.
+40. **Annual re-tests** (#10) (M, every July) — strategy/core-4/emergent
+    re-runs + NEW: live-vs-sim reconciliation once 14 has a year of data
+    (does the live scorecard match what the backtest promised? divergence =
+    the overfit alarm).
+41. **Supervised Homily fit** (#5) (L, blocked on user exporting real
+    red/white labels from a Homily terminal).
+42. **Earnings windows** (#7) (M) — approximate next report as last
+    10-Q/10-K date + ~91d from EDGAR `submissions` (already used by
+    `homily_fund.py`); tag rows "≈E-week" ±7d, US names only; validate
+    coverage before trusting; never gates, informs sizing restraint.
+43. **HK depth** (#8) (M) — SEHK volume normalisation before trusting
+    9992.HK / 0700.HK chip zones; until then HK rows carry "levels
+    lower-confidence" — plus DRAM proxy note: MU appears both as holding
+    and constituent by design.
+44. **Universe hygiene automation** (#6) (S) — quarterly workflow opens a
+    GitHub issue with candidate adds (new liquid names passing G5) and
+    drops (liquidity lost), instead of relying on memory.
+45. **Delisted-inclusive control** (#10b) (L, blocked on finding a free
+    point-in-time constituent source) — the last big survivorship hole.
+
+### 8.1 Suggested execution order (for the execution days)
+
+| When | Items | Why this order |
+|---|---|---|
+| **Week 1** (one sitting each) | 16 · 13 · 15 · 34 | send-safety first; ledger starts accruing (every week of delay = a week less live evidence); alerts + readable digest are free wins on top |
+| **Month 1** | 17 · 18 · 19 · 31 · 35 | pipeline hardened, return math honest, buy-day copilot live for the next monthly buy, first chart cards |
+| **Quarter** | 20 · 21 · 22 · 25 · 27 · 28 · 29 · 36 | scores validated, refine loop re-pointed, portfolio lens on, dashboard shipping nightly |
+| **Gated / ongoing** | 14 (first read at 3mo) · 23 · 24 · 26 · 30 · 32 · 33 · 37 · 38 · 39–45 | each unlocks as its dependency (ledger months, position data, F2 usage) matures |
+
+### 8.2 Explicitly NOT in this plan
+
+Leverage/margin, options overlays, intraday data, auto-execution, paid data
+feeds, ML black-boxes (any model whose reasoning can't be printed in a
+digest footer), and any new timing signal without a control-salted
+point-in-time gate. §7 stands in full.

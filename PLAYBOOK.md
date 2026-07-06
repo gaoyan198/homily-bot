@@ -37,7 +37,9 @@ Decoder for one row:
 cost is 341 (they're happy, they'll defend it). Next ceiling ~439. Trend has
 been healthy 57 weeks. F:3/3 = the business itself checks out."
 Everything else (dY, VH, score) is detail for when you're curious — never
-required for action.
+required for action. One exception worth knowing: `🎯 + 🐳` on a ⚪ row =
+a dip that reached the chip shelf AND shows big buyers absorbing it — the
+one backtested case where adding to a ⚪ name is allowed (§3 step 6b).
 
 ---
 
@@ -58,6 +60,15 @@ required for action.
    dip has reached its support shelf — the Danny-style add. Allowed, but it
    is DISCRETIONARY: it isn't part of the backtested routine, comes out of
    the same monthly budget (never extra money), and respects the same caps.
+6b. **WHALE-DIP add (🎯 + 🐳 on a ⚪ row):** the ONE case a ⚪ name may be
+   bought — the dip has reached the chip shelf AND the tape shows the
+   whale-accumulation footprint (heavy-volume absorption print, money
+   flowing in vs price, shelf being replenished). This one IS backtested
+   (58 names incl. the 2021 wrecks: beat both DCA and plain dip-buying at
+   20d and 60d) — but the edge is modest, so the cap is small: **≤2% of
+   the account per name**, same monthly budget, same 10% hard cap. A ⚪
+   row with 🎯 but NO 🐳 stays a no — the level alone tested WORSE than
+   plain dip-buying; it's the footprint that carries the edge.
 7. Close the app. Do not look at prices until next month.
 
 ---

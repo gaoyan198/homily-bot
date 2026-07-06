@@ -220,4 +220,45 @@ mixed = checks_from(rev=[("a", 100), ("b", 130)], ni=[("a", -1), ("b", -1)],
 assert mixed["profit"] is True and "dilution" not in mixed
 print("[13] Fundamentals: grower 3/3, cash-burner 0/3, OCF rescue, no-data—  PASS")
 
+# --- 14. Whale read: absorption + flow divergence in a dip -------------------
+from homily_whale import whale_read
+
+def _wbars(specs):
+    """specs: list of (open, high, low, close, volume) -> daily bars."""
+    d0 = _dt.date(2024, 1, 1)
+    return [(d0 + _dt.timedelta(days=i), o, h, l, c, v)
+            for i, (o, h, l, c, v) in enumerate(specs)]
+
+flat = [(100.0, 101.0, 99.0, 100.0, 1e6)] * 100
+# 15-day dip 100 -> ~88: heavy volume, wide range DOWN days that close near
+# the high (sellers absorbed) -> A/D line RISES while price falls
+absorbed = [(p + 0.5, p + 0.5, p - 2.0, p, 3e6)
+            for p in [100 - 0.8 * (k + 1) for k in range(15)]]
+w = whale_read(_wbars(flat + absorbed), None)
+assert w.in_dip, "12% drawdown not seen as a dip!"
+assert w.absorption and w.absorb_days >= 2, "absorption days not detected!"
+assert w.divergence, "rising A/D line during the dip not flagged!"
+assert w.whale, "dip + 2 footprints must tag 🐳!"
+# control: the same dip but every day closes AT its low (no absorption)
+dumped = [(p + 2.0, p + 2.0, p, p, 3e6)
+          for p in [100 - 0.8 * (k + 1) for k in range(15)]]
+w2 = whale_read(_wbars(flat + dumped), None)
+assert not w2.absorption and not w2.divergence and not w2.whale, \
+    "close-at-lows distribution must NOT tag 🐳!"
+# control: no dip -> never a whale tag
+w3 = whale_read(_wbars(flat + [(100.0, 101.0, 99.0, 100.5, 3e6)] * 15), None)
+assert not w3.in_dip and not w3.whale, "flat tape must not tag 🐳!"
+print("[14] Whale: absorbed dip -> 🐳, dumped dip -> no, flat tape -> no ...... PASS")
+
+# --- 15. Whale shelf stability: replenished shelf holds, dried-up decays -----
+sit = [(100.0, 101.0, 99.0, 100.0, 1e6)] * 200          # sitting on the shelf
+dry = sit[:-10] + [(100.0, 101.0, 99.0, 100.0, 1e3)] * 10   # volume dries up
+assert whale_read(_wbars(sit), 100.0).shelf_stable, \
+    "steady volume on the shelf must read as replenished!"
+assert not whale_read(_wbars(dry), 100.0).shelf_stable, \
+    "dried-up shelf must decay (holders gone, not absorbing)!"
+assert not whale_read(_wbars(sit), 130.0).shelf_stable, \
+    "price nowhere near the shelf must not read shelf stability!"
+print("[15] Whale shelf: replenished -> stable, dried-up/far shelf -> not .... PASS")
+
 print("\nAll structural assertions passed.")

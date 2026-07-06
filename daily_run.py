@@ -70,6 +70,15 @@ def g(x):
     return f"{round(x, 2):g}"
 
 
+def whale_dip(s):
+    """The promoted 🐳 tier: ⚪ at the chip shelf WITH the whale footprint.
+    Gate backtest (homily_whale_backtest.py, 58 names incl. 2021 wrecks,
+    point-in-time): fwd60 +10.9% vs +9.5% DCA baseline / +9.7% plain ⚪ dip
+    — the one case a ⚪ name may be added."""
+    return (s.state == "CAUTION" and s.whale.whale and s.add_zone
+            and s.chips.last <= s.add_zone[1])
+
+
 def fmt_row(s, watch=False, young=False):
     c = s.chips
     zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
@@ -82,11 +91,17 @@ def fmt_row(s, watch=False, young=False):
     # chip-support shelf (⭐ names are at support by definition — no tag)
     at = (" · 🎯AT SUPPORT" if s.state != "ACCUMULATE" and s.add_zone
           and c.last <= s.add_zone[1] else "")
+    wh = ""
+    if s.whale.whale and s.state != "ACCUMULATE":
+        ev = "+".join(e for e, on in (("absorb", s.whale.absorption),
+                                      ("flow", s.whale.divergence),
+                                      ("shelf", s.whale.shelf_stable)) if on)
+        wh = (f" · 🐳{ev}" + (" ≤2% WHALE-DIP add" if whale_dip(s) else ""))
     return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
             f"add {zone} · POC {g(c.poc)} · res {res} · "
             f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{vh}{at}{yg}")
+            f"d{s.candle[0]}{vh}{at}{wh}{yg}")
 
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
@@ -172,9 +187,10 @@ def build_digest():
     else:
         lines.append("no name passes all 5 gates today — that's the point")
 
-    # discovery: new-money setups among names not held (⭐/🔵 only)
+    # discovery: new-money setups among names not held (⭐/🔵, plus the
+    # promoted 🐳 whale-dip tier — a ⚪ shelf dip being absorbed)
     hits = [(s, y) for s, c, y in disco
-            if s.state in ("ACCUMULATE", "BOTTOMING")]
+            if s.state in ("ACCUMULATE", "BOTTOMING") or whale_dip(s)]
     lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(disco)} names "
               "screened, not held)*"]
     if hits:
@@ -184,7 +200,7 @@ def build_digest():
             more = ", ".join(s.ticker for s, _ in hits[8:])
             lines.append(f"…and {len(hits) - 8} more: {more}")
     else:
-        lines.append("no ⭐/🔵 setups in the universe today")
+        lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
     if errs:
         lines.append(f"⚠️ fetch failed: {', '.join(errs)}")
 
@@ -195,7 +211,14 @@ def build_digest():
               " = topping risk, ◻ inside) · 🎯 = non-⭐ name at its"
               " chip-support shelf: on 🟡 the stalked dip has arrived"
               " (Danny-style discretionary add, not the backtested routine);"
-              " on ⚪ info only · F:n/m = EDGAR fundamentals"
+              " on ⚪ info only — UNLESS 🐳 joins it · 🐳 = whale-accumulation"
+              " footprint in a dip (absorb = heavy-volume floor-probe closing"
+              " off its lows · flow = OBV/A-D holding vs falling price ·"
+              " shelf = chip shelf replenished while price sits on it);"
+              " ⚪ + 🎯 + 🐳 = WHALE-DIP tier, the one case a ⚪ name may be"
+              " added — discretionary, ≤2% of account, same monthly budget,"
+              " 10%/name hard cap (gate backtest: fwd60 +10.9% vs +9.5% DCA,"
+              " 58 names incl. 2021 wrecks) · F:n/m = EDGAR fundamentals"
               " checks passed (growth/profit/dilution; info only, never a"
               " timing input) · † = not held_",
               "", "*Algo health (auto-refine, OOS-gated):*",

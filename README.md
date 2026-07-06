@@ -23,6 +23,13 @@ trim rules, how to read the digest in 2 minutes).
 >    baseline), but its **bearish** side does not — breakdowns were followed
 >    by *above*-baseline returns in these names, so a breakdown is flagged
 >    as a ⚠ note, never a sell/no-add veto.
+> 4. The whale-accumulation gate **passed** (`homily_whale_backtest.py`,
+>    58 names incl. 2021 wrecks, point-in-time): ⚪-state shelf dips WITH
+>    the 🐳 footprint returned +10.9% fwd-60d vs +9.5% DCA baseline and
+>    +9.7% plain ⚪ dips — so ⚪+🎯+🐳 is the **one** permitted ⚪ add
+>    (WHALE-DIP tier, discretionary, ≤2%). Flip side: the shelf alone
+>    (🎯 without 🐳) *lost* to plain dips — the footprint, not the level,
+>    carries the edge.
 >
 > This is **not** a clone of Homily's or Danny's proprietary formulas (both
 > undisclosed; Danny says his chip system "can never be duplicated"). It is a
@@ -45,6 +52,16 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 ↑ close above it = bottoming confirmation, ↓ below = topping-process warning
 (note only, see honesty point 3), ◻ = still inside, unresolved.
 
+**🐳 whale-accumulation tag** (the PLTR June-2026 lesson): a dip (≥5% below
+the 60d closing high) showing ≥2 of 3 big-buyer footprints — an
+**absorption print** (heavy-volume day probing the dip floor yet closing in
+the top half of its range), **flow divergence** (OBV/A-D holding vs falling
+price), **shelf stability** (the chip shelf's decayed weight fully
+replenished while price sits on it). A ⚪ row with **🎯 + 🐳** is the
+promoted **WHALE-DIP tier** — the only ⚪ add the playbook permits:
+discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
+(honesty point 4).
+
 ## Files
 | File | Role |
 |---|---|
@@ -52,6 +69,8 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_chips.py` | Chip/cost-distribution engine: decayed volume-at-price → POC, support/resistance peaks |
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |
+| `homily_whale.py` | Whale-accumulation footprint: absorption print + OBV/A-D divergence + shelf stability → 🐳 |
+| `homily_whale_backtest.py` | The 🐳 gate: conditioned ⚪ shelf-dip buys vs plain ⚪ dips vs DCA (PASSED → WHALE-DIP tier) |
 | `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |
 | `homily_fund.py` | EDGAR fundamentals flag (F:n/m — growth/profit/dilution), info-only, 7-day cache |
 | `homily_regime.py` + `homily_regime_backtest.py` | Month-end 10m-SMA regime on SPY+QQQ (🐂/⚖️/🐻 banner) + 33y timing backtest |
