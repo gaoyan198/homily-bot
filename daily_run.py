@@ -9,7 +9,7 @@ accumulate-on-dip guidance anchored on chip support — there is no SELL state.
 
 Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
-import os, datetime, urllib.request, urllib.parse
+import os, datetime, urllib.request, urllib.parse, urllib.error
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_refine import daily_refine
@@ -35,7 +35,7 @@ def fmt_row(s, watch=False):
     c = s.chips
     zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
     res = g(c.resistance[0][0]) if c.resistance else "ATH air"
-    tag = "*" if watch else ""
+    tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
             f"add {zone} · POC {g(c.poc)} · res {res} · "
             f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
@@ -65,7 +65,7 @@ def build_digest():
 
     champ, chal, oos_chal, oos_def, champ_oos, adopted = daily_refine()
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
-              " control · res = nearest chip resistance · * = watch-only_",
+              " control · res = nearest chip resistance · † = watch-only_",
               "", "*Algo health (auto-refine, OOS-gated):*",
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
@@ -83,10 +83,20 @@ def send(text):
     if not (tok and chat):
         print(text); print("\n[no TELEGRAM_* env — printed only]"); return
     url = f"https://api.telegram.org/bot{tok}/sendMessage"
-    body = urllib.parse.urlencode({"chat_id": chat, "text": text,
-                                   "parse_mode": "Markdown"}).encode()
-    urllib.request.urlopen(urllib.request.Request(url, data=body), timeout=20)
-    print("[sent to Telegram]")
+
+    def post(params):
+        body = urllib.parse.urlencode(params).encode()
+        urllib.request.urlopen(urllib.request.Request(url, data=body),
+                               timeout=20)
+    try:
+        post({"chat_id": chat, "text": text, "parse_mode": "Markdown"})
+        print("[sent to Telegram]")
+    except urllib.error.HTTPError as e:
+        # Markdown entity-parse failures return 400 — deliver plain rather
+        # than dropping the digest
+        print(f"[Markdown send failed: {e.code} {e.read().decode(errors='replace')[:200]}]")
+        post({"chat_id": chat, "text": text})
+        print("[sent to Telegram — plain-text fallback]")
 
 
 if __name__ == "__main__":
