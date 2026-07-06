@@ -17,12 +17,13 @@ from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
 
-# IBKR holding -> Yahoo symbol
-HOLDINGS = {
-    "AAPL":"AAPL","AMD":"AMD","AVGO":"AVGO","BABA":"BABA","CSPX":"CSPX.L",
-    "GOOG":"GOOG","NOW":"NOW","NVDA":"NVDA","PLTR":"PLTR","RDDT":"RDDT",
-    "TSLA":"TSLA","TSM":"TSM","VST":"VST","ZETA":"ZETA","9992":"9992.HK",
-}
+# IBKR holding -> Yahoo symbol: lives in holdings.json so book changes are a
+# one-line edit (last synced from live IBKR positions 2026-07-06).
+import json as _json
+_HERE = os.path.dirname(os.path.abspath(__file__))
+HOLDINGS = {k: v for k, v in
+            _json.load(open(os.path.join(_HERE, "holdings.json"))).items()
+            if not k.startswith("_")}
 # Danny-core names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML"}
 
@@ -61,28 +62,33 @@ def g(x):
     return f"{round(x, 2):g}"
 
 
-def fmt_row(s, watch=False):
+def fmt_row(s, watch=False, young=False):
     c = s.chips
     zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
     res = g(c.resistance[0][0]) if c.resistance else "ATH air"
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
     vh = (f" · VH {g(h.lower)}-{g(h.upper)}{VH_ARROW[h.status]}" if h else "")
+    yg = " · ⚠️too-new, engines not warmed" if young else ""
     return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
             f"add {zone} · POC {g(c.poc)} · res {res} · "
             f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{vh}")
+            f"d{s.candle[0]}{vh}{yg}")
+
+
+MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
 
 
 def screen(book, errs, spy):
-    """-> list of (DannySignal, Conviction), digest-sorted."""
+    """-> list of (DannySignal, Conviction, young), digest-sorted."""
     out = []
     for tk, sym in book.items():
         try:
             bars = fetch_daily(sym, rng="5y")
             sig = danny_signal(tk, bars)
-            out.append((sig, conviction(sig, bars, spy)))
+            out.append((sig, conviction(sig, bars, spy),
+                        len(bars) < MIN_HISTORY))
         except Exception:
             errs.append(tk)
     out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
@@ -105,7 +111,8 @@ def build_digest():
     errs = []
     spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
     sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
-    disco = screen(UNIVERSE, errs, spy)
+    disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
+                   errs, spy)
 
     lines = [f"*Homily × Danny digest — {datetime.date.today()}*"]
     try:
@@ -122,14 +129,14 @@ def build_digest():
         lines.append("⚖️ regime check unavailable today")
     lines.append("")
     cur = None
-    for s, c in sigs:
+    for s, c, young in sigs:
         if s.state != cur:
             cur = s.state
             lines.append(f"*{ICON[cur]} {cur}*")
-        lines.append(fmt_row(s, s.ticker in WATCH))
+        lines.append(fmt_row(s, s.ticker in WATCH, young))
 
     # multi-bagger watch: stringent 5-gate screen across EVERYTHING
-    rockets = sorted([(s, c) for s, c in sigs + disco if c.gates_ok],
+    rockets = sorted([(s, c) for s, c, _ in sigs + disco if c.gates_ok],
                      key=lambda x: -x[1].score)
     lines += ["", "*🚀 MULTI-BAGGER WATCH (5 hard gates: size, trend, "
               "leader-RS, basis, data)*"]
@@ -143,14 +150,15 @@ def build_digest():
         lines.append("no name passes all 5 gates today — that's the point")
 
     # discovery: new-money setups among names not held (⭐/🔵 only)
-    hits = [s for s, c in disco if s.state in ("ACCUMULATE", "BOTTOMING")]
-    lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(UNIVERSE)} names "
+    hits = [(s, y) for s, c, y in disco
+            if s.state in ("ACCUMULATE", "BOTTOMING")]
+    lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(disco)} names "
               "screened, not held)*"]
     if hits:
-        lines += [fmt_row(s, watch=True) + f" · {fund_tag(s.ticker)}"
-                  for s in hits[:8]]
+        lines += [fmt_row(s, watch=True, young=y) + f" · {fund_tag(s.ticker)}"
+                  for s, y in hits[:8]]
         if len(hits) > 8:
-            more = ", ".join(s.ticker for s in hits[8:])
+            more = ", ".join(s.ticker for s, _ in hits[8:])
             lines.append(f"…and {len(hits) - 8} more: {more}")
     else:
         lines.append("no ⭐/🔵 setups in the universe today")

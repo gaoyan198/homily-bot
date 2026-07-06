@@ -228,6 +228,13 @@ digest starts trusting it.
 10. **Annual strategy re-test** — re-run `homily_strategy_backtest.py` each
     July as new out-of-sample data accrues; also add a delisted-inclusive
     universe if a free point-in-time constituent source is found.
+11. **Auto-sync holdings from IBKR** — holdings live in `holdings.json`
+    (manual edit / synced via IBKR MCP in Claude sessions; last sync
+    2026-07-06 — dropped BABA, added DRAM 87sh + MU). The Actions bot
+    cannot use MCP (chat-only connector); true automation = IBKR **Flex
+    Web Service** (user enables a Flex Query for positions in Client
+    Portal → token + queryId as repo secrets → fetch at run start).
+    Until then: tell Claude after trades, or edit holdings.json.
 
 ## 7. Out of scope
 
