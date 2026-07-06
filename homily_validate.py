@@ -96,4 +96,42 @@ print(f"    circle={d.circle} score={d.score}/4  px={d.price:.2f}  "
       f"%vsMA(30d)={d.pct_vs_ma30:+.1f}%  days_in_regime={d.weeks_in_regime}")
 print(f"    signals: {d.detail}")
 print(f"    NOTE: only ~59 daily bars -> 30-bar MA barely warmed; treat as tentative.")
+# --- 6. Chip engine: POC lands where the volume is --------------------------
+import datetime as _dt
+from homily_chips import build_profile
+
+def _bars(prices, vols, spread=0.5):
+    d0 = _dt.date(2024, 1, 1)
+    return [(d0 + _dt.timedelta(days=i), p, p + spread, p - spread, p, v)
+            for i, (p, v) in enumerate(zip(prices, vols))]
+
+# 200 quiet days at 100, then 30 heavy-volume days at 50: despite being newer,
+# the 50-zone has 10x volume -> POC must sit near 50; with price at 50, the
+# 100-zone chips are all underwater (resistance, ~0% in profit side below).
+prof = build_profile(_bars([100.0]*200 + [50.0]*30, [1e6]*200 + [1e7]*30))
+assert abs(prof.poc - 50) < 2, f"POC {prof.poc} not at the heavy-volume zone!"
+assert prof.pct_in_profit < 60, "in-profit % ignores the trapped 100-cost chips!"
+assert prof.resistance and abs(prof.resistance[0][0] - 100) < 3, \
+    "trapped 100-zone not flagged as resistance!"
+print("[6] Chip engine: POC at heavy-volume zone, trapped chips = resistance .. PASS")
+
+# --- 7. Chip decay: recent volume outweighs equal old volume ----------------
+# same volume at 100 (old) and 50 (recent, 200 days later) -> POC follows recency
+prof2 = build_profile(_bars([100.0]*50 + [75.0]*150 + [50.0]*50,
+                            [1e6]*50 + [1e5]*150 + [1e6]*50))
+assert abs(prof2.poc - 50) < 2, "decay broken: old chips outweigh recent ones!"
+print("[7] Chip decay: equal volume, recent zone wins the POC .................. PASS")
+
+# --- 8. Composite state sanity on synthetic trends ---------------------------
+from homily_danny import danny_signal
+up_b = _bars([100 * 1.003 ** i for i in range(900)], [1e6]*900)
+dn_b = _bars([100 * 0.997 ** i for i in range(900)], [1e6]*900)
+s_up = danny_signal("UP", up_b)
+s_dn = danny_signal("DN", dn_b)
+assert s_up.state in ("ACCUMULATE", "HOLD") and s_up.monthly_up, \
+    f"steady uptrend not accumulate/hold (got {s_up.state})!"
+assert s_dn.state == "CAUTION" and not s_dn.monthly_up, \
+    f"steady downtrend not CAUTION (got {s_dn.state})!"
+print(f"[8] Composite: uptrend -> {s_up.state}, downtrend -> {s_dn.state} ...... PASS")
+
 print("\nAll structural assertions passed.")

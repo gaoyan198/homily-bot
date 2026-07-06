@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Daily entrypoint: fetch -> signal -> auto-refine -> Telegram digest.
-Pure stdlib (urllib). Designed for GitHub Actions cron (9am SGT = 01:00 UTC),
-the same key-free/Telegram pattern as sg-housing-bot. State (champion params)
-is committed back to the repo by the workflow so refinement accumulates.
+Daily entrypoint: fetch -> Danny-style composite signal -> auto-refine ->
+Telegram digest. Pure stdlib (urllib). GitHub Actions cron (9am SGT = 01:00
+UTC); champion state is committed back by the workflow.
+
+Signal semantics follow @dannycheng2022's use of Homily charts (see PRD.md):
+accumulate-on-dip guidance anchored on chip support — there is no SELL state.
 
 Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
-import os, json, ssl, urllib.request, urllib.parse, datetime
-from homily_clone import homily_circle
+import os, datetime, urllib.request, urllib.parse
+from homily_data import fetch_daily
+from homily_danny import danny_signal
 from homily_refine import daily_refine
 
 # IBKR holding -> Yahoo symbol
@@ -17,41 +20,63 @@ HOLDINGS = {
     "GOOG":"GOOG","NOW":"NOW","NVDA":"NVDA","PLTR":"PLTR","RDDT":"RDDT",
     "TSLA":"TSLA","TSM":"TSM","VST":"VST","ZETA":"ZETA","9992":"9992.HK",
 }
+# Danny-core names not (yet) held — charted anyway, week after week
+WATCH = {"ASML":"ASML"}
 
-def fetch_weekly(symbol, rng="1y"):
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={rng}&interval=1wk"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    ctx = ssl.create_default_context()
-    with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
-        data = json.load(r)
-    q = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
-    return [c for c in q if c is not None]
+ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","CAUTION":"⚪"}
+ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"CAUTION":3}
+
+
+def g(x):
+    return f"{round(x, 2):g}"
+
+
+def fmt_row(s, watch=False):
+    c = s.chips
+    zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
+    res = g(c.resistance[0][0]) if c.resistance else "ATH air"
+    tag = "*" if watch else ""
+    return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
+            f"add {zone} · POC {g(c.poc)} · res {res} · "
+            f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
+            f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
+            f"d{s.candle[0]}")
+
 
 def build_digest():
-    rows = []
-    for tk, sym in HOLDINGS.items():
+    sigs, errs = [], []
+    for tk, sym in {**HOLDINGS, **WATCH}.items():
         try:
-            closes = fetch_weekly(sym)
-            if len(closes) < 35:
-                rows.append((tk, "n/a", 0, 0)); continue
-            s = homily_circle(tk, closes)
-            rows.append((tk, s.circle, s.score, s.pct_vs_ma30))
-        except Exception as e:
-            rows.append((tk, f"ERR", 0, 0))
-    order = {"RED":0,"AMBER":1,"WHITE":2,"n/a":3,"ERR":4}
-    rows.sort(key=lambda r: (order.get(r[1],9), -r[2]))
-    champ, chal, oos_chal, oos_def, champ_oos, adopted = daily_refine()
+            sigs.append((danny_signal(tk, fetch_daily(sym, rng="5y")),
+                         tk in WATCH))
+        except Exception:
+            errs.append(tk)
+    sigs.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
 
-    icon = {"RED":"🔴","AMBER":"🟡","WHITE":"⚪","n/a":"·","ERR":"⚠️"}
-    lines = [f"*Homily digest — {datetime.date.today()}*", ""]
-    for tk, c, sc, pct in rows:
-        lines.append(f"{icon.get(c,'·')} `{tk:<5}` {c:<5} {sc}/4  ({pct:+.0f}% vs MA30)")
-    lines += ["", "*Algo health (auto-refine, OOS-gated):*",
+    lines = [f"*Homily × Danny digest — {datetime.date.today()}*", ""]
+    cur = None
+    for s, watch in sigs:
+        if s.state != cur:
+            cur = s.state
+            lines.append(f"*{ICON[cur]} {cur}*")
+        lines.append(fmt_row(s, watch))
+    if errs:
+        lines.append(f"⚠️ fetch failed: {', '.join(errs)}")
+
+    champ, chal, oos_chal, oos_def, champ_oos, adopted = daily_refine()
+    lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
+              " control · res = nearest chip resistance · * = watch-only_",
+              "", "*Algo health (auto-refine, OOS-gated):*",
               f"champion `{champ['params']}` since {champ['since']}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
               f"{'  → ADOPTED' if adopted else ''}",
-              "_Reminder: signal = risk flag only; backtest shows it trails buy&hold on return._"]
+              "_Reminder: approximation of Danny/Homily behaviour, not their "
+              "proprietary formulas. 5y backtest: waiting for ⭐ zones got a "
+              "WORSE avg cost than immediate DCA on every name tested — treat "
+              "levels as context, not a reason to sit in cash. CAUTION = "
+              "pause adds, never a mechanical sell._"]
     return "\n".join(lines)
+
 
 def send(text):
     tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
@@ -62,6 +87,7 @@ def send(text):
                                    "parse_mode": "Markdown"}).encode()
     urllib.request.urlopen(urllib.request.Request(url, data=body), timeout=20)
     print("[sent to Telegram]")
+
 
 if __name__ == "__main__":
     send(build_digest())

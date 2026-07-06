@@ -1,0 +1,89 @@
+# PRD — Danny-Cheng-style signal upgrade for homily-bot
+
+**Date:** 2026-07-06 · **Owner:** gaoyan · **Status:** implementing
+
+## 1. Goal
+
+Upgrade homily-bot so its daily Telegram digest gives the *kind* of calls
+[@dannycheng2022](https://x.com/dannycheng2022) posts: long-term
+accumulate-on-dip guidance anchored on chip (cost-distribution) support and
+resistance levels, on a fixed watchlist of conviction names — instead of the
+current "RED=hold / WHITE=cut" regime flag that our own backtest shows
+underperforms buy-and-hold.
+
+## 2. Danny's methodology (from his public X posts)
+
+| Pillar | What he does | Our approximation |
+|---|---|---|
+| Never trade | Long-term accumulate; signals time **adds**, never exits of core names | Signal states are ACCUMULATE / HOLD / CAUTION — no "sell" state |
+| Fixed watchlist | NVDA TSM AVGO AMD ASML SOXL TSLA PLTR, charted weekly/monthly forever | IBKR holdings + ASML watch. SOXL excluded (3x leveraged) |
+| "Chip system" (筹码) | Proprietary cost-distribution → support/resistance/reversal prices, dynamic POC updated daily+weekly | Volume-at-price histogram with exponential time decay (`homily_chips.py`) |
+| Momentum bars | Longest horizontal bars in Panel 1 = accumulation shelves; close above them = momentum buy | Same histogram: top chip peaks below/above price |
+| Colored candles | Red candle = short-term bullish, yellow = bearish | Daily EMA10 + MACD-hist state |
+| Multi-timeframe | Monthly trend → weekly structure → daily entry | Monthly EMA10 trend + existing weekly circle + daily pullback test |
+| Leverage | Margin amplification (his $800k→$3.6M claim) | **Deliberately NOT copied** |
+
+Honesty constraints (non-negotiable, carried in digest):
+- His exact indicators are proprietary ("can never be duplicated" — his words).
+  This is an approximation of documented behaviour, not a clone.
+- His returns are self-reported, unaudited, levered, and from one bull cycle.
+  The bot never implies expected returns.
+
+## 3. Signal spec
+
+Per ticker, computed from ~2y daily OHLCV (Yahoo, key-free) resampled to
+weekly/monthly:
+
+1. **Monthly trend**: close > EMA10(monthly) and EMA10 rising → UP.
+2. **Weekly circle**: existing `homily_circle` 4-factor engine (unchanged).
+3. **Daily candle colour**: RED if close > EMA10(daily) and MACD hist > 0,
+   YELLOW if both negative, else NEUTRAL.
+4. **Chip context** (`homily_chips.py`):
+   - histogram: each day's volume spread triangularly over its H–L range,
+     weight decayed with 60-trading-day half-life (recent volume dominates);
+   - **POC** = heaviest bin; **support** = top chip peaks below price;
+     **resistance** = top peaks above; **% chips in profit**.
+
+Composite state:
+
+| State | Condition |
+|---|---|
+| ⭐ **ACCUMULATE** | monthly UP + weekly RED + price within 3% above (or at/below) a major chip-support peak |
+| 🟢 **HOLD** | monthly UP + weekly RED, but extended above support (wait for pullback) |
+| 🟡 **PULLBACK WATCH** | weekly AMBER while monthly UP — dip forming, watch chip support |
+| ⚪ **CAUTION** | weekly WHITE or monthly trend down — pause adds (never "sell") |
+
+Digest line (Danny voice):
+`⭐ NVDA — accumulate zone 185–190 (chip peak), POC 172, resistance 211, 78% chips in profit, weekly RED 8w, daily red candle`
+
+## 4. Deliverables
+
+| File | Change |
+|---|---|
+| `homily_data.py` | NEW — daily OHLCV fetch (Yahoo v8, 2y/1d), weekly/monthly resample, stdlib only |
+| `homily_chips.py` | NEW — decayed volume-at-price engine: POC, peaks, % in profit |
+| `homily_danny.py` | NEW — composite state machine per §3 |
+| `daily_run.py` | Digest rewritten per §3; ASML added as watch-only |
+| `homily_danny_backtest.py` | NEW — accumulate-on-dip vs plain DCA avg-cost comparison (5y daily) |
+| `homily_validate.py` | + chip-engine self-tests (POC correctness, no look-ahead) |
+| `README.md` | Updated |
+
+Unchanged: `homily_clone.py` weekly engine, `homily_refine.py` OOS-gated
+refine loop, GitHub Actions schedule (09:00 SGT Mon–Fri).
+
+## 5. Acceptance criteria
+
+1. `python homily_validate.py` passes all tests including new chip tests.
+2. `python daily_run.py` prints a digest with chip levels for every holding
+   (Pop Mart 9992.HK included via Yahoo) and sends to Telegram when env set.
+3. `python homily_danny_backtest.py` prints an honest avg-cost comparison of
+   ACCUMULATE-gated buying vs same-budget DCA over 5y.
+4. No new dependencies (stdlib only), no new secrets, workflow untouched.
+5. Digest retains the standing disclaimer that signals are guidance, not a
+   promise of Danny's returns.
+
+## 6. Out of scope
+
+Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
+paid Patreon content; any claim of replicating Homily's or Danny's
+proprietary formulas.
