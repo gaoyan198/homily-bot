@@ -215,7 +215,59 @@ insurance premium against −50% drawdowns. That is the deal — take it
 knowingly.
 </div>
 
-<h2>5 · The honest backtests (kept in the digest daily)</h2>
+<h2>5 · THE test — full strategy vs DCA into SPY / QQQ</h2>
+<p>The question that matters: does "accumulate on ⭐ dips across the
+universe, sell everything on 🐻, redeploy on 🐂" beat the same money
+mechanically DCA'd into an index? <span class="mono">
+homily_strategy_backtest.py</span> replays it point-in-time, monthly,
+no look-ahead, 10bps per trade, $1/month, July 2021 → July 2026 — a window
+that contains the 2021 top, the 2022 bear and the 2023–25 bull.</p>
+<p>Two universes, because <em>which list you feed the engine decides the
+result</em>: universe <strong>A</strong> is today's bot list — hindsight-picked
+2026 winners, upward-biased by construction. Universe <strong>B</strong> is the
+honest control: what a growth investor plausibly held in mid-2021, winners
+<em>and</em> still-listed wrecks (PTON, ZM, DOCU, ROKU, LCID, TDOC, BYND,
+UPST…). Fully delisted names can't be fetched key-free, so some survivorship
+remains even in B.</p>
+<table>
+<tr><th>Portfolio (same $1/month)</th><th>MOIC</th><th>TWR CAGR</th><th>MaxDD</th></tr>
+<tr><td>DCA SPY — benchmark</td><td>1.50</td><td>11.3%</td><td>−23%</td></tr>
+<tr><td>DCA QQQ — benchmark</td><td>1.74</td><td>14.7%</td><td>−34%</td></tr>
+<tr><td>A · ⭐ dips, no regime sell <span class="dim">(hindsight bias)</span></td>
+<td>3.69</td><td>43.5%</td><td>−18%</td></tr>
+<tr><td>A · ⭐ dips + 🐻 regime sell <span class="dim">(hindsight bias)</span></td>
+<td>1.69</td><td>18.0%</td><td>−19%</td></tr>
+<tr><td><strong>B · ⭐ dips, no regime sell (control)</strong></td>
+<td><strong>2.10</strong></td><td><strong>22.2%</strong></td><td>−30%</td></tr>
+<tr><td>B · ⭐ dips + 🐻 regime sell (control)</td>
+<td>1.31</td><td>6.9%</td><td>−31%</td></tr>
+</table>
+<div class="card warn">
+<strong>Hard-number verdict, bias removed.</strong>
+<ul>
+<li><strong>The accumulation engine earned its keep on the control:</strong>
+2.10× vs QQQ's 1.74× and SPY's 1.50×, with a smaller drawdown than QQQ —
+on a basket deliberately salted with 2021 wrecks. The trend+support gates
+(monthly UP · weekly RED · chip support) largely refused to keep feeding
+PTON/ZM/DOCU-style death spirals. Genuinely encouraging, but it is ONE
+5-year window and residual survivorship remains — call it promising, not
+proven.</li>
+<li><strong>The 🐻 regime-sell overlay was pure cost in this window:</strong>
+it roughly halved returns on both universes (A: 3.69→1.69; B: 2.10→1.31,
+losing to SPY) while improving drawdown by ~1 point, because 2022 was
+followed by a V-recovery the monthly signal re-entered late, and dip-gated
+buying already avoids tops. Reconcile with §4: over 33 years the regime rule
+pays for itself in dot-com/GFC-scale wrecks. It is catastrophe insurance —
+in windows without a catastrophe, insurance shows up only as premium.</li>
+<li><strong>Net recommendation the data supports:</strong> run the ⭐
+accumulation engine as the buying discipline; treat the 🐻 signal as a
+de-risking trigger for <em>satellite</em> positions and new-buying pauses,
+not a full portfolio liquidation; keep the index core permanently
+invested.</li>
+</ul>
+</div>
+
+<h2>5b · The other honest backtests (kept in the digest daily)</h2>
 <table>
 <tr><th>Test</th><th>File</th><th>Verdict</th></tr>
 <tr><td>Hold 🔴 / cut ⚪ vs buy-and-hold, 5y weekly</td>

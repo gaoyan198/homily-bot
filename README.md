@@ -51,6 +51,8 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |
 | `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |
+| `homily_regime.py` + `homily_regime_backtest.py` | Month-end 10m-SMA regime on SPY+QQQ (🐂/⚖️/🐻 banner) + 33y timing backtest |
+| `homily_strategy_backtest.py` | THE test: full ⭐-dip strategy vs SPY/QQQ DCA, hindsight + 2021-control universes |
 | `docs/index.html` | Full methodology page (engines, gates, rubric, honest backtests, limits) |
 | `homily_vol_backtest.py` | Event study of hole resolutions vs unconditional baseline |
 | `homily_clone.py` | Original red/white-circle weekly engine (EMA ribbon + MACD + trend slope) |
@@ -75,6 +77,15 @@ stays); both above = 🐂 BULL. 33y/26y backtest
 MaxDD; SPY timed pays ~1% CAGR for −24% vs −52% MaxDD. Fails in flash
 crashes (COVID), lags strong bulls — full tables in
 [docs/index.html](docs/index.html) §4. Banner tops every digest.
+
+**THE test** (`homily_strategy_backtest.py`, 2021-07→2026-07, $1/month,
+point-in-time): ⭐-dip accumulation across a loser-salted 2021 control
+universe returned **2.10× vs QQQ DCA 1.74× / SPY 1.50×** — promising, one
+window, not proven. But adding the 🐻 full-liquidation overlay halved it to
+1.31× (a V-recovery window; §4's 33y test shows regime pays only in
+grinding bears). Hence the protocol: BEAR de-risks **satellites** and pauses
+adds — the index core never sells. Full table + verdict in
+[docs/index.html](docs/index.html) §5.
 
 ## Multi-bagger conviction screen 🚀
 Every name (held or not) runs through 5 hard gates — size (<$5B/day dollar

@@ -144,6 +144,27 @@ powder, re-accumulate in bears.
   bears (dot-com QQQ −12.7% vs −79.6%), useless in flash crashes (COVID),
   lags strong bulls (2023-25). Full tables on docs/index.html §4.
 
+## 5f. Addendum 2026-07-06 — full strategy vs index DCA (THE test)
+
+User: "make sure we have a winning strategy that outperforms the index —
+take the bias out, report hard numbers." `homily_strategy_backtest.py`:
+point-in-time monthly replay 2021-07→2026-07, $1/month, 10bps/trade,
+⭐-gated equal-weight deployment, optional 🐻 full liquidation.
+
+Hard numbers (MOIC / TWR CAGR / MaxDD):
+* DCA SPY 1.50 / 11.3% / −23% · DCA QQQ 1.74 / 14.7% / −34%
+* A current universe (hindsight-biased): no-regime 3.69 / 43.5% / −18%;
+  with regime-sell 1.69 / 18.0% / −19%
+* B hype-2021 control (incl. wrecks): **no-regime 2.10 / 22.2% / −30% —
+  beat both indexes**; with regime-sell 1.31 / 6.9% / −31% — lost to SPY.
+
+Conclusions adopted: (1) accumulation engine = the buying discipline —
+promising cross-sectional edge even on loser-salted control, one window,
+residual survivorship, "promising not proven"; (2) 🐻 full liquidation was
+pure cost in a V-recovery window — keep BEAR protocol scoped to satellites
++ pause-adds, index core never sells (digest already words it this way);
+(3) re-run this test yearly as data accrues (added to backlog).
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
@@ -170,6 +191,9 @@ digest starts trusting it.
    consider SEHK-specific volume normalisation before trusting HK zones.
 9. **Weekly deep-dive** — Sunday digest: full chip histogram sparklines per
    holding, conviction score drift over the week, refine-log summary.
+10. **Annual strategy re-test** — re-run `homily_strategy_backtest.py` each
+    July as new out-of-sample data accrues; also add a delisted-inclusive
+    universe if a free point-in-time constituent source is found.
 
 ## 7. Out of scope
 
