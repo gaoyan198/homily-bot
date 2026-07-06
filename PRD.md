@@ -235,6 +235,20 @@ digest starts trusting it.
     Web Service** (user enables a Flex Query for positions in Client
     Portal → token + queryId as repo secrets → fetch at run start).
     Until then: tell Claude after trades, or edit holdings.json.
+12. **Whale-accumulation pattern** (added 2026-07-06 after the PLTR case:
+    Danny added aggressively at the 113-119 chip shelf during the June
+    22-26 dip to 106 while the bot said ⚪ pause — the level agreed, the
+    trend gate blocked it, and the bounce proved him right that week).
+    Approximate Homily's main-force cost line from public OHLCV:
+    high-volume down-day absorption (close well off lows on heavy volume),
+    OBV/accumulation-distribution divergence vs price during the dip, and
+    chip-shelf stability (support peak NOT decaying while price sits on it
+    = holders absorbing, not fleeing). Output a per-name `whale` tag.
+    **Gate before shipping:** backtest ⚪-state dip-buys *conditioned on
+    the shelf + whale tag* vs unconditioned ⚪ dip-buys, full universe
+    incl. 2021 hype controls, point-in-time. Promote ⚪+🎯 to a real
+    discretionary tier (own sizing cap) only if the conditioned version
+    beats DCA; otherwise ship the tag as info-only context.
 
 ## 7. Out of scope
 
