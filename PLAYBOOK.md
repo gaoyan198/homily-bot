@@ -54,7 +54,11 @@ required for action.
    Prefer F:2+ names when choosing among many.
 5. **If there are no ⭐ names: buy Bucket A with the full amount.** The
    backtest is clear — cash waiting for stars costs more than it saves.
-6. Close the app. Do not look at prices until next month.
+6. **Optional aggressive add (🎯 on a 🟡 row):** a still-bullish name whose
+   dip has reached its support shelf — the Danny-style add. Allowed, but it
+   is DISCRETIONARY: it isn't part of the backtested routine, comes out of
+   the same monthly budget (never extra money), and respects the same caps.
+7. Close the app. Do not look at prices until next month.
 
 ---
 

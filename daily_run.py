@@ -78,11 +78,15 @@ def fmt_row(s, watch=False, young=False):
     h = s.vol_hole
     vh = (f" · VH {g(h.lower)}-{g(h.upper)}{VH_ARROW[h.status]}" if h else "")
     yg = " · ⚠️too-new, engines not warmed" if young else ""
+    # the Danny move: a non-⭐ name whose price has actually reached the
+    # chip-support shelf (⭐ names are at support by definition — no tag)
+    at = (" · 🎯AT SUPPORT" if s.state != "ACCUMULATE" and s.add_zone
+          and c.last <= s.add_zone[1] else "")
     return (f"{ICON[s.state]} `{s.ticker:<5}`{tag} {g(c.last)} — "
             f"add {zone} · POC {g(c.poc)} · res {res} · "
             f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{vh}{yg}")
+            f"d{s.candle[0]}{vh}{at}{yg}")
 
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
@@ -188,7 +192,10 @@ def build_digest():
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
               " control · res = nearest chip resistance · VH = volatility"
               " hole zone (↑ broke above = bottoming confirm, ↓ broke below"
-              " = topping risk, ◻ inside) · F:n/m = EDGAR fundamentals"
+              " = topping risk, ◻ inside) · 🎯 = non-⭐ name at its"
+              " chip-support shelf: on 🟡 the stalked dip has arrived"
+              " (Danny-style discretionary add, not the backtested routine);"
+              " on ⚪ info only · F:n/m = EDGAR fundamentals"
               " checks passed (growth/profit/dilution; info only, never a"
               " timing input) · † = not held_",
               "", "*Algo health (auto-refine, OOS-gated):*",
