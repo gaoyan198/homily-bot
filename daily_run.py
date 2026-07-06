@@ -27,6 +27,14 @@ HOLDINGS = {k: v for k, v in
 # Danny-core names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML"}
 
+# Too-new listings whose real signal lives in their constituents: screen the
+# members and print a proxy line under the holding's row (DRAM = Roundhill
+# Memory ETF: the DRAM-cycle basket per its top weights).
+PROXY_CONSTITUENTS = {
+    "DRAM": {"MU": "MU", "HYNIX": "000660.KS", "SMSNG": "005930.KS",
+             "SNDK": "SNDK", "WDC": "WDC", "STX": "STX"},
+}
+
 # Discovery universe: liquid names NOT held, screened for new-money setups.
 # Only ⭐/🔵 states surface in the digest. Deliberately excluded: leveraged
 # ETFs (SOXL, MSTR-style proxies) and crypto-beta names (COIN) — out of
@@ -127,6 +135,15 @@ def build_digest():
                          " above; this fires a handful of times a decade.")
     except Exception:
         lines.append("⚖️ regime check unavailable today")
+    # constituent proxy reads for too-new holdings (e.g. DRAM basket)
+    proxy = {}
+    for tk, members in PROXY_CONSTITUENTS.items():
+        if tk in HOLDINGS:
+            ps = screen(members, errs, spy)
+            reads = " · ".join(f"{p.ticker} {ICON[p.state]}"
+                               for p, _, _ in ps)
+            proxy[tk] = f"　↳ _constituents proxy:_ {reads}"
+
     lines.append("")
     cur = None
     for s, c, young in sigs:
@@ -134,6 +151,8 @@ def build_digest():
             cur = s.state
             lines.append(f"*{ICON[cur]} {cur}*")
         lines.append(fmt_row(s, s.ticker in WATCH, young))
+        if s.ticker in proxy:
+            lines.append(proxy[s.ticker])
 
     # multi-bagger watch: stringent 5-gate screen across EVERYTHING
     rockets = sorted([(s, c) for s, c, _ in sigs + disco if c.gates_ok],
