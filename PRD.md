@@ -613,7 +613,7 @@ order outside that day's whitelist (digest ⭐ set + the index ETF).
 | Stage | What | Human effort | Infra |
 |---|---|---|---|
 | T0 | #31 copilot prints exact orders | type them in (~5 min/mo) | none — already queued |
-| T1 | **IBKR native recurring investment** for the index half (Bucket A, monthly, fractional) | zero — set up once in Client Portal | **none. Do this now — no code, automates 50% of the routine today** |
+| T1 | **SRS as the index leg** — confirm SRS cash is actually deployed into index (not idle), then `SRS_COVERS_INDEX=true`: the cash budget goes 100% to the star half | zero | none — owner decision 2026-07-07: SRS (S$15,300/yr) already covers Bucket A; IBKR recurring investment NOT needed |
 | T2 | copilot also emits an IBKR-importable **basket CSV**, committed as `docs/orders_YYYY-MM.csv` | import + transmit (~1 min/mo) | none |
 | T3 | monthly scheduled Claude routine with the IBKR MCP connector reads the buy-day block in `docs/snapshot.json` and places the star-half as **LIMIT day orders**; Telegram report of intents/fills | review the report | cloud repo access fixed + MCP attach (routines already support both) |
 | T4 | headless API/gateway trading | — | **stays out of scope** — gateway/2FA infra and its failure modes outweigh saving 1 min/month |
@@ -645,3 +645,27 @@ Rules: no new top-level .md without a line here; generated artifacts live
 in `docs/` or as workflow-committed state files (and MUST be added to the
 workflow's `git add` list in the same PR, per R8); when a doc supersedes
 another, the old content is deleted in the same commit.
+
+### 9.4 Funding-source accounting (owner Q&A, 2026-07-07)
+
+Three sleeves; the bot only ever deploys the first:
+
+* **Cash sleeve = `BUY_BUDGET`.** Pure cash, monthly, set by the owner.
+  It does NOT include SRS or ESPP. With `SRS_COVERS_INDEX=true` the
+  copilot routes 100% of it to the ⭐ star half (PLAYBOOK §3.3 path).
+* **SRS sleeve (S$15,300/yr cap).** IS Bucket A while its cash is actually
+  invested in index — it satisfies the index leg by construction, so it is
+  never added to `BUY_BUDGET` and earns no "edge" (it is the benchmark).
+  The bear-readiness line (#30) should nag if SRS cash sits idle.
+* **ESPP sleeve.** Compensation, not DCA: never counts toward either
+  bucket's contribution. But the resulting shares DO count in the book —
+  10% cap, cluster lens (#29), trim rules (PLAYBOOK §5.1) — and deserve
+  extra respect on the cap because they are double-correlated with salary
+  (same employer pays both). `holdings.json` v2 (#27) must carry the ESPP
+  position with a `source: "espp"` tag so the copilot and risk lens see it
+  but never add to it.
+
+**Measurement (#14) follows the same lines:** the live-edge scorecard
+compares the cash sleeve's deployments vs a same-cash same-day index-DCA
+counterfactual only. SRS is excluded (it IS the index), ESPP is tracked
+separately (its return = discount + one stock, not signal skill).

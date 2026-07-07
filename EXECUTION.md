@@ -130,9 +130,12 @@ ships inside the #31 session; T3 (MCP order routine, report-only first
 month, `AUTOTRADE` kill switch + caps per §9.2) is its OWN session, only
 after two clean T2 months, and only after the owner fixes cloud repo
 access. Session 0 also adds the §9.3 docs-map to README. Owner's two
-manual to-dos, no code: (1) set up IBKR native recurring investment for
-the index half NOW (stage T1), (2) grant the cloud environment GitHub
-access to this repo (unblocks routines + T3).
+manual to-dos, no code: (1) confirm SRS cash is actually deployed into
+index, not idle — SRS is the index leg, no IBKR recurring investment
+needed (PRD §9.4); (2) grant the cloud environment GitHub access to this
+repo (unblocks routines + T3). Funding accounting per §9.4: BUY_BUDGET =
+pure cash (SRS and ESPP excluded); ESPP shares live in holdings v2 as
+source:"espp" — counted for caps/clusters, never added to.
 
 *Written 2026-07-07 by the planning model. If reality contradicts this
 file, record it in PRD §8.5 and stop — don't improvise around it.*
