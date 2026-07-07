@@ -541,3 +541,40 @@ Leverage/margin, options overlays, intraday data, auto-execution, paid data
 feeds, ML black-boxes (any model whose reasoning can't be printed in a
 digest footer), and any new timing signal without a control-salted
 point-in-time gate. §7 stands in full.
+
+### 8.3 Extended idea bank #46–60 + deep designs (added 2026-07-06 late)
+
+Full text in **`DESIGNS.md`**: Part I = design decisions for the hard items
+(#20 replay protocol + pre-committed decision rule · #21 new refine
+objective with false-block penalty + sample-size diagnostic · #24 three-way
+ranking test · #29 clustering algorithm · #31 allocation algorithm incl. HK
+board lots + ledger-based buy-day detection · #34–36 frontend architecture
+decisions · #39 block-bootstrap spec). Part III = the execution handoff
+protocol for whichever model builds this. Part II = idea bank, indexed here
+(unvetted; every one gated; new proposals start #61):
+
+| # | Idea | Effort | Gate |
+|---|---|---|---|
+| 46 | Turnover-adaptive chip decay | M | must beat fixed half-life on #47's hold-rate metric OOS |
+| 47 | Shelf hold-rate statistic ("held 7/9 touches") | M | is itself an event study; ≥8 touches; info-only |
+| 48 | Ancient-shelf overlay (240d half-life profile) | S–M | bounce event-study vs recent shelves |
+| 49 | Golden-file digest tests — **build first on execution days** | S | none (test infra) |
+| 50 | Staged-add tranches (shelf / −7% / −14%) | M | avg-cost + MOIC vs single-add and DCA, both universes |
+| 51 | ⚪ time-stop study (calibrate PLAYBOOK §5.2's 12w rule) | M | the study itself; PLAYBOOK edited only after |
+| 52 | Inverse-vol sizing within stars | S–M | THE-test rerun; expect a null per §5g |
+| 53 | SGD lens (book return in SGD, USDSGD trend) | S | info-only |
+| 54 | Weekly "what changed" ledger diff | S | needs #13 |
+| 55 | Breadth cross-check (RSP vs regime; "narrow tape" note) | S | 20y event check or drop |
+| 56 | AI analyst memo (weekly cloud-agent process-QA PR) | M | 4-week trial; keep only if it catches a real issue |
+| 57 | 中文 digest toggle (筹码/主力 native terms) | S | none (presentation) |
+| 58 | Behaviour-gap tracker (perfect-PLAYBOOK shadow book vs real) | M | none (measurement) — prices the discipline gap |
+| 59 | Flash-crash pre-script (SPY 5d < −7% psychology note) | S | none (info-only) |
+| 60 | Data-QA cross-check (freshness/Stooq-agreement asserts) | S | validate tests; feeds #17 |
+
+### 8.4 Planning → execution handoff
+
+Division of labour adopted 2026-07-06: the planning model writes §8 +
+`DESIGNS.md` + `SPECS.md`; the executing model builds one item per session
+following `DESIGNS.md` Part III (gate restated before coding, #49 golden
+files first, validate green before commit, info-only never promoted in the
+same session it ships, null results closed honestly).
