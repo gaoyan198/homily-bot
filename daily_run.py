@@ -122,7 +122,7 @@ def screen(book, errs, spy):
     return out
 
 
-def fmt_rocket(s, c, held):
+def fmt_rocket(s, c, held, *, fund=fund_tag):
     tag = "" if held else "†"
     top = sorted(c.parts.items(), key=lambda kv: -kv[1])[:2]
     why = ", ".join(f"{k} {v}" for k, v in top)
@@ -131,19 +131,20 @@ def fmt_rocket(s, c, held):
             if s.add_zone else "")
     return (f"🚀 `{s.ticker:<5}`{tag} score {c.score} → {size} · "
             f"RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · {why} · "
-            f"{fund_tag(s.ticker)}")
+            f"{fund(s.ticker)}")
 
 
-def build_digest():
-    errs = []
-    spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
-    sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
-    disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
-                   errs, spy)
-
-    lines = [f"*Homily × Danny digest — {datetime.date.today()}*"]
-    try:
-        r = market_regime()
+def render_digest(sigs, disco, proxy, regime, refine, errs, today,
+                  *, fund=fund_tag):
+    """Pure digest assembly — no network, no clock, no state mutation. All
+    the varying inputs are passed in so the exact printed text is a
+    deterministic function of them; that is what makes the golden-file test
+    (homily_golden.py) possible. build_digest() is the thin IO shell that
+    gathers these inputs and calls this. Keep the two behaviourally in
+    lock-step: any change to a printed row belongs here."""
+    lines = [f"*Homily × Danny digest — {today}*"]
+    if regime is not None:
+        r = regime
         icon = {"BULL": "🐂", "BEAR": "🐻", "MIXED": "⚖️"}[r.label]
         gap = " / ".join(f"{sym} {pct:+.1f}%"
                          for sym, (_, _, pct, _) in r.detail.items())
@@ -152,16 +153,8 @@ def build_digest():
         if r.label == "BEAR":
             lines.append("🚨 *THE DECISIVE SELL SIGNAL IS ON* — see protocol"
                          " above; this fires a handful of times a decade.")
-    except Exception:
+    else:
         lines.append("⚖️ regime check unavailable today")
-    # constituent proxy reads for too-new holdings (e.g. DRAM basket)
-    proxy = {}
-    for tk, members in PROXY_CONSTITUENTS.items():
-        if tk in HOLDINGS:
-            ps = screen(members, errs, spy)
-            reads = " · ".join(f"{p.ticker} {ICON[p.state]}"
-                               for p, _, _ in ps)
-            proxy[tk] = f"　↳ _constituents proxy:_ {reads}"
 
     lines.append("")
     cur = None
@@ -179,7 +172,7 @@ def build_digest():
     lines += ["", "*🚀 MULTI-BAGGER WATCH (5 hard gates: size, trend, "
               "leader-RS, basis, data)*"]
     if rockets:
-        lines += [fmt_rocket(s, c, s.ticker in HOLDINGS)
+        lines += [fmt_rocket(s, c, s.ticker in HOLDINGS, fund=fund)
                   for s, c in rockets[:5]]
         lines.append("_sizing guide: CONVICTION ≤5% of account · STARTER "
                      "≤2% · hard cap 10%/name incl. existing · add at ⭐ "
@@ -194,7 +187,7 @@ def build_digest():
     lines += ["", f"*🔎 DISCOVERY — new-money setups ({len(disco)} names "
               "screened, not held)*"]
     if hits:
-        lines += [fmt_row(s, watch=True, young=y) + f" · {fund_tag(s.ticker)}"
+        lines += [fmt_row(s, watch=True, young=y) + f" · {fund(s.ticker)}"
                   for s, y in hits[:8]]
         if len(hits) > 8:
             more = ", ".join(s.ticker for s, _ in hits[8:])
@@ -204,7 +197,7 @@ def build_digest():
     if errs:
         lines.append(f"⚠️ fetch failed: {', '.join(errs)}")
 
-    champ, chal, oos_chal, oos_def, champ_oos, adopted = daily_refine()
+    champ, chal, oos_chal, oos_def, champ_oos, adopted = refine
     lines += ["", "_add = chip-support accumulate zone · POC = cost point of"
               " control · res = nearest chip resistance · VH = volatility"
               " hole zone (↑ broke above = bottoming confirm, ↓ broke below"
@@ -232,6 +225,30 @@ def build_digest():
               "levels as context, not a reason to sit in cash. CAUTION = "
               "pause adds, never a mechanical sell._"]
     return "\n".join(lines)
+
+
+def build_digest():
+    """IO shell: fetch everything the digest needs, then hand it to the pure
+    render_digest(). The network/clock/state-mutating calls live ONLY here."""
+    errs = []
+    spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
+    sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
+    disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
+                   errs, spy)
+    try:
+        regime = market_regime()
+    except Exception:
+        regime = None
+    # constituent proxy reads for too-new holdings (e.g. DRAM basket)
+    proxy = {}
+    for tk, members in PROXY_CONSTITUENTS.items():
+        if tk in HOLDINGS:
+            ps = screen(members, errs, spy)
+            reads = " · ".join(f"{p.ticker} {ICON[p.state]}"
+                               for p, _, _ in ps)
+            proxy[tk] = f"　↳ _constituents proxy:_ {reads}"
+    return render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
+                         datetime.date.today())
 
 
 def chunks(text, limit=4000):

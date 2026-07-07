@@ -261,4 +261,10 @@ assert not whale_read(_wbars(sit), 130.0).shelf_stable, \
     "price nowhere near the shelf must not read shelf stability!"
 print("[15] Whale shelf: replenished -> stable, dried-up/far shelf -> not .... PASS")
 
+# --- 16. Golden-file digest: no refactor silently changes a printed row -----
+# Fixture bars -> live engines -> daily_run.render_digest, diffed byte-for-byte
+# against tests/digest_*.golden.txt. Offline & deterministic (see homily_golden).
+import homily_golden
+homily_golden.run()
+
 print("\nAll structural assertions passed.")
