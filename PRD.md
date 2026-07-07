@@ -657,13 +657,33 @@ Three sleeves; the bot only ever deploys the first:
   invested in index — it satisfies the index leg by construction, so it is
   never added to `BUY_BUDGET` and earns no "edge" (it is the benchmark).
   The bear-readiness line (#30) should nag if SRS cash sits idle.
-* **ESPP sleeve.** Compensation, not DCA: never counts toward either
-  bucket's contribution. But the resulting shares DO count in the book —
-  10% cap, cluster lens (#29), trim rules (PLAYBOOK §5.1) — and deserve
-  extra respect on the cap because they are double-correlated with salary
-  (same employer pays both). `holdings.json` v2 (#27) must carry the ESPP
-  position with a `source: "espp"` tag so the copilot and risk lens see it
-  but never add to it.
+* **ESPP sleeve (corrected 2026-07-07).** 10% of salary, contributed
+  monthly to employer stock (Visa, V) at a 15% discount — the owner's own
+  savings, not granted shares. It therefore IS part of the PLAYBOOK §7
+  monthly-investable outflow, pre-committed to one name before the bot
+  sees a dollar: `BUY_BUDGET` = the cash remaining AFTER the ESPP
+  deduction. The 15% discount is the comp component (one-shot per lot,
+  taxed as employment income in SG; no CGT on later sale). What the plan
+  must carry:
+  - `holdings.json` v2 (#27): the V position tagged `source: "espp"`,
+    **including shares held outside IBKR at the plan administrator** —
+    Flex sync (#32) will not see those; they are a manual field, updated
+    after each purchase window.
+  - Risk: V exposure compounds monthly regardless of signal, and is
+    employer-correlated (salary and shares from the same company). Cap
+    and cluster math (#28, #29) count TOTAL V (IBKR + external). The
+    copilot treats V like any other name, but its 10%-cap check must
+    include the external ESPP shares — and because the ESPP inflow never
+    stops, V will drift toward the cap by itself; the trim flag (#28)
+    applies to it like any bought-not-earned position.
+  - An explicit owner decision the digest should keep visible (flag,
+    never an order): hold ESPP lots (an ever-growing active bet on V) vs
+    sell-soon-after-purchase to bank the ~15% discount and redeploy into
+    the routine — the standard diversification play; verify plan holding
+    rules/blackout windows first.
+  - Measurement: excluded from the #14 signal-edge scorecard (its return
+    is discount + one stock, not skill); included in whole-book views
+    (#29 clusters, #30 bear-readiness, #58 behaviour-gap).
 
 **Measurement (#14) follows the same lines:** the live-edge scorecard
 compares the cash sleeve's deployments vs a same-cash same-day index-DCA
