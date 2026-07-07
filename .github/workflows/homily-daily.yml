@@ -21,14 +21,21 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Gate order (EXECUTION.md R5): validate -> digest -> commit, each step
+      # only reached if the previous passed. Self-test runs FIRST so a red
+      # test (incl. the #49 golden-digest check) fails the job before
+      # daily_run.py sends the Telegram digest or daily_refine() mutates
+      # champion/log state — no broken digest goes out, no half-committed
+      # state. The self-test is fully offline/synthetic, so it needs nothing
+      # from the digest step.
+      - name: Self-test — gates the send (keeps the algo honest)
+        run: python homily_validate.py
+
       - name: Run daily Homily digest + auto-refine
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python daily_run.py
-
-      - name: Self-test (keeps the algo honest)
-        run: python homily_validate.py
 
       - name: Commit refined champion + log
         run: |
