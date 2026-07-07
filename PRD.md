@@ -578,3 +578,10 @@ Division of labour adopted 2026-07-06: the planning model writes §8 +
 following `DESIGNS.md` Part III (gate restated before coding, #49 golden
 files first, validate green before commit, info-only never promoted in the
 same session it ships, null results closed honestly).
+
+**Executing model: start at `EXECUTION.md`** (added 2026-07-07) — the
+session queue, the engine-freeze rule (signal engines frozen outside
+gated Phase-C sessions), the execution risk register R1–R12 (bars
+contract, ledger backfill ban, refine-state continuity, TZ drift, workflow
+reorder trap, …), and mechanical guards #61 (engine-freeze CI hash check)
+and #62 (ledger append-only hash check).
