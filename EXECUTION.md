@@ -121,5 +121,18 @@ USD-only until an FX line ships (#53).
     committed checkpoint; any retro-edit of history fails CI. Enforces R3
     mechanically. **Gate:** none (guard infra).
 
+## 4. Trade-automation track (PRD §9 — owner-approved scope change)
+
+North star (PRD §9.0): live excess vs SPY/QQQ DCA, and an unexecuted
+signal has zero alpha — so routine BUYS get automated in stages T0→T3
+(§9.2), sells never. Queue impact: T2 (basket CSV `docs/orders_YYYY-MM.csv`)
+ships inside the #31 session; T3 (MCP order routine, report-only first
+month, `AUTOTRADE` kill switch + caps per §9.2) is its OWN session, only
+after two clean T2 months, and only after the owner fixes cloud repo
+access. Session 0 also adds the §9.3 docs-map to README. Owner's two
+manual to-dos, no code: (1) set up IBKR native recurring investment for
+the index half NOW (stage T1), (2) grant the cloud environment GitHub
+access to this repo (unblocks routines + T3).
+
 *Written 2026-07-07 by the planning model. If reality contradicts this
 file, record it in PRD §8.5 and stop — don't improvise around it.*

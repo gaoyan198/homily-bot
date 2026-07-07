@@ -585,3 +585,63 @@ gated Phase-C sessions), the execution risk register R1–R12 (bars
 contract, ledger backfill ban, refine-state continuity, TZ drift, workflow
 reorder trap, …), and mechanical guards #61 (engine-freeze CI hash check)
 and #62 (ledger append-only hash check).
+
+## 9. North star + trade-execution automation track (added 2026-07-07)
+
+### 9.0 North star — the tie-breaker for every prioritisation call
+
+The system's single success metric: **live, measured excess return vs SPY
+and QQQ DCA on the same cash flows, over rolling multi-year windows** —
+the #14 scorecard on the #13 ledger, reconciled yearly against the
+backtests (#40). Standing implications:
+
+1. Anything that doesn't (a) improve selection, (b) reduce risk of ruin,
+   or (c) close the behaviour gap (#58) is decoration — deprioritise it.
+2. **The behaviour gap is part of the edge.** An unexecuted signal has
+   zero alpha. Hence §9.2: remove the human from routine execution,
+   staged, with the same gate discipline as signals.
+
+### 9.1 Scope change to §7 (owner request, 2026-07-07)
+
+§7's "auto-trading via IBKR" exclusion is **relaxed for routine monthly
+BUYS only**, staged per §9.2. Never automated, ever: sells of any kind,
+the 🐻 bear protocol (PLAYBOOK §4 stays human), leverage, options, or any
+order outside that day's whitelist (digest ⭐ set + the index ETF).
+
+### 9.2 Automation stages (each runs 2 clean months before the next)
+
+| Stage | What | Human effort | Infra |
+|---|---|---|---|
+| T0 | #31 copilot prints exact orders | type them in (~5 min/mo) | none — already queued |
+| T1 | **IBKR native recurring investment** for the index half (Bucket A, monthly, fractional) | zero — set up once in Client Portal | **none. Do this now — no code, automates 50% of the routine today** |
+| T2 | copilot also emits an IBKR-importable **basket CSV**, committed as `docs/orders_YYYY-MM.csv` | import + transmit (~1 min/mo) | none |
+| T3 | monthly scheduled Claude routine with the IBKR MCP connector reads the buy-day block in `docs/snapshot.json` and places the star-half as **LIMIT day orders**; Telegram report of intents/fills | review the report | cloud repo access fixed + MCP attach (routines already support both) |
+| T4 | headless API/gateway trading | — | **stays out of scope** — gateway/2FA infra and its failure modes outweigh saving 1 min/month |
+
+**T3 hard guardrails** (in the routine prompt AND cross-checked against
+snapshot.json): `AUTOTRADE` repo variable must read `on` (kill switch) ·
+whitelist = that day's ⭐ set + index ETF · buy-only · LIMIT ≤ last close
+×1.01, day-expiry · per-order cap BUY_BUDGET/5, monthly cap BUY_BUDGET ·
+skip any name >10% of book post-buy · no margin · HK excluded (R12) · one
+attempt then report, never retry into a moving market. **First T3 month =
+report-only** (order instructions created, not transmitted), diffed
+against T2's basket. Promotion gates: T2→T3 needs two consecutive months
+of the basket executed verbatim with zero manual corrections; T3 keeps
+running only while the monthly Flex reconcile (#32: positions vs intended)
+shows zero unexplained deviations.
+
+### 9.3 Repo cleanliness contract (so the executor always knows where things live)
+
+| File | Role, one line |
+|---|---|
+| `PRD.md` | what & why — spec, backlog, scope decisions |
+| `SPECS.md` | how — build specs per item (session 0 writes it) |
+| `DESIGNS.md` | deep design decisions — folds into SPECS.md once specs exist; delete, don't accrete |
+| `EXECUTION.md` | session order, engine freeze, risk register |
+| `PLAYBOOK.md` | the human manual |
+| `README.md` | index + honesty notes; session 0 adds this docs-map to it |
+
+Rules: no new top-level .md without a line here; generated artifacts live
+in `docs/` or as workflow-committed state files (and MUST be added to the
+workflow's `git add` list in the same PR, per R8); when a doc supersedes
+another, the old content is deleted in the same commit.
