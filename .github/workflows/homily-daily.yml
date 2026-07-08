@@ -42,5 +42,8 @@ jobs:
           git config user.name "homily-bot"
           git config user.email "actions@users.noreply.github.com"
           git add homily_champion.json homily_refine_log.csv homily_fund_cache.json 2>/dev/null || true
+          # #13 signals ledger + snapshot + append-only checkpoint (R8): commit
+          # them here or CI silently discards the track record every day.
+          git add homily_signals_log.csv homily_ledger_hash.json docs/snapshot.json 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"

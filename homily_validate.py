@@ -267,4 +267,58 @@ print("[15] Whale shelf: replenished -> stable, dried-up/far shelf -> not .... P
 import homily_golden
 homily_golden.run()
 
+# --- 17. Signals ledger (#13): idempotent per (date,ticker), snapshot shape --
+# Reuses the golden fixtures -> live engines -> homily_ledger, into a temp dir
+# so the committed ledger is never touched. Proves same-day re-runs OVERWRITE
+# (no dupes, unlike the old refine log) and the snapshot carries every name.
+import os, json, tempfile, datetime
+import homily_ledger
+from homily_golden import _up, _dn, _leader, BULL
+
+with tempfile.TemporaryDirectory() as _td:
+    _lg = os.path.join(_td, "signals.csv")
+    _sn = os.path.join(_td, "snapshot.json")
+    _hf = os.path.join(_td, "ledger_hash.json")
+    _held = [_up("AAA"), _dn("BBB")]
+    _disco = [_leader("LEAD")]
+    _day = datetime.date(2026, 7, 8)
+    _kw = dict(holdings_set={"AAA", "BBB"}, fund=lambda _t: "F:2/3",
+               ledger=_lg, snapshot=_sn, hashfile=_hf)
+    homily_ledger.record(_held, _disco, BULL, _day, **_kw)
+    homily_ledger.record(_held, _disco, BULL, _day, **_kw)   # re-run same day
+    _rows = homily_ledger._read_rows(_lg)
+    assert len(_rows) == 3, f"same-day re-run must not dup: got {len(_rows)}"
+    assert {r["ticker"] for r in _rows} == {"AAA", "BBB", "LEAD"}
+    assert {r["held"] for r in _rows} == {"0", "1"}, "held flag must be 0/1"
+    assert set(_rows[0].keys()) == set(homily_ledger.COLUMNS), "schema drift"
+    _snap = json.load(open(_sn))
+    assert _snap["date"] == "2026-07-08" and _snap["regime"]["label"] == "BULL"
+    assert len(_snap["holdings"]) == 2 and len(_snap["discovery"]) == 1
+    assert _snap["holdings"][0]["support"] is not None  # rich fields present
+print("[17] Ledger: same-day re-run overwrites (no dupes), snapshot full ... PASS")
+
+# --- 18. Ledger append-only guard (#62 / R3): retro-edits fail CI -----------
+# A second day freezes the first; then any edit to that frozen row must make
+# verify_history() raise. This is R3 enforced mechanically, not by convention.
+with tempfile.TemporaryDirectory() as _td:
+    _lg = os.path.join(_td, "signals.csv")
+    _sn = os.path.join(_td, "snapshot.json")
+    _hf = os.path.join(_td, "ledger_hash.json")
+    _kw = dict(holdings_set={"AAA"}, fund=lambda _t: "F:2/3",
+               ledger=_lg, snapshot=_sn, hashfile=_hf)
+    homily_ledger.record([_up("AAA")], [], BULL, datetime.date(2026, 7, 7), **_kw)
+    homily_ledger.record([_up("AAA")], [], BULL, datetime.date(2026, 7, 8), **_kw)
+    homily_ledger.verify_history(ledger=_lg, hashfile=_hf)   # clean -> no raise
+    _bad = homily_ledger._read_rows(_lg)
+    for _r in _bad:                                          # tamper with day 1
+        if _r["date"] == "2026-07-07":
+            _r["close"] = "999999"
+    homily_ledger._write_rows(_bad, _lg)
+    try:
+        homily_ledger.verify_history(ledger=_lg, hashfile=_hf)
+        raise SystemExit("[18] FAIL: retro-edit of frozen history not caught")
+    except AssertionError:
+        pass
+print("[18] Ledger guard: retro-edit of frozen history fails CI (R3) ...... PASS")
+
 print("\nAll structural assertions passed.")

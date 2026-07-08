@@ -9,13 +9,14 @@ accumulate-on-dip guidance anchored on chip support — there is no SELL state.
 
 Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
-import os, datetime, urllib.request, urllib.parse, urllib.error
+import os, urllib.request, urllib.parse, urllib.error
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_conviction import conviction
 from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
+import homily_ledger
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json so book changes are a
 # one-line edit (last synced from live IBKR positions 2026-07-06).
@@ -247,8 +248,20 @@ def build_digest():
             reads = " · ".join(f"{p.ticker} {ICON[p.state]}"
                                for p, _, _ in ps)
             proxy[tk] = f"　↳ _constituents proxy:_ {reads}"
-    return render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
-                         datetime.date.today())
+    # Pinned SGT run date (R7) — the ledger idempotency key and the digest
+    # date must be the same value on every runner; homily_ledger owns it.
+    today = homily_ledger.run_date()
+    digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
+                           today)
+    # #13 signals ledger + snapshot: record what the digest printed today.
+    # Non-fatal to the send (the user always gets their digest); any history
+    # corruption is caught hard by the validate gate (check [17]) that #16
+    # runs BEFORE this step in CI.
+    try:
+        homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS))
+    except Exception as e:
+        print(f"[ledger] skipped: {e}")
+    return digest
 
 
 def chunks(text, limit=4000):
