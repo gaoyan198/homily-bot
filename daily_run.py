@@ -17,6 +17,7 @@ from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
 import homily_ledger
+import homily_alerts
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json so book changes are a
 # one-line edit (last synced from live IBKR positions 2026-07-06).
@@ -253,6 +254,17 @@ def build_digest():
     today = homily_ledger.run_date()
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today)
+    # #15 state-change alerts: diff today's states against yesterday's ledger
+    # BEFORE record() overwrites it, so a quiet day sends no second message.
+    alert = ""
+    try:
+        states = ([homily_ledger.state_of(s, c, s.ticker in HOLDINGS)
+                   for s, c, _ in sigs]
+                  + [homily_ledger.state_of(s, c, False) for s, c, _ in disco])
+        alert = homily_alerts.format_alerts(
+            homily_alerts.build_alerts(states, regime, today), today)
+    except Exception as e:
+        print(f"[alerts] skipped: {e}")
     # #13 signals ledger + snapshot: record what the digest printed today.
     # Non-fatal to the send (the user always gets their digest); any history
     # corruption is caught hard by the validate gate (check [17]) that #16
@@ -261,7 +273,7 @@ def build_digest():
         homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS))
     except Exception as e:
         print(f"[ledger] skipped: {e}")
-    return digest
+    return digest, alert
 
 
 def chunks(text, limit=4000):
@@ -301,4 +313,7 @@ def send(text):
 
 
 if __name__ == "__main__":
-    send(build_digest())
+    digest, alert = build_digest()
+    send(digest)
+    if alert:                       # #15: only on a state change, never quiet
+        send(alert)

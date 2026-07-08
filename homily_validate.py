@@ -321,4 +321,40 @@ with tempfile.TemporaryDirectory() as _td:
         pass
 print("[18] Ledger guard: retro-edit of frozen history fails CI (R3) ...... PASS")
 
+# --- 19. State-change alerts (#15): fire ONLY on transitions ----------------
+# Pure ledger diff. A name that didn't move is silent; ⭐/🔵/🐳/🚀/regime
+# transitions each surface exactly once; a brand-new ticker never alerts.
+import homily_alerts
+from homily_regime import Regime
+
+_prev = [
+    {"ticker": "AAA", "state": "HOLD", "whale": "0", "gates_ok": "0"},
+    {"ticker": "BBB", "state": "BOTTOMING", "whale": "0", "gates_ok": "1"},
+    {"ticker": "CCC", "state": "ACCUMULATE", "whale": "0", "gates_ok": "0"},
+    {"ticker": "QUIET", "state": "HOLD", "whale": "0", "gates_ok": "0"},
+]
+_today = [
+    {"ticker": "AAA", "state": "ACCUMULATE", "whale": True, "gates_ok": True},
+    {"ticker": "BBB", "state": "HOLD", "whale": False, "gates_ok": False},
+    {"ticker": "CCC", "state": "PULLBACK", "whale": False, "gates_ok": False},
+    {"ticker": "QUIET", "state": "HOLD", "whale": False, "gates_ok": False},
+    {"ticker": "NEW", "state": "ACCUMULATE", "whale": True, "gates_ok": True},
+]
+_bull = Regime("BULL", {}, "")
+_al = homily_alerts.diff_alerts(_today, _bull, _prev, "BEAR")
+assert any("REGIME flip: BEAR → BULL" in x for x in _al), "regime flip missed"
+assert any("⭐ AAA entered ACCUMULATE" in x for x in _al)
+assert any("🐳 AAA" in x for x in _al) and any("🚀 AAA" in x for x in _al)
+assert any("⭐ CCC left ACCUMULATE" in x for x in _al)
+assert any("🚀 BBB no longer passes" in x for x in _al)
+assert not any("QUIET" in x for x in _al), "unchanged name must stay silent"
+assert not any("NEW" in x for x in _al), "brand-new ticker must not alert"
+# no prior regime + everyone unchanged -> empty (quiet day sends nothing)
+_quiet = homily_alerts.diff_alerts(
+    [{"ticker": "QUIET", "state": "HOLD", "whale": False, "gates_ok": False}],
+    _bull, [{"ticker": "QUIET", "state": "HOLD", "whale": "0", "gates_ok": "0"}],
+    None)
+assert _quiet == [] and homily_alerts.format_alerts(_quiet, "2026-07-09") == ""
+print("[19] Alerts: transitions fire once, quiet/new names silent ......... PASS")
+
 print("\nAll structural assertions passed.")
