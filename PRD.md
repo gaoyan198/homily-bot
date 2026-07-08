@@ -551,7 +551,8 @@ ranking test · #29 clustering algorithm · #31 allocation algorithm incl. HK
 board lots + ledger-based buy-day detection · #34–36 frontend architecture
 decisions · #39 block-bootstrap spec). Part III = the execution handoff
 protocol for whichever model builds this. Part II = idea bank, indexed here
-(unvetted; every one gated; new proposals start #61):
+(unvetted; every one gated; #61–62 = EXECUTION.md guards, #63 = bear-regime
+rethink below, new proposals start #64):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -570,6 +571,7 @@ protocol for whichever model builds this. Part II = idea bank, indexed here
 | 58 | Behaviour-gap tracker (perfect-PLAYBOOK shadow book vs real) | M | none (measurement) — prices the discipline gap |
 | 59 | Flash-crash pre-script (SPY 5d < −7% psychology note) | S | none (info-only) |
 | 60 | Data-QA cross-check (freshness/Stooq-agreement asserts) | S | validate tests; feeds #17 |
+| 63 | **Bear-regime rethink** — decompose the 🐻 sell step (owner-requested 2026-07-08; full design **D-63** in DESIGNS.md Part I) | M | pre-committed decision rule in D-63; PLAYBOOK §4 edited only per that rule |
 
 ### 8.4 Planning → execution handoff
 

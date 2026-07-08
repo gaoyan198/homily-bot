@@ -163,6 +163,102 @@ percentiles for each arm plus P(strategy > QQQ DCA). Printed caveat, always:
 *bootstrap cannot manufacture unseen regimes — these are within-window
 uncertainty bands, not forecasts.*
 
+### D-63 · Bear-regime rethink — decompose the 🐻 sell step (#63)
+
+**Owner-requested 2026-07-08; may jump the session queue.**
+
+**Why (evidence as of 2026-07-08).** Two independent backtests agree the
+bear overlay destroys value in the tested windows: the repo's own THE-test
+rows (5y 16.7% → 6.4% CAGR, 10y 19.2% → 9.4% — BACKTEST_RESULTS.md) and
+the owner's independent Opus replay (selling satellites at 🐻 lost to plain
+holding). Worse, the overlay barely improved drawdown (−26→−28% at 5y,
+−66→−64% at 10y) — in-window it fails at its *own* goal. But the overlay
+that was tested is NOT PLAYBOOK §4: it sells *everything* (no bucket
+distinction), parks proceeds AND new contributions in cash (§4 step 6 says
+keep buying the index through the bear), and lump re-enters (§4 step 7 says
+thirds over 3 months). The measured ~−10 pts/yr conflates three separate
+decisions that have never been isolated. Meanwhile the 30y INDEX-level
+record (`homily_regime_backtest.py`, re-run 2026-07-08) shows what the 10m
+SMA actually is: roughly CAGR-neutral insurance that halves MaxDD *on the
+index itself* — SPY timed 7.9%/−24% vs held 8.9%/−52%; QQQ timed 7.4%/−37%
+vs held 7.4%/−81%. It pays enormously in grinding bears (dot-com QQQ −13%
+timed vs −80% held), loses every V-recovery (COVID −10.5% vs −10.4%, then
+re-buys higher; 2023-25 bull lag 88% vs 131%).
+
+**The structural hypothesis to test.** The 10m SMA is an index-vol signal
+applied to satellite-vol positions. By the time BOTH indices close a month
+below their SMA (2022: fired ~Feb–Apr), 60–90%-vol satellites had already
+taken −40…−60% of their drawdown; by the time both reclaimed (Jan–Feb
+2023), the survivors had already bounced hard off the Oct–Dec lows.
+Sell-low / re-buy-high is a structural lag mismatch, not one window's bad
+luck — and IF this holds, no re-entry tweak rescues the sell step for
+satellites; only dropping it does. The index core was never the question
+(Bucket A is never sold; the 30y numbers above are why that rule stays).
+
+**Step 1 — decomposition matrix.** New `homily_bear_backtest.py` (reuse
+`run_strategy` machinery from `homily_strategy_backtest.py`; add a
+`bear_mode` switch). Point-in-time, both universes (current + hype-2021
+control), 5y AND 10y windows, 10 bps:
+  (a) **hold-through** — idx-fallback, no regime (the current champion);
+  (b) **sell-all + cash** — the existing overlay, reproduced (regression
+      row: must match the committed BACKTEST_RESULTS numbers);
+  (c) **freeze-only** — hold everything; while 🐻 no satellite buys,
+      contributions → index core;
+  (d) **faithful §4** — sell satellites once at 🐻 onset → dry powder
+      (cash, 0%); contributions → index while 🐻; on 🐂 redeploy the dry
+      powder into ⭐ picks in thirds over 3 months;
+  (e) **sell-into-index** — sell satellites at onset, proceeds straight
+      into the index core, never re-timed (kills the re-entry leg).
+Report MOIC / TWR CAGR / MaxDD per mode, plus the 2022 episode in
+isolation. Mandatory header caveat: these windows contain ONE bear episode
+and it was V-shaped — this is a decomposition, not a proof.
+
+**Step 2 — grinding-bear test (the design case).** The sell step was never
+for 2022; §4 says its value is "avoiding the −40…−80% middle" — that means
+2000-02 and 2008. Run modes (a)–(e) with `rng="max"` on high-beta names
+alive through both bears (AMZN NVDA AAPL MSFT ADBE INTC CSCO QCOM ORCL
+EBAY). Survivor-biased — label it — but the failure mode under test is
+holding *through* −80%, which survivors still exhibited (AMZN −94%;
+CSCO/INTC never reclaimed their 2000 highs). If the satellite sell step
+doesn't pay HERE, it pays nowhere and the case is closed.
+
+**Step 3 — the vol-matched alternative.** If the index gate is too slow
+for satellites, the per-name tool already exists: PLAYBOOK §5.2 (⚪ 12w +
+F:0–1 → sell half). Mode (f): no 🐻 selling at all; §5.2 as the only
+satellite exit. Prior warning: per-stock trend-cutting failed our backtests
+twice (`homily_regime.py` header) — expect a null; run it anyway so the
+claim "per-name beats index-gate for satellites" finally has a number.
+(Ties into idea #51, the ⚪ time-stop calibration.)
+
+**Decision rule (pre-committed, so the result can't be argued with).**
+- (c) ≥ (a) − 0.5 pt CAGR AND (c) ≥ (b), (d), (e) in both windows AND the
+  sell step also fails Step 2 → **PLAYBOOK §4 drops the mechanical sell**:
+  🐻 becomes freeze-satellite-adds + all contributions → index +
+  margin-zero enforcement; §5.2 stays the only satellite sell; the banner
+  keeps its behavioural role (pre-commitment against panic).
+- (d) materially beats (b) → §4 stands as written; BACKTEST_RESULTS gets a
+  correction note (the overlay it maligned was never the playbook).
+- Step 2 shows the sell step pays big in 2000-02-style bears → keep it,
+  reframed explicitly as tail insurance, with the measured in-window
+  premium (the V-recovery cost) quoted right in §4 — the "false alarms are
+  the premium" paragraph already half-says this; give it the number.
+- Whatever wins, the SAME commit syncs: PLAYBOOK §4, HOW_IT_WORKS.md,
+  BACKTEST_RESULTS.md (new table replaces the two overlay rows), and the
+  BEAR action string in `homily_regime.py` ("DECISIVE SELL: … exit
+  satellite/🚀 names" must say what the book says — no drift).
+
+**Pitfalls.** Thirds re-entry must key off completed-month 🐂 only (reuse
+`regime_series`); mode (d) sells once at onset, not every bear month; dry
+powder earns 0% and MUST be marked in `val` each month or MaxDD is fake;
+buckets aren't modelled in the backtest (every position is a satellite) —
+acceptable, note it, and optionally add a Bucket-B proxy (grown-to->10%
+positions exempt from the 🐻 sell) as a sensitivity row, not a headline.
+Part III rule 6 is sacred here: if the numbers contradict this design's
+hypothesis, ship them and stop.
+
+File: `homily_bear_backtest.py` · Effort M · validate: mode (b) reproduces
+the committed overlay rows (regression); golden numbers in the docstring.
+
 ---
 
 ## Part II — extended idea bank (#46–60)
