@@ -10,6 +10,7 @@ accumulate-on-dip guidance anchored on chip support — there is no SELL state.
 Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
 import os, re, html, urllib.request, urllib.parse, urllib.error
+from concurrent.futures import ThreadPoolExecutor
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_conviction import conviction
@@ -124,17 +125,36 @@ def fmt_row(s, watch=False, young=False):
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
 
 
+MAX_WORKERS = 4     # #17 / R11: bounded fan-out — a rate-limit ban on the
+                    # runner IP would kill EVERY digest, worse than slow.
+
+
+def _screen_one(item, spy):
+    """(tk, result) for one name; result is None on any fetch/engine failure.
+    Referenced via the module global fetch_daily so tests can monkeypatch it."""
+    tk, sym = item
+    try:
+        bars = fetch_daily(sym, rng="5y")
+        sig = danny_signal(tk, bars)
+        return tk, (sig, conviction(sig, bars, spy), len(bars) < MIN_HISTORY)
+    except Exception:
+        return tk, None
+
+
 def screen(book, errs, spy):
-    """-> list of (DannySignal, Conviction, young), digest-sorted."""
+    """-> list of (DannySignal, Conviction, young), digest-sorted. Fetches fan
+    out across a bounded thread pool (network-bound); output is sorted so it is
+    identical regardless of completion order. Falls back to a sequential pass
+    if the pool itself misbehaves (R11 keeps the sequential path alive)."""
+    items = list(book.items())
+    try:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+            results = list(ex.map(lambda it: _screen_one(it, spy), items))
+    except Exception:
+        results = [_screen_one(it, spy) for it in items]
     out = []
-    for tk, sym in book.items():
-        try:
-            bars = fetch_daily(sym, rng="5y")
-            sig = danny_signal(tk, bars)
-            out.append((sig, conviction(sig, bars, spy),
-                        len(bars) < MIN_HISTORY))
-        except Exception:
-            errs.append(tk)
+    for tk, res in results:
+        (out if res is not None else errs).append(res if res is not None else tk)
     out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
     return out
 

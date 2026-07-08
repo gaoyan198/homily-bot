@@ -378,4 +378,73 @@ assert "&amp;" not in _plain and "A&B<C>" in _plain, "fallback must restore text
 assert strip_html("<b>hi</b> x&amp;y") == "hi x&y"
 print("[20] HTML digest: specials escaped, plain-text fallback strips tags . PASS")
 
+# --- 21. Fetch hardening (#17 / R11): flaky retry, host rotation, threaded --
+# A mocked opener fails twice then succeeds; fetch_daily must retry, rotate
+# query1->query2, and return the SAME 6-tuple bars (R1 contract unchanged).
+# screen() must fan out over threads yet stay deterministic and capture the
+# one failing name in errs (never a silent short list).
+import urllib.error as _ue
+import homily_data
+
+homily_data.BACKOFF = 0.0                       # no real sleeping in the test
+homily_data.JITTER = 0.0
+_PAYLOAD = json.dumps({"chart": {"result": [{
+    "timestamp": [1700000000, 1700086400],
+    "indicators": {"quote": [{"open": [10, 11], "high": [10.5, 11.5],
+                              "low": [9.5, 10.5], "close": [10, 11],
+                              "volume": [100, 110]}]}}]}}).encode()
+
+
+class _Resp:
+    def __init__(self, d): self._d = d
+    def read(self): return self._d
+    def __enter__(self): return self
+    def __exit__(self, *a): return False
+
+
+class _Flaky:
+    def __init__(self, fail): self.fail, self.calls, self.hosts = fail, 0, []
+
+    def __call__(self, req, timeout=None, context=None):
+        self.hosts.append(req.full_url)
+        self.calls += 1
+        if self.calls <= self.fail:
+            raise _ue.URLError("flaky")
+        return _Resp(_PAYLOAD)
+
+
+_op = _Flaky(2)
+_bars = homily_data.fetch_daily("TEST", rng="1mo", opener=_op)
+assert _bars[0][4] == 10 and _bars[1][4] == 11 and len(_bars[0]) == 6, "bars contract"
+assert _op.calls == 3, f"should retry to success, got {_op.calls} calls"
+assert "query1" in _op.hosts[0] and "query2" in _op.hosts[1], "no host rotation"
+try:
+    homily_data.fetch_daily("TEST", opener=_Flaky(99))
+    raise SystemExit("[21] FAIL: exhausted retries must raise")
+except _ue.URLError:
+    pass
+
+import daily_run
+from homily_golden import _bars as _mkbars
+_up_bars = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)
+
+
+def _stub_fetch(sym, rng="5y"):
+    if sym == "BAD":
+        raise RuntimeError("boom")
+    return _up_bars
+
+
+_orig_fetch = daily_run.fetch_daily
+daily_run.fetch_daily = _stub_fetch
+try:
+    _errs = []
+    _res = daily_run.screen({"AAA": "AAA", "BAD": "BAD", "BBB": "BBB"},
+                            _errs, [100.0] * 900)
+finally:
+    daily_run.fetch_daily = _orig_fetch
+assert _errs == ["BAD"], f"failing fetch must land in errs, got {_errs}"
+assert [x[0].ticker for x in _res] == ["AAA", "BBB"], "threaded screen not sorted"
+print("[21] Fetch: retry+rotation, contract intact, threaded screen sorted . PASS")
+
 print("\nAll structural assertions passed.")
