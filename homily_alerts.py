@@ -22,10 +22,16 @@ and diffing against emptiness would fire an alert for every screened name.
 """
 import os
 import json
+import html
 
 import homily_ledger
 
 REGIME_ICON = {"BULL": "🐂", "BEAR": "🐻", "MIXED": "⚖️"}
+
+
+def _e(x):
+    """Escape a ticker/label for the Telegram HTML message (#34)."""
+    return html.escape(str(x), quote=False)
 
 
 def _truthy(v):
@@ -44,13 +50,14 @@ def diff_alerts(today_states, today_regime, prev_rows, prev_regime):
     if prev_regime and today_regime is not None and \
             prev_regime != today_regime.label:
         icon = REGIME_ICON.get(today_regime.label, "")
-        lines.append(f"{icon} REGIME flip: {prev_regime} → {today_regime.label}")
+        lines.append(f"{icon} REGIME flip: {_e(prev_regime)} → "
+                     f"{_e(today_regime.label)}")
 
     for st in today_states:
         p = prev.get(st["ticker"])
         if p is None:
             continue                       # new to the ledger: nothing to diff
-        tk, cur, was = st["ticker"], st["state"], p["state"]
+        tk, cur, was = _e(st["ticker"]), st["state"], p["state"]
 
         if cur == "ACCUMULATE" and was != "ACCUMULATE":
             lines.append(f"⭐ {tk} entered ACCUMULATE (was {was})")
@@ -96,5 +103,5 @@ def format_alerts(lines, day):
     """Wrap the transition lines into the tiny second message, or '' for none."""
     if not lines:
         return ""
-    head = f"🔔 *Homily alerts — {day}* (state changes only)"
+    head = f"🔔 <b>Homily alerts — {_e(day)}</b> (state changes only)"
     return "\n".join([head, ""] + lines)

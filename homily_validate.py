@@ -357,4 +357,25 @@ _quiet = homily_alerts.diff_alerts(
 assert _quiet == [] and homily_alerts.format_alerts(_quiet, "2026-07-09") == ""
 print("[19] Alerts: transitions fire once, quiet/new names silent ......... PASS")
 
+# --- 20. HTML digest escaping (#34 F0 / R4): specials escaped, fallback safe -
+# A hostile ticker (& < >) must come out as entities inside the HTML tags, and
+# the plain-text fallback (strip_html) must remove every tag yet restore the
+# real text — so a bad name degrades the digest, never drops it.
+from daily_run import render_digest as _rd, strip_html
+from homily_golden import _up as _up2, REFINE as _REF, TODAY as _TD
+
+_hs, _hc, _hy = _up2("SAFE")
+_hs.ticker = "A&B<C>"
+_html = _rd([(_hs, _hc, _hy)], [], {}, None, _REF, [], _TD,
+            fund=lambda _t: "f<x>")
+assert "<code>A&amp;B&lt;C&gt;" in _html, "hostile ticker not HTML-escaped"
+assert "A&B<C>" not in _html, "raw specials leaked into HTML body"
+assert ("<blockquote expandable>" in _html
+        and _html.rstrip().endswith("</blockquote>")), "footer not folded"
+_plain = strip_html(_html)
+assert not any(t in _plain for t in ("<b>", "<code>", "<blockquote", "<i>"))
+assert "&amp;" not in _plain and "A&B<C>" in _plain, "fallback must restore text"
+assert strip_html("<b>hi</b> x&amp;y") == "hi x&y"
+print("[20] HTML digest: specials escaped, plain-text fallback strips tags . PASS")
+
 print("\nAll structural assertions passed.")
