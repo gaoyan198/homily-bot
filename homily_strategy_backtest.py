@@ -73,17 +73,22 @@ def close_on(bars, d):
     return px
 
 
-def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260):
+def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260,
+                 index_bars=None):
+    """index_bars set -> PLAYBOOK §3.5: months with no ⭐/🔵 buy the INDEX
+    core (never sold) instead of parking cash. None -> legacy cash-waits."""
     is_bear = regime_series(spy, qqq)
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
     cash = paid = 0.0
-    hold = {}                      # name -> shares
+    hold = {}                      # name -> shares (sold on bear)
+    core = 0.0                     # index-core shares (never sold)
     nav, unit_val, units = [], 1.0, 0.0
     cash_months = trades = 0
     for d in months:
         # mark portfolio, update NAV before today's contribution
-        val = cash + sum(sh * (close_on(data[n], d) or 0)
-                         for n, sh in hold.items())
+        ipx = (close_on(index_bars, d) or 0) if index_bars else 0
+        val = cash + core * ipx + sum(sh * (close_on(data[n], d) or 0)
+                                      for n, sh in hold.items())
         if units > 0:
             unit_val = val / units
         nav.append(unit_val)
@@ -120,11 +125,14 @@ def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260):
                 if px:
                     hold[n] = hold.get(n, 0) + per / px; trades += 1
             cash = 0.0
+        elif index_bars and ipx > 0 and cash > 0:   # §3.5: no stars -> index
+            core += cash * (1 - COST) / ipx; cash = 0.0; trades += 1
         elif cash > 1.5:
             cash_months += 1
     d_end = spy[-1][0]
-    final = cash + sum(sh * (close_on(data[n], d_end) or 0)
-                       for n, sh in hold.items())
+    eipx = (close_on(index_bars, d_end) or 0) if index_bars else 0
+    final = cash + core * eipx + sum(sh * (close_on(data[n], d_end) or 0)
+                                     for n, sh in hold.items())
     unit_val = final / units
     nav.append(unit_val)
     yrs = len(months) / 12
@@ -166,12 +174,17 @@ if __name__ == "__main__":
             except Exception:
                 dead.append(n)
         live = [n for n in names if n in data]
-        for rg in (True, False):
-            m, c, dd, cm, tr = run_strategy(live, data, spy, qqq, rg)
-            tag = "w/ regime sell" if rg else "no regime     "
+        # ix=None -> legacy cash-waits; ix=spy -> PLAYBOOK §3.5 index fallback
+        for rg, ix, tag in ((False, None, "cash-wait     "),
+                            (False, spy,  "idx-fallback  "),
+                            (True,  spy,  "idx-fb+regime ")):
+            m, c, dd, cm, tr = run_strategy(live, data, spy, qqq, rg,
+                                            index_bars=ix)
             print(f"{label[:18]:<18} {tag:<15}{m:>6.2f}{c*100:>9.1f}%"
                   f"{dd*100:>7.0f}%{cm:>8}{tr:>7}")
         if dead:
             print(f"{'':18} (unfetchable/delisted, excluded: {', '.join(dead)})")
     print("\nMOIC = final value per $1 contributed. TWR = time-weighted NAV")
-    print("return. Universe A is hindsight-picked — read B for the truth.")
+    print("return. idx-fallback = no-⭐ months buy the index (PLAYBOOK §3.5),")
+    print("the faithful strategy; cash-wait is the old under-invested variant.")
+    print("Universe A is hindsight-picked — read B for the truth.")

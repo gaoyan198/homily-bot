@@ -1,164 +1,105 @@
-# Backtest results — strategy vs S&P 500 / Nasdaq-100 (5y **and** 10y)
+# Backtest results — strategy vs S&P 500 / Nasdaq-100 (5y and 10y)
 
 **Windows:** 5y = 2021-07-08 → 2026-07-07 · 10y = 2016-07-08 → 2026-07-07 ·
 **$1/month contributions** · **10 bps per trade** · **point-in-time** (signals
 computed only from bars up to each decision day — no look-ahead).
 
-Regenerate any time: `python homily_strategy_backtest.py` (5y). The 10y run uses
-the same `run_strategy`/`run_dca` functions with `rng="10y"`. Every number below
-is raw output — nothing is hand-entered.
+Reproduce: `python homily_strategy_backtest.py` (5y, prints both variants below).
+The 10y figures use the same functions with `rng="10y"`. Every number is raw
+output — nothing is hand-entered.
 
-> **TL;DR — does the method work?** Over **5 years**, yes: the honest control
-> beat both indices (22.7% vs 11.3%/14.7% CAGR). Over **10 years**, no clean win:
-> it beat the S&P but **lost to a plain QQQ index fund**, added almost nothing in
-> real dollars over the extra 5 years (because most of the watchlist didn't exist
-> before ~2020, so it sat in cash), and carried a **−75% drawdown**. The 10-year
-> test is the more sobering one — read the "10-year extension" section.
-
----
-
-## The honest headline
-
-Over this 5-year window the strategy **did** beat both indices — *on the honest
-control universe, without the bear-market selling overlay.* Read that whole
-sentence; all three qualifiers matter.
-
-| Scenario | CAGR (time-weighted) | Growth of $10,000 | Worst drawdown |
-|---|---:|---:|---:|
-| DCA into **S&P 500** (SPY) | 11.3% | **$17,080** | −23% |
-| DCA into **Nasdaq-100** (QQQ) | 14.7% | **$19,853** | −34% |
-| **Our strategy — honest control** (Univ B, no regime sell) | **22.7%** | **$27,811** | −30% |
-
-The honest-control strategy roughly **doubled the S&P's dollar outcome**
-($27.8k vs $17.1k) and beat the Nasdaq-100 too — at a similar drawdown to QQQ.
-
-> **How "Growth of $10,000" is computed.** The backtest contributes $1/month
-> (dollar-cost-averaging), so its headline metric is MOIC (final value per dollar
-> paid in) and a **time-weighted CAGR** that strips out contribution timing. The
-> $10k column applies that time-weighted CAGR as a 5-year lump-sum compounding —
-> `$10,000 × (1 + CAGR)⁵` — exactly the "growth of $10,000" convention on an index
-> fund fact sheet. It answers *"if $10k had been invested and compounded at the
-> strategy's realized time-weighted rate."*
+> ### ⚠ Correction (this file was revised)
+> An earlier version of this file said the strategy "sat in cash 2016–2020" and
+> used that to explain the weak 10-year result. **That was a bug in the backtest,
+> not the strategy.** [PLAYBOOK.md §3.5](PLAYBOOK.md#L57) says *"if there are no
+> ⭐ names, buy the index with the full amount"* — but the old code let cash sit
+> idle instead. The backtest now implements the index fallback (`index_bars=`
+> param). Fixing it **lowered the 5-year number** (the idle cash had been
+> lump-concentrating into winners, flattering the result) and **barely changed
+> the 10-year one**. The corrected numbers are below.
 
 ---
 
-## Full results table (all six scenarios)
+## The faithful strategy (PLAYBOOK §3.5): no ⭐ → buy the index
+
+This is what the operating manual actually prescribes, and what the numbers below
+labelled **"idx-fallback"** now test: every month, split the contribution across
+the ⭐ ACCUMULATE names; **if there are none, buy the index core** (never sold).
+The old **"cash-wait"** rows are kept only to show the size of that earlier bug.
+
+### 5-year window (2021-07 → 2026-07)
 
 | Scenario | MOIC | CAGR | Growth of $10k | MaxDD |
 |---|---:|---:|---:|---:|
-| DCA S&P 500 (SPY) | 1.50 | 11.3% | $17,080 | −23% |
-| DCA Nasdaq-100 (QQQ) | 1.73 | 14.7% | $19,853 | −34% |
-| **Honest control** (Univ B) — no regime sell | 2.14 | 22.7% | **$27,811** | −30% |
-| Honest control (Univ B) — + bear-sell overlay | 1.11 | 3.3% | $11,763 | −31% |
-| Hindsight univ (Univ A) — no regime sell | 3.67 | 43.3% | $60,427 | −18% |
-| Hindsight univ (Univ A) — + bear-sell overlay | 1.66 | 17.6% | $22,492 | −19% |
+| DCA S&P 500 (SPY) | 1.50 | 11.3% | $17,036 | −23% |
+| DCA Nasdaq-100 (QQQ) | 1.73 | 14.7% | $19,880 | −34% |
+| **Strategy — honest control, idx-fallback** | **1.77** | **16.7%** | **$21,675** | −26% |
+| Strategy — honest control, + bear-sell overlay | 1.25 | 6.4% | $13,637 | −28% |
+| *(old buggy cash-wait variant, for reference)* | *2.14* | *22.7%* | *$27,794* | *−30%* |
+| Hindsight univ (discount entirely), idx-fallback | 2.59 | 29.2% | $35,964 | −23% |
 
-*MOIC = final value per $1 contributed (DCA basis). CAGR = time-weighted NAV
-return. MaxDD = worst peak-to-trough on the NAV.*
+**Read:** over 5 years the faithful strategy beat both indices — **16.7% vs 11.3%
+(S&P) / 14.7% (QQQ)**, $10k → $21.7k vs $17.0k / $19.9k. A real but *modest* edge,
+about **+2 points/yr over QQQ** — not the +8 the buggy version implied.
 
----
+### 10-year window (2016-07 → 2026-07)
 
-## Read this before you trust the headline
-
-**1. It is ONE window.** 2021-07 → 2026-07 contained a sharp 2022 drawdown and a
-strong recovery. A single 5-year path is *suggestive, not proof.* Different start
-dates would give different numbers.
-
-**2. Which universe you feed it decides the result — so read Universe B, not A.**
-- **Universe A ("current")** is today's bot watchlist — i.e. **hindsight-picked
-  2026 winners** (NVDA, PLTR, AVGO…). Its 43.3% / $60k is *upward-biased by
-  construction* and should be **ignored** as a performance claim. It's shown only
-  for contrast.
-- **Universe B ("hype-2021")** is the honest control: what a growth investor
-  *plausibly* held in mid-2021 — winners **and** still-listed wrecks (PTON, ZM,
-  DOCU, ROKU, LCID, TDOC, AFRM…). The real question is whether the signals dodge
-  losers *they haven't yet seen die*. That's the row the headline uses.
-  *(Caveat: fully delisted names can't be fetched key-free, so a little
-  survivorship bias remains even in B.)*
-
-**3. The bear-market selling overlay HURT in this window.** Adding "liquidate
-everything when both SPY and QQQ close below their 10-month SMA" cut the honest
-control from **22.7% → 3.3% CAGR** ($27.8k → $11.8k) — *below both indices.* 2022
-was a V-shaped recovery, and mechanical bear-selling got whipsawed out and bought
-back higher. This is exactly why the operating protocol is: **BEAR de-risks
-satellites and pauses adds — the index core is never sold.** (The 33-year regime
-backtest shows the overlay pays only in *grinding* bears, not V-recoveries.)
-
-**4. The ⭐-timing itself has a documented weakness.** A separate test
-(`homily_danny_backtest.py`) found that *waiting* for the ⭐ ACCUMULATE zone got a
-**worse** average cost than plain monthly DCA on every name tested. The edge in
-the table above comes from *stock selection* (accumulating trending leaders), not
-from the entry-timing levels — treat the ⭐ zone as context, not a market-timing
-signal.
-
----
-
----
-
-## 10-year extension (2016-07 → 2026-07) — the sobering result
-
-We extended the exact same engine to a full decade. It does **not** confirm the
-5-year win — and *why* it doesn't is the most useful thing in this document.
+The fallback index matters a lot here (most early months have no ⭐, so they buy
+the index). PLAYBOOK Bucket A is an SPY+QQQ blend, so both ends are shown:
 
 | Scenario | MOIC | CAGR | Growth of $10k | MaxDD |
 |---|---:|---:|---:|---:|
 | DCA S&P 500 (SPY) | 2.08 | 13.1% | $34,359 | −24% |
-| DCA Nasdaq-100 (QQQ) | **2.86** | **20.1%** | **$62,554** | −34% |
-| Honest control (Univ B) — no regime sell | 2.08 | 16.8% | $47,161 | **−75%** |
-| Honest control (Univ B) — + bear-sell overlay | 1.18 | 7.9% | $21,352 | −72% |
-| Hindsight univ (Univ A) — no regime sell | 6.67 | 31.3% | $152,361 | −48% |
-| Hindsight univ (Univ A) — + bear-sell overlay | 2.14 | 14.6% | $39,147 | −44% |
+| **DCA Nasdaq-100 (QQQ)** | **2.86** | **20.1%** | **$62,554** | −34% |
+| Strategy — honest control, idx-fallback = **SPY** | 2.05 | 16.3% | $45,298 | −67% |
+| Strategy — honest control, idx-fallback = **QQQ** | 2.31 | 19.2% | $57,925 | −66% |
+| Strategy — honest control, + bear-sell overlay | 1.33 | 9.4% | $24,513 | −64% |
 
-**Three findings, all against the strategy as a 10-year claim:**
+**Read:** over 10 years the faithful strategy **beats the S&P but loses to a plain
+QQQ index fund** — *regardless of the fallback index.* Best case (QQQ fallback)
+19.2% vs QQQ 20.1%; MOIC 2.31 vs 2.86. And it does so with a **−66% drawdown vs
+QQQ's −34%.** You take roughly double the risk to slightly underperform "buy QQQ,
+never look."
 
-**1. Over 10 years it LOST to a plain QQQ index fund.** Honest control 16.8% CAGR
-/ MOIC 2.08 vs QQQ 20.1% / 2.86 ($47k vs $63k on $10k). It beat the S&P, but a
-one-line "buy QQQ and never look at it" beat *us*. The 5-year outperformance did
-not survive the longer window.
+---
 
-**2. The extra 5 years added almost nothing in real dollars — because the
-watchlist didn't exist yet.** The honest control's MOIC is **2.08 over 10y vs
-2.14 over 5y** — essentially identical. Doubling the horizon barely changed the
-dollar outcome. Reason: Universes A and B are *post-2020 growth names* (PLTR '20,
-RKLB/APP/HIMS/DUOL/SOFI/COIN/AFRM/UPST '21…). In 2016–2020 most of them didn't
-trade, so the strategy sat in **cash**, contributing but not investing. The
-"10-year backtest" is really *~5 years parked in cash, then the 5-year strategy.*
-The time-weighted CAGR (16.8%) flatters it by scoring those cash years as flat;
-the MOIC (2.08) tells the honest dollar truth. **You cannot backtest a strategy
-on stocks that hadn't listed yet** — that's the real lesson of this row.
+## What actually drives the result
 
-**3. The drawdown is unholdable: −75%.** The 5-year window (MaxDD −30%) hid the
-full 2021→2022 growth-stock collapse from its own peak. Over 10 years the
-concentrated leader basket fell **−75%** — and the bear-sell overlay barely
-helped (−72%). Danny's edge *is* the willingness to endure drops like this; the
-backtest confirms the drops are real, and most people would not hold through a
-three-quarters loss.
-
-> **Is the 10-year test even fair to the strategy?** Partly not — the DCA SPY/QQQ
-> benchmarks are valid across the full decade, but the strategy's *universe* isn't
-> (it mostly post-dates 2020). So the cleanest apples-to-apples comparison remains
-> the **5-year** window. The honest takeaway from going to 10 years is not "the
-> method is 16.8% CAGR" — it's "we can't yet test this method over a decade,
-> because the names are too young, and where we *can* test it the tail risk is
-> brutal."
+- **Over 5y the edge is real but small.** The concentrated-leaders tilt added
+  ~2 pts/yr over QQQ. The earlier "+8 pts" was an artifact of idle cash being
+  lump-deployed into winners at favourable later dates — not a repeatable edge.
+- **Over 10y the tilt does not beat QQQ.** Because ~half the decade had no ⭐
+  candidates (the growth names hadn't listed), the strategy was mostly *just the
+  index* plus a growth kicker — and after the 2022 collapse the kicker didn't net
+  enough alpha to beat holding QQQ outright.
+- **The bear-selling overlay hurt in BOTH windows** (6.4% at 5y, 9.4% at 10y) —
+  a V-recovery whipsaw. This is why the protocol de-risks *satellites* only and
+  never sells the index core.
+- **Tail risk is the real cost.** −66% to −75% peak-to-trough on the concentrated
+  book. Danny's whole edge is the conviction to hold through that; the backtest
+  confirms the drop is real and most people would capitulate.
+- **The ⭐ entry timing has no edge of its own** (`homily_danny_backtest.py`):
+  waiting for the ⭐ zone got a *worse* average cost than plain DCA. The (modest)
+  outperformance comes from *which* names are held, not *when* they're bought.
 
 ---
 
 ## Bottom line — does our method work?
 
-**Over 5 years: a real, honest win.** Buying and holding trending leaders on the
-control universe returned **22.7% CAGR vs 11.3% (S&P) / 14.7% (Nasdaq-100)**,
-$10k → **$27.8k vs $17.0k / $19.9k**, driven by *never selling winning leaders* —
-Danny's core idea, and it beat the index.
+**Over 5 years: a modest, honest win.** Holding trending leaders (with the index
+as the no-⭐ fallback) returned **16.7% CAGR vs 11.3% (S&P) / 14.7% (QQQ)**, $10k →
+**$21.7k vs $17.0k / $19.9k**. About +2 pts/yr over the Nasdaq — real, but small,
+and from one window.
 
-**Over 10 years: not proven, and arguably not yet testable.** It beat the S&P but
-**lost to a plain QQQ index fund** (16.8% vs 20.1%), added nothing in real dollars
-over the extra five years (the names didn't exist to buy), and exposed a **−75%
-drawdown**. The mechanical bear-selling overlay hurt in *both* windows.
+**Over 10 years: it does not beat a plain QQQ index fund.** 16–19% CAGR vs QQQ's
+20.1%, at roughly *double* the drawdown (−66% vs −34%). It beats the S&P; it does
+not beat the Nasdaq-100.
 
-**Honest verdict:** the method's *idea* — concentrate in trending leaders, hold
-them, never per-name sell — has one promising 5-year window behind it and a strong
-theoretical basis, but it is **not** validated over a full cycle, it does **not**
-reliably beat QQQ over 10 years, and its real cost is **tail risk you must be able
-to stomach (−75%)**. It is a conviction-and-risk-tolerance strategy, not a proven
-index-beater. Treat every number here as *suggestive evidence, not a guarantee.*
+**Honest verdict:** the core idea — concentrate in trending leaders and never
+per-name-sell — is defensible and edged the S&P in both windows and QQQ over the
+recent 5y. But it is **not** a proven QQQ-beater over a full decade, its real
+price of admission is a **~two-thirds drawdown**, and the mechanical
+market-timing overlay actively hurt. For most people, *"DCA into QQQ and hold"*
+was as good or better with far less pain. This method is a **conviction-and-
+risk-tolerance** play, not a demonstrated index-beater — treat every figure here
+as suggestive evidence, not a promise.
