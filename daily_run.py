@@ -40,8 +40,9 @@ PROXY_CONSTITUENTS = {
 
 # Discovery universe: liquid names NOT held, screened for new-money setups.
 # Only ⭐/🔵 states surface in the digest. Deliberately excluded: leveraged
-# ETFs (SOXL, MSTR-style proxies) and crypto-beta names (COIN) — out of
-# scope per PRD; and anything already in HOLDINGS/WATCH.
+# ETFs (SOXL, MSTR-style proxies) — out of scope per PRD; and anything
+# already in HOLDINGS/WATCH. Crypto-beta spot ETFs (IBIT, ETHA) added
+# 2026-07-09 — see PRD §5c.
 UNIVERSE = {
     # megacap tech
     "MSFT":"MSFT","AMZN":"AMZN","META":"META","NFLX":"NFLX","ORCL":"ORCL",
@@ -56,6 +57,10 @@ UNIVERSE = {
     "LLY":"LLY","NVO":"NVO","V":"V","MA":"MA","COST":"COST","JPM":"JPM",
     # HK/China liquid names beyond BABA
     "0700":"0700.HK","3690":"3690.HK","1810":"1810.HK",
+    # SG liquid names
+    "D05":"D05.SI",
+    # crypto-beta spot ETFs
+    "IBIT":"IBIT","ETHA":"ETHA",
     # growth mid-caps — the multi-bagger hunting ground
     "RKLB":"RKLB","ASTS":"ASTS","SOFI":"SOFI","HIMS":"HIMS","DUOL":"DUOL",
     "AXON":"AXON","TOST":"TOST","RBLX":"RBLX","IOT":"IOT","CRDO":"CRDO",

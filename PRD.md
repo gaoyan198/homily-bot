@@ -105,11 +105,16 @@ note only and never veto adds.
 ## 5c. Addendum 2026-07-06 — discovery screen (names not held)
 
 User request: no loyalty to current holdings — screen for money elsewhere
-too. `UNIVERSE` in `daily_run.py` (~37 liquid names: megacap tech, semis/AI
-hardware, growth software, quality diversifiers, HK liquid names) runs
+too. `UNIVERSE` in `daily_run.py` (~40 liquid names: megacap tech, semis/AI
+hardware, growth software, quality diversifiers, HK/SG liquid names) runs
 through the same composite engine; only ⭐ ACCUMULATE / 🔵 BOTTOMING setups
-surface (max 8 rows + overflow tickers). Exclusions stand: no leveraged
-ETFs, no crypto-beta names. Telegram sends now split at 4000 chars.
+surface (max 8 rows + overflow tickers). Exclusion stands: no leveraged
+ETFs. Telegram sends now split at 4000 chars.
+
+**Update 2026-07-09:** added D05.SI (DBS), IBIT, ETHA to `UNIVERSE` per
+owner request. The crypto-beta exclusion is lifted — IBIT/ETHA (spot
+BTC/ETH ETFs) now screen through the same composite engine as everything
+else, no special-casing.
 
 ## 5d. Addendum 2026-07-06 — multi-bagger conviction screen + methodology page
 
