@@ -85,7 +85,9 @@ gates** — all must pass to earn a 🚀 tier:
 - **G1 size** — avg 20-day dollar volume < $5B/day (megacaps by trading value
   can't 5× quickly)
 - **G2 trend** — monthly UP and weekly RED (leaders only, no falling knives)
-- **G3 leader** — 12-month return beats SPY by ≥ 20 points (relative strength)
+- **G3 leader** — 12-month *total* return (dividends reinvested, on both the
+  name and SPY) beats SPY by ≥ 20 points (relative strength). Chip levels and
+  POC stay on raw prices — a level must be a price you could have traded at.
 - **G4 basis** — price above POC (the crowd's cost basis is defended)
 - **G5 data** — ≥ 200 daily bars (too-fresh IPOs are unratable)
 

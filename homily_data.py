@@ -44,8 +44,18 @@ def _fetch_json(symbol, rng, *, opener=urllib.request.urlopen):
     raise last
 
 
-def fetch_daily(symbol, rng="2y", *, opener=urllib.request.urlopen):
-    """-> list of (date, open, high, low, close, volume), oldest first."""
+def fetch_series(symbol, rng="2y", *, opener=urllib.request.urlopen):
+    """-> (bars, adj): the R1 6-tuple bars AND a parallel adjusted-close list.
+
+    `bars` are RAW (split-adjusted, non-dividend) prices — the contract every
+    chip/level/whale engine depends on; a level must be a price you could have
+    traded at. `adj[i]` is the dividend-adjusted close for `bars[i]`, same
+    index, same length: the series ALL return math must use (#18), because raw
+    closes make every dividend payer look permanently behind a zero-div growth
+    name. One HTTP pull feeds both — Yahoo already returns adjclose alongside
+    quote. Names without an adjclose block (or with a null in it) fall back to
+    the raw close, i.e. to the pre-#18 behaviour.
+    """
     data = _fetch_json(symbol, rng, opener=opener)
     res = data["chart"]["result"][0]
     gran = (res.get("meta") or {}).get("dataGranularity")
@@ -54,14 +64,27 @@ def fetch_daily(symbol, rng="2y", *, opener=urllib.request.urlopen):
                          f" (rng={rng}) — refusing coarse data")
     ts = res["timestamp"]
     q = res["indicators"]["quote"][0]
-    bars = []
+    ac = ((res["indicators"].get("adjclose") or [{}])[0]).get("adjclose") or []
+    bars, adj = [], []
     for i, t in enumerate(ts):
         o, h, l, c, v = (q["open"][i], q["high"][i], q["low"][i],
                          q["close"][i], q["volume"][i])
         if None in (o, h, l, c) or not v:
             continue  # skip half-formed / zero-volume rows (holidays, today)
+        a = ac[i] if i < len(ac) and ac[i] is not None else c
         bars.append((datetime.date.fromtimestamp(t), o, h, l, c, v))
-    return bars
+        adj.append(a)
+    return bars, adj
+
+
+def fetch_daily(symbol, rng="2y", *, opener=urllib.request.urlopen):
+    """-> list of (date, open, high, low, close, volume), oldest first."""
+    return fetch_series(symbol, rng, opener=opener)[0]
+
+
+def fetch_adj(symbol, rng="2y", *, opener=urllib.request.urlopen):
+    """-> list of dividend-adjusted closes, aligned to fetch_daily()'s bars."""
+    return fetch_series(symbol, rng, opener=opener)[1]
 
 
 def resample(bars, key):

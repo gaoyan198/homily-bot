@@ -1,13 +1,19 @@
 {
-  "_comment": "IBKR holdings -> Yahoo symbol. Synced from live IBKR positions 2026-07-06. Edit this file (not daily_run.py) when the book changes.",
-  "AAPL": "AAPL",
-  "AMD": "AMD",
-  "CSPX": "CSPX.L",
-  "DRAM": "DRAM",
-  "GOOG": "GOOG",
-  "NVDA": "NVDA",
-  "PLTR": "PLTR",
-  "TSLA": "TSLA",
-  "TSM": "TSM",
-  "9992": "9992.HK"
+  "_v": 2,
+  "_comment": "IBKR holdings, schema v2 (#27). shares/cost synced from live IBKR positions 2026-07-10 (get_account_positions, read-only). bucket: \"A\" = index sleeve (never sold/timed, excluded from stock-book %); \"B\" = earned core, set manually once the owner judges a name grew there via the add rules AND passes fundamentals (no automatic detection yet, see homily_positions.py); omitted = \"C\", the default satellite bucket the 10%-cap warning applies to. currency: omitted = USD; set explicitly for non-USD names (excluded from the USD stock-book denominator, R12). Edit this file (not daily_run.py) when the book changes.",
+  "positions": {
+    "AAPL": {"yahoo": "AAPL", "shares": 8.7833, "cost": 265.9528},
+    "AMD": {"yahoo": "AMD", "shares": 6.8009, "cost": 265.1777},
+    "AVGO": {"yahoo": "AVGO", "shares": 2.25, "cost": 455.1079},
+    "CSPX": {"yahoo": "CSPX.L", "shares": 1, "cost": 726.17, "bucket": "A"},
+    "DRAM": {"yahoo": "DRAM", "shares": 87, "cost": 63.3048},
+    "GOOG": {"yahoo": "GOOG", "shares": 7.2378, "cost": 319.8018},
+    "MU": {"yahoo": "MU", "shares": 0.1, "cost": 1082.393},
+    "NVDA": {"yahoo": "NVDA", "shares": 14.8527, "cost": 186.9963},
+    "PLTR": {"yahoo": "PLTR", "shares": 20.1623, "cost": 142.9854},
+    "RDDT": {"yahoo": "RDDT", "shares": 6, "cost": 159.9086},
+    "TSLA": {"yahoo": "TSLA", "shares": 10.2322, "cost": 417.9315},
+    "TSM": {"yahoo": "TSM", "shares": 4.389, "cost": 397.2927},
+    "9992": {"yahoo": "9992.HK", "shares": 600, "cost": 182.37, "currency": "HKD"}
+  }
 }

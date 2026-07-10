@@ -47,6 +47,7 @@ COLUMNS = [
     "pct_in_profit", "wk_circle", "wk_score", "wk_weeks", "monthly_up",
     "vh_status", "whale", "absorption", "divergence", "shelf_stable",
     "conv_score", "conv_tier", "gates_ok", "gates_failed", "ftag",
+    "rs12_rank",
 ]
 
 
@@ -58,9 +59,12 @@ def run_date():
 
 # --- per-name state (one source of truth: snapshot uses it whole, the CSV
 #     row is its flattened projection) -----------------------------------------
-def state_of(sig, conv, held, *, fund=fund_tag):
+def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None):
     """DannySignal + Conviction -> a JSON-native dict of everything the digest
-    knew about one name today. Pure read of frozen-engine outputs."""
+    knew about one name today. Pure read of frozen-engine outputs.
+    `pos_view` (#27, homily_positions.position_view()) is snapshot-only,
+    optional data for #28-30 to consume — None for anything not a tracked
+    USD position (not held, Bucket A, non-USD, or an unsynced holdings.json)."""
     s, c, ch = sig, conv, sig.chips
     zlo, zhi = (s.add_zone if s.add_zone else (None, None))
     try:
@@ -96,7 +100,26 @@ def state_of(sig, conv, held, *, fund=fund_tag):
         "rs12": round(c.rs12, 2),
         "dvol": round(c.dvol, 2),
         "conv_parts": dict(c.parts),
+        "bucket": (pos_view["bucket"] if pos_view else None),
+        "book_pct": (round(pos_view["pct"], 2)
+                     if pos_view and pos_view["pct"] is not None else None),
+        "cap_note": (pos_view["cap_note"] if pos_view else None),
     }
+
+
+def rs12_ranks(states):
+    """Cross-sectional RS12 rank among today's buy-day candidates, mirroring
+    `homily_selection_backtest._screen`: ACCUMULATE (⭐) names if any screened
+    today, else BOTTOMING (🔵) as fallback — same precedence #24's backtest
+    ranks over. Ships now (no behaviour change) so the promotion's ledger
+    forward-check (PRD §5j) has rank data accruing from day one; digest
+    ordering and money allocation are untouched until/unless #24 is
+    promoted. Non-candidates get no rank (None -> blank CSV cell)."""
+    accum = [s for s in states if s["state"] == "ACCUMULATE"]
+    cands = accum or [s for s in states if s["state"] == "BOTTOMING"]
+    ranked = sorted(cands, key=lambda s: -s["rs12"])
+    ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
+    return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
 
 
 def _csv_cell(v):
@@ -228,7 +251,11 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
     held_states = [state_of(s, c, s.ticker in holdings_set, fund=fund)
                    for s, c, _ in sigs]
     disco_states = [state_of(s, c, False, fund=fund) for s, c, _ in disco]
-    rows = [csv_row(st, day) for st in held_states + disco_states]
+    all_states = held_states + disco_states
+    ranks = rs12_ranks(all_states)
+    for st in all_states:
+        st["rs12_rank"] = ranks[st["ticker"]]
+    rows = [csv_row(st, day) for st in all_states]
     append_rows(rows, day, ledger=ledger, hashfile=hashfile)
     write_snapshot(day, regime, held_states, disco_states, path=snapshot)
 

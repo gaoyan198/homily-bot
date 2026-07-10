@@ -345,6 +345,16 @@ daily_run.py (ordering/marking), PLAYBOOK.md, homily_ledger.py rank
 column (ships NOW with no behaviour change so the forward-check has
 data — S effort, next session).
 
+**Update 2026-07-10 (rank column shipped):** `homily_ledger.py` gained
+`rs12_ranks()` + a `rs12_rank` CSV column (appended at the end, per the
+file's append-only-columns rule) — cross-sectional rank of a name's RS12
+among that day's ⭐ ACCUMULATE candidates, falling back to 🔵 BOTTOMING on
+a no-⭐ day, exactly mirroring `homily_selection_backtest._screen`'s
+precedence. Non-candidates get a blank rank. Pure measurement: digest
+ordering, copilot allocation and money movement are all unchanged; this
+only makes sure the July–Sept ledger rows carry the rank data the
+2026-10-01 forward-check needs. Gate: `homily_validate.py` check [25].
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
@@ -738,6 +748,47 @@ gated Phase-C sessions), the execution risk register R1–R12 (bars
 contract, ledger backfill ban, refine-state continuity, TZ drift, workflow
 reorder trap, …), and mechanical guards #61 (engine-freeze CI hash check)
 and #62 (ledger append-only hash check).
+
+### 8.5 Execution notes — where reality contradicted the plan
+
+`EXECUTION.md` requires that a session which finds the plan wrong records it
+here rather than improvising around it. Newest first.
+
+**2026-07-10 · #19 shipped; "volume spike" was half the tell.** The item
+specified `|1-day move| > 45%` **on a volume spike**. That catches a forward
+split (10:1 leaves prices divided and volume multiplied) and misses the reverse
+split, where the same mis-adjustment multiplies price and *divides* volume — a
+volume **collapse**. `homily_corp.py` accepts either side of the median (spike
+OR collapse); validate check [24] pins both. Also widened beyond the letter of
+the spec: the suspension covers the VH band and the 🎯/🐳 tags, not just
+`add`/`POC`/`res` — they are all prices read off the same poisoned histogram,
+and a 🐳 promotion is by definition a claim about distance to a chip shelf.
+Run over the live 67-name book on 2026-07-10: **zero names flagged** — the
+guard is dormant, as a guard should be.
+
+**2026-07-10 · #18 shipped; its stated premise was wrong.** The item claimed
+raw closes "systematically dock payers (V MA COST LLY NVO, SPY itself)". The
+measured delta is `name_yield − spy_yield`, not `name_yield`: crediting SPY's
+own ~1.3% yield to the benchmark docks *every* name by −1.3 pts, and only
+above-SPY yielders come out ahead (D05.SI +7.6, JNJ +2.8, NVO +2.1). V/MA/COST
+still lose ground (−0.6…−0.8) because they yield less than SPY. Across all 68
+universe names **G3 flipped for none** (full table: BACKTEST_RESULTS.md §5).
+The fix is correct and now shipped, but it bought correctness, not selection
+quality — logged so nobody later re-derives it as an edge.
+
+**New backlog item, opened by the same session:**
+
+64. **Backtests on total return** (M) — `homily_selection_backtest.py`,
+    `homily_strategy_backtest.py`, `homily_core4_backtest.py` and
+    `homily_multiwindow_backtest.py` still rank/compound on raw closes, so
+    live RS12 and backtested RS12 now differ by the yield spread. Migrate them
+    to `homily_data.fetch_series()` (raw bars for signals/levels, adj closes
+    for returns and for the SPY/QQQ DCA baselines they are measured against —
+    the baselines are *understated* today, so this can only make the strategy
+    look worse, which is exactly why it must be done). **Gate:** #24's
+    `rs12-top3` selection result re-run on adjusted closes must still clear
+    its pre-registered rule; if it doesn't, the promotion candidate deferred
+    to 2026-10-01 is withdrawn, not re-shopped.
 
 ## 9. North star + trade-execution automation track (added 2026-07-07)
 

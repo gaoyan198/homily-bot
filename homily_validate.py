@@ -432,17 +432,17 @@ _up_bars = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)
 def _stub_fetch(sym, rng="5y"):
     if sym == "BAD":
         raise RuntimeError("boom")
-    return _up_bars
+    return _up_bars, [b[4] for b in _up_bars]
 
 
-_orig_fetch = daily_run.fetch_daily
-daily_run.fetch_daily = _stub_fetch
+_orig_fetch = daily_run.fetch_series
+daily_run.fetch_series = _stub_fetch
 try:
     _errs = []
     _res = daily_run.screen({"AAA": "AAA", "BAD": "BAD", "BBB": "BBB"},
                             _errs, [100.0] * 900)
 finally:
-    daily_run.fetch_daily = _orig_fetch
+    daily_run.fetch_series = _orig_fetch
 assert _errs == ["BAD"], f"failing fetch must land in errs, got {_errs}"
 assert [x[0].ticker for x in _res] == ["AAA", "BBB"], "threaded screen not sorted"
 print("[21] Fetch: retry+rotation, contract intact, threaded screen sorted . PASS")
@@ -474,5 +474,191 @@ try:
 except ValueError:
     pass
 print("[22] Granularity guard: max=epoch params, non-1d bars refused ........ PASS")
+
+# --- 23. Total-return correctness (#18 / R1): adjclose is a PARALLEL series --
+# fetch_series must hand back the untouched raw 6-tuple bars plus dividend-
+# adjusted closes at the same index. RS12/RS6 move to the adjusted series (a
+# payer's total return beats its price return, so RS12 raw < RS12 adj); chip
+# levels, $-volume and the G4 basis test stay on RAW prices — a level has to be
+# a price you could have traded at. Falls back to raw when Yahoo omits adjclose.
+_ADJ_PAYLOAD = json.dumps({"chart": {"result": [{
+    "timestamp": [1700000000, 1700086400],
+    "indicators": {
+        "quote": [{"open": [10, 11], "high": [10.5, 11.5],
+                   "low": [9.5, 10.5], "close": [10, 11],
+                   "volume": [100, 110]}],
+        "adjclose": [{"adjclose": [9.8, 11]}]}}]}}).encode()
+
+
+class _AdjResp(_Flaky):
+    def __call__(self, req, timeout=None, context=None):
+        self.hosts.append(req.full_url)
+        return _Resp(_ADJ_PAYLOAD)
+
+
+_b, _a = homily_data.fetch_series("TEST", opener=_AdjResp(0))
+assert [x[4] for x in _b] == [10, 11], "raw closes must survive untouched (R1)"
+assert len(_b[0]) == 6 and len(_a) == len(_b), "bars contract / adj alignment"
+assert _a == [9.8, 11], f"adjclose not parsed, got {_a}"
+_b2, _a2 = homily_data.fetch_series("TEST", opener=_Flaky(0))   # no adjclose
+assert _a2 == [x[4] for x in _b2], "missing adjclose must fall back to raw"
+
+# A dividend payer: same tape, but each past close discounted by the dividends
+# paid since. The benchmark is a flat non-payer, so the whole RS12 shift is the
+# payer's own yield.
+from homily_conviction import GATE_RS12
+_N, _DIV = 600, 0.0002                     # ~5%/yr paid continuously
+_pay_closes = [100 * 1.0006 ** i for i in range(_N)]
+_pay_bars = _mkbars(_pay_closes, [1e6] * _N)
+_pay_adj = [c * (1 - _DIV) ** (_N - 1 - i)
+            for i, c in enumerate(_pay_closes)]
+_bench = [100.0] * _N
+_sig = danny_signal("PAY", _pay_bars)
+_c_raw = conviction(_sig, _pay_bars, _bench)
+_c_adj = conviction(_sig, _pay_bars, _bench, adj=_pay_adj, spy_adj=_bench)
+assert _c_raw.rs12 < _c_adj.rs12, \
+    f"payer's total return must beat its price return: {_c_raw.rs12} !< {_c_adj.rs12}"
+# rs6 isn't on the dataclass; it shows up as the +5 bonus inside rel strength
+assert (_c_raw.parts["rel strength"], _c_adj.parts["rel strength"]) == (0, 15), \
+    "RS6 must migrate to adjusted closes too (10 for RS12>=20, +5 for RS6>=10)"
+assert _c_raw.dvol == _c_adj.dvol, "$-volume must stay on raw prices"
+assert (_c_raw.parts["structure"] == _c_adj.parts["structure"]
+        and _c_raw.parts["trend"] == _c_adj.parts["trend"]), \
+    "only relative strength may move; basis/trend read raw prices"
+assert ("G4 basis" in _c_raw.gates_failed) == ("G4 basis" in _c_adj.gates_failed), \
+    "G4 basis-vs-POC must be decided on the raw close (levels are tradeable)"
+# and the whole point: dividends can carry a payer over the G3 leader gate
+assert conviction(_sig, _pay_bars, _bench).rs12 < GATE_RS12 <= _c_adj.rs12, \
+    "fixture should straddle G3 — otherwise the test proves nothing"
+print("[23] Total return: adj parallel to raw, RS12 raw < adj, levels raw . PASS")
+
+# --- 24. Corporate-action sanity check (#19) --------------------------------
+# A mis-adjusted 10:1 split must be caught from the tape alone, and the digest
+# must answer it by dropping the levels — never the name. Clean tapes, and the
+# same gap left far enough back that the chip decay has buried it, stay silent.
+import homily_corp
+from homily_golden import split_bars, _split, _leader, _whale, REFINE, \
+    TODAY, _fund
+
+_split_bars = split_bars(ratio=10, at=880, n=900)
+_hit = homily_corp.corp_action_bar(_split_bars)
+assert _hit == _split_bars[880][0], f"10:1 split not detected, got {_hit}"
+assert homily_corp.corp_action_bar(_mkbars([100 * 1.003 ** i for i in range(900)],
+                                           [1e6] * 900)) is None, \
+    "a clean uptrend must not be flagged"
+# reverse split: price x10, volume /10 — the plan named only the volume SPIKE,
+# but the collapse is the same event from the other side (see homily_corp)
+_rev = _mkbars([100 * 1.003 ** i * (10 if i >= 880 else 1) for i in range(900)],
+               [1e6 / 10 if i >= 880 else 1e6 for i in range(900)])
+assert homily_corp.corp_action_bar(_rev) == _rev[880][0], "reverse split missed"
+# a 45%+ move on ORDINARY volume is a crash, not a corporate action
+_crash = _mkbars([100 * 1.003 ** i * (0.5 if i >= 880 else 1) for i in range(900)],
+                 [1e6] * 900)
+assert homily_corp.corp_action_bar(_crash) is None, "volume must gate the flag"
+# and the gap ages out of the window once the chips it poisoned have decayed
+assert homily_corp.corp_action_bar(split_bars(at=700, n=900)) is None, \
+    "a gap older than the lookback must stop suspending levels"
+
+# the digest answer: state row survives, every price disappears, and the 🐳
+# add-tier can never be earned off a shelf we just said we don't trust
+_srow = daily_run.fmt_row(_split("SPLT")[0], corp=_hit)
+assert "⚠️ levels suspended" in _srow and str(_hit) in _srow, "no suspension note"
+assert "⚪" in _srow and "wk WHITE/0" in _srow, "state row must survive (#19)"
+assert not any(t in _srow for t in ("add ", "POC ", "res ", "in profit",
+                                    "VH ", "🎯", "🐳")), \
+    f"a suspended row must print no chip-derived price: {_srow}"
+_clean = daily_run.fmt_row(_split("SPLT")[0])
+assert "POC " in _clean and "VH " in _clean, "unsuspended rows keep their levels"
+# rocket gates never read the histogram, so the name stays — only its zone goes
+_lead, _lc, _ = _leader("LEAD")
+_rrow = daily_run.fmt_rocket(_lead, _lc, False, fund=_fund, corp=_hit)
+assert "score" in _rrow and "add " not in _rrow, f"rocket zone not suspended: {_rrow}"
+# the 🐳 whale-dip promotion is defined by distance to a chip shelf: a suspect
+# name must not reach the discovery list on a shelf we just disowned
+_whl = _whale("WHL")
+assert daily_run.whale_dip(_whl[0]), "fixture should be a whale-dip"
+_shown = daily_run.render_digest([], [_whl], {}, None, REFINE, [], TODAY,
+                                 fund=_fund)
+_hidden = daily_run.render_digest([], [_whl], {}, None, REFINE, [], TODAY,
+                                  fund=_fund, suspect={"WHL": _hit})
+assert "WHL" in _shown and "WHL" not in _hidden, \
+    "a suspect name must not be promoted into the 🐳 discovery tier"
+print("[24] Corp action: 10:1 + reverse split caught, crash isn't, levels off  PASS")
+
+# --- 25. RS12-rank column (#24 follow-up): measurement only, no behaviour ---
+# change. Candidate set mirrors homily_selection_backtest._screen precedence
+# (⭐ ACCUMULATE if any today, else 🔵 BOTTOMING fallback); rank is 12m RS
+# descending among that set; everyone else gets no rank. This is the ledger
+# column the promotion's forward-check (PRD §5j) will read from July onward.
+def _st(ticker, state, rs12):
+    return {"ticker": ticker, "state": state, "rs12": rs12}
+
+
+_today25 = [_st("HI", "ACCUMULATE", 0.30), _st("LO", "ACCUMULATE", 0.05),
+            _st("MID", "ACCUMULATE", 0.15), _st("HOLDER", "HOLD", 0.99),
+            _st("BOT", "BOTTOMING", 0.10)]
+_ranks25 = homily_ledger.rs12_ranks(_today25)
+assert _ranks25 == {"HI": 1, "MID": 2, "LO": 3, "HOLDER": None, "BOT": None}, \
+    f"⭐ present must rank only ⭐, best RS12 first: {_ranks25}"
+# no ⭐ today -> fall back to ranking 🔵, exactly like _screen's `cands or backs`
+_nobull25 = [_st("B1", "BOTTOMING", 0.20), _st("B2", "BOTTOMING", 0.40),
+             _st("H1", "HOLD", 5.0)]
+assert homily_ledger.rs12_ranks(_nobull25) == {"B1": 2, "B2": 1, "H1": None}, \
+    "no ⭐ today must rank 🔵 candidates, not leave everyone unranked"
+# neither state present -> nobody ranked (not an error, just an empty candidate set)
+assert homily_ledger.rs12_ranks([_st("X", "HOLD", 1.0)]) == {"X": None}
+print("[25] RS12 rank: ⭐ else 🔵 fallback, best-RS12-first, others blank .... PASS")
+
+# --- 26. Position-aware book math (#27): % of book, bucket, cap note -------
+# Fixture book on a fixture price map (unit-level), then a real render_digest
+# pass (positions=None default is unaffected; a supplied book annotates only
+# its own tracked, USD, non-Bucket-A names — the golden fixtures in check
+# [16] use tickers no real holdings.json would ever contain, so they stay
+# byte-exact without this check having to touch them).
+import homily_positions
+
+_pos26 = {
+    "IDX": {"yahoo": "IDX", "shares": 10, "cost": 100, "bucket": "A"},
+    "HK": {"yahoo": "HK.HK", "shares": 100, "cost": 50, "currency": "HKD"},
+    "SAFE": {"yahoo": "SAFE", "shares": 1, "cost": 10},
+    "HOT": {"yahoo": "HOT", "shares": 1, "cost": 10},
+    "CORE": {"yahoo": "CORE", "shares": 1, "cost": 10, "bucket": "B"},
+}
+_px26 = {"IDX": 100, "HK": 50, "SAFE": 2, "HOT": 20, "CORE": 20}
+# book value = SAFE(2) + HOT(20) + CORE(20) = 42; bucket-A (IDX) and non-USD
+# (HK) are excluded from the denominator (R12)
+_bv26 = homily_positions.stock_book_value(_pos26, _px26)
+assert abs(_bv26 - 42.0) < 1e-9, f"bucket-A/non-USD must be excluded: {_bv26}"
+assert homily_positions.position_view("IDX", _pos26, _px26, _bv26) is None, \
+    "bucket A must not get a book %"
+assert homily_positions.position_view("HK", _pos26, _px26, _bv26) is None, \
+    "non-USD position must not get a book % (R12)"
+_safe26 = homily_positions.position_view("SAFE", _pos26, _px26, _bv26)
+assert abs(_safe26["pct"] - 100 * 2 / 42) < 1e-6 and _safe26["cap_note"] is None
+_hot26 = homily_positions.position_view("HOT", _pos26, _px26, _bv26)
+assert _hot26["cap_note"] == "OVER CAP — no more adds", \
+    f"over 10% of book must warn: {_hot26}"
+_core26 = homily_positions.position_view("CORE", _pos26, _px26, _bv26)
+assert _core26["pct"] > 10 and _core26["cap_note"] is None, \
+    "bucket B (earned core) never gets a cap note, however big it's grown"
+
+from homily_golden import _up, _dn, REFINE, TODAY, _fund
+
+_row_plain = daily_run.fmt_row(_up("AAA")[0])
+_row_pos = daily_run.fmt_row(_up("AAA")[0], pos=_hot26)
+assert "% of book" not in _row_plain, "untracked names print no book %"
+assert "% of book" in _row_pos and "OVER CAP" in _row_pos, \
+    f"tracked + over-cap row must show both: {_row_pos}"
+
+_bigpos26 = {"AAA": {"yahoo": "AAA", "shares": 1000, "cost": 1}}
+_out26 = daily_run.render_digest([_up("AAA"), _dn("BBB")], [], {}, BULL,
+                                 REFINE, [], TODAY, fund=_fund,
+                                 positions=_bigpos26)
+_aaa_line = next(l for l in _out26.split("\n") if "AAA" in l)
+_bbb_line = next(l for l in _out26.split("\n") if "BBB" in l)
+assert "100.0% of book" in _aaa_line and "OVER CAP" in _aaa_line, \
+    f"the sole tracked position must be 100% of book, over cap: {_aaa_line}"
+assert "% of book" not in _bbb_line, "an untracked name must not be annotated"
+print("[26] Position math: % of book, bucket A/B excluded, cap note fires . PASS")
 
 print("\nAll structural assertions passed.")

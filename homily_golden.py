@@ -17,6 +17,8 @@ daily_refine(), or reads the wall clock. Two scenarios:
              a rocket, discovery hits, the full legend + algo-health footer
   empty      regime unavailable, both "nothing today" fallbacks, fetch-error
              line — the branches the populated case can't reach
+  corp       #19: a mis-adjusted 10:1 split in the chip window — the held row
+             and the rocket line print "levels suspended", the state survives
 
 Regenerate DELIBERATELY (and eyeball the git diff) after an intended change:
 
@@ -32,6 +34,7 @@ import datetime
 from homily_danny import danny_signal
 from homily_conviction import conviction
 from homily_regime import Regime
+from homily_corp import corp_action_bar
 from daily_run import render_digest, ORDER
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -94,6 +97,20 @@ def _leader(tk, young=False):                    # strong small-$vol leader -> r
     return _sig(tk, bars, young)
 
 
+def split_bars(ratio=10, at=880, n=900):
+    """An uptrend whose last `n - at` bars were never split-adjusted: price
+    divided by `ratio`, volume multiplied by it. The gap is real in the tape,
+    so corp_action_bar() must find it — and every chip level built over it is
+    a price that never traded."""
+    px = [100 * 1.003 ** i for i in range(n)]
+    return _bars([p / ratio if i >= at else p for i, p in enumerate(px)],
+                 [1e6 * ratio if i >= at else 1e6 for i in range(n)])
+
+
+def _split(tk, young=False):                     # #19 mis-adjusted 10:1 split
+    return _sig(tk, split_bars(), young)
+
+
 def _whale(tk, young=False):                     # absorbed dip -> CAUTION + 🐳
     flat = [(100.0, 101.0, 99.0, 100.0, 1e6)] * 100
     absorbed = [(p + 0.5, p + 0.5, p - 2.0, p, 3e6)
@@ -136,7 +153,24 @@ def scenario_empty():
                          ["ZZZ"], TODAY, fund=_fund)
 
 
-SCENARIOS = {"populated": scenario_populated, "empty": scenario_empty}
+def scenario_corp():
+    """#19: SPLT carries an un-adjusted 10:1 gap; the suspect date is DERIVED
+    from the same bars the engines saw, not hand-written — the detector is
+    under test here too. LEAD's levels are suspended while it still clears the
+    five rocket gates (they never read the chip histogram), which is the case
+    the held rows can't reach."""
+    splt = _split("SPLT")
+    lead = _leader("LEAD")
+    suspect = {"SPLT": corp_action_bar(split_bars()),
+               "LEAD": datetime.date(2026, 6, 30)}
+    held = sorted([splt, _up("AAA")], key=lambda x: (ORDER[x[0].state],
+                                                     x[0].ticker))
+    return render_digest(held, [lead], {}, BULL, REFINE, [], TODAY,
+                         fund=_fund, suspect=suspect)
+
+
+SCENARIOS = {"populated": scenario_populated, "empty": scenario_empty,
+             "corp": scenario_corp}
 
 
 def _path(name):
