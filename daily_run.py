@@ -71,6 +71,14 @@ UNIVERSE = {
     "NBIS":"NBIS","ALAB":"ALAB",
 }
 
+# #64 universe-entry provenance: how each name got into the screen, logged
+# per ledger row so #14's scorecard can split by it (the referee must not
+# inherit the selection bias it exists to detect). The whole hand-picked
+# WATCH/UNIVERSE list is honestly "owner-request" (PRD §5c/§5f); "screen"
+# is reserved for #65's mechanical arrivals.
+ORIGINS = {**{tk: "owner-request" for tk in {**WATCH, **UNIVERSE}},
+           **{tk: "holding" for tk in HOLDINGS}}
+
 ICON = {"ACCUMULATE":"⭐","HOLD":"🟢","PULLBACK":"🟡","BOTTOMING":"🔵",
         "CAUTION":"⚪"}
 ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"BOTTOMING":3,"CAUTION":4}
@@ -408,7 +416,8 @@ def build_digest():
     # corruption is caught hard by the validate gate (check [17]) that #16
     # runs BEFORE this step in CI.
     try:
-        homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS))
+        homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
+                             origins=ORIGINS)
     except Exception as e:
         print(f"[ledger] skipped: {e}")
     # #35 chart cards: top-3 actionable names rendered from the bars the
