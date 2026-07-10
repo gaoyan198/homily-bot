@@ -35,6 +35,11 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # #31 buy-day copilot: repo VARIABLES (not secrets — plain numbers/
+          # flags, PRD §8 #31). Unset BUY_BUDGET_USD = copilot stays dark and
+          # the digest is unchanged.
+          BUY_BUDGET_USD: ${{ vars.BUY_BUDGET_USD }}
+          SRS_COVERS_INDEX: ${{ vars.SRS_COVERS_INDEX }}
         run: python daily_run.py
 
       - name: Commit refined champion + log
@@ -45,5 +50,8 @@ jobs:
           # #13 signals ledger + snapshot + append-only checkpoint (R8): commit
           # them here or CI silently discards the track record every day.
           git add homily_signals_log.csv homily_ledger_hash.json docs/snapshot.json 2>/dev/null || true
+          # #31/T2 basket CSV (R8): commit the buy-day orders file the day
+          # it's written, or the month's basket is silently discarded
+          git add docs/orders_*.csv 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
