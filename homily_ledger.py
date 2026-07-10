@@ -47,6 +47,7 @@ COLUMNS = [
     "pct_in_profit", "wk_circle", "wk_score", "wk_weeks", "monthly_up",
     "vh_status", "whale", "absorption", "divergence", "shelf_stable",
     "conv_score", "conv_tier", "gates_ok", "gates_failed", "ftag",
+    "rs12_rank",
 ]
 
 
@@ -97,6 +98,21 @@ def state_of(sig, conv, held, *, fund=fund_tag):
         "dvol": round(c.dvol, 2),
         "conv_parts": dict(c.parts),
     }
+
+
+def rs12_ranks(states):
+    """Cross-sectional RS12 rank among today's buy-day candidates, mirroring
+    `homily_selection_backtest._screen`: ACCUMULATE (⭐) names if any screened
+    today, else BOTTOMING (🔵) as fallback — same precedence #24's backtest
+    ranks over. Ships now (no behaviour change) so the promotion's ledger
+    forward-check (PRD §5j) has rank data accruing from day one; digest
+    ordering and money allocation are untouched until/unless #24 is
+    promoted. Non-candidates get no rank (None -> blank CSV cell)."""
+    accum = [s for s in states if s["state"] == "ACCUMULATE"]
+    cands = accum or [s for s in states if s["state"] == "BOTTOMING"]
+    ranked = sorted(cands, key=lambda s: -s["rs12"])
+    ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
+    return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
 
 
 def _csv_cell(v):
@@ -228,7 +244,11 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
     held_states = [state_of(s, c, s.ticker in holdings_set, fund=fund)
                    for s, c, _ in sigs]
     disco_states = [state_of(s, c, False, fund=fund) for s, c, _ in disco]
-    rows = [csv_row(st, day) for st in held_states + disco_states]
+    all_states = held_states + disco_states
+    ranks = rs12_ranks(all_states)
+    for st in all_states:
+        st["rs12_rank"] = ranks[st["ticker"]]
+    rows = [csv_row(st, day) for st in all_states]
     append_rows(rows, day, ledger=ledger, hashfile=hashfile)
     write_snapshot(day, regime, held_states, disco_states, path=snapshot)
 

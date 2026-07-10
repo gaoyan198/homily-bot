@@ -585,4 +585,28 @@ assert "WHL" in _shown and "WHL" not in _hidden, \
     "a suspect name must not be promoted into the 🐳 discovery tier"
 print("[24] Corp action: 10:1 + reverse split caught, crash isn't, levels off  PASS")
 
+# --- 25. RS12-rank column (#24 follow-up): measurement only, no behaviour ---
+# change. Candidate set mirrors homily_selection_backtest._screen precedence
+# (⭐ ACCUMULATE if any today, else 🔵 BOTTOMING fallback); rank is 12m RS
+# descending among that set; everyone else gets no rank. This is the ledger
+# column the promotion's forward-check (PRD §5j) will read from July onward.
+def _st(ticker, state, rs12):
+    return {"ticker": ticker, "state": state, "rs12": rs12}
+
+
+_today25 = [_st("HI", "ACCUMULATE", 0.30), _st("LO", "ACCUMULATE", 0.05),
+            _st("MID", "ACCUMULATE", 0.15), _st("HOLDER", "HOLD", 0.99),
+            _st("BOT", "BOTTOMING", 0.10)]
+_ranks25 = homily_ledger.rs12_ranks(_today25)
+assert _ranks25 == {"HI": 1, "MID": 2, "LO": 3, "HOLDER": None, "BOT": None}, \
+    f"⭐ present must rank only ⭐, best RS12 first: {_ranks25}"
+# no ⭐ today -> fall back to ranking 🔵, exactly like _screen's `cands or backs`
+_nobull25 = [_st("B1", "BOTTOMING", 0.20), _st("B2", "BOTTOMING", 0.40),
+             _st("H1", "HOLD", 5.0)]
+assert homily_ledger.rs12_ranks(_nobull25) == {"B1": 2, "B2": 1, "H1": None}, \
+    "no ⭐ today must rank 🔵 candidates, not leave everyone unranked"
+# neither state present -> nobody ranked (not an error, just an empty candidate set)
+assert homily_ledger.rs12_ranks([_st("X", "HOLD", 1.0)]) == {"X": None}
+print("[25] RS12 rank: ⭐ else 🔵 fallback, best-RS12-first, others blank .... PASS")
+
 print("\nAll structural assertions passed.")

@@ -345,6 +345,16 @@ daily_run.py (ordering/marking), PLAYBOOK.md, homily_ledger.py rank
 column (ships NOW with no behaviour change so the forward-check has
 data — S effort, next session).
 
+**Update 2026-07-10 (rank column shipped):** `homily_ledger.py` gained
+`rs12_ranks()` + a `rs12_rank` CSV column (appended at the end, per the
+file's append-only-columns rule) — cross-sectional rank of a name's RS12
+among that day's ⭐ ACCUMULATE candidates, falling back to 🔵 BOTTOMING on
+a no-⭐ day, exactly mirroring `homily_selection_backtest._screen`'s
+precedence. Non-candidates get a blank rank. Pure measurement: digest
+ordering, copilot allocation and money movement are all unchanged; this
+only makes sure the July–Sept ledger rows carry the rank data the
+2026-10-01 forward-check needs. Gate: `homily_validate.py` check [25].
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
