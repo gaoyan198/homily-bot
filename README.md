@@ -93,6 +93,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_danny_backtest.py` | 5y daily ⭐-gated accumulation vs monthly DCA (it loses too) |
 | `homily_refine.py` | Daily auto-refine: walk-forward, champion replaced only if it wins **out-of-sample** |
 | `homily_png.py` | Chart cards (#35): pure-stdlib PNG (price + add-zone/POC/res + chip histogram + weekly ribbon); top-3 actionable names sent as photos after the digest |
+| `homily_bearready.py` | Bear-readiness rehearsal (#30): first-Monday digest block — bucket split, margin/SRS confirmations, the pre-computed PLAYBOOK §4 sell list; info-only |
 | `homily_buyday.py` | Buy-day copilot (#31): first run of the month resolves `BUY_BUDGET_USD` into printed IBKR-ready orders + a basket CSV (`docs/orders_YYYY-MM.csv`) — **info-only, never places an order** |
 | `daily_run.py` | Entrypoint: fetch → composite signals → refine → Telegram |
 | `PRD.md` | Danny-methodology spec + scope limits |
