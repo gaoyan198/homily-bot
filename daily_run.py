@@ -234,10 +234,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               "screened, not held)</b>"]
     if hits:
         lines += [fmt_row(s, watch=True, young=y) + f" · {esc(fund(s.ticker))}"
-                  for s, y in hits[:8]]
-        if len(hits) > 8:
-            more = ", ".join(s.ticker for s, _ in hits[8:])
-            lines.append(f"…and {len(hits) - 8} more: {esc(more)}")
+                  for s, y in hits]
     else:
         lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
     if errs:
@@ -349,16 +346,21 @@ def send(text):
         body = urllib.parse.urlencode(params).encode()
         urllib.request.urlopen(urllib.request.Request(url, data=body),
                                timeout=20)
-    for part in chunks(text):
+    parts = chunks(text)
+    n = len(parts)
+    for i, part in enumerate(parts, 1):
+        # digest exceeds Telegram's single-message cap -> split across
+        # messages; label them so the reader knows more is coming
+        page = f"<i>(part {i}/{n})</i>\n\n" if n > 1 else ""
         try:
-            post({"chat_id": chat, "text": part, "parse_mode": "HTML"})
+            post({"chat_id": chat, "text": page + part, "parse_mode": "HTML"})
             print("[sent to Telegram]")
         except urllib.error.HTTPError as e:
             # HTML entity-parse failures return 400 — deliver tag-stripped
             # plain text rather than dropping the digest (#34 R4)
             print(f"[HTML send failed: {e.code} "
                   f"{e.read().decode(errors='replace')[:200]}]")
-            post({"chat_id": chat, "text": strip_html(part)})
+            post({"chat_id": chat, "text": strip_html(page + part)})
             print("[sent to Telegram — plain-text fallback]")
 
 
