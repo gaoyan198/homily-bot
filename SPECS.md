@@ -36,6 +36,8 @@ frozen (EXECUTION §0), every gate restated before coding.
    flags** · **#29 concentration lens** — S/M digest features, any order.
 5. **#32 Flex auto-sync** · **#33 Sunday deep-dive** — after #36.
 6. **#14 live scorecard** — first read ~2026-10 (needs ~3 ledger months).
+   Its **#14a flip-scorecard rider** (1/5/20-day flip returns vs QQQ) can
+   read ~2026-08 and may ship earlier with any digest session.
 7. **#24 promotion decision** — 2026-10-01 at the earliest, per §2·24.
 8. **Phase C / studies, one per session, each behind its own gate:**
    #20 conviction backtest · #21 refine re-point · #65 mechanical
@@ -153,6 +155,16 @@ split by state, conviction decile, and #64 origin. Monthly digest section
 + a docs page (fold into #36). Uses adjclose (#18) for return math.
 **Gate:** it IS the gate for everything else. Hard rule: rows enter the
 scorecard only at their recorded ledger date (R3).
+
+**#14a · Flip scorecard (S rider, early read).** Same referee, shorter
+horizon: every state *transition* in homily_signals_log.csv (e.g.
+CAUTION→BOTTOMING, HOLD→ACCUMULATE) gets forward 1/5/20-day returns vs
+same-day QQQ, split by transition type. First read possible ~1 month
+after log start (2026-07-09) — the early smoke test while #14 proper
+waits for 3 ledger months. Same R3 rule: flips enter at their logged
+date only; no retro-editing. *(Owner-requested 2026-07-11 after the
+META/SHOP/NVDA flips of 07-10 all confirmed next session — one good day
+is anecdote, this makes it measurement.)*
 
 ### #24 · rs12-top3 promotion decision (due 2026-10-01+, design D-24 + PRD §5j)
 Pre-registered: promote ⭐ ordering/allocation to top-3-by-RS12 ONLY if
