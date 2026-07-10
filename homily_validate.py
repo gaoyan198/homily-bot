@@ -432,17 +432,17 @@ _up_bars = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)
 def _stub_fetch(sym, rng="5y"):
     if sym == "BAD":
         raise RuntimeError("boom")
-    return _up_bars
+    return _up_bars, [b[4] for b in _up_bars]
 
 
-_orig_fetch = daily_run.fetch_daily
-daily_run.fetch_daily = _stub_fetch
+_orig_fetch = daily_run.fetch_series
+daily_run.fetch_series = _stub_fetch
 try:
     _errs = []
     _res = daily_run.screen({"AAA": "AAA", "BAD": "BAD", "BBB": "BBB"},
                             _errs, [100.0] * 900)
 finally:
-    daily_run.fetch_daily = _orig_fetch
+    daily_run.fetch_series = _orig_fetch
 assert _errs == ["BAD"], f"failing fetch must land in errs, got {_errs}"
 assert [x[0].ticker for x in _res] == ["AAA", "BBB"], "threaded screen not sorted"
 print("[21] Fetch: retry+rotation, contract intact, threaded screen sorted . PASS")
@@ -474,5 +474,62 @@ try:
 except ValueError:
     pass
 print("[22] Granularity guard: max=epoch params, non-1d bars refused ........ PASS")
+
+# --- 23. Total-return correctness (#18 / R1): adjclose is a PARALLEL series --
+# fetch_series must hand back the untouched raw 6-tuple bars plus dividend-
+# adjusted closes at the same index. RS12/RS6 move to the adjusted series (a
+# payer's total return beats its price return, so RS12 raw < RS12 adj); chip
+# levels, $-volume and the G4 basis test stay on RAW prices — a level has to be
+# a price you could have traded at. Falls back to raw when Yahoo omits adjclose.
+_ADJ_PAYLOAD = json.dumps({"chart": {"result": [{
+    "timestamp": [1700000000, 1700086400],
+    "indicators": {
+        "quote": [{"open": [10, 11], "high": [10.5, 11.5],
+                   "low": [9.5, 10.5], "close": [10, 11],
+                   "volume": [100, 110]}],
+        "adjclose": [{"adjclose": [9.8, 11]}]}}]}}).encode()
+
+
+class _AdjResp(_Flaky):
+    def __call__(self, req, timeout=None, context=None):
+        self.hosts.append(req.full_url)
+        return _Resp(_ADJ_PAYLOAD)
+
+
+_b, _a = homily_data.fetch_series("TEST", opener=_AdjResp(0))
+assert [x[4] for x in _b] == [10, 11], "raw closes must survive untouched (R1)"
+assert len(_b[0]) == 6 and len(_a) == len(_b), "bars contract / adj alignment"
+assert _a == [9.8, 11], f"adjclose not parsed, got {_a}"
+_b2, _a2 = homily_data.fetch_series("TEST", opener=_Flaky(0))   # no adjclose
+assert _a2 == [x[4] for x in _b2], "missing adjclose must fall back to raw"
+
+# A dividend payer: same tape, but each past close discounted by the dividends
+# paid since. The benchmark is a flat non-payer, so the whole RS12 shift is the
+# payer's own yield.
+from homily_conviction import GATE_RS12
+_N, _DIV = 600, 0.0002                     # ~5%/yr paid continuously
+_pay_closes = [100 * 1.0006 ** i for i in range(_N)]
+_pay_bars = _mkbars(_pay_closes, [1e6] * _N)
+_pay_adj = [c * (1 - _DIV) ** (_N - 1 - i)
+            for i, c in enumerate(_pay_closes)]
+_bench = [100.0] * _N
+_sig = danny_signal("PAY", _pay_bars)
+_c_raw = conviction(_sig, _pay_bars, _bench)
+_c_adj = conviction(_sig, _pay_bars, _bench, adj=_pay_adj, spy_adj=_bench)
+assert _c_raw.rs12 < _c_adj.rs12, \
+    f"payer's total return must beat its price return: {_c_raw.rs12} !< {_c_adj.rs12}"
+# rs6 isn't on the dataclass; it shows up as the +5 bonus inside rel strength
+assert (_c_raw.parts["rel strength"], _c_adj.parts["rel strength"]) == (0, 15), \
+    "RS6 must migrate to adjusted closes too (10 for RS12>=20, +5 for RS6>=10)"
+assert _c_raw.dvol == _c_adj.dvol, "$-volume must stay on raw prices"
+assert (_c_raw.parts["structure"] == _c_adj.parts["structure"]
+        and _c_raw.parts["trend"] == _c_adj.parts["trend"]), \
+    "only relative strength may move; basis/trend read raw prices"
+assert ("G4 basis" in _c_raw.gates_failed) == ("G4 basis" in _c_adj.gates_failed), \
+    "G4 basis-vs-POC must be decided on the raw close (levels are tradeable)"
+# and the whole point: dividends can carry a payer over the G3 leader gate
+assert conviction(_sig, _pay_bars, _bench).rs12 < GATE_RS12 <= _c_adj.rs12, \
+    "fixture should straddle G3 — otherwise the test proves nothing"
+print("[23] Total return: adj parallel to raw, RS12 raw < adj, levels raw . PASS")
 
 print("\nAll structural assertions passed.")

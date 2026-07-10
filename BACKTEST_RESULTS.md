@@ -215,6 +215,48 @@ rest — a free forward test the promotion must also survive.
 
 ---
 
+## 5 · #18 total-return correctness — the RS12 delta (run 2026-07-10)
+
+RS12 (and RS6) now measure **total** return — dividends reinvested, on both
+the name and the SPY benchmark — instead of raw price return. Raw OHLC still
+drives every chip level, POC, $-volume and the G4 basis test: a printed level
+has to be a price you could have traded at (EXECUTION R1).
+
+Reproduce: `python homily_conviction.py --rs-delta [SYM…]`.
+
+The PRD's premise (#18: "payers V MA COST LLY NVO are systematically docked")
+is **only half right**, and the direction was published before it was measured:
+
+| effect | pts on RS12 |
+|---|---|
+| SPY's own 12m yield, now credited to the benchmark | **−1.3** to every name |
+| the name's own 12m yield, now credited back to it | +0 … +8.9 (D05.SI) |
+
+So the delta is `name_yield − spy_yield`, not `name_yield`. A **sub-SPY-yield**
+payer still loses ground: V −0.6, MA −0.6, COST −0.8, LLY −0.2. Only real
+yielders gain: **D05.SI +7.6**, JNJ +2.8, NVO +2.1, KO +2.0. Zero-dividend
+growth names all sit on the −1.3 floor. `CSPX.L` (accumulating ETF — dividends
+are inside the NAV, never distributed) correctly takes the full −1.3.
+
+**Across all 68 universe names, G3 flipped for none of them.** Range −1.3 …
++7.6 pts, and the gate sits at +20. The closest call is NET (+21.9 → +20.5,
+still passing). This is a **correctness fix with no measured selection effect
+today** — it removes a bias that would have mattered had the universe held
+high-yield names, and it is the honest denominator for every future RS number.
+It is not alpha, and it does not move the bar in the bottom line below.
+
+**Footnote for §1–§4 above:** those tables were produced with **raw-close**
+RS12, and are NOT regenerated. The backtests (`homily_selection_backtest.py`,
+`homily_strategy_backtest.py`, `homily_core4_backtest.py`) still rank on raw
+closes, so live RS12 and backtested RS12 now differ by the yield spread above.
+For the momentum-growth universe those tables screen, the spread is a near
+-constant −1.3 pts across names — a rank-preserving shift, which is why the
+#24 `rs12-top3` gate result stands unchanged. Migrating the backtests to
+`fetch_series()` is queued as **#64** (PRD §8.5); until it lands, do not
+compare a live RS12 print against a number in §1–§4 to the tenth of a point.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the

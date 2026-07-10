@@ -11,7 +11,7 @@ Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
 import os, re, html, urllib.request, urllib.parse, urllib.error
 from concurrent.futures import ThreadPoolExecutor
-from homily_data import fetch_daily
+from homily_data import fetch_series
 from homily_danny import danny_signal
 from homily_conviction import conviction
 from homily_fund import fund_tag
@@ -134,19 +134,20 @@ MAX_WORKERS = 4     # #17 / R11: bounded fan-out — a rate-limit ban on the
                     # runner IP would kill EVERY digest, worse than slow.
 
 
-def _screen_one(item, spy):
+def _screen_one(item, spy, spy_adj):
     """(tk, result) for one name; result is None on any fetch/engine failure.
-    Referenced via the module global fetch_daily so tests can monkeypatch it."""
+    Referenced via the module global fetch_series so tests can monkeypatch it."""
     tk, sym = item
     try:
-        bars = fetch_daily(sym, rng="5y")
+        bars, adj = fetch_series(sym, rng="5y")
         sig = danny_signal(tk, bars)
-        return tk, (sig, conviction(sig, bars, spy), len(bars) < MIN_HISTORY)
+        c = conviction(sig, bars, spy, adj=adj, spy_adj=spy_adj)
+        return tk, (sig, c, len(bars) < MIN_HISTORY)
     except Exception:
         return tk, None
 
 
-def screen(book, errs, spy):
+def screen(book, errs, spy, spy_adj=None):
     """-> list of (DannySignal, Conviction, young), digest-sorted. Fetches fan
     out across a bounded thread pool (network-bound); output is sorted so it is
     identical regardless of completion order. Falls back to a sequential pass
@@ -154,9 +155,10 @@ def screen(book, errs, spy):
     items = list(book.items())
     try:
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-            results = list(ex.map(lambda it: _screen_one(it, spy), items))
+            results = list(ex.map(lambda it: _screen_one(it, spy, spy_adj),
+                                  items))
     except Exception:
-        results = [_screen_one(it, spy) for it in items]
+        results = [_screen_one(it, spy, spy_adj) for it in items]
     out = []
     for tk, res in results:
         (out if res is not None else errs).append(res if res is not None else tk)
@@ -280,10 +282,11 @@ def build_digest():
     """IO shell: fetch everything the digest needs, then hand it to the pure
     render_digest(). The network/clock/state-mutating calls live ONLY here."""
     errs = []
-    spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
-    sigs = screen({**HOLDINGS, **WATCH}, errs, spy)
+    spy_bars, spy_adj = fetch_series("SPY", rng="5y")
+    spy = [b[4] for b in spy_bars]
+    sigs = screen({**HOLDINGS, **WATCH}, errs, spy, spy_adj)
     disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
-                   errs, spy)
+                   errs, spy, spy_adj)
     try:
         regime = market_regime()
     except Exception:
@@ -292,7 +295,7 @@ def build_digest():
     proxy = {}
     for tk, members in PROXY_CONSTITUENTS.items():
         if tk in HOLDINGS:
-            ps = screen(members, errs, spy)
+            ps = screen(members, errs, spy, spy_adj)
             reads = " · ".join(f"{esc(p.ticker)} {ICON[p.state]}"
                                for p, _, _ in ps)
             proxy[tk] = f"　↳ <i>constituents proxy:</i> {reads}"

@@ -14,7 +14,9 @@ HARD GATES (all must pass before a name can appear as 🚀):
              $-volume is a PROXY for market cap and over-counts hot
              momentum names (real mcap needs authed APIs — PRD backlog).
   G2 trend   monthly UP and weekly RED — leaders only, no falling knives.
-  G3 leader  12m return beats SPY by >= 20 points — relative strength.
+  G3 leader  12m TOTAL return (dividends reinvested, both sides) beats SPY's
+             by >= 20 points — relative strength. Raw closes would dock every
+             payer (V MA COST LLY NVO) vs a zero-div grower (#18).
   G4 basis   price above POC — the crowd's cost basis is defended.
   G5 data    >= 200 daily bars — too-fresh IPOs are unratable, skip.
 
@@ -53,12 +55,19 @@ def _ret(closes, n):
     return (closes[-1] / closes[-1 - n] - 1) * 100
 
 
-def conviction(sig, bars, spy_closes):
-    """sig: homily_danny.DannySignal for the same bars."""
+def conviction(sig, bars, spy_closes, *, adj=None, spy_adj=None):
+    """sig: homily_danny.DannySignal for the same bars.
+
+    `adj` / `spy_adj` are the dividend-adjusted close series aligned to `bars`
+    / `spy_closes` (homily_data.fetch_series). When given, RS12/RS6 are total
+    returns; when omitted both fall back to raw closes — the pre-#18 numbers.
+    Everything else (dvol, the G4 basis-vs-POC test, the chip levels behind
+    it) stays on RAW prices: a level has to be a price you could trade at."""
     closes = [b[4] for b in bars]
+    ret, ret_spy = adj or closes, spy_adj or spy_closes   # #18: total return
     dvol = sum(b[4] * b[5] for b in bars[-20:]) / min(20, len(bars))
-    rs12 = _ret(closes, TRADING_YEAR) - _ret(spy_closes, TRADING_YEAR)
-    rs6 = _ret(closes, TRADING_YEAR // 2) - _ret(spy_closes, TRADING_YEAR // 2)
+    rs12 = _ret(ret, TRADING_YEAR) - _ret(ret_spy, TRADING_YEAR)
+    rs6 = _ret(ret, TRADING_YEAR // 2) - _ret(ret_spy, TRADING_YEAR // 2)
 
     failed = []
     if dvol >= GATE_DVOL:                       failed.append("G1 size")
@@ -95,12 +104,34 @@ def conviction(sig, bars, spy_closes):
 
 
 if __name__ == "__main__":
-    from homily_data import fetch_daily
+    # `python homily_conviction.py` scores a sample; `--rs-delta SYM...` prints
+    # the raw-vs-total-return RS12 table that #18's gate asks us to publish.
+    import sys
+    from homily_data import fetch_series
     from homily_danny import danny_signal
-    spy = [b[4] for b in fetch_daily("SPY", rng="5y")]
+    spy_bars, spy_adj = fetch_series("SPY", rng="5y")
+    spy = [b[4] for b in spy_bars]
+
+    if "--rs-delta" in sys.argv:
+        names = sys.argv[sys.argv.index("--rs-delta") + 1:] or [
+            "V", "MA", "COST", "LLY", "NVO", "JNJ", "KO",   # payers
+            "NVDA", "PLTR", "RKLB", "TSLA"]                 # zero-div growth
+        print(f"{'sym':<6}{'RS12 raw':>10}{'RS12 total':>12}{'delta':>9}"
+              f"   G3 raw -> total")
+        for sym in names:
+            bars, adj = fetch_series(sym, rng="5y")
+            s = danny_signal(sym, bars)
+            raw = conviction(s, bars, spy).rs12
+            tot = conviction(s, bars, spy, adj=adj, spy_adj=spy_adj).rs12
+            g = (f"{'pass' if raw >= GATE_RS12 else 'fail'} -> "
+                 f"{'pass' if tot >= GATE_RS12 else 'fail'}")
+            print(f"{sym:<6}{raw:>+10.1f}{tot:>+12.1f}{tot - raw:>+9.1f}   {g}")
+        raise SystemExit
+
     for sym in ("RKLB", "PLTR", "NVDA", "HOOD", "AXON", "ZETA"):
-        bars = fetch_daily(sym, rng="5y")
-        c = conviction(danny_signal(sym, bars), bars, spy)
+        bars, adj = fetch_series(sym, rng="5y")
+        c = conviction(danny_signal(sym, bars), bars, spy,
+                       adj=adj, spy_adj=spy_adj)
         gate = "PASS" if c.gates_ok else "fail:" + ",".join(c.gates_failed)
         print(f"{sym:<5} score {c.score:>3} {c.tier:<10} {gate:<28} "
               f"RS12 {c.rs12:+6.0f}pts  $vol {c.dvol/1e9:.2f}B/d  {c.parts}")
