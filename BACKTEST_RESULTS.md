@@ -172,6 +172,49 @@ dodge regime-scale overvaluation; nothing in the system currently does.
 
 ---
 
+## 4 · Selection inside the ⭐ set (#24, run 2026-07-10) — the first gate to PASS toward the bar
+
+Owner directive: north star stays *beat QQQ*; the lever is selection.
+`homily_selection_backtest.py` replays the same monthly candidate sets and
+varies only the pick: equal-split-all (current behaviour) · alphabetical
+top-5 (what PLAYBOOK §3.4's "max 5" accidentally does) · top-5/3 by 12m
+relative strength · top-5/3 by conviction score · 200 seeded random-5
+draws (the luck benchmark). Decision rule pre-registered in the file
+docstring before the first run.
+
+Universe B, the three construction-honest read windows (MOIC):
+
+| window | DCA QQQ | equal-all | random-5 p10–p90 | rs12-top3 | conv-top3 |
+|---|---:|---:|---:|---:|---:|
+| 2020→2025 | 1.53 | 1.71 | 1.66–1.77 | **1.89** | 1.83 |
+| **2021→2026 (fully honest)** | **1.78** | 1.70 | 1.66–1.75 | **1.82 ✓** | 1.73 |
+| 2016→2026 (10y straddle) | 2.96 | 2.76 | 2.73–2.78 | 2.84 | 2.87 |
+
+**Verdict (mechanical):** `rs12-top3` passed all four pre-registered
+checks (beats equal 3/3, beats random-median 3/3 — in fact above the p90
+of 200 random draws in all three — drawdown held, beats alpha-top5 3/3);
+`conv-top3` also passed (2/3 on alpha). **rs12-top3 is the promotion
+candidate** — declared now to prevent best-of-N shopping later; the
+conviction score ranked no better than raw relative strength (a partial
+#20 answer: its weight is carried by the trend/RS components).
+
+**Honesty box:** the lift is modest (+0.04…+0.18 MOIC over 5–10y); the
+read sample is 3 windows; the 10y straddle still loses to QQQ (2.84 vs
+2.96); and on hindsight universe A's 2017/2018/2019-start windows the same
+rule *underperformed* equal-all (concentrated momentum whipsaws in
+reversals — 2019→2024 A: 2.35 vs 2.59, below random's p10). This is a real
+but narrow edge in trending tapes, not a solved problem. The fully-honest
+window's QQQ cross (1.82 vs 1.78) is one window, ~2 points of MOIC.
+
+**Status:** gate PASSED, promotion **deferred to ≥2026-10-01** — R10
+allows one promoted signal-behaviour change per quarter and the 🐳
+WHALE-DIP tier used 2026-Q3's slot (2026-07-06). Until then the live
+ledger (#13) accrues fresh out-of-sample rows: before promotion, check
+that ⭐ names ranked top-3-by-RS12 in the ledger actually outperformed the
+rest — a free forward test the promotion must also survive.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
@@ -182,6 +225,15 @@ lose to both, and every strategy arm carries **2–3× the index drawdown**
 (−59…−76% vs −34%). "DCA into QQQ and never look" remains the strongest
 simple competitor, exactly as the 2026-07-08 revision concluded — and the
 cleaner protocol strengthens that conclusion.
+
+**The live path toward the bar (owner's standing directive: don't
+concede):** §4's rs12-top3 concentration is the first gated, pre-registered
+change that moved the honest window past QQQ (1.82 vs 1.78) — promotion
+queued for 2026-Q4 behind a ledger forward-check. The remaining levers, in
+expected order of impact: the universe itself (#65 — a screen can't buy a
+winner it never sees), the ⚪ time-stop calibration (#51, sharpening the
+one return-adding exit), and the re-pointed refine loop (#21). One gated
+change at a time; the scorecard (#14) referees.
 
 **What the system measurably IS good for:**
 1. **The per-name §5.2 exit added ~3 pts/yr on the wreck-salted control**

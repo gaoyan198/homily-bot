@@ -309,6 +309,42 @@ now explicitly *risk-shaped disciplined exposure + live measurement*, not
 a proven QQQ-beater — PLAYBOOK §8 and HOW_IT_WORKS honesty lines updated
 to match.
 
+## 5j. Addendum 2026-07-10 (later) — #24 executed: ⭐ selection gate PASSED
+
+Owner directive (same day, after §5i): the bar stays *beat QQQ*; do not
+concede; improve the signals' ability to pick multibagger winners. Per
+§8.0 the only lever with evidence is selection, so #24 (⭐ overflow
+ranking) was executed at portfolio level — `homily_selection_backtest.py`,
+decision rule pre-registered in the docstring before the first run
+(equal-all vs alpha-top5 vs RS12-top5/3 vs conviction-top5/3 vs 200
+random-5 draws; same candidate sets, same accounting,
+regression-checked).
+
+**Result (full tables BACKTEST_RESULTS.md §4): `rs12-top3` —
+concentrate each month's stock-half into the top 3 candidates by 12m
+relative strength — passed all four pre-registered checks** on universe
+B's read windows, beating not just random's median but its p90 in all
+three, and crossing QQQ in the fully honest 2021→2026 window (1.82 vs
+1.78 MOIC). `conv-top3` also passed but no better than raw RS
+(partial #20 answer: the score's weight is its trend/RS parts).
+Declared now: **rs12-top3 is THE promotion candidate** (no
+best-of-N shopping later). Caveats stated in the results file: modest
+lift, n=3 read windows, 10y straddle still under QQQ, and it
+*underperforms* equal-weight in universe A's reversal windows —
+a trending-tape edge, not a solved problem.
+
+**Promotion protocol (pre-committed):** R10 gives one signal-behaviour
+promotion per quarter; 🐳 took 2026-Q3 (§5h). So: earliest 2026-10-01,
+and ONLY IF the ledger forward-check passes — using #13 rows accrued
+July–Sept, the ⭐ names that were top-3-by-RS12 on their day must have
+outperformed the other ⭐ names over the same horizon. If promoted, the
+change is: digest orders ⭐ rows by RS12 with the top-3 marked, PLAYBOOK
+§3.4 becomes "split across the TOP 3 by 12-month relative strength (was:
+equally across max 5)", copilot #31 allocates accordingly. Files:
+daily_run.py (ordering/marking), PLAYBOOK.md, homily_ledger.py rank
+column (ships NOW with no behaviour change so the forward-check has
+data — S effort, next session).
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
@@ -499,11 +535,13 @@ that before improving anything, or improvements are unmeasurable.
     questions: 🔵+🐳 vs 🔵 alone; ⭐+F:3/3 vs ⭐+F:0; fresh ⭐ (first week)
     vs stale ⭐. Adopt at most ONE new modifier per quarter — degrees of
     freedom are the enemy. **Gate:** each table, control included.
-24. **⭐ overflow ranking** (M) — when >5 ⭐ names compete for the monthly
-    buy, today's pick is effectively alphabetical. Test RS12-ranked top-5
-    vs equal-weight-all vs random-5 (the honesty benchmark), point-in-time.
-    Adopt ranking only if it beats *random-5* OOS — guards against
-    momentum overfit. **Gate:** the three-way test.
+24. ~~**⭐ overflow ranking**~~ — **GATE PASSED 2026-07-10** (§5j,
+    `homily_selection_backtest.py`, BACKTEST_RESULTS §4): `rs12-top3`
+    beat equal-all, alpha-top5 AND random-5's p90 on all three honest
+    control windows; crossed QQQ in the fully honest 2021→2026 window.
+    Promotion deferred to ≥2026-10-01 (R10; 🐳 took Q3's slot) and gated
+    on the #13 ledger forward-check. Interim ship (no behaviour change):
+    RS12-rank column in the ledger so the forward-check has data.
 25. **Real market cap** (#2) (S) — replace the $-volume proxy in G1 with a
     monthly-refreshed static map committed to the repo (curated from public
     sources; ~60 names is 10 minutes of maintenance) + a staleness warning
