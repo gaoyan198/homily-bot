@@ -48,7 +48,7 @@ UNIVERSE = {
     # megacap tech
     "MSFT":"MSFT","AMZN":"AMZN","META":"META","NFLX":"NFLX","ORCL":"ORCL",
     # semis / AI hardware
-    "MU":"MU","QCOM":"QCOM","ARM":"ARM","ANET":"ANET","VRT":"VRT",
+    "QCOM":"QCOM","ARM":"ARM","ANET":"ANET","VRT":"VRT",
     "LRCX":"LRCX","AMAT":"AMAT","KLAC":"KLAC","INTC":"INTC","MRVL":"MRVL",
     # software / growth
     "CRM":"CRM","ADBE":"ADBE","CRWD":"CRWD","PANW":"PANW","NET":"NET",
