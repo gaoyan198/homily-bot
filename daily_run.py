@@ -21,6 +21,7 @@ from homily_corp import corp_action_bar, suspended_note
 import homily_ledger
 import homily_alerts
 import homily_positions
+import homily_buyday
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -205,7 +206,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
-                  *, fund=fund_tag, suspect=None, positions=None):
+                  *, fund=fund_tag, suspect=None, positions=None, buyday=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -237,6 +238,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                          " decade.")
     else:
         lines.append("⚖️ regime check unavailable today")
+
+    if buyday:
+        # #31: on the first trading day of the month the copilot's 🛒 order
+        # block leads the digest, right under the regime banner it obeys
+        lines += ["", buyday]
 
     lines.append("")
     cur = None
@@ -344,17 +350,36 @@ def build_digest():
     # Pinned SGT run date (R7) — the ledger idempotency key and the digest
     # date must be the same value on every runner; homily_ledger owns it.
     today = homily_ledger.run_date()
-    digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
-                           today, suspect=suspect, positions=POSITIONS)
-    # #15 state-change alerts: diff today's states against yesterday's ledger
-    # BEFORE record() overwrites it, so a quiet day sends no second message.
-    alert = ""
+    # one state_of() pass feeds both the buy-day copilot (#31) and the
+    # state-change alerts (#15)
+    states = []
     try:
         states = ([homily_ledger.state_of(s, c, s.ticker in HOLDINGS)
                    for s, c, _ in sigs]
                   + [homily_ledger.state_of(s, c, False) for s, c, _ in disco])
-        alert = homily_alerts.format_alerts(
-            homily_alerts.build_alerts(states, regime, today), today)
+    except Exception as e:
+        print(f"[states] skipped: {e}")
+    # #31 buy-day copilot: on the month's first run (per the ledger, D-31),
+    # resolve BUY_BUDGET_USD into printed orders + the T2 basket CSV.
+    # Non-fatal to the send, like everything downstream of the digest.
+    buyday = ""
+    try:
+        if states:
+            buyday = homily_buyday.buyday_block(
+                states, POSITIONS, regime, today,
+                yahoo={**HOLDINGS, **WATCH, **UNIVERSE})
+    except Exception as e:
+        print(f"[buyday] skipped: {e}")
+    digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
+                           today, suspect=suspect, positions=POSITIONS,
+                           buyday=buyday)
+    # #15 state-change alerts: diff today's states against yesterday's ledger
+    # BEFORE record() overwrites it, so a quiet day sends no second message.
+    alert = ""
+    try:
+        if states:
+            alert = homily_alerts.format_alerts(
+                homily_alerts.build_alerts(states, regime, today), today)
     except Exception as e:
         print(f"[alerts] skipped: {e}")
     # #13 signals ledger + snapshot: record what the digest printed today.

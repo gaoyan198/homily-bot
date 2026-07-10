@@ -45,6 +45,14 @@ one backtested case where adding to a ⚪ name is allowed (§3 step 6b).
 
 ## 3 · Monthly buy routine (10 minutes, once a month)
 
+*Since 2026-07 the month's first digest leads with a 🛒 BUY DAY section
+(#31) that resolves the steps below into exact orders from your
+`BUY_BUDGET_USD` repo variable, plus an importable basket CSV
+(`docs/orders_YYYY-MM.csv`). It prints, you decide and type — nothing is
+ever placed for you (§7). Non-USD names (9992.HK) are listed as "manual"
+— size those yourself. These steps stay the source of truth and the
+fallback.*
+
 1. Open today's digest. Banner 🐂? Continue. (🐻 → §4. ⚖️ → still continue,
    ⚖️ only pauses *selling* decisions.)
 2. Take your monthly DCA amount (see §7).

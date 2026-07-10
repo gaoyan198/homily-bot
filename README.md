@@ -92,6 +92,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_backtest.py` + `bt_data.py` | 5y weekly hold-🔴/cut-⚪ vs buy-and-hold (it loses) |
 | `homily_danny_backtest.py` | 5y daily ⭐-gated accumulation vs monthly DCA (it loses too) |
 | `homily_refine.py` | Daily auto-refine: walk-forward, champion replaced only if it wins **out-of-sample** |
+| `homily_buyday.py` | Buy-day copilot (#31): first run of the month resolves `BUY_BUDGET_USD` into printed IBKR-ready orders + a basket CSV (`docs/orders_YYYY-MM.csv`) — **info-only, never places an order** |
 | `daily_run.py` | Entrypoint: fetch → composite signals → refine → Telegram |
 | `PRD.md` | Danny-methodology spec + scope limits |
 | `homily_champion.json`, `homily_refine_log.csv` | Persisted state (committed daily by the workflow) |
@@ -147,8 +148,14 @@ champion/log back to the repo.
 ```
 gh secret set TELEGRAM_BOT_TOKEN -b'<token>'
 gh secret set TELEGRAM_CHAT_ID  -b'<chat id>'
+gh variable set BUY_BUDGET_USD    -b'<monthly cash budget>'   # optional: buy-day copilot
+gh variable set SRS_COVERS_INDEX  -b'true'                    # optional: SRS is the index leg (PRD §9.4)
 ```
-Without secrets the job still runs and prints the digest (no send).
+Without secrets the job still runs and prints the digest (no send). Without
+`BUY_BUDGET_USD` the buy-day copilot stays dark. Honesty note: the copilot
+*prints* orders and writes an importable basket CSV — it never places an
+order (PRD §7); allocation follows PLAYBOOK §3 (half index / half ⭐, 10%
+cap, non-USD names excluded from order lines per R12).
 
 ## Run locally
 ```

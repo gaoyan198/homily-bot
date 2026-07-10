@@ -661,4 +661,94 @@ assert "100.0% of book" in _aaa_line and "OVER CAP" in _aaa_line, \
 assert "% of book" not in _bbb_line, "an untracked name must not be annotated"
 print("[26] Position math: % of book, bucket A/B excluded, cap note fires . PASS")
 
+
+# --- 27. Buy-day copilot (#31): budget in -> orders out, caps respected ----
+# Fixture book + fixture ⭐ states through the PURE plan() (no env/clock/
+# network), then the detection rule, the render, and the T2 basket CSV.
+# Info-only feature: nothing here places an order (PRD §7).
+import csv
+import homily_buyday
+
+# detection (D-31): first run of the month = no PRIOR ledger row this month;
+# today's own rows don't count (same-day re-run stays a buy day); an empty
+# ledger is conservatively NOT a buy day
+_d27 = datetime.date(2026, 8, 3)
+assert not homily_buyday.is_buy_day(_d27, []), "empty ledger: not a buy day"
+assert homily_buyday.is_buy_day(_d27, [{"date": "2026-07-31"}]), \
+    "prior-month rows only: first run of August IS the buy day"
+assert homily_buyday.is_buy_day(_d27, [{"date": "2026-08-03"}]), \
+    "same-day re-run must still be the buy day (idempotent)"
+assert not homily_buyday.is_buy_day(_d27, [{"date": "2026-08-01"}]), \
+    "a prior run this month: not a buy day"
+
+_pos27 = {
+    "CSPX": {"yahoo": "CSPX.L", "shares": 1, "cost": 100, "bucket": "A"},
+    "BIG": {"yahoo": "BIG", "shares": 90, "cost": 5},
+    "SML": {"yahoo": "SML", "shares": 1, "cost": 5},
+}
+def _bs(tk, close, ftag, rs12, state="ACCUMULATE"):
+    return {"ticker": tk, "state": state, "close": close,
+            "ftag": ftag, "rs12": rs12}
+_yh27 = {"CSPX": "CSPX.L", "BIG": "BIG", "SML": "SML", "NEW": "NEW",
+         "0700": "0700.HK"}
+_st27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD"),
+         _bs("BIG", 10, "F:3/3", 5), _bs("SML", 10, "F:1/3", 50),
+         _bs("NEW", 30, "F:2/3", 1), _bs("0700", 50, "F:—", 99)]
+
+# ordering (PLAYBOOK §3.4): F:2+ first (BIG, NEW by RS12), then SML; the HK
+# name splits off as manual (R12), however strong its RS
+_usd27, _man27 = homily_buyday.star_candidates(_st27, _pos27, _yh27)
+assert [s["ticker"] for s in _usd27] == ["BIG", "NEW", "SML"], \
+    f"F:2+ before F:1, RS12 within group: {[s['ticker'] for s in _usd27]}"
+assert [s["ticker"] for s in _man27] == ["0700"], "non-USD ⭐ -> manual (R12)"
+
+# SRS covers the index (PRD §9.4): whole $1,000 to stars. Stock book =
+# BIG 900 + SML 10 = 910 (bucket A out); post-deploy denom 1910 -> 10% cap
+# $191/name. BIG (at $900) is fully capped; SML capped at $181 -> 18 shares;
+# NEW capped at $191 -> 6 whole shares; the rest is leftover, printed.
+_p27 = homily_buyday.plan(1000, _st27, _pos27, "BULL",
+                          srs_covers_index=True, yahoo=_yh27)
+assert _p27["mode"] == "normal" and _p27["index_amt"] == 0
+_ord27 = {tk: n for tk, n, _px, _nt in _p27["orders"]}
+assert _ord27 == {"SML": 18, "NEW": 6}, f"cap + whole-share floor: {_ord27}"
+assert any(s.startswith("BIG:") for s in _p27["skipped"]), \
+    "a name at the 10% cap is skipped loudly, not silently dropped"
+assert abs(_p27["spent"] - 360) < 1e-9 and abs(_p27["leftover"] - 640) < 1e-9
+assert _p27["manual"] == ["0700"]
+
+# normal path: half to Bucket A (5 × CSPX@100), half to stars
+_pn27 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27)
+assert _pn27["orders"][0][:2] == ("CSPX", 5) and _pn27["index_amt"] == 500
+
+# no ⭐ -> full amount to Bucket A (§3.5); 🐻 -> same reroute (§4.6)
+_flat27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD")]
+for _states, _reg, _mode in ((_flat27, "BULL", "nostars"),
+                             (_st27, "BEAR", "bear")):
+    _px27 = homily_buyday.plan(1000, _states, _pos27, _reg, yahoo=_yh27)
+    assert _px27["mode"] == _mode and _px27["orders"] == \
+        [("CSPX", 10, 100, "Bucket A index leg")], \
+        f"{_mode}: entire budget must go to the index sleeve"
+
+# render leads with 🛒, prints IBKR-ready lines, never places (§7)
+_txt27 = homily_buyday.render(_p27, _d27)
+assert _txt27.startswith("🛒") and "BUY  18 SML" in _txt27 \
+    and "printed, never placed" in _txt27 and "manual: 0700" in _txt27, _txt27
+
+# T2 basket CSV: same orders, IBKR BasketTrader header, USD-only rows
+with tempfile.TemporaryDirectory() as _tmp27:
+    _path27 = homily_buyday.write_basket(_p27, _d27, docs=_tmp27)
+    assert os.path.basename(_path27) == "orders_2026-08.csv"
+    _rows27 = list(csv.reader(open(_path27)))
+    assert _rows27[0][:4] == ["Action", "Quantity", "Symbol", "SecType"]
+    assert (sorted(r[2] for r in _rows27[1:]) == ["NEW", "SML"]
+            and all(r[5] == "USD" for r in _rows27[1:])), _rows27
+    # no orders -> no file (a bear month with no CSPX price writes nothing)
+    assert homily_buyday.write_basket(
+        {"orders": []}, _d27, docs=_tmp27) is None
+
+# no BUY_BUDGET_USD configured -> the copilot stays dark, digest unchanged
+os.environ.pop("BUY_BUDGET_USD", None)
+assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ""
+print("[27] Buy-day copilot: detection, F/RS order, 10% cap, basket CSV ... PASS")
+
 print("\nAll structural assertions passed.")
