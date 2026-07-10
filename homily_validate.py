@@ -868,4 +868,65 @@ assert daily_run.ORIGINS.get("AAPL") == "holding" \
     "daily_run.ORIGINS must tag holdings vs the hand-picked list"
 print("[29] Provenance: origin column END-appended, defaults honest ....... PASS")
 
+# --- 30. Bear-readiness rehearsal (#30): §4 order exactly, info-only -------
+# Fixture book drives every §4 step-3 branch: (a) ⚪+F:0-1 sold whole,
+# (b) remaining ⚪ largest-first until satellites ≤10% of the shrinking
+# book, (c) ⭐/🟢 satellites kept, Bucket A/B never listed, non-USD names
+# in the list by state but outside the % math (R12).
+import homily_bearready
+
+assert homily_bearready.first_monday(datetime.date(2026, 7, 6)) \
+    and homily_bearready.first_monday(datetime.date(2026, 8, 3)) \
+    and not homily_bearready.first_monday(datetime.date(2026, 7, 13)) \
+    and not homily_bearready.first_monday(datetime.date(2026, 7, 7)), \
+    "first Monday = weekday 0 AND day ≤ 7"
+
+_pos30 = {
+    "IDX": {"yahoo": "IDX", "shares": 1, "cost": 1, "bucket": "A"},
+    "CORE": {"yahoo": "CORE", "shares": 1, "cost": 1, "bucket": "B"},
+    "WEAK": {"yahoo": "WEAK", "shares": 1, "cost": 1},   # ⚪ F:0/3 -> (a)
+    "BIGC": {"yahoo": "BIGC", "shares": 4, "cost": 1},   # ⚪ F:2/3, largest
+    "SMLC": {"yahoo": "SMLC", "shares": 1, "cost": 1},   # ⚪ F:2/3, small
+    "STAR": {"yahoo": "STAR", "shares": 1, "cost": 1},   # ⭐ -> keep note
+    "HK": {"yahoo": "HK.HK", "shares": 1, "cost": 1, "currency": "HKD"},
+}
+def _brs(tk, state, ftag, held=True, close=100.0):
+    return {"ticker": tk, "state": state, "ftag": ftag, "held": held,
+            "close": close}
+_st30 = [_brs("IDX", "HOLD", "F:—"), _brs("CORE", "HOLD", "F:3/3"),
+         _brs("WEAK", "CAUTION", "F:0/3"), _brs("BIGC", "CAUTION", "F:2/3"),
+         _brs("SMLC", "CAUTION", "F:2/3"), _brs("STAR", "ACCUMULATE", "F:2/3"),
+         _brs("HK", "CAUTION", "F:—")]
+# book (B+C, USD) = CORE 100 + WEAK 100 + BIGC 400 + SMLC 100 + STAR 100 = 800
+_plan30 = homily_bearready.readiness(_st30, _pos30)
+assert abs(_plan30["book"] - 800) < 1e-9
+assert abs(_plan30["sat_pct"] - 100 * 700 / 800) < 1e-6, "C/book"
+assert _plan30["sell_all"] == ["WEAK"], "step (a): ⚪ + F:0-1, all of it"
+# step (b): after (a), sats 600 book 700; sell BIGC -> sats 200 book 300
+# (still >10%); sell SMLC -> sats 100 book 200 (>10%); STAR is not ⚪, so
+# the list is the two ⚪ names, largest first, and (c) notes STAR
+assert _plan30["sell_until"] == ["BIGC", "SMLC"], _plan30["sell_until"]
+assert _plan30["keep"] == ["STAR"], "step (c): ⭐/🟢 satellite noted, kept"
+assert _plan30["offbook"] == ["HK (b)"], "non-USD ⚪ listed by state (R12)"
+# F:— must not count as weak (unknown ≠ failed)
+assert not homily_bearready._fweak("F:—") and homily_bearready._fweak("F:1/3")
+# a small-enough ⚪ tail stops the (b) list early
+_pos30b = {"CORE": {"yahoo": "C", "shares": 19, "cost": 1},
+           "TINY": {"yahoo": "T", "shares": 1, "cost": 1}}
+_plan30b = homily_bearready.readiness(
+    [_brs("CORE", "HOLD", "F:3/3"), _brs("TINY", "CAUTION", "F:2/3")],
+    {**_pos30b, "CORE": {**_pos30b["CORE"], "bucket": "B"}})
+assert _plan30b["sell_until"] == [], \
+    "satellites already ≤10% of book -> nothing forced in step (b)"
+_txt30 = homily_bearready.render(_plan30, margin_zero=False, srs_covers=True)
+assert "margin loan outstanding" in _txt30 and "BEAR READINESS" in _txt30 \
+    and "info only" in _txt30 and "never sold" in _txt30, _txt30
+_txt30z = homily_bearready.render(_plan30, margin_zero=True, srs_covers=False)
+assert "zero, confirmed" in _txt30z and "index leg unconfirmed" in _txt30z
+# render_digest carries the block only when supplied; default digest unchanged
+_out30 = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
+                                 fund=_fund, bearready=_txt30z)
+assert "BEAR READINESS" in _out30
+print("[30] Bear readiness: §4 a/b/c order, margin+SRS nags, first-Monday . PASS")
+
 print("\nAll structural assertions passed.")

@@ -22,6 +22,7 @@ import homily_ledger
 import homily_alerts
 import homily_positions
 import homily_buyday
+import homily_bearready
 import homily_png
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
@@ -234,7 +235,8 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
-                  *, fund=fund_tag, suspect=None, positions=None, buyday=""):
+                  *, fund=fund_tag, suspect=None, positions=None, buyday="",
+                  bearready=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -271,6 +273,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         # #31: on the first trading day of the month the copilot's 🛒 order
         # block leads the digest, right under the regime banner it obeys
         lines += ["", buyday]
+    if bearready:
+        # #30: first Monday of the month — the §4 rehearsal block
+        lines += ["", bearready]
 
     lines.append("")
     cur = None
@@ -399,9 +404,17 @@ def build_digest():
                 yahoo={**HOLDINGS, **WATCH, **UNIVERSE})
     except Exception as e:
         print(f"[buyday] skipped: {e}")
+    # #30 bear-readiness rehearsal, first Monday of the month. Non-fatal.
+    bearready = ""
+    try:
+        if states:
+            bearready = homily_bearready.bearready_block(states, POSITIONS,
+                                                         today)
+    except Exception as e:
+        print(f"[bearready] skipped: {e}")
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today, suspect=suspect, positions=POSITIONS,
-                           buyday=buyday)
+                           buyday=buyday, bearready=bearready)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

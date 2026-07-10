@@ -40,6 +40,9 @@ jobs:
           # the digest is unchanged.
           BUY_BUDGET_USD: ${{ vars.BUY_BUDGET_USD }}
           SRS_COVERS_INDEX: ${{ vars.SRS_COVERS_INDEX }}
+          # #30 bear-readiness: owner confirms margin is zero (§6) by setting
+          # this variable; unset = the monthly rehearsal block nags.
+          MARGIN_ZERO: ${{ vars.MARGIN_ZERO }}
         run: python daily_run.py
 
       - name: Commit refined champion + log
