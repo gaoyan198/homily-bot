@@ -20,14 +20,14 @@ from homily_refine import daily_refine
 from homily_corp import corp_action_bar, suspended_note
 import homily_ledger
 import homily_alerts
+import homily_positions
 
-# IBKR holding -> Yahoo symbol: lives in holdings.json so book changes are a
-# one-line edit (last synced from live IBKR positions 2026-07-06).
-import json as _json
-_HERE = os.path.dirname(os.path.abspath(__file__))
-HOLDINGS = {k: v for k, v in
-            _json.load(open(os.path.join(_HERE, "holdings.json"))).items()
-            if not k.startswith("_")}
+# IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
+# book changes are a one-line edit (last synced from live IBKR positions
+# 2026-07-10). POSITIONS carries the shares/cost/bucket #27 needs; HOLDINGS
+# stays the flat ticker->yahoo map every screen()/membership check expects.
+POSITIONS = homily_positions.load_positions()
+HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
 # Danny-core names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML"}
 
@@ -102,12 +102,19 @@ def whale_dip(s):
             and s.chips.last <= s.add_zone[1])
 
 
-def fmt_row(s, watch=False, young=False, corp=None):
+def fmt_row(s, watch=False, young=False, corp=None, pos=None):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
     vh = (f" · VH {g(h.lower)}-{g(h.upper)}{VH_ARROW[h.status]}" if h else "")
     yg = " · ⚠️too-new, engines not warmed" if young else ""
+    # #27: position-aware digest — % of the (Bucket-C) stock book + a 10%-cap
+    # note, only for tracked USD positions (homily_positions.position_view).
+    bk = ""
+    if pos and pos["pct"] is not None:
+        bk = f" · {pos['pct']:.1f}% of book"
+        if pos["cap_note"]:
+            bk += f" · ⚠️ {esc(pos['cap_note'])}"
     if corp:
         # #19: a split gap in the window poisons the whole chip histogram —
         # every price derived from it (zone, POC, resistance, the VH band, and
@@ -132,7 +139,7 @@ def fmt_row(s, watch=False, young=False, corp=None):
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
             f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{vh}{at}{wh}{yg}")
+            f"d{s.candle[0]}{vh}{at}{wh}{yg}{bk}")
 
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
@@ -198,14 +205,23 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
-                  *, fund=fund_tag, suspect=None):
+                  *, fund=fund_tag, suspect=None, positions=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
     (homily_golden.py) possible. build_digest() is the thin IO shell that
     gathers these inputs and calls this. Keep the two behaviourally in
-    lock-step: any change to a printed row belongs here."""
+    lock-step: any change to a printed row belongs here.
+
+    `positions` (#27) is the holdings.json _v:2 dict (ticker -> {shares,
+    cost, bucket?, currency?}) or None/{} on an unsynced book — every price
+    for the book-value denominator comes from `sigs` itself (the same
+    close the row already prints), so this stays a pure function of its
+    arguments, no extra fetching."""
     sus = suspect or {}
+    pos = positions or {}
+    prices = {s.ticker: s.chips.last for s, _, _ in sigs if s.ticker in pos}
+    book_value = homily_positions.stock_book_value(pos, prices)
     lines = [f"<b>Homily × Danny digest — {esc(today)}</b>"]
     if regime is not None:
         r = regime
@@ -228,7 +244,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         if s.state != cur:
             cur = s.state
             lines.append(f"<b>{ICON[cur]} {esc(cur)}</b>")
-        lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker)))
+        pv = homily_positions.position_view(s.ticker, pos, prices, book_value)
+        lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker), pv))
         if s.ticker in proxy:
             lines.append(proxy[s.ticker])
 
@@ -328,7 +345,7 @@ def build_digest():
     # date must be the same value on every runner; homily_ledger owns it.
     today = homily_ledger.run_date()
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
-                           today, suspect=suspect)
+                           today, suspect=suspect, positions=POSITIONS)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

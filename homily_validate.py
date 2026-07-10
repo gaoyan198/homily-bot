@@ -609,4 +609,56 @@ assert homily_ledger.rs12_ranks(_nobull25) == {"B1": 2, "B2": 1, "H1": None}, \
 assert homily_ledger.rs12_ranks([_st("X", "HOLD", 1.0)]) == {"X": None}
 print("[25] RS12 rank: ⭐ else 🔵 fallback, best-RS12-first, others blank .... PASS")
 
+# --- 26. Position-aware book math (#27): % of book, bucket, cap note -------
+# Fixture book on a fixture price map (unit-level), then a real render_digest
+# pass (positions=None default is unaffected; a supplied book annotates only
+# its own tracked, USD, non-Bucket-A names — the golden fixtures in check
+# [16] use tickers no real holdings.json would ever contain, so they stay
+# byte-exact without this check having to touch them).
+import homily_positions
+
+_pos26 = {
+    "IDX": {"yahoo": "IDX", "shares": 10, "cost": 100, "bucket": "A"},
+    "HK": {"yahoo": "HK.HK", "shares": 100, "cost": 50, "currency": "HKD"},
+    "SAFE": {"yahoo": "SAFE", "shares": 1, "cost": 10},
+    "HOT": {"yahoo": "HOT", "shares": 1, "cost": 10},
+    "CORE": {"yahoo": "CORE", "shares": 1, "cost": 10, "bucket": "B"},
+}
+_px26 = {"IDX": 100, "HK": 50, "SAFE": 2, "HOT": 20, "CORE": 20}
+# book value = SAFE(2) + HOT(20) + CORE(20) = 42; bucket-A (IDX) and non-USD
+# (HK) are excluded from the denominator (R12)
+_bv26 = homily_positions.stock_book_value(_pos26, _px26)
+assert abs(_bv26 - 42.0) < 1e-9, f"bucket-A/non-USD must be excluded: {_bv26}"
+assert homily_positions.position_view("IDX", _pos26, _px26, _bv26) is None, \
+    "bucket A must not get a book %"
+assert homily_positions.position_view("HK", _pos26, _px26, _bv26) is None, \
+    "non-USD position must not get a book % (R12)"
+_safe26 = homily_positions.position_view("SAFE", _pos26, _px26, _bv26)
+assert abs(_safe26["pct"] - 100 * 2 / 42) < 1e-6 and _safe26["cap_note"] is None
+_hot26 = homily_positions.position_view("HOT", _pos26, _px26, _bv26)
+assert _hot26["cap_note"] == "OVER CAP — no more adds", \
+    f"over 10% of book must warn: {_hot26}"
+_core26 = homily_positions.position_view("CORE", _pos26, _px26, _bv26)
+assert _core26["pct"] > 10 and _core26["cap_note"] is None, \
+    "bucket B (earned core) never gets a cap note, however big it's grown"
+
+from homily_golden import _up, _dn, REFINE, TODAY, _fund
+
+_row_plain = daily_run.fmt_row(_up("AAA")[0])
+_row_pos = daily_run.fmt_row(_up("AAA")[0], pos=_hot26)
+assert "% of book" not in _row_plain, "untracked names print no book %"
+assert "% of book" in _row_pos and "OVER CAP" in _row_pos, \
+    f"tracked + over-cap row must show both: {_row_pos}"
+
+_bigpos26 = {"AAA": {"yahoo": "AAA", "shares": 1000, "cost": 1}}
+_out26 = daily_run.render_digest([_up("AAA"), _dn("BBB")], [], {}, BULL,
+                                 REFINE, [], TODAY, fund=_fund,
+                                 positions=_bigpos26)
+_aaa_line = next(l for l in _out26.split("\n") if "AAA" in l)
+_bbb_line = next(l for l in _out26.split("\n") if "BBB" in l)
+assert "100.0% of book" in _aaa_line and "OVER CAP" in _aaa_line, \
+    f"the sole tracked position must be 100% of book, over cap: {_aaa_line}"
+assert "% of book" not in _bbb_line, "an untracked name must not be annotated"
+print("[26] Position math: % of book, bucket A/B excluded, cap note fires . PASS")
+
 print("\nAll structural assertions passed.")

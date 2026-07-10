@@ -59,9 +59,12 @@ def run_date():
 
 # --- per-name state (one source of truth: snapshot uses it whole, the CSV
 #     row is its flattened projection) -----------------------------------------
-def state_of(sig, conv, held, *, fund=fund_tag):
+def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None):
     """DannySignal + Conviction -> a JSON-native dict of everything the digest
-    knew about one name today. Pure read of frozen-engine outputs."""
+    knew about one name today. Pure read of frozen-engine outputs.
+    `pos_view` (#27, homily_positions.position_view()) is snapshot-only,
+    optional data for #28-30 to consume — None for anything not a tracked
+    USD position (not held, Bucket A, non-USD, or an unsynced holdings.json)."""
     s, c, ch = sig, conv, sig.chips
     zlo, zhi = (s.add_zone if s.add_zone else (None, None))
     try:
@@ -97,6 +100,10 @@ def state_of(sig, conv, held, *, fund=fund_tag):
         "rs12": round(c.rs12, 2),
         "dvol": round(c.dvol, 2),
         "conv_parts": dict(c.parts),
+        "bucket": (pos_view["bucket"] if pos_view else None),
+        "book_pct": (round(pos_view["pct"], 2)
+                     if pos_view and pos_view["pct"] is not None else None),
+        "cap_note": (pos_view["cap_note"] if pos_view else None),
     }
 
 
