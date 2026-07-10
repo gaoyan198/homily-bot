@@ -97,11 +97,15 @@ structure 15 · vol-hole 10 · size/room 15 · age 10) that sets the sizing tier
 - **< 60** → watch only, no capital
 - **Hard cap: no single name above 10% of the account**, including what's held.
 
-### 7. Market regime overlay — the *only* honest sell (`homily_regime.py`)
-Per-stock selling loses, but **index-level** timing has a real 33-year record: a
-month-end 10-month-SMA rule on **both** SPY and QQQ. Both below = 🐻 **BEAR** →
-halt adds, de-risk satellites, raise dry powder — but the index core never sells.
-Both above = 🐂 **BULL**. This banner tops every digest.
+### 7. Market regime overlay — priced tail insurance (`homily_regime.py`)
+A month-end 10-month-SMA rule on **both** SPY and QQQ. Both below = 🐻 **BEAR** →
+PLAYBOOK §4: margin to zero, sell weak satellites *once*, keep buying the index
+through the whole bear, re-enter stars in thirds when 🐂 returns. The index core
+never sells. Decomposed honestly (D-63, 2026-07-10): over 33 years the protocol
+gave up **~1 pt/yr** vs never-selling and cut the worst drawdown from **−76% to
+−29%**; in a V-shaped bear (2022) it costs ~7 pts/yr of its 5-year window. It is
+insurance against −70% grinders (2000–02, 2008) — a priced policy, not a return
+enhancer, and the digest banner words it that way.
 
 ### 8. Self-improvement + safety
 `homily_refine.py` runs a **walk-forward** refine daily: a challenger replaces the

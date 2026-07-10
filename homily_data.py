@@ -23,10 +23,16 @@ def _fetch_json(symbol, rng, *, opener=urllib.request.urlopen):
     last error if every attempt fails. `opener` is injectable for testing."""
     ctx = ssl.create_default_context()
     last = None
+    # rng="max" via the range token silently DOWNGRADES granularity (Yahoo
+    # returns 1mo bars while honouring interval=1d for shorter tokens) —
+    # found 2026-07-10 when D-63 Step 2 ran signals on monthly bars. Epoch
+    # period params keep true daily bars for the full listing history.
+    span = (f"period1=0&period2={int(time.time())}" if rng == "max"
+            else f"range={rng}")
     for attempt in range(RETRIES):
         host = HOSTS[attempt % len(HOSTS)]        # rotate query1 <-> query2
         url = (f"https://{host}/v8/finance/chart/{symbol}"
-               f"?range={rng}&interval=1d")
+               f"?{span}&interval=1d")
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         try:
             with opener(req, timeout=20, context=ctx) as r:
@@ -42,6 +48,10 @@ def fetch_daily(symbol, rng="2y", *, opener=urllib.request.urlopen):
     """-> list of (date, open, high, low, close, volume), oldest first."""
     data = _fetch_json(symbol, rng, opener=opener)
     res = data["chart"]["result"][0]
+    gran = (res.get("meta") or {}).get("dataGranularity")
+    if gran and gran != "1d":
+        raise ValueError(f"{symbol}: Yahoo returned {gran} bars, not 1d"
+                         f" (rng={rng}) — refusing coarse data")
     ts = res["timestamp"]
     q = res["indicators"]["quote"][0]
     bars = []

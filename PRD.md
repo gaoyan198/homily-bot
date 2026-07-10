@@ -148,6 +148,9 @@ powder, re-accumulate in bears.
   SPY timed = 7.9% vs 8.9% CAGR with −24% vs −52% MaxDD. Great in grinding
   bears (dot-com QQQ −12.7% vs −79.6%), useless in flash crashes (COVID),
   lags strong bulls (2023-25). Full tables on docs/index.html §4.
+* **Resolved 2026-07-10 (see §5i / D-63):** the sell step survives as
+  *priced tail insurance* (−76%→−29% worst dd for ~1 pt/yr over 33y), the
+  banner/protocol wording synced; "DECISIVE SELL" framing retired.
 
 ## 5f. Addendum 2026-07-06 — full strategy vs index DCA (THE test)
 
@@ -169,6 +172,10 @@ residual survivorship, "promising not proven"; (2) 🐻 full liquidation was
 pure cost in a V-recovery window — keep BEAR protocol scoped to satellites
 + pause-adds, index core never sells (digest already words it this way);
 (3) re-run this test yearly as data accrues (added to backlog).
+*(2026-07-10: (1)'s "promising" is downgraded and (2) is superseded by the
+D-63 decomposition — see §5i: freeze-only is dominated, §4's once-at-onset
+sell + index-contributions + thirds re-entry is the kept shape, and the
+cleaner-protocol multi-window test erases the 5y QQQ win.)*
 
 ## 5g. Addendum 2026-07-06 — core-4 concentration test (Danny's 85/90% method)
 
@@ -234,6 +241,73 @@ Honesty notes: the edge is modest (+1.4pts fwd60 over DCA); day-rows
 cluster (~6 days/episode — judge by episodes); one 5y window; and the
 shelf alone (🎯 without 🐳) actually LOST to the plain dip arm — the whale
 footprint, not the level, carries the edge, which is exactly Danny's point.
+
+## 5i. Addendum 2026-07-10 — D-63 resolved + multi-window re-test (the bar)
+
+Owner asked (2026-07-10): continue the bear/bull planning (their own
+backtest agreed 🐻-selling hurt), rethink universe screening, and re-run
+the backtests independently — with the bar: *beat SPY or QQQ over multiple
+≥5y windows or the effort isn't worth it.* Full numbers:
+BACKTEST_RESULTS.md (rewritten this session); harness:
+`homily_multiwindow_backtest.py` (new, also serves #40's yearly re-test).
+
+**Found + fixed on the way (the session's most consequential bug):**
+Yahoo returns MONTHLY bars for `range=max` while honouring `interval=1d`
+on shorter tokens — so D-63 Step 2 had only ever run daily signals on
+monthly bars (and then crashed on QQQ's 1999 start; also fixed).
+`homily_data.py` now uses epoch params for full history and refuses
+non-daily responses; validate test [22] pins both. 5y/10y numbers were
+unaffected (regression-verified).
+
+**D-63 resolution (pre-committed rule, branch 3 + branch 2's correction):**
+* Step 2 (1993→2026 incl. dot-com + 2008, survivor-biased): faithful §4 =
+  20.4%/yr at **−29% MaxDD** vs hold-through 21.3%/yr at **−76%** — the
+  sell step IS the drawdown insurance it claimed to be, priced at ~1 pt/yr
+  (~⅓ of 33y final wealth), and ~7 pts/yr in a 2022-style V-window.
+  **PLAYBOOK §4 stays, reframed as priced tail insurance with the numbers
+  quoted in-file**; `homily_regime.py` BEAR banner now mirrors it (sell
+  weak satellites ONCE → dry powder; monthly buys → index all bear;
+  thirds re-entry — no drift).
+* The committed overlay (sell-all monthly + cash + lump re-entry, mode b)
+  was never §4 and overstated the damage — BACKTEST_RESULTS corrected.
+* **Freeze-only ("pause adds, don't sell") is dominated** — kept the −76%
+  grinder drawdown AND lagged in the V-window. §4 gained a "no
+  half-measures" warning; the old idea that 🐻 might become freeze-only is
+  dead.
+* **Per-name §5.2 exit is the only arm that ADDED return on the honest
+  control** (+3.4 pts/yr at 10y; best arm in most multi-window cells) —
+  it exits the PTON/ZM class. Zero crash protection (−79% in grinders).
+  §4 = insurance, §5.2 = trash-taker; both kept, jobs now stated. #51
+  (⚪ time-stop calibration) is the follow-up that could sharpen it —
+  raised in priority within Phase C.
+
+**Multi-window verdict vs the bar (universe B control, 9 windows):** a
+curated list is only out-of-sample after its construction date (mid-2021
+for the control), so: pre-2021 windows = hindsight noise (54–84% CAGR,
+ignored); 2021-straddling windows **lose to both indexes** (the ⭐ gate
+momentum-bought ZM/PTON-class names into the bubble as they became
+eligible — the gate does not dodge regime-scale overvaluation); the fully
+honest 2021→2026 window **beats SPY, ties-to-loses QQQ** (1.70 vs 1.78
+MOIC) — and the committed "5y QQQ win" was partly an eligibility artifact
+(rng-5y fetch force-parked year 1 in the index). Every arm carries 2–3×
+index drawdown. **Verdict: as an index-beating machine the engine does
+not clear the owner's bar; QQQ DCA remains the strongest simple
+competitor.** What survives on the numbers: §5.2 exits (small real edge on
+wreck-salted books), 🐻 as priced insurance, and the discipline/execution
+infrastructure (R0/R1) — plus selection work (#20/#24/#65) as the only
+credible path to an actual edge, measured live by #13/#14/#64.
+
+**Consequences adopted:** (1) BACKTEST_RESULTS.md is the single place the
+bar is scored; re-run yearly via `homily_multiwindow_backtest.py` (#40).
+(2) Construction-date honesty becomes a standing rule: every future
+backtest names the universe's construction date and only reads
+post-construction windows as evidence (applies to D-65's mechanical-2021
+control too). (3) No engine changes shipped from these results — anything
+that would (e.g. a valuation/breadth gate on ⭐, #26) goes through its own
+Phase-C gate. (4) Owner decision recorded: the effort's justification is
+now explicitly *risk-shaped disciplined exposure + live measurement*, not
+a proven QQQ-beater — PLAYBOOK §8 and HOW_IT_WORKS honesty lines updated
+to match.
 
 ## 6. Improvement backlog (queued for next runs)
 
@@ -355,6 +429,23 @@ that before improving anything, or improvements are unmeasurable.
     (⭐ appears/lapses, 🔵 fires, 🐳 appears, 🐂/🐻 flips, 🚀 enters/exits).
     Quiet day = no second message; the signal stops drowning in the wall.
     **Gate:** none (delivery only).
+64. **Universe-entry provenance** (S; ships with or right after 13) — every
+    `UNIVERSE` / `WATCH` entry carries an `origin`: `screen` (arrived by a
+    mechanical liquidity/G5 rule) or `owner-request` (added on request —
+    today: D05.SI, IBIT, ETHA per §5c; arguably the whole pre-#44 list).
+    `homily_ledger.py` logs it per row; 14 splits the scorecard by it.
+    Rationale: §8.0 makes 14 the referee for every later promotion, but the
+    universe is a discretionary list (§5c/§5f — the 3.69 MOIC number is
+    hindsight-biased *because* of how these names were chosen). Without the
+    field, an ⭐ on an owner-requested name and an ⭐ on a screened name enter
+    the live record indistinguishable, and the referee inherits the
+    selection bias it exists to detect. Does not make inclusion rule-based —
+    that needs point-in-time constituents and stays blocked behind 45 — it
+    makes the bias *visible and measurable* in the meantime, which is the
+    part that isn't blocked. **Gate:** none (labelling only; no live
+    behaviour changes). **Note:** if the two origins later diverge
+    materially in the scorecard, that is evidence *for* prioritising 44/45,
+    not a reason to drop names by hand.
 
 ### Phase B — protect the signal (integrity before intelligence)
 
@@ -492,10 +583,17 @@ at the step that truly needs it.
     `homily_dashboard.py` renders `docs/dashboard.html` nightly: inline-SVG
     interactive (hover = values, zero external assets): every holding's
     card (price + levels + chip histogram), ledger state-history heatmap,
-    scorecard tables (14), conviction drift, refine log chart. Committed by
+    scorecard tables (14), conviction drift, refine log chart, and an
+    **alerts timeline** (every #15 state-change alert ever sent, newest
+    first, reconstructed from ledger diffs — so a missed Telegram ping is
+    recoverable and the alert history is auditable in one place; owner
+    request 2026-07-10). Committed by
     the workflow AND sent via `sendDocument` — private in the chat, one tap
     to open, works offline, repo stays private, nothing hosted. **Gate:**
     HTML self-containment test (no external URLs) in validate.
+    *Owner note 2026-07-10: the charts UI (#35 chip-chart cards + this
+    dashboard) is explicitly wanted — keep #35 next in the Month-1 queue
+    after #18/#19, and treat #36 as the Quarter item's centrepiece.*
 37. **F3 — Telegram Mini App** (L; *deliberate no-server relaxation*; only
     if 2 weeks of F2 shows file-open friction) — host the same dashboard
     behind Telegram WebApp auth: Cloudflare Pages + a tiny Worker verifying
@@ -527,15 +625,19 @@ at the step that truly needs it.
     and constituent by design.
 44. **Universe hygiene automation** (#6) (S) — quarterly workflow opens a
     GitHub issue with candidate adds (new liquid names passing G5) and
-    drops (liquidity lost), instead of relying on memory.
+    drops (liquidity lost), instead of relying on memory. Note this keeps a
+    human in the inclusion loop by design; names it adds are still `origin:
+    owner-request` per 64 until the rule itself decides.
 45. **Delisted-inclusive control** (#10b) (L, blocked on finding a free
-    point-in-time constituent source) — the last big survivorship hole.
+    point-in-time constituent source) — the last big survivorship hole. The
+    same missing source blocks rule-based *live* universe construction; 64
+    measures the resulting bias while this stays blocked.
 
 ### 8.1 Suggested execution order (for the execution days)
 
 | When | Items | Why this order |
 |---|---|---|
-| **Week 1** (one sitting each) | 16 · 13 · 15 · 34 | send-safety first; ledger starts accruing (every week of delay = a week less live evidence); alerts + readable digest are free wins on top |
+| **Week 1** (one sitting each) | 16 · 13 · 64 · 15 · 34 | send-safety first; ledger starts accruing (every week of delay = a week less live evidence); 64 rides along with 13 because a row logged without `origin` can never be back-filled honestly; alerts + readable digest are free wins on top |
 | **Month 1** | 17 · 18 · 19 · 31 · 35 | pipeline hardened, return math honest, buy-day copilot live for the next monthly buy, first chart cards |
 | **Quarter** | 20 · 21 · 22 · 25 · 27 · 28 · 29 · 36 | scores validated, refine loop re-pointed, portfolio lens on, dashboard shipping nightly |
 | **Gated / ongoing** | 14 (first read at 3mo) · 23 · 24 · 26 · 30 · 32 · 33 · 37 · 38 · 39–45 | each unlocks as its dependency (ledger months, position data, F2 usage) matures |
@@ -557,7 +659,10 @@ board lots + ledger-based buy-day detection · #34–36 frontend architecture
 decisions · #39 block-bootstrap spec). Part III = the execution handoff
 protocol for whichever model builds this. Part II = idea bank, indexed here
 (unvetted; every one gated; #61–62 = EXECUTION.md guards, #63 = bear-regime
-rethink below, new proposals start #64):
+rethink below, #64 = universe-entry provenance (Phase A), #65 =
+mechanical universe construction below, #66 = right-stock discipline
+below (owner-requested 2026-07-10), #67 = hard-rule provenance audit
+below (owner-requested 2026-07-10), new proposals start #68):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -576,7 +681,10 @@ rethink below, new proposals start #64):
 | 58 | Behaviour-gap tracker (perfect-PLAYBOOK shadow book vs real) | M | none (measurement) — prices the discipline gap |
 | 59 | Flash-crash pre-script (SPY 5d < −7% psychology note) | S | none (info-only) |
 | 60 | Data-QA cross-check (freshness/Stooq-agreement asserts) | S | validate tests; feeds #17 |
-| 63 | **Bear-regime rethink** — decompose the 🐻 sell step (owner-requested 2026-07-08; full design **D-63** in DESIGNS.md Part I) | M | pre-committed decision rule in D-63; PLAYBOOK §4 edited only per that rule |
+| 63 | **Bear-regime rethink** — decompose the 🐻 sell step (owner-requested 2026-07-08; full design **D-63** in DESIGNS.md Part I) | M | pre-committed decision rule in D-63; PLAYBOOK §4 edited only per that rule — **RESOLVED 2026-07-10**, see §5i |
+| 65 | **Mechanical universe construction** (owner-requested 2026-07-10; full design **D-65** in DESIGNS.md Part I) — L0 NASDAQ-Trader symbol master → L1 liquidity gates ($5+, $50M/d median, 130+ bars) → L2 top-~120 capacity cut + holdings + recent-🚀 stickiness; quarterly refresh via #44's issue; committed `universe.json` with per-name `origin`; non-US stays owner-request; adds a rule-stated *mechanical-2021* control to #40 re-runs | L | one shadow quarter in the ledger: keeps ≥90% of hand-list ⭐/🔵/🚀 names AND surfaces ≥1 setup the hand list missed; #14 splits scorecard by origin either way |
+| 66 | **Right-stock discipline** (owner-requested 2026-07-10, Danny's "right stocks, add aggressively on pullbacks, hold" principle; full design **D-66** in DESIGNS.md Part I) — sticky per-name quality tier Q (quarterly, fundamentals-led, no tape feedback) + 💎 quality-dip row for Q1 names parked in ⚪ by drawdown alone + thesis-break VETO on the aggressive dip-add paths (🎯-on-🟡, WHALE-DIP, #50 tranches) | M–L | wreck-list separation replay per D-66 (2021 control must separate from the recovered greats); 💎 stays info-only until it beats both DCA and unfiltered-⚪ dips OOS; the veto ships on the weaker net-block-count standard |
+| 67 | **Hard-rule provenance audit** (owner-requested 2026-07-10, "determine these hard rules instead of gut feeling"; full design **D-67** in DESIGNS.md Part I) — audit finding: the 10%/name add-cap was never backtested and the adopted emergent arm (§5g, 2.10×) never enforces it (PLTR grew to ~30% with adds continuing). Registry of every hard constant by provenance (tested / declared / not-tunable), then price the declared ones as insurance: cap sweep on the multiwindow harness (premium) + synthetic top-name −80% shock (payout), Bucket-B threshold sensitivity, whale 2% derived from episode dispersion, max-5 sweep, 50/50 frontier printed info-only | M | pre-committed decision rule in D-67 — cap moves only if an alternative ties-or-beats 10% on universe B AND survives the shock table; may move UP, never OFF; PLAYBOOK edited only after, with the measured premium quoted |
 
 ### 8.4 Planning → execution handoff
 

@@ -84,6 +84,26 @@ of times per decade.)
 already down 10–15%. It will feel late. It is still worth following — its
 value is avoiding the −40…−80% middle, not the first −15%.
 
+**What this insurance costs — measured, not asserted (D-63, 2026-07-10):**
+across 33 years spanning the dot-com grind, 2008 and 2022 (survivor-biased
+high-beta basket), following these exact steps returned 20.4%/yr vs
+21.3%/yr for never-selling — roughly **−1 pt/yr and one-third less final
+wealth — in exchange for cutting the worst peak-to-trough from −76% to
+−29%.** In a V-shaped bear the premium is much bigger: the 2022 episode
+cost ~7 pts/yr over its surrounding 5-year window, and most of that cost
+came from the *recovery* months (hold-through kept averaging into crushed
+satellites; this protocol re-enters in thirds). False alarms AND V-bears
+are the premium; the −70% grinders are what the policy exists for. If you
+are certain you would sit through −76% without capitulating or needing the
+money, hold-through earns more — but that certainty is exactly what §8
+says most people don't have.
+
+**No half-measures:** "I'll just pause adds but not sell" tested as the
+worst of both worlds (D-63 mode c): it kept the entire −76% grinder
+drawdown AND still gave up return in the V-window. Follow the steps below,
+or consciously choose hold-through — don't improvise a blend in the
+moment.
+
 **The steps, in order (you have days, not minutes — it's a monthly signal):**
 
 1. **Do not touch anything on the day you see it.** Sleep on it once. The
@@ -125,7 +145,12 @@ premium on the insurance, not a malfunction.
    **and** fundamentals failing (profit check failed / F:0–1) → sell half,
    set a note to review the remainder in one quarter. A broken chart with a
    healthy business (F:2+) is a drawdown; a broken chart with a broken
-   business is how "temporary" becomes permanent.
+   business is how "temporary" becomes permanent. *(Measured, D-63 mode f,
+   2026-07-10: on the wreck-salted 2021 control this rule — tested without
+   even its F-gate — beat holding-everything by ~3 pts/yr over 10y, because
+   it's what gets you out of the PTON/ZM class. It is a return protector on
+   broken names, NOT crash insurance: it kept the full −79% grinder
+   drawdown. §4 is the insurance; this is the trash-taker.)*
 3. **You need the money, or margin exists.**
 
 **Never trim** a Bucket-B compounder in RED/uptrend because it "got big by
@@ -166,9 +191,12 @@ that's optimal on paper.
 
 ## 8 · Honest expectations (read once a year)
 
-- Backtests here show the method **beat SPY/QQQ in one 5-year window on a
-  control universe** (2.10× vs 1.74×/1.50×). That is *promising, not
-  proven*. No tool can promise index outperformance; anyone who does is
+- The 2026-07-10 multi-window re-test (BACKTEST_RESULTS.md §3) says it
+  plainly: on construction-honest windows the method **beats the S&P more
+  often than not, does NOT reliably beat QQQ**, and carries 2–3× the index
+  drawdown. What it measurably provides instead: the §5.2 exit's edge on
+  broken names, §4's priced crash insurance, and the discipline to keep
+  investing. No tool can promise index outperformance; anyone who does is
   selling something.
 - The compounding math is brutal about one thing: **at realistic returns,
   the savings rate matters more than the strategy.** Doubling your DCA

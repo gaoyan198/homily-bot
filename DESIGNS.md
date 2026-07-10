@@ -259,12 +259,316 @@ hypothesis, ship them and stop.
 File: `homily_bear_backtest.py` · Effort M · validate: mode (b) reproduces
 the committed overlay rows (regression); golden numbers in the docstring.
 
+**RESOLVED 2026-07-10 (PRD §5i, BACKTEST_RESULTS.md §2).** Step 2 finally
+ran on true daily bars (the `range=max` fetch had been silently returning
+monthly bars — fixed + guarded in `homily_data.py`, validate [22]) and the
+structural hypothesis above was REFUTED in grinders: faithful §4 kept
+20.4%/yr vs hold's 21.3% while cutting −76% → −29% MaxDD. Outcome = branch
+3 (+ branch 2's correction note): §4 kept as priced tail insurance,
+premium quoted in PLAYBOOK; freeze-only dominated (worst of both worlds);
+sell-into-index catastrophic in grinders; per-name §5.2 the only
+return-ADDING arm on the honest control (+3.4 pts/yr at 10y, no crash
+protection). Banner/PLAYBOOK/HOW_IT_WORKS/BACKTEST_RESULTS synced in the
+same commit per the rule. Rule 6 note: the numbers contradicted this
+design's hypothesis and shipped anyway.
+
+### D-65 · Universe construction — from hand-picked list to mechanical screen (#65)
+
+**Owner-requested 2026-07-10** ("think about how you are screening for
+Universe").
+
+**What exists today.** `UNIVERSE` in `daily_run.py` is a hand-curated
+~60-name dict grown by conversation (megacaps, semis, growth software,
+diversifiers, HK/SG, crypto ETFs, mid-caps). Names enter by owner/model
+taste — `origin: owner-request` in #64's terms — and never mechanically
+leave. Three costs: (1) the live scorecard inherits the selection bias
+(#64 makes it measurable, not gone); (2) backtest UNIV_A is
+hindsight-flattered and even the "honest" UNIV_B control is itself a
+hand-built list; (3) selection is the biggest measured lever (R2), yet a
+name we never screen can never ⭐ — the multi-bagger hunt is capped by
+where we already looked.
+
+**Design constraints.** Key-free, stdlib, CI-friendly (≤ ~100 deep fetches
+per daily run), and NO free point-in-time constituent source exists (#45
+stays blocked) — so survivorship-free construction is impossible; say so
+rather than pretend.
+
+**Pipeline — three mechanical layers, refreshed quarterly (rides #44):**
+
+* **L0 base listing (free, mechanical):** the NASDAQ Trader symbol
+  directory (`nasdaqlisted.txt` + `otherlisted.txt`, published daily,
+  key-free) = every US-listed security (~11k rows). Drop test issues,
+  warrants/units/rights/preferred, secondary share classes, and ETFs
+  (except the index/crypto ETFs the owner holds — those are
+  `owner-request` anyway).
+* **L1 hard gates** (quarterly, from bulk EOD — Stooq bulk files or Yahoo
+  batched over several CI nights): price ≥ $5 · median 60d dollar-volume
+  ≥ $50M · ≥130 bars listed (younger-but-liquid tagged `young`; the 🚀
+  tier's own 260-bar gate G5 is unchanged) · primary exchange
+  NYSE/NASDAQ/AMEX.
+* **L2 capacity cut:** rank L1 survivors by 60d dollar-volume; keep top
+  ~120 + every current holding + every name that passed all 🚀 gates in
+  the last two quarters (stickiness — a winner doesn't fall off the list
+  the quarter it cools). This list ships as committed `universe.json`
+  (`symbol, origin, since, gate values`) — provenance lives where the
+  ledger (#13/#64) can log it.
+
+**Owner adds stay possible** — tagged `origin: owner-request`, including
+ALL non-US names (HK/SG/KR have no equivalent free master list;
+international inclusion stays discretionary and labelled as such).
+
+**Diff discipline.** The refresh never silently swaps the list: #44's
+quarterly GitHub issue shows adds/drops WITH their gate values; a drop is
+actioned only after failing L1 two consecutive quarters (whipsaw guard).
+
+**Gate (pre-committed).** One shadow quarter: the mechanical list runs in
+parallel (ledger rows tagged `shadow-screen`, no digest surface). Adopt as
+the live screen universe only if it (a) retains ≥90% of the names the hand
+list actually surfaced (⭐/🔵/🚀) that quarter — it must not LOSE signal —
+and (b) surfaces ≥1 legitimate setup the hand list missed. Either way #14
+splits the scorecard by origin from day 1; if `screen` and `owner-request`
+rows diverge materially, that decides the follow-through.
+
+**Backtest-universe honesty (feeds #40).** UNIV_B stays frozen (it is the
+committed control), but the next July re-test adds a third universe:
+*mechanical-2021* = top-100 by 2021-07 dollar-volume among still-fetchable
+names — rule-stated instead of taste-stated. Still survivor-limited (#45),
+but removes hand-picking from the control's construction.
+
+File: `homily_universe.py` + `universe.json` · Effort L (the bulk-EOD
+quarterly job is the work) · until it ships, #64 labels + #44 hygiene issue
+are the cheap forward steps and are NOT blocked on this.
+
+### D-66 · Right-stock discipline — sticky quality tier, 💎 quality dips, thesis-break veto (#66)
+
+**Owner-requested 2026-07-10**, quoting Danny: *"Successful investing is
+NEVER about multiple indicators… It's about picking the right stocks,
+aggressively adding to them during pullbacks, and holding patiently."* The
+owner's three challenges: (1) how do we know we're picking RIGHT stocks;
+(2) sizing up the WRONG stock during a pullback is catastrophic — what
+reduces that; (3) do we detect pullbacks in great stocks, given our
+indicators use price as strength so a pulling-back stock drifts to ⚪.
+
+**Honest inventory of what already exists.**
+
+* *Right-stock side:* the 🚀 gates + 0–100 score (unvalidated until #20
+  runs — the PRD itself says "shortlist, not an edge"); `homily_fund.py`
+  F:n/3 (3 coarse checks, info-only, US-only); the RS12 ≥ SPY+20 gate.
+  Which competing ⭐ gets the money is effectively alphabetical until #24.
+  §8.0 already names selection (R2) the biggest signal-side lever.
+* *Pullback-in-great-stock side:* better covered than challenge (3)
+  assumes — ⭐ ACCUMULATE **is by construction a pullback state** (weekly
+  dip to a chip shelf *inside* an intact monthly uptrend), plus 🟡, 🔵 and
+  the gated WHALE-DIP tier. The composite never punishes a dip per se; it
+  punishes a broken monthly trend.
+* *The two real holes, which are the same hole:*
+  1. A pullback deep enough to break monthly EMA10 parks the name in ⚪
+     and pauses adds **regardless of business quality** — the PLTR-June
+     false-block class (#21 attacks the tape side of this; nothing attacks
+     the quality side). NVDA-2022 (−60%, business intact) and PTON-2022
+     (−60%, business broken) print the *same* ⚪ row apart from a small
+     F-tag.
+  2. Conversely the aggressive dip-add paths (🎯-on-🟡, ⚪+🎯+🐳
+     WHALE-DIP, #50 tranches if adopted) have **no fundamental veto** — a
+     2021-wreck falling knife with whale footprints can still draw an add.
+     Caps (2%/5%/10%) bound the damage per add; nothing stops the add.
+
+  Both failure modes are one missing fact: **a per-name business-quality
+  judgment that does not move with the tape.** Everything price-derived
+  collapses in a drawdown by definition; quality must come from the slow
+  layer or it is just momentum wearing a suit.
+
+**Design — three parts, one slow input.**
+
+* **(a) Sticky quality tier Q (quarterly).** Extend `homily_fund.py` from
+  3 checks to a small scored set, EDGAR-only, key-free: revenue growth
+  (level + direction), profitability (NI>0 or OCF>0, margin direction),
+  FCF sign, dilution rate. Plus exactly ONE price input — 3y RS vs SPY —
+  as the "market has voted for years" check, never a shorter window.
+  Output: **Q1** compounder-grade · **Q2** unproven · **Q3**
+  broken-or-unknown. Computed at quarterly refresh (rides #44/#65's
+  cadence), committed like the fund cache, and *frozen between refreshes* —
+  no tape feedback loop, that is the whole point. Non-US names print `Q:—`
+  honestly (same stance as F:—).
+* **(b) 💎 quality-dip row (info-only until gated).** Fires when: Q1 ·
+  state ⚪ *purely from trend break* (weekly structure not WHITE-collapsed)
+  · drawdown within the name's own historical recovery envelope · no fresh
+  fundamental downgrade at the last refresh. Digest prints "💎 NVDA — ⚪ by
+  tape, business intact (Q1, F:3/3) — quality dip, shelf 152" instead of
+  silently parking it. This answers challenge (3) for the deep-pullback
+  case; ⭐ already answers the shallow one.
+* **(c) Thesis-break veto (the wrong-stock damage control).** The
+  aggressive add paths — 🎯-on-🟡, WHALE-DIP, and #50 tranches if adopted —
+  require Q ≥ Q2 AND no fresh downgrade (revenue growth flipped negative,
+  dilution spike, F-score −2 vs prior quarter). A veto ONLY: it can block
+  an add, never create one, so it cannot add a new way to lose. Caps
+  unchanged. This answers challenge (2): the machinery that sizes up into
+  weakness refuses to run on names whose business broke.
+
+**Gate (pre-committed, the replay is the work).** Point-in-time replay on
+UNIV_A + the frozen UNIV_B 2021-hype control, filings as-of date only:
+
+1. **Wreck-separation test (must pass first):** does Q, computed from
+   then-available filings, separate the 2021 wreck list (PTON ZM DOCU
+   class) from the later-recovered greats (NVDA META 2022 class)? Report
+   the tier × forward-24m table. If Q cannot separate them OOS, the tier
+   prints as a label but **everything downstream stays dead** — close
+   honestly per Part III rule 6.
+2. **💎 event study:** forward 12m of quality-dip days vs (i) unfiltered ⚪
+   dips and (ii) same-budget DCA. 💎 becomes a *buyable* state only if it
+   beats both; otherwise it ships info-only forever (still useful: it
+   changes what the human reads during the next NVDA-2022).
+3. **Veto standard (weaker, because a veto only reduces action):** on the
+   replay, count wreck-adds blocked vs winner-adds falsely blocked; ship if
+   clearly net-positive. The PLTR-June case must NOT be blocked (Q was
+   fine) — that is the regression test for over-blocking.
+
+**Interlocks.** #20 stays the referee for the 🚀 score — this item does not
+touch that rubric. #21's false-block penalty is the tape-side twin of (b).
+#24's ranking test gains a fourth arm: Q-tier as ⭐ tie-break. #51's ⚪
+time-stop study gets a Q split — P(recover | weeks-in-⚪, Q) is likely that
+study's strongest cut, and the data answer to "hold the dip or cut it".
+#50 is gated on (c) before any tranche automation. Danny's lag point from
+§6.4 stands: fundamentals gate the *universe and the holding decision*,
+the tape still gates *money flow* — Q never times an entry.
+
+File: `homily_fund.py` extension + `homily_quality_backtest.py` · Effort
+M–L (the point-in-time filings replay is the work; the digest wiring is
+trivial) · Cheap forward step NOT blocked on the gate: print `Q:` next to
+`F:` as a label from day 1 — labels are free, promotions are gated.
+
+### D-67 · Hard-rule provenance audit — price the declared constants (#67)
+
+**Owner-requested 2026-07-10** ("how did we determine that a stock going
+to 10% means we stop adding? if it fits our screen why can't we add to
+these winning stocks? any smart way to determine these hard rules instead
+of gut feeling?").
+
+**Why (audit finding).** The 10%/name add-cap (PLAYBOOK §3.4) appears
+fully formed in the first PLAYBOOK commit (581e82d) with no backtest
+behind it — and it *contradicts* the adopted evidence: the emergent
+backtest that §5g crowned "THIS is the method the digest encodes" never
+enforces any cap. Its winning 2.10× book let PLTR grow to ~30% of book
+with adds continuing the whole way (top-4 62%, peak 69%). The live
+routine is therefore more conservative than the tested one — plausibly
+right as insurance against the gap-down no trend gate can see, but the
+premium has never been priced. The same audit, applied to every hard
+constant in the system, sorts them into three provenance classes:
+
+| Constant | Where | Provenance | Owner study |
+|---|---|---|---|
+| 10m SMA regime, both indices, monthly close | §4 | tested (30y `homily_regime_backtest.py`; D-63 decomposition) | #63 done |
+| no adds while ⚪ | §1/§2 | tested implicitly (emergent adds only on ⭐/🔵) | — |
+| no ⭐ → full amount to index | §3.5 | tested (cited in §3.5) | — |
+| never-sell / hold-through | §3/§5 | tested (THE test · emergent · multiwindow) | #40 yearly |
+| 🐳 WHALE-DIP tier exists | §3.6b | tested + gated (§5h) | — |
+| **10%/name add-cap** | §3.4 | **declared; contradicts the tested arm** | **this item** |
+| **10% Bucket-B "earned" threshold** | §1 | declared (same digit reused) | this item, sensitivity |
+| **≤2% whale-dip cap** | §3.6b | declared ("edge is modest" instinct) | this item |
+| **max 5 ⭐ names/month** | §3.4 | declared | this item |
+| 50/50 A-vs-stock split | §7 | declared, deliberately behavioural | this item, info-only |
+| ⚪ 12w + F:0–1 → sell half | §5.2 | declared | #51 (queued) |
+| thirds-over-3-months re-entry | §4.7 | declared | D-63 modes |
+| satellites ≤10% bear trim | §4.3b | declared | D-63 |
+| margin zero | §6 | ruin-avoidance — not tunable, no study moves it | excluded by design |
+| F thresholds (rev >10%, dil <12%) | `homily_fund.py` | declared, info-only | #66 Q-tier absorbs |
+| score <60 → no capital | HOW_IT_WORKS | declared | #20 (referee) |
+
+**The method (the owner's "smart way").** A declared rule is insurance.
+Price it like insurance: **premium** = what the rule costs on realized
+paths (multiwindow, both universes); **payout** = what it saves on the
+paths it exists for (wreck scenarios). A sweep that only maximises MOIC
+would delete every safety rule, because in both our universes this
+cycle's mega-winner won — that is the hindsight trap §8.0 warns about,
+so the sweep alone is never the decision rule here.
+
+**Step 1 — cap sweep (the premium).** `homily_cap_backtest.py`: the
+emergent arm + `add_cap ∈ {5, 10, 15, 20, 25, ∞}%` × two treatments of
+skipped cash {redistribute to remaining ⭐ names, send to index core}.
+Weight checked on add day only — the cap gates adds, never forces sells
+(§5.1's earned-pass survives). Replay over the multiwindow WINDOWS,
+universes A and B. Report MOIC / TWR / MaxDD / peak-top1 / peak-top4 per
+cell, plus **cap-binding frequency** (months a skip actually happened) —
+without it the sweep is unreadable, since binding depends on book size
+vs monthly flow. Judge on B.
+
+**Step 2 — wreck pricing (the payout).** Two probes:
+  a. *natural:* per cap level on universe B, each book's damage from its
+     worst held name. Hypothesis: wrecks lose ⭐ long before they reach
+     10%, so the cap binds only on eventual winners — if the replay
+     shows exactly that, it IS the finding (the ⭐ gate, not the cap,
+     contains wrecks).
+  b. *synthetic:* at each book's peak-top1 date, gap the top name −80%
+     overnight, no recovery; rerun per cap level. This is the payout
+     table — what 10% vs ∞ buys when the biggest name is the next LCID
+     (or a fraud print the trend gate cannot front-run).
+
+**Step 3 — Bucket-B threshold sensitivity.** The same 10% digit defines
+"earned core" (§1), which flips the 🐻 sell exemption and trim rule 1.
+Reuse D-63's Bucket-B proxy row with the threshold swept {8, 10, 15}% —
+a sensitivity table, never a headline.
+
+**Step 4 — whale 2% from dispersion, not gut.** From the
+`homily_whale_backtest.py` episode returns: per-episode fwd60
+distribution → cap sized so a 5th-percentile episode costs ≤0.5% of
+book. If the derived figure lands near 2%, the rule graduates from gut
+to derived; if far, the derived number is the proposal.
+
+**Step 5 — max-5 and the split.** Max ⭐ names swept {3, 5, 8, ∞} in the
+same harness (expect ~null per §5g's sizing result; cheap to check
+honestly). The 50/50 split is NOT optimised — §7 defines it as the split
+you can hold through a bear — but print the 30/50/70 stock-half frontier
+per universe so the owner picks with a number instead of a feeling.
+Info-only forever.
+
+**Decision rule (pre-committed).**
+- The add-cap moves ONLY if, on universe B, an alternative ties-or-beats
+  the 10% arm's MOIC in a majority of windows AND its synthetic-shock
+  MaxDD stays within 5 pts of the 10% arm. Expected outcome: uncapped
+  wins realized paths (PLTR did exactly this in-sample) but loses the
+  shock table — then the cap STAYS and PLAYBOOK §3.4 gains one sentence
+  quoting its measured premium ("this cap cost ~X pts/yr in the tested
+  windows; it exists for the gap-down the trend gate can't see"). The
+  question closes with a number either way.
+- If Step 2a shows the cap binds only on eventual winners AND the shock
+  payout is small, the cap may move UP (15/20%) — never OFF: ∞ is not
+  adoptable from two universes that both contain this cycle's
+  mega-winner.
+- Whale cap: adopt the derived number iff it lands in [1%, 4%]; outside
+  that band keep 2% and note the estimate's fragility.
+- Any change syncs PLAYBOOK + HOW_IT_WORKS + the #31 copilot constant +
+  BACKTEST_RESULTS in the same commit; §8.0's one-live-change / 90-day
+  spacing stands.
+
+**Pitfalls.** Universe A is hindsight — upper bound, never verdict. A
+per-name cap is a weak proxy for cluster exposure (today's book is one
+AI trade wearing 15 tickers) — #29 is the real control; note the
+interplay, don't conflate them. Synthetic −80% is a modelling choice —
+label it as such and show −50/−80/−95 so the conclusion isn't an
+artifact of one number. Part III rule 6: if the numbers say the
+insurance is free (uncapped ≈ capped), ship that null — it means the ⭐
+gate was doing the work all along, which is itself the answer.
+
+**Interlocks.** #27/#31 consume whatever cap constant wins (it must live
+in one place, imported everywhere). #29 is the successor risk control if
+the cap ever relaxes. #51 owns the 12w rule, D-63 the bear constants,
+#20 the score-60 line — the registry above is the map of who owns what.
+The registry ships as a new "rule provenance" section in
+BACKTEST_RESULTS.md the day the study runs; PLAYBOOK footnotes land only
+as each owner study concludes (Part III rule 5).
+
+File: `homily_cap_backtest.py` (+ an episode-dispersion block in
+`homily_whale_backtest.py`) · Effort M · validate: uncapped arm must
+reproduce the committed emergent numbers (regression, same pattern as
+D-63 mode (b)).
+
 ---
 
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
-Numbering continues PRD §8 (new proposals from later sessions start #61).
+Numbering continues PRD §8 (#61–66 taken — see PRD §8.3 index; new
+proposals start #67).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):

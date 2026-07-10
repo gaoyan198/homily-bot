@@ -141,16 +141,25 @@ def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260,
     return final / paid, cagr, mdd, cash_months, trades
 
 
-def run_dca(bars_ix, spy):
+def run_dca(bars_ix, spy, win=None):
+    """$1/month into one index on the SPY month calendar. `win=(start,end)`
+    restricts contribution months (multi-window re-tests). Months before the
+    index has data are skipped — on a max-range calendar QQQ only exists from
+    1999-03, so its DCA (and CAGR clock) starts at its first bar, not 1993."""
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
+    if win:
+        months = [m for m in months if win[0] <= m <= win[1]]
     units = paid = 0.0
     nav = []
     for d in months:
         px = close_on(bars_ix, d)
+        if px is None:
+            continue
         nav.append(px)
         units += 1.0 / px; paid += 1.0
-    final = units * bars_ix[-1][4]
-    yrs = len(months) / 12
+    final = units * ((close_on(bars_ix, win[1]) or nav[-1]) if win
+                     else bars_ix[-1][4])
+    yrs = len(nav) / 12
     cagr = (nav[-1] / nav[0]) ** (1 / yrs) - 1
     mdd = min(nav[j] / max(nav[:j + 1]) - 1 for j in range(1, len(nav)))
     return final / paid, cagr, mdd

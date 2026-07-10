@@ -335,8 +335,10 @@ def _run_window(title, names, rng, universe_tag, isolate_2022=False):
           f"{'cash-mo':>8}{'trades':>7}")
     for label, ix in (("DCA SPY", spy), ("DCA QQQ", qqq)):
         m, c, dd = run_dca(ix, spy)
+        late = (f"  (index data starts {ix[0][0]})"
+                if (ix[0][0] - spy[0][0]).days > 366 else "")
         print(f"{'  '+label:<22}{m:>6.2f}{c*100:>8.1f}%{dd*100:>7.0f}%"
-              f"{'—':>8}{'—':>7}")
+              f"{'—':>8}{'—':>7}{late}")
     for mode in MODES:
         m, c, dd, cm, tr = run_mode(live, data, spy, qqq, mode, index_bars=spy)
         print(f"{MODE_LABEL[mode]:<22}{m:>6.2f}{c*100:>8.1f}%{dd*100:>7.0f}%"
