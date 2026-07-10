@@ -22,6 +22,7 @@ import homily_ledger
 import homily_alerts
 import homily_positions
 import homily_buyday
+import homily_png
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -151,26 +152,30 @@ MAX_WORKERS = 4     # #17 / R11: bounded fan-out — a rate-limit ban on the
 
 
 def _screen_one(item, spy, spy_adj):
-    """(tk, result, corp) for one name; result is None on any fetch/engine
-    failure, corp is the suspect corporate-action bar date or None (#19).
-    Referenced via the module global fetch_series so tests can monkeypatch it."""
+    """(tk, result, corp, bars) for one name; result is None on any
+    fetch/engine failure, corp is the suspect corporate-action bar date or
+    None (#19); bars ride along so the #35 chart cards can draw without a
+    second fetch. Referenced via the module global fetch_series so tests can
+    monkeypatch it."""
     tk, sym = item
     try:
         bars, adj = fetch_series(sym, rng="5y")
         sig = danny_signal(tk, bars)
         c = conviction(sig, bars, spy, adj=adj, spy_adj=spy_adj)
-        return tk, (sig, c, len(bars) < MIN_HISTORY), corp_action_bar(bars)
+        return (tk, (sig, c, len(bars) < MIN_HISTORY),
+                corp_action_bar(bars), bars)
     except Exception:
-        return tk, None, None
+        return tk, None, None, None
 
 
-def screen(book, errs, spy, spy_adj=None, suspect=None):
+def screen(book, errs, spy, spy_adj=None, suspect=None, bars_out=None):
     """-> list of (DannySignal, Conviction, young), digest-sorted. Fetches fan
     out across a bounded thread pool (network-bound); output is sorted so it is
     identical regardless of completion order. Falls back to a sequential pass
     if the pool itself misbehaves (R11 keeps the sequential path alive).
-    `errs` and `suspect` are filled in place: failed tickers and, per #19,
-    ticker -> date of the corporate-action bar that suspends its levels."""
+    `errs`, `suspect` and `bars_out` are filled in place: failed tickers;
+    per #19, ticker -> date of the corp-action bar that suspends its levels;
+    and, for #35's charts, ticker -> the raw bars already fetched."""
     items = list(book.items())
     try:
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
@@ -179,15 +184,30 @@ def screen(book, errs, spy, spy_adj=None, suspect=None):
     except Exception:
         results = [_screen_one(it, spy, spy_adj) for it in items]
     out = []
-    for tk, res, corp in results:
+    for tk, res, corp, bars in results:
         if res is None:
             errs.append(tk)
             continue
         out.append(res)
         if corp and suspect is not None:
             suspect[tk] = corp
+        if bars_out is not None:
+            bars_out[tk] = bars
     out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
     return out
+
+
+def select_charts(screened, suspect=None):
+    """#35: the top-3 actionable names (⭐/🔵, or any name whose dip reached
+    its add zone — the 🎯 set), ordered by state precedence then conviction
+    score. Corp-suspect names are excluded: their levels are exactly what's
+    in doubt (#19), and levels are most of what the chart draws."""
+    sus = suspect or {}
+    pool = [(s, c) for s, c, _ in screened if s.ticker not in sus
+            and (s.state in ("ACCUMULATE", "BOTTOMING")
+                 or (s.add_zone and s.chips.last <= s.add_zone[1]))]
+    pool.sort(key=lambda x: (ORDER[x[0].state], -x[1].score, x[0].ticker))
+    return pool[:3]
 
 
 def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
@@ -329,12 +349,13 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
 def build_digest():
     """IO shell: fetch everything the digest needs, then hand it to the pure
     render_digest(). The network/clock/state-mutating calls live ONLY here."""
-    errs, suspect = [], {}
+    errs, suspect, all_bars = [], {}, {}
     spy_bars, spy_adj = fetch_series("SPY", rng="5y")
     spy = [b[4] for b in spy_bars]
-    sigs = screen({**HOLDINGS, **WATCH}, errs, spy, spy_adj, suspect)
+    sigs = screen({**HOLDINGS, **WATCH}, errs, spy, spy_adj, suspect,
+                  bars_out=all_bars)
     disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
-                   errs, spy, spy_adj, suspect)
+                   errs, spy, spy_adj, suspect, bars_out=all_bars)
     try:
         regime = market_regime()
     except Exception:
@@ -390,7 +411,20 @@ def build_digest():
         homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS))
     except Exception as e:
         print(f"[ledger] skipped: {e}")
-    return digest, alert
+    # #35 chart cards: top-3 actionable names rendered from the bars the
+    # screen already fetched. Per-name try — one bad render never costs the
+    # others, and never the digest.
+    charts = []
+    for s, c in select_charts(sigs + disco, suspect):
+        try:
+            caption = strip_html(fmt_row(s, s.ticker in WATCH))
+            charts.append((s.ticker,
+                           homily_png.chart_png(s.ticker,
+                                                all_bars[s.ticker], s),
+                           caption))
+        except Exception as e:
+            print(f"[chart {s.ticker}] skipped: {e}")
+    return digest, alert, charts
 
 
 def chunks(text, limit=4000):
@@ -434,8 +468,40 @@ def send(text):
             print("[sent to Telegram — plain-text fallback]")
 
 
+def send_photo(png, caption):
+    """#35: sendPhoto via hand-rolled multipart/form-data (stdlib only).
+    Caption is plain text (≤1024 per Telegram); a failed photo is logged and
+    dropped — the text digest already carried the information."""
+    tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
+    if not (tok and chat):
+        print(f"[chart rendered, {len(png)} bytes — no TELEGRAM_* env, "
+              "not sent]")
+        return
+    boundary = "homilyF1boundary"
+    enc = lambda s: str(s).encode()
+    body = b"".join([
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"chat_id\"\r\n\r\n{chat}\r\n"),
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"caption\"\r\n\r\n{caption[:1024]}\r\n"),
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"photo\"; filename=\"chart.png\"\r\n"
+            "Content-Type: image/png\r\n\r\n"),
+        png, enc(f"\r\n--{boundary}--\r\n")])
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{tok}/sendPhoto", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+    try:
+        urllib.request.urlopen(req, timeout=30)
+        print("[chart sent to Telegram]")
+    except Exception as e:
+        print(f"[chart send failed, dropped: {e}]")
+
+
 if __name__ == "__main__":
-    digest, alert = build_digest()
+    digest, alert, charts = build_digest()
     send(digest)
+    for _tk, png, caption in charts:    # #35: top-3 actionable chart cards
+        send_photo(png, caption)
     if alert:                       # #15: only on a state change, never quiet
         send(alert)

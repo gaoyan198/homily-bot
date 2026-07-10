@@ -31,7 +31,7 @@ around it may (#17).
 | 5 | #34 digest typography (HTML mode) | see R4; golden files updated deliberately |
 | 6 | #17 fetch hardening | see R11 |
 | 7 | #18 adjclose returns | see R1 — the highest-risk item in the plan |
-| 8 | ~~#19 corp-action guard~~ (done 2026-07-10, `homily_corp.py`, gate [24]) · ~~#31 buy-day copilot + T2 basket CSV~~ (done 2026-07-10, `homily_buyday.py`, gate [27]; R12 followed — HK prints "manual:", D-31's board-lot sketch superseded) · then #35, then Phase C per §8.1 | |
+| 8 | ~~#19 corp-action guard~~ (done 2026-07-10, `homily_corp.py`, gate [24]) · ~~#31 buy-day copilot + T2 basket CSV~~ (done 2026-07-10, `homily_buyday.py`, gate [27]; R12 followed — HK prints "manual:", D-31's board-lot sketch superseded) · ~~#35 chart cards~~ (done 2026-07-11, `homily_png.py`, gate [28] pixel-hash) · then Phase C per §8.1; SPECS.md (session 0) still TODO | |
 
 Definition of done, every session: spec's acceptance criteria met ·
 `python homily_validate.py` green · golden files pass (or were changed

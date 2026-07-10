@@ -751,4 +751,72 @@ os.environ.pop("BUY_BUDGET_USD", None)
 assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ""
 print("[27] Buy-day copilot: detection, F/RS order, 10% cap, basket CSV ... PASS")
 
+# --- 28. Chart cards (#35): valid PNG, deterministic pixels, top-3 pick ----
+# The gate D-35 pre-committed: a deterministic pixel-hash on fixture bars.
+# Hashes pin the RAW RGB buffer (compressed PNG bytes aren't guaranteed
+# stable across zlib builds). A DELIBERATE visual change re-pins them: run
+# `python3 homily_png.py`, eyeball the rendered files, paste the two hashes.
+import struct
+import zlib
+import homily_png
+from homily_golden import _bottoming
+
+_bars28u = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)
+_bars28d = _mkbars([100 * 0.997 ** i for i in range(900)], [1e6] * 900)
+_sig28u, _sig28d = _up("UPP")[0], _dn("DWN")[0]
+
+# structural: signature, IHDR 900×500 RGB, chunk CRCs, filter-0 scanlines
+_png28 = homily_png.chart_png("UPP", _bars28u, _sig28u)
+assert _png28[:8] == b"\x89PNG\r\n\x1a\n", "PNG signature"
+assert struct.unpack(">II", _png28[16:24]) == (900, 500), "IHDR dims"
+_pos28, _idat28 = 8, b""
+while _pos28 < len(_png28):
+    _ln, _typ = struct.unpack(">I4s", _png28[_pos28:_pos28 + 8])
+    _dat = _png28[_pos28 + 8:_pos28 + 8 + _ln]
+    (_crc,) = struct.unpack(">I", _png28[_pos28 + 8 + _ln:_pos28 + 12 + _ln])
+    assert zlib.crc32(_typ + _dat) == _crc, f"bad CRC in {_typ}"
+    if _typ == b"IDAT":
+        _idat28 += _dat
+    _pos28 += 12 + _ln
+_raw28 = zlib.decompress(_idat28)
+_stride28 = 1 + 900 * 3
+assert len(_raw28) == 500 * _stride28, "scanline payload size"
+assert all(_raw28[i] == 0 for i in range(0, len(_raw28), _stride28)), \
+    "every scanline must use filter 0"
+
+# determinism + the pinned pixel hashes (the actual gate)
+_cvU = homily_png.chart_canvas("UPP", _bars28u, _sig28u)
+_cvU2 = homily_png.chart_canvas("UPP", _bars28u, _sig28u)
+assert homily_png.pixel_hash(_cvU) == homily_png.pixel_hash(_cvU2), \
+    "same inputs must render identical pixels"
+_cvD = homily_png.chart_canvas("DWN", _bars28d, _sig28d)
+_want28 = {
+    "UPP": "8f28551d8a56cd03048dfbaa5463453ca96a73d1d93a99d3074e1d7975a5460a",
+    "DWN": "949dbe1d39b1291b60917c68cddd41c0c336a611b7699ca6f80b7c575bf1bbea",
+}
+for _tk28, _cv28 in (("UPP", _cvU), ("DWN", _cvD)):
+    _got28 = homily_png.pixel_hash(_cv28)
+    assert _got28 == _want28[_tk28], (
+        f"{_tk28} chart pixels changed: {_got28}\n"
+        "If the visual change was DELIBERATE, re-pin: python3 homily_png.py, "
+        "eyeball the output files, paste the printed hashes here.")
+
+# top-3 selection: ⭐ then 🔵 then 🎯-at-support by conviction, suspects out
+_upA, _upB = _up("AAA"), _up("BBB")
+_bot28, _dip28 = _bottoming("BOT"), _dn("DIP")
+assert _dip28[0].add_zone and _dip28[0].chips.last <= _dip28[0].add_zone[1], \
+    "fixture drift: _dn must sit at its add zone (the 🎯 case)"
+_picked = [s.ticker for s, _c in
+           daily_run.select_charts([_upA, _upB, _bot28, _dip28])]
+assert _picked == ["AAA", "BBB", "BOT"], \
+    f"⭐⭐ then 🔵 must beat the ⚪ 🎯 for the 3 slots: {_picked}"
+_picked = [s.ticker for s, _c in
+           daily_run.select_charts([_upA, _upB, _bot28, _dip28],
+                                   suspect={"BBB": "2026-01-02"})]
+assert _picked == ["AAA", "BOT", "DIP"], \
+    f"corp-suspect names never get a chart (#19): {_picked}"
+_holdonly = [s.ticker for s, _c in daily_run.select_charts([_dn("ZZZ")])]
+assert _holdonly == ["ZZZ"], "a ⚪ AT its add zone is actionable (🎯)"
+print("[28] Chart cards: PNG valid, pixel-hash pinned, top-3 ⭐/🔵/🎯 pick . PASS")
+
 print("\nAll structural assertions passed.")
