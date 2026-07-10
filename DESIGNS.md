@@ -87,6 +87,13 @@ only if it beats random-5's median in ≥60% of draws AND beats (d).**
 Expect a null result — momentum-ranking momentum-gated names is nearly
 circular; the honest test is cheap and settles it.
 
+**RUN 2026-07-10 — the null did NOT materialise** (PRD §5j, BACKTEST_RESULTS
+§4, `homily_selection_backtest.py`: portfolio-MOIC variant, 200 draws,
+rule pre-registered): `rs12-top3` passed every check on the honest
+control's read windows, above random's p90 in all three. Promotion
+candidate declared (top-3, not top-5); waits for 2026-Q4 (R10) + the #13
+ledger forward-check. Conviction-score ranking added nothing over raw RS.
+
 ### D-29 · Correlation / concentration lens (#29)
 
 **Data.** 90 trading days of daily log returns per held name; pairs need
