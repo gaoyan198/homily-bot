@@ -48,6 +48,7 @@ COLUMNS = [
     "vh_status", "whale", "absorption", "divergence", "shelf_stable",
     "conv_score", "conv_tier", "gates_ok", "gates_failed", "ftag",
     "rs12_rank",
+    "origin",
 ]
 
 
@@ -59,12 +60,16 @@ def run_date():
 
 # --- per-name state (one source of truth: snapshot uses it whole, the CSV
 #     row is its flattened projection) -----------------------------------------
-def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None):
+def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None, origin=None):
     """DannySignal + Conviction -> a JSON-native dict of everything the digest
     knew about one name today. Pure read of frozen-engine outputs.
     `pos_view` (#27, homily_positions.position_view()) is snapshot-only,
     optional data for #28-30 to consume — None for anything not a tracked
-    USD position (not held, Bucket A, non-USD, or an unsynced holdings.json)."""
+    USD position (not held, Bucket A, non-USD, or an unsynced holdings.json).
+    `origin` (#64) records HOW the name entered the universe so #14 can split
+    the scorecard by it: "owner-request" (the whole pre-#65 hand-picked
+    list — the honest default, PRD §5c/§5f), "holding" (in the book), or
+    "screen" (reserved for #65's mechanical arrivals)."""
     s, c, ch = sig, conv, sig.chips
     zlo, zhi = (s.add_zone if s.add_zone else (None, None))
     try:
@@ -94,6 +99,7 @@ def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None):
         "gates_ok": bool(c.gates_ok),
         "gates_failed": list(c.gates_failed),
         "ftag": ft,
+        "origin": origin or "owner-request",
         # snapshot-only extras (dashboard / Claude sessions); not in the CSV
         "support": [[round(p, 4), round(w, 4)] for p, w in ch.support],
         "resistance": [[round(p, 4), round(w, 4)] for p, w in ch.resistance],
@@ -243,14 +249,24 @@ def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT):
 
 
 def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
-           ledger=LEDGER, snapshot=SNAPSHOT, hashfile=HASHFILE):
+           origins=None, ledger=LEDGER, snapshot=SNAPSHOT, hashfile=HASHFILE):
     """Orchestrator called by daily_run after the digest is built. `sigs` is
     the held+watch group, `disco` the not-held discovery group; `holdings_set`
     is the set of actually-held tickers (WATCH names screen in `sigs` but are
-    not held)."""
-    held_states = [state_of(s, c, s.ticker in holdings_set, fund=fund)
+    not held). `origins` (#64) maps ticker -> provenance; anything unmapped
+    falls back to "holding" if held else "owner-request" (conservative —
+    never lets a name masquerade as mechanically screened)."""
+    org = origins or {}
+
+    def _origin(tk):
+        return org.get(tk) or ("holding" if tk in holdings_set
+                               else "owner-request")
+
+    held_states = [state_of(s, c, s.ticker in holdings_set, fund=fund,
+                            origin=_origin(s.ticker))
                    for s, c, _ in sigs]
-    disco_states = [state_of(s, c, False, fund=fund) for s, c, _ in disco]
+    disco_states = [state_of(s, c, False, fund=fund,
+                             origin=_origin(s.ticker)) for s, c, _ in disco]
     all_states = held_states + disco_states
     ranks = rs12_ranks(all_states)
     for st in all_states:

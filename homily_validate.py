@@ -819,4 +819,53 @@ _holdonly = [s.ticker for s, _c in daily_run.select_charts([_dn("ZZZ")])]
 assert _holdonly == ["ZZZ"], "a ⚪ AT its add zone is actionable (🎯)"
 print("[28] Chart cards: PNG valid, pixel-hash pinned, top-3 ⭐/🔵/🎯 pick . PASS")
 
+# --- 29. Provenance column (#64): origin logged per row, END-appended ------
+# The scorecard's referee split (screen vs owner-request vs holding). Pure
+# measurement: no behaviour change anywhere; unknown names default to
+# "owner-request" so nothing can masquerade as mechanically screened. NB the
+# column append changed the guard-#62 hash serialisation — the checkpoint was
+# regenerated DELIBERATELY in the same commit that added the column.
+assert homily_ledger.COLUMNS[-1] == "origin", \
+    "append-only-columns rule: new columns go at the END"
+
+_sigU29, _convU29, _ = _up("ORG")
+_stH29 = homily_ledger.state_of(_sigU29, _convU29, True, fund=_fund,
+                                origin="holding")
+_stD29 = homily_ledger.state_of(_sigU29, _convU29, False, fund=_fund)
+assert _stH29["origin"] == "holding" and _stD29["origin"] == "owner-request", \
+    "origin must land in the state dict; default is owner-request"
+_d29 = datetime.date(2026, 7, 11)
+assert homily_ledger.csv_row(_stH29, _d29)["origin"] == "holding", \
+    "origin must flatten into the CSV row"
+
+# round-trip through the real append/verify path in a sandbox ledger; a
+# second day advances the checkpoint over origin-bearing rows and history
+# still verifies (the hash covers the new column from day one here)
+with tempfile.TemporaryDirectory() as _tmp29:
+    _lg29 = os.path.join(_tmp29, "ledger.csv")
+    _hf29 = os.path.join(_tmp29, "hash.json")
+    homily_ledger.append_rows([homily_ledger.csv_row(_stH29, _d29)], _d29,
+                              ledger=_lg29, hashfile=_hf29)
+    _d29b = datetime.date(2026, 7, 12)
+    homily_ledger.append_rows([homily_ledger.csv_row(_stD29, _d29b)], _d29b,
+                              ledger=_lg29, hashfile=_hf29)
+    _rows29 = homily_ledger._read_rows(_lg29)
+    assert [r["origin"] for r in _rows29] == ["holding", "owner-request"], \
+        f"origin must persist through the ledger round-trip: {_rows29}"
+    homily_ledger.verify_history(ledger=_lg29, hashfile=_hf29)
+
+# record()-level fallback: unmapped held ticker -> "holding", unmapped
+# watch/discovery ticker -> "owner-request"; explicit map wins
+_o29 = {"MECH": "screen"}
+_org29 = lambda tk, held: (_o29.get(tk)
+                           or ("holding" if held else "owner-request"))
+assert _org29("MECH", False) == "screen" and _org29("AAA", True) == "holding" \
+    and _org29("ASML", False) == "owner-request"
+# and the real wiring: daily_run's ORIGINS map tags book vs hand-list
+assert daily_run.ORIGINS.get("AAPL") == "holding" \
+    and daily_run.ORIGINS.get("ASML") == "owner-request" \
+    and daily_run.ORIGINS.get("MSFT") == "owner-request", \
+    "daily_run.ORIGINS must tag holdings vs the hand-picked list"
+print("[29] Provenance: origin column END-appended, defaults honest ....... PASS")
+
 print("\nAll structural assertions passed.")
