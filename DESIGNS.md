@@ -574,8 +574,9 @@ D-63 mode (b)).
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
-Numbering continues PRD §8 (#61–66 taken — see PRD §8.3 index; new
-proposals start #67).
+Numbering continues PRD §8 (#61–82 taken — see PRD §8.3 index; #68–75
+assigned 2026-07-11 in PRD §8 phases; #77–82 = Danny latest-posts review,
+PRD §5k, full rows in the §8.3 table; new proposals start #83).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):

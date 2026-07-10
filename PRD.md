@@ -355,6 +355,33 @@ ordering, copilot allocation and money movement are all unchanged; this
 only makes sure the July–Sept ledger rows carry the rank data the
 2026-10-01 forward-check needs. Gate: `homily_validate.py` check [25].
 
+## 5k. Addendum 2026-07-11 — review of Danny's latest X posts → new plans #77–82
+
+Owner request: mine Danny's recent posts for method details the bot doesn't
+capture yet. Sweep covered June 2025 → June 2026 (X blocks direct fetch;
+collected via search snippets, so quotes are post *openers* — full threads
+unverified). What's genuinely new vs. what §2/§5b/§5h already cover:
+
+| Post (date · ticker) | Claim | Disposition |
+|---|---|---|
+| [Apr 11, 2026 · SPY monthly](https://x.com/dannycheng2022/status/2042989378042236997) | "every volatility hole, once surpassed, has triggered a strong subsequent rally" — on the *monthly* chart, Dec 2013→now | Our VH engine is **daily-only** → **#77**, incl. a direct replication of this claim |
+| [Feb 28, 2026 · COIN](https://x.com/dannycheng2022/status/2027685494122025180) | daily VH fired Feb 12 as early bottom signal, *then* the weekly confirmed | Same gap: multi-timeframe VH sequence → **#77** |
+| [Jun 26, 2026 · KOSPI](https://x.com/dannycheng2022/status/2070229289417507220) | yellow candle ≠ bearish while the red ribbon unfolds; "the pullback usually takes 3 to 7 trading days before the next strong bullish candle" | A **testable duration claim** we've never measured → **#78** |
+| [Sep 6, 2025 · LULU](https://x.com/dannycheng2022/status/1964177009854337528) | his actual **sell** anatomy: monthly lower-highs/lower-lows + *declining* whale accumulation + momentum bars breached below ($329/$313) | We model whale *accumulation* only (§5h); no distribution tell exists → **#79** |
+| [Jun 26, 2024 · MARA vs WULF](https://x.com/dannycheng2022/status/1805828960787513768) | between two similar names, the whale-accumulation gap (94% vs low) decided the winner | Cross-sectional selection — the **R2 lever** → **#80** |
+| [Jun 18, 2024 · PLTR](https://x.com/dannycheng2022/status/1802940053582463114) | "whales on the daily chart have been playing tricks… I track them on the weekly" (his 2026 charts are overwhelmingly weekly/monthly) | Our 🐳 footprints are daily → **#81** |
+| [Mar 20, 2026 · PLTR](https://x.com/dannycheng2022/status/2034813250815304023) | "Never simply follow red or yellow candles" — VH outranks candle colour | Already our hierarchy (§5b: 🔵 overrides broken trend); no action |
+| Red/blue **ribbon** posts (PLTR weekly; [NIO Jul 2024](https://x.com/dannycheng2022/status/1810141974454014139)) | big red candles open bullish runs "lasting weeks to months"; blue ribbon = protracted downtrend | Run-length is measurable and would calibrate how long an ⭐ window typically stays open → **#82** |
+| [Apr 2026 · no-FOMO](https://x.com/dannycheng2022/status/2046270349265011162) | "not feeling FOMO on this recent high… next time whales offer a bigger discount, that's when I'll FOMO in" | Already the HOLD state + #50 tranches; no action |
+
+**Considered and rejected** (logged so nobody re-derives them): measured-move
+price targets ([AMZN inverse-H&S → $300, May 15 2026](https://x.com/dannycheng2022/status/2055204797138284708)) — subjective pattern
+anchoring; he himself mocked pattern-callers three weeks earlier
+([SPX Apr 16](https://x.com/dannycheng2022/status/2044598238964269146): "nobody owns a crystal ball"), and printing price targets breaks
+the §2 honesty constraints. Leverage-on-discount posts — §7 stands. His
+speculative small-caps (ONDS IBRX CLSK) — universe stays rule-governed per
+#65; G1 liquidity gates exist precisely to not chase these.
+
 ## 6. Improvement backlog (queued for next runs)
 
 Ranked; each item should ship with its own honest validation before the
@@ -470,6 +497,12 @@ that before improving anything, or improvements are unmeasurable.
     decile. Converts "promising, not proven" into an accruing live record —
     THE credibility artifact, and the referee for every later promotion.
     **Gate:** n/a — it *is* the gate for everything else.
+    **Spec addition 2026-07-11:** the scorecard also carries MaxDD and
+    worst-rolling-12m vs the same-cash counterfactual (§5i's verdict:
+    every arm ran 2–3× index drawdown — a returns-only scorecard would
+    hide exactly the failure the bar exists to catch), plus #70's
+    coverage % and #71's noise band. §9.0's north-star wording is
+    unchanged; this is how it gets *reported*, not a new metric.
 15. **State-change alerts** (#3) (S; needs 13) — diff today's ledger vs
     yesterday's; send a second, tiny Telegram message ONLY on transitions
     (⭐ appears/lapses, 🔵 fires, 🐳 appears, 🐂/🐻 flips, 🚀 enters/exits).
@@ -492,6 +525,27 @@ that before improving anything, or improvements are unmeasurable.
     behaviour changes). **Note:** if the two origins later diverge
     materially in the scorecard, that is evidence *for* prioritising 44/45,
     not a reason to drop names by hand.
+70. **Missed-run detector** (S; rides 13) (added 2026-07-11) — each run
+    compares the ledger's last row date against the trading calendar since;
+    a gap prints one digest line ("⚠️ no ledger rows for 2026-07-08 —
+    runner missed, live record has a hole") and `docs/snapshot.json` gains
+    a `coverage` field that 14 reports alongside its returns. Rationale:
+    #16 catches a run that *fails*; nothing catches a run that never
+    *starts* — and a track record with silent holes is biased toward the
+    days the infra was healthy, which corrupts the referee exactly like
+    backfilling would (R3's mirror image). **Gate:** none (measurement);
+    validate fixture with a planted gap.
+71. **Scorecard power line** (S; rides 14, reuses D-39 bootstrap
+    machinery) (added 2026-07-11) — before the first #14 read, pre-register
+    how many ledger-months a given size of live edge needs to be
+    distinguishable from noise (block-bootstrap the null on the same-day
+    SPY counterfactual rows) and print it on the scorecard itself:
+    "n=214 rows over 2.5mo — noise band ±6.2 pts; edges inside the band
+    are unreadable before ~2027-01". Protects the referee in BOTH
+    directions: no promoting on three lucky months, no demoting on three
+    unlucky ones. The band's method is frozen before the first read so it
+    can never be re-fit to make a result significant. **Gate:** the
+    calculation itself.
 
 ### Phase B — protect the signal (integrity before intelligence)
 
@@ -520,6 +574,34 @@ that before improving anything, or improvements are unmeasurable.
     move| > 45% on a volume spike → suppress that name's chip levels for the
     day ("levels suspended — corporate action?"), keep the state row.
     **Gate:** validate test on a synthetic 10:1 split series.
+69. **Promotion lifecycle registry + rs12 forward-checker** (S–M) (added
+    2026-07-11) — the promotion machinery is currently prose scattered
+    across §5h/§5j/R10; make it mechanical. Committed `promotions.json`:
+    one entry per gate-passed candidate — the pre-registered rule
+    verbatim, gate date + artifact (backtest file, BACKTEST_RESULTS
+    section), earliest promotion date, the forward-check criteria, AND a
+    **demotion rule written the same day**. Ships now with the rs12-top3
+    forward-checker as executable code (reads #13 rows, computes forward
+    returns of top-3-by-`rs12_rank` ⭐ names vs the other ⭐ names, prints
+    PASS/FAIL against the frozen criteria) so the 2026-10-01 decision is
+    a program's output, not a fresh judgment call made three months from
+    now with the result already visible. Standing rule adopted with this
+    item: **nothing is promoted without a pre-registered demotion rule in
+    the registry** (e.g. rs12-top3, if promoted, demotes back to
+    equal-split when top-3 rows underperform other-⭐ rows over a rolling
+    6-month ledger window — exact figure frozen in the registry entry
+    before promotion). A promoted signal that stops working leaves by
+    rule, not by debate — that, not refusing new signals, is how the
+    algorithm stays uncluttered. **Gate:** none (guard infra, the #61/#62
+    pattern); validate asserts every entry names its gate artifact.
+75. **Snapshot schema contract** (S; rides 13/36, blocks T3) (added
+    2026-07-11) — `docs/snapshot.json` is read by the dashboard (36),
+    Claude sessions, and eventually the T3 order routine — the first
+    consumer for whom a silently renamed field costs money. Add `"_v"`
+    to the snapshot, a validate check pinning the buy-day block's
+    required fields and types, and one more T3 hard guardrail in §9.2:
+    the routine refuses to act on a schema version it doesn't know.
+    **Gate:** validate contract test.
 
 ### Phase C — make the scores mean something (selection quality, R2)
 
@@ -608,6 +690,17 @@ that before improving anything, or improvements are unmeasurable.
     state timeline (12w), conviction drift, distance-to-zone, the week's
     🐳/VH events, scorecard refresh (14). Replaces "more text" with the
     dashboard link/file.
+72. **Buy-day execution reconcile** (S–M; needs 27, sharper once 32
+    lands) (added 2026-07-11) — the first run after buy day diffs
+    holdings against the basket the copilot printed: "🛒 reconcile:
+    executed 4/5 — TSM 3sh missing (~$1,302 undeployed)". Prints daily
+    until the book reflects the basket or the month ends; each month
+    closes with one executed-n-of-m row that feeds #58's behaviour-gap
+    tracker. Pure R0: §9.0 says an unexecuted signal has zero alpha —
+    this is the instrument that notices, and the T2→T3 promotion gate
+    ("two consecutive months executed verbatim", §9.2) gets measured by
+    it instead of by memory. **Gate:** fixture test (basket + holdings
+    in → reconcile line out).
 
 ### Phase F — frontend: from wall-of-text to glanceable
 
@@ -651,6 +744,14 @@ at the step that truly needs it.
 38. **F4 — interactive commands** (parked) — `/why NVDA`, `/size 2500`
     answered by the same Worker reading `docs/snapshot.json` via the GitHub
     API. Parked until F3 proves its keep; explicitly NOT a trading surface.
+73. **Digest line budget** (S) (added 2026-07-11) — a hard cap on
+    actionable digest lines (~12 above the fold; overflow prints tickers
+    only), enforced by a validate check counting lines in the #49 golden
+    digests. Standing rule adopted with it: a new digest feature must
+    displace an existing line or live on the dashboard (36) — additive-
+    only growth is how the wall-of-text happened, and a budget the CI
+    enforces is worth ten style intentions. **Gate:** golden-file line
+    count in validate.
 
 ### Phase G — research queue (one per quarter, July re-test cadence)
 
@@ -690,6 +791,29 @@ at the step that truly needs it.
 | **Quarter** | 20 · 21 · 22 · 25 · 27 · 28 · 29 · 36 | scores validated, refine loop re-pointed, portfolio lens on, dashboard shipping nightly |
 | **Gated / ongoing** | 14 (first read at 3mo) · 23 · 24 · 26 · 30 · 32 · 33 · 37 · 38 · 39–45 | each unlocks as its dependency (ledger months, position data, F2 usage) matures |
 
+*Slotting for the 2026-07-11 additions (#68–75):* **69 has a deadline** —
+the rs12-top3 forward-checker must be frozen well before the 2026-10-01
+read, so it goes next-but-one after the current session (68 rides the same
+session: the checker should be built on total-return math, which is what 68
+migrates). 70 and 73 are S-effort free wins that ride the next
+digest-touching session; 71 ships with 14's build; 72 after the first T2
+month produces a basket; 75 with the next change that touches
+snapshot.json; 74 waits in the #23 research queue under the R10 budget.
+
+*Slotting for #77–82 (§5k, Danny latest-posts review):* only one piece is
+time-sensitive — **#80's `whale_rank` ledger column** must ship before the
+July–Sept rows accrue or the 2026-10-01 #24 read can't include the whale
+challenger; it rides the same ledger-touching session as #69 (identical
+pattern to §5j's rs12_rank column, S effort, no behaviour change). The
+#80 study itself runs at the October read alongside rs12-top3. #79 is the
+highest-value study of the batch (it feeds #28's trim flags and #51's
+time-stop with a tape-based reason) and takes the next open research slot
+after #74 in the #23 queue. #77 and #81 are R4 timing modifiers competing
+for the same R10 one-per-quarter budget — run at most one per quarter,
+whichever the #23 harness reaches first. #78 and #82 are S–M info-only
+studies that ride any session already touching the backtest harnesses;
+they change digest text only if their distributions hold up.
+
 ### 8.2 Explicitly NOT in this plan
 
 Leverage/margin, options overlays, intraday data, auto-execution, paid data
@@ -710,7 +834,11 @@ protocol for whichever model builds this. Part II = idea bank, indexed here
 rethink below, #64 = universe-entry provenance (Phase A), #65 =
 mechanical universe construction below, #66 = right-stock discipline
 below (owner-requested 2026-07-10), #67 = hard-rule provenance audit
-below (owner-requested 2026-07-10), new proposals start #68):
+below (owner-requested 2026-07-10), #68 = total-return backtest migration
+(§8.5; renumbered 2026-07-11 from a duplicate "64"), #69–75 = 2026-07-11
+protect-the-referee / execution additions in Phases A/B/E/F plus #74
+below, #76 = planning-doc pruning below, #77–82 = Danny latest-posts
+review below (§5k, owner-requested 2026-07-11), new proposals start #83):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -732,6 +860,14 @@ below (owner-requested 2026-07-10), new proposals start #68):
 | 63 | **Bear-regime rethink** — decompose the 🐻 sell step (owner-requested 2026-07-08; full design **D-63** in DESIGNS.md Part I) | M | pre-committed decision rule in D-63; PLAYBOOK §4 edited only per that rule — **RESOLVED 2026-07-10**, see §5i |
 | 65 | **Mechanical universe construction** (owner-requested 2026-07-10; full design **D-65** in DESIGNS.md Part I) — L0 NASDAQ-Trader symbol master → L1 liquidity gates ($5+, $50M/d median, 130+ bars) → L2 top-~120 capacity cut + holdings + recent-🚀 stickiness; quarterly refresh via #44's issue; committed `universe.json` with per-name `origin`; non-US stays owner-request; adds a rule-stated *mechanical-2021* control to #40 re-runs | L | one shadow quarter in the ledger: keeps ≥90% of hand-list ⭐/🔵/🚀 names AND surfaces ≥1 setup the hand list missed; #14 splits scorecard by origin either way |
 | 66 | **Right-stock discipline** (owner-requested 2026-07-10, Danny's "right stocks, add aggressively on pullbacks, hold" principle; full design **D-66** in DESIGNS.md Part I) — sticky per-name quality tier Q (quarterly, fundamentals-led, no tape feedback) + 💎 quality-dip row for Q1 names parked in ⚪ by drawdown alone + thesis-break VETO on the aggressive dip-add paths (🎯-on-🟡, WHALE-DIP, #50 tranches) | M–L | wreck-list separation replay per D-66 (2021 control must separate from the recovered greats); 💎 stays info-only until it beats both DCA and unfiltered-⚪ dips OOS; the veto ships on the weaker net-block-count standard |
+| 74 | **缩量 dry-up dip tag** (added 2026-07-11) — Danny's healthy-pullback tell: a dip day on *contracting* volume (20d avg vs 50d avg) is accumulation-friendly; the same dip on expanding volume is distribution. Rides #23's confluence-study harness (⭐/🎯 dips split by dry-up vs expansion); counts against the one-modifier-per-quarter budget (R10); no digest tag ships before promotion | M | event study, both universes incl. 2021 control; null → closed honestly, nothing ships |
+| 76 | **Planning-doc pruning** (added 2026-07-11, token optimization) — PRD/DESIGNS/SPECS/EXECUTION have grown past ~2,000 lines combined and every session pays that context cost. Compact them: move resolved addenda (§5c–5j), shipped-item designs, and §8.5 execution notes to `docs/archive/` (archived verbatim, never deleted — provenance intact); collapse shipped idea-bank rows to one-line pointers; keep numbering continuity. Live docs keep only what a future session needs to act | S | docs-only — validate green, goldens untouched, every archived section reachable via a pointer from where it used to live |
+| 77 | **Multi-timeframe volatility hole** (owner-requested 2026-07-11, from Danny's latest posts — §5k) — run `homily_vol.py` hole detection on weekly and monthly resamples; his claimed sequence is daily VH = early tell, weekly/monthly = confirmation (COIN Feb 2026), and his SPY-monthly study claims a perfect breakout record since Dec 2013. Deliverable includes a **direct replication table of that SPY claim** — if it doesn't replicate on our approximation, that's a §8.5-worthy finding on its own | M | event study of weekly-VH breakouts, both universes incl. 2021 control, vs the daily-VH baseline from `homily_vol_backtest.py`; info-only until promoted; R4 timing → counts against the R10 one-modifier-per-quarter budget |
+| 78 | **Pullback clock** (from §5k, KOSPI Jun 26 2026) — Danny: within an intact red ribbon a pullback "usually takes 3–7 trading days". Measure the actual distribution of dip durations (consecutive non-RED daily candles) inside intact weekly-RED spells, per universe; if a stable band exists OOS, 🟡 rows gain "dip day 4 (typ. 3–7)" and a dip running past ~p90 duration becomes a data-driven trend-failure early warning (feeds #51's time-stop thinking at daily scale) | M | the study itself; digest line ships only if the duration band is stable across both universes and OOS halves; info-only |
+| 79 | **Whale-distribution warning** (from §5k, the LULU sell anatomy) — the inverse of #12's footprints: rallies absorbed (up-day closes weak at shelf resistance), OBV-A/D *negative* divergence, support shelf eroding instead of replenishing, plus monthly lower-highs/lower-lows. Scope guard: prints ONLY on held satellites / Bucket-B rows and as a veto input to 🚀 candidacy — core names and the index never get a sell tag (§1 principle stands). Feeds #28's trim-rule flags and #51's time-stop as an evidence line, replacing gut feel with a tape reason | M | event study incl. 2021 control: does the tag predict forward 60/120d underperformance vs sector-matched baseline? Honest precedent: VH *breakdowns* were null (§5b) — if this is null too, closed, nothing ships |
+| 80 | **Whale-rank selection challenger** (from §5k, MARA-vs-WULF) — Danny picks *between* similar names by whale-accumulation intensity; that's cross-sectional selection (R2), our biggest measured lever. Ship a `whale_rank` ledger column now (S, rides the next ledger-touching session — same pattern as the rs12_rank column, §5j), then enter it as a challenger in the #24 three-way harness at the 2026-10-01 read: whale-top3 vs rs12-top3 vs equal-all | S column + M study | must tie-or-beat rs12-top3 on all three honest windows incl. hype-2021 control; else closed. Column itself is pure measurement, no gate |
+| 81 | **Weekly-timeframe whale detection** (from §5k, "whales on daily play tricks") — recompute #12's three footprints on weekly bars; his own practice tracks accumulation weekly. Confluence table: daily-🐳 vs weekly-🐳 vs both firing | M | rides #23's confluence harness; counts against the R10 one-modifier-per-quarter budget; 2021 control included; only the winning variant (if any) keeps the 🐳 promotion |
+| 82 | **Ribbon run-length stat** (from §5k) — his "ribbon" is a regime run; "big red candles open runs lasting weeks to months" is a run-length claim. Measure the historical distribution of weekly-RED spell lengths (optionally conditioned on entry-candle size); digest already prints "weekly RED 8w" — add the base rate: "RED 8w (median run 11w)", so the owner knows how much accumulate-window typically remains | S–M | run-length study; if entry-candle size conditioning adds nothing, print the unconditional base rate only; info-only, no gate beyond the study |
 | 67 | **Hard-rule provenance audit** (owner-requested 2026-07-10, "determine these hard rules instead of gut feeling"; full design **D-67** in DESIGNS.md Part I) — audit finding: the 10%/name add-cap was never backtested and the adopted emergent arm (§5g, 2.10×) never enforces it (PLTR grew to ~30% with adds continuing). Registry of every hard constant by provenance (tested / declared / not-tunable), then price the declared ones as insurance: cap sweep on the multiwindow harness (premium) + synthetic top-name −80% shock (payout), Bucket-B threshold sensitivity, whale 2% derived from episode dispersion, max-5 sweep, 50/50 frontier printed info-only | M | pre-committed decision rule in D-67 — cap moves only if an alternative ties-or-beats 10% on universe B AND survives the shock table; may move UP, never OFF; PLAYBOOK edited only after, with the measured premium quoted |
 
 ### 8.4 Planning → execution handoff
@@ -778,7 +914,8 @@ quality — logged so nobody later re-derives it as an edge.
 
 **New backlog item, opened by the same session:**
 
-64. **Backtests on total return** (M) — `homily_selection_backtest.py`,
+68. **Backtests on total return** (M) *(renumbered 2026-07-11 from a
+    duplicate "64" — #64 is universe-entry provenance in Phase A)* — `homily_selection_backtest.py`,
     `homily_strategy_backtest.py`, `homily_core4_backtest.py` and
     `homily_multiwindow_backtest.py` still rank/compound on raw closes, so
     live RS12 and backtested RS12 now differ by the yield spread. Migrate them

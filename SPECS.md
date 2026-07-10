@@ -52,6 +52,9 @@ Guards #61 (engine-freeze SHA manifest) and #62 (ledger hash) — #62
 shipped with #13; **#61 is still unbuilt** and is a free S-sized rider on
 any session that touches validate.
 
+**#76 planning-doc pruning** (S, docs-only, spec in §2) — slot into any
+session; the sooner it ships the less context every later session burns.
+
 ## 2 · Build specs
 
 ### #64 · Universe-entry provenance (S)
@@ -202,6 +205,20 @@ Circular block bootstrap (block 6, 10k resamples) over the monthly return
 series of `homily_strategy_backtest.py`; MOIC percentile bands + P(strategy
 > QQQ DCA); mandatory caveat line. **Gate:** deterministic with a fixed
 seed; validate asserts the caveat string is present in the output.
+
+### #76 · Planning-doc pruning (S, docs-only — token optimization)
+**Goal:** PRD + DESIGNS + SPECS + EXECUTION are ~2,000 lines combined and
+every session (human or model) pays that context cost up front. Shrink the
+live docs to what a future session needs to *act*, without losing history.
+**How:** create `docs/archive/`; move verbatim (never rewrite, never
+delete): resolved PRD addenda (§5c–5j), §8.5 execution notes older than
+the current month, DESIGNS Part I designs whose items shipped, and the §0
+status-ledger rows' back-story. Leave a one-line pointer at each original
+location (`→ docs/archive/<file>#<anchor>`). Collapse shipped idea-bank
+rows (PRD §8.3) to one-liners. Keep all item numbering intact — #14's
+scorecard and the provenance audit (#67) reference these numbers.
+**Gate:** docs-only — validate green, goldens untouched; spot-check that
+every archived section is reachable from a pointer where it used to live.
 
 ### T3 · MCP order routine (own session; PRD §9.2)
 Only after: two T2 months executed verbatim + cloud GitHub access fixed.
