@@ -52,6 +52,13 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 ↑ close above it = bottoming confirmation, ↓ below = topping-process warning
 (note only, see honesty point 3), ◻ = still inside, unresolved.
 
+If a name's recent tape holds a **>45% one-day move on abnormal volume** — the
+signature of a split or spin-off the data feed never adjusted — every one of
+those levels is built on prices that never traded. The row then prints
+`⚠️ levels suspended — corporate action?` instead of the numbers: the state
+still shows, the levels don't, and the name cannot be promoted into the 🐳
+add tier that day.
+
 **🐳 whale-accumulation tag** (the PLTR June-2026 lesson): a dip (≥5% below
 the 60d closing high) showing ≥2 of 3 big-buyer footprints — an
 **absorption print** (heavy-volume day probing the dip floor yet closing in
@@ -69,6 +76,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_chips.py` | Chip/cost-distribution engine: decayed volume-at-price → POC, support/resistance peaks |
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |
+| `homily_corp.py` | Corporate-action sanity check: a mis-adjusted split in the chip window suspends that name's levels |
 | `homily_whale.py` | Whale-accumulation footprint: absorption print + OBV/A-D divergence + shelf stability → 🐳 |
 | `homily_whale_backtest.py` | The 🐳 gate: conditioned ⚪ shelf-dip buys vs plain ⚪ dips vs DCA (PASSED → WHALE-DIP tier) |
 | `homily_conviction.py` | Multi-bagger gates + 0–100 conviction score + sizing tiers |

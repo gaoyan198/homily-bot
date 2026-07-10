@@ -744,6 +744,18 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-07-10 · #19 shipped; "volume spike" was half the tell.** The item
+specified `|1-day move| > 45%` **on a volume spike**. That catches a forward
+split (10:1 leaves prices divided and volume multiplied) and misses the reverse
+split, where the same mis-adjustment multiplies price and *divides* volume — a
+volume **collapse**. `homily_corp.py` accepts either side of the median (spike
+OR collapse); validate check [24] pins both. Also widened beyond the letter of
+the spec: the suspension covers the VH band and the 🎯/🐳 tags, not just
+`add`/`POC`/`res` — they are all prices read off the same poisoned histogram,
+and a 🐳 promotion is by definition a claim about distance to a chip shelf.
+Run over the live 67-name book on 2026-07-10: **zero names flagged** — the
+guard is dormant, as a guard should be.
+
 **2026-07-10 · #18 shipped; its stated premise was wrong.** The item claimed
 raw closes "systematically dock payers (V MA COST LLY NVO, SPY itself)". The
 measured delta is `name_yield − spy_yield`, not `name_yield`: crediting SPY's

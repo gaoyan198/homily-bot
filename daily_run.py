@@ -17,6 +17,7 @@ from homily_conviction import conviction
 from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
+from homily_corp import corp_action_bar, suspended_note
 import homily_ledger
 import homily_alerts
 
@@ -101,28 +102,35 @@ def whale_dip(s):
             and s.chips.last <= s.add_zone[1])
 
 
-def fmt_row(s, watch=False, young=False):
+def fmt_row(s, watch=False, young=False, corp=None):
     c = s.chips
-    zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
-    res = g(c.resistance[0][0]) if c.resistance else "ATH air"
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
     vh = (f" · VH {g(h.lower)}-{g(h.upper)}{VH_ARROW[h.status]}" if h else "")
     yg = " · ⚠️too-new, engines not warmed" if young else ""
-    # the Danny move: a non-⭐ name whose price has actually reached the
-    # chip-support shelf (⭐ names are at support by definition — no tag)
-    at = (" · 🎯AT SUPPORT" if s.state != "ACCUMULATE" and s.add_zone
-          and c.last <= s.add_zone[1] else "")
-    wh = ""
-    if s.whale.whale and s.state != "ACCUMULATE":
-        ev = "+".join(e for e, on in (("absorb", s.whale.absorption),
-                                      ("flow", s.whale.divergence),
-                                      ("shelf", s.whale.shelf_stable)) if on)
-        wh = (f" · 🐳{ev}" + (" ≤2% WHALE-DIP add" if whale_dip(s) else ""))
+    if corp:
+        # #19: a split gap in the window poisons the whole chip histogram —
+        # every price derived from it (zone, POC, resistance, the VH band, and
+        # the 🎯/🐳 tags that compare price to a shelf) never traded. Print the
+        # state, suppress the numbers.
+        levels, at, wh, vh = esc(suspended_note(corp)), "", "", ""
+    else:
+        zone = f"{g(s.add_zone[0])}-{g(s.add_zone[1])}" if s.add_zone else "n/a"
+        res = g(c.resistance[0][0]) if c.resistance else "ATH air"
+        levels = (f"add {zone} · POC {g(c.poc)} · res {res} · "
+                  f"{c.pct_in_profit:.0f}% in profit")
+        # the Danny move: a non-⭐ name whose price has actually reached the
+        # chip-support shelf (⭐ names are at support by definition — no tag)
+        at = (" · 🎯AT SUPPORT" if s.state != "ACCUMULATE" and s.add_zone
+              and c.last <= s.add_zone[1] else "")
+        wh = ""
+        if s.whale.whale and s.state != "ACCUMULATE":
+            ev = "+".join(e for e, on in (("absorb", s.whale.absorption),
+                                          ("flow", s.whale.divergence),
+                                          ("shelf", s.whale.shelf_stable)) if on)
+            wh = (f" · 🐳{ev}" + (" ≤2% WHALE-DIP add" if whale_dip(s) else ""))
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
-            f"{g(c.last)} — "
-            f"add {zone} · POC {g(c.poc)} · res {res} · "
-            f"{c.pct_in_profit:.0f}% in profit · wk {s.weekly.circle}/{s.weekly.score} "
+            f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
             f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
             f"d{s.candle[0]}{vh}{at}{wh}{yg}")
 
@@ -135,23 +143,26 @@ MAX_WORKERS = 4     # #17 / R11: bounded fan-out — a rate-limit ban on the
 
 
 def _screen_one(item, spy, spy_adj):
-    """(tk, result) for one name; result is None on any fetch/engine failure.
+    """(tk, result, corp) for one name; result is None on any fetch/engine
+    failure, corp is the suspect corporate-action bar date or None (#19).
     Referenced via the module global fetch_series so tests can monkeypatch it."""
     tk, sym = item
     try:
         bars, adj = fetch_series(sym, rng="5y")
         sig = danny_signal(tk, bars)
         c = conviction(sig, bars, spy, adj=adj, spy_adj=spy_adj)
-        return tk, (sig, c, len(bars) < MIN_HISTORY)
+        return tk, (sig, c, len(bars) < MIN_HISTORY), corp_action_bar(bars)
     except Exception:
-        return tk, None
+        return tk, None, None
 
 
-def screen(book, errs, spy, spy_adj=None):
+def screen(book, errs, spy, spy_adj=None, suspect=None):
     """-> list of (DannySignal, Conviction, young), digest-sorted. Fetches fan
     out across a bounded thread pool (network-bound); output is sorted so it is
     identical regardless of completion order. Falls back to a sequential pass
-    if the pool itself misbehaves (R11 keeps the sequential path alive)."""
+    if the pool itself misbehaves (R11 keeps the sequential path alive).
+    `errs` and `suspect` are filled in place: failed tickers and, per #19,
+    ticker -> date of the corporate-action bar that suspends its levels."""
     items = list(book.items())
     try:
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
@@ -160,32 +171,41 @@ def screen(book, errs, spy, spy_adj=None):
     except Exception:
         results = [_screen_one(it, spy, spy_adj) for it in items]
     out = []
-    for tk, res in results:
-        (out if res is not None else errs).append(res if res is not None else tk)
+    for tk, res, corp in results:
+        if res is None:
+            errs.append(tk)
+            continue
+        out.append(res)
+        if corp and suspect is not None:
+            suspect[tk] = corp
     out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
     return out
 
 
-def fmt_rocket(s, c, held, *, fund=fund_tag):
+def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
     tag = "" if held else "†"
     top = sorted(c.parts.items(), key=lambda kv: -kv[1])[:2]
     why = ", ".join(f"{k} {v}" for k, v in top)
     size = "≤5% CONVICTION" if c.tier == "CONVICTION" else "≤2% STARTER"
-    zone = (f" · add {g(s.add_zone[0])}-{g(s.add_zone[1])}"
-            if s.add_zone else "")
+    if corp:
+        zone = f" · {esc(suspended_note(corp))}"
+    else:
+        zone = (f" · add {g(s.add_zone[0])}-{g(s.add_zone[1])}"
+                if s.add_zone else "")
     return (f"🚀 <code>{esc(f'{s.ticker:<5}')}</code>{tag} score {c.score} → "
             f"{size} · RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · "
             f"{esc(why)} · {esc(fund(s.ticker))}")
 
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
-                  *, fund=fund_tag):
+                  *, fund=fund_tag, suspect=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
     (homily_golden.py) possible. build_digest() is the thin IO shell that
     gathers these inputs and calls this. Keep the two behaviourally in
     lock-step: any change to a printed row belongs here."""
+    sus = suspect or {}
     lines = [f"<b>Homily × Danny digest — {esc(today)}</b>"]
     if regime is not None:
         r = regime
@@ -208,7 +228,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         if s.state != cur:
             cur = s.state
             lines.append(f"<b>{ICON[cur]} {esc(cur)}</b>")
-        lines.append(fmt_row(s, s.ticker in WATCH, young))
+        lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker)))
         if s.ticker in proxy:
             lines.append(proxy[s.ticker])
 
@@ -218,7 +238,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     lines += ["", "<b>🚀 MULTI-BAGGER WATCH (5 hard gates: size, trend, "
               "leader-RS, basis, data)</b>"]
     if rockets:
-        lines += [fmt_rocket(s, c, s.ticker in HOLDINGS, fund=fund)
+        lines += [fmt_rocket(s, c, s.ticker in HOLDINGS, fund=fund,
+                             corp=sus.get(s.ticker))
                   for s, c in rockets[:5]]
         lines.append("<i>sizing guide: CONVICTION ≤5% of account · STARTER "
                      "≤2% · hard cap 10%/name incl. existing · add at ⭐ "
@@ -228,13 +249,19 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
 
     # discovery: new-money setups among names not held (⭐/🔵, plus the
     # promoted 🐳 whale-dip tier — a ⚪ shelf dip being absorbed)
+    # a suspect name never earns the 🐳 promotion: that tier is defined by its
+    # distance to a chip shelf, and the shelf is exactly what's in doubt (#19)
     hits = [(s, y) for s, c, y in disco
-            if s.state in ("ACCUMULATE", "BOTTOMING") or whale_dip(s)]
+            if s.state in ("ACCUMULATE", "BOTTOMING")
+            or (whale_dip(s) and s.ticker not in sus)]
     lines += ["", f"<b>🔎 DISCOVERY — new-money setups ({len(disco)} names "
               "screened, not held)</b>"]
     if hits:
-        lines += [fmt_row(s, watch=True, young=y) + f" · {esc(fund(s.ticker))}"
-                  for s, y in hits]
+        lines += [fmt_row(s, True, y, sus.get(s.ticker))
+                  + f" · {esc(fund(s.ticker))}" for s, y in hits[:8]]
+        if len(hits) > 8:
+            more = ", ".join(s.ticker for s, _ in hits[8:])
+            lines.append(f"…and {len(hits) - 8} more: {esc(more)}")
     else:
         lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
     if errs:
@@ -256,7 +283,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               " ⚪ + 🎯 + 🐳 = WHALE-DIP tier, the one case a ⚪ name may be"
               " added — discretionary, ≤2% of account, same monthly budget,"
               " 10%/name hard cap (gate backtest: fwd60 +10.9% vs +9.5% DCA,"
-              " 58 names incl. 2021 wrecks) · F:n/m = EDGAR fundamentals"
+              " 58 names incl. 2021 wrecks) · ⚠️ levels suspended = a >45%"
+              " one-day move on abnormal volume sits in the chip window, so a"
+              " split/spin-off may be mis-adjusted: the state row still"
+              " prints, the levels would not be prices you could trade"
+              " · F:n/m = EDGAR fundamentals"
               " checks passed (growth/profit/dilution; info only, never a"
               " timing input) · † = not held</i>",
               "", "<b>Algo health (auto-refine, OOS-gated):</b>",
@@ -278,12 +309,12 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
 def build_digest():
     """IO shell: fetch everything the digest needs, then hand it to the pure
     render_digest(). The network/clock/state-mutating calls live ONLY here."""
-    errs = []
+    errs, suspect = [], {}
     spy_bars, spy_adj = fetch_series("SPY", rng="5y")
     spy = [b[4] for b in spy_bars]
-    sigs = screen({**HOLDINGS, **WATCH}, errs, spy, spy_adj)
+    sigs = screen({**HOLDINGS, **WATCH}, errs, spy, spy_adj, suspect)
     disco = screen({k: v for k, v in UNIVERSE.items() if k not in HOLDINGS},
-                   errs, spy, spy_adj)
+                   errs, spy, spy_adj, suspect)
     try:
         regime = market_regime()
     except Exception:
@@ -300,7 +331,7 @@ def build_digest():
     # date must be the same value on every runner; homily_ledger owns it.
     today = homily_ledger.run_date()
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
-                           today)
+                           today, suspect=suspect)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
@@ -346,21 +377,16 @@ def send(text):
         body = urllib.parse.urlencode(params).encode()
         urllib.request.urlopen(urllib.request.Request(url, data=body),
                                timeout=20)
-    parts = chunks(text)
-    n = len(parts)
-    for i, part in enumerate(parts, 1):
-        # digest exceeds Telegram's single-message cap -> split across
-        # messages; label them so the reader knows more is coming
-        page = f"<i>(part {i}/{n})</i>\n\n" if n > 1 else ""
+    for part in chunks(text):
         try:
-            post({"chat_id": chat, "text": page + part, "parse_mode": "HTML"})
+            post({"chat_id": chat, "text": part, "parse_mode": "HTML"})
             print("[sent to Telegram]")
         except urllib.error.HTTPError as e:
             # HTML entity-parse failures return 400 — deliver tag-stripped
             # plain text rather than dropping the digest (#34 R4)
             print(f"[HTML send failed: {e.code} "
                   f"{e.read().decode(errors='replace')[:200]}]")
-            post({"chat_id": chat, "text": strip_html(page + part)})
+            post({"chat_id": chat, "text": strip_html(part)})
             print("[sent to Telegram — plain-text fallback]")
 
 

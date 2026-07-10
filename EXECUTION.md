@@ -31,7 +31,7 @@ around it may (#17).
 | 5 | #34 digest typography (HTML mode) | see R4; golden files updated deliberately |
 | 6 | #17 fetch hardening | see R11 |
 | 7 | #18 adjclose returns | see R1 — the highest-risk item in the plan |
-| 8 | #19 corp-action guard · then #31, #35, then Phase C per §8.1 | #31: see R12 |
+| 8 | ~~#19 corp-action guard~~ (done 2026-07-10, `homily_corp.py`, gate [24]) · then #31, #35, then Phase C per §8.1 | #31: see R12 |
 
 Definition of done, every session: spec's acceptance criteria met ·
 `python homily_validate.py` green · golden files pass (or were changed

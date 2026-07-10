@@ -532,4 +532,57 @@ assert conviction(_sig, _pay_bars, _bench).rs12 < GATE_RS12 <= _c_adj.rs12, \
     "fixture should straddle G3 — otherwise the test proves nothing"
 print("[23] Total return: adj parallel to raw, RS12 raw < adj, levels raw . PASS")
 
+# --- 24. Corporate-action sanity check (#19) --------------------------------
+# A mis-adjusted 10:1 split must be caught from the tape alone, and the digest
+# must answer it by dropping the levels — never the name. Clean tapes, and the
+# same gap left far enough back that the chip decay has buried it, stay silent.
+import homily_corp
+from homily_golden import split_bars, _split, _leader, _whale, REFINE, \
+    TODAY, _fund
+
+_split_bars = split_bars(ratio=10, at=880, n=900)
+_hit = homily_corp.corp_action_bar(_split_bars)
+assert _hit == _split_bars[880][0], f"10:1 split not detected, got {_hit}"
+assert homily_corp.corp_action_bar(_mkbars([100 * 1.003 ** i for i in range(900)],
+                                           [1e6] * 900)) is None, \
+    "a clean uptrend must not be flagged"
+# reverse split: price x10, volume /10 — the plan named only the volume SPIKE,
+# but the collapse is the same event from the other side (see homily_corp)
+_rev = _mkbars([100 * 1.003 ** i * (10 if i >= 880 else 1) for i in range(900)],
+               [1e6 / 10 if i >= 880 else 1e6 for i in range(900)])
+assert homily_corp.corp_action_bar(_rev) == _rev[880][0], "reverse split missed"
+# a 45%+ move on ORDINARY volume is a crash, not a corporate action
+_crash = _mkbars([100 * 1.003 ** i * (0.5 if i >= 880 else 1) for i in range(900)],
+                 [1e6] * 900)
+assert homily_corp.corp_action_bar(_crash) is None, "volume must gate the flag"
+# and the gap ages out of the window once the chips it poisoned have decayed
+assert homily_corp.corp_action_bar(split_bars(at=700, n=900)) is None, \
+    "a gap older than the lookback must stop suspending levels"
+
+# the digest answer: state row survives, every price disappears, and the 🐳
+# add-tier can never be earned off a shelf we just said we don't trust
+_srow = daily_run.fmt_row(_split("SPLT")[0], corp=_hit)
+assert "⚠️ levels suspended" in _srow and str(_hit) in _srow, "no suspension note"
+assert "⚪" in _srow and "wk WHITE/0" in _srow, "state row must survive (#19)"
+assert not any(t in _srow for t in ("add ", "POC ", "res ", "in profit",
+                                    "VH ", "🎯", "🐳")), \
+    f"a suspended row must print no chip-derived price: {_srow}"
+_clean = daily_run.fmt_row(_split("SPLT")[0])
+assert "POC " in _clean and "VH " in _clean, "unsuspended rows keep their levels"
+# rocket gates never read the histogram, so the name stays — only its zone goes
+_lead, _lc, _ = _leader("LEAD")
+_rrow = daily_run.fmt_rocket(_lead, _lc, False, fund=_fund, corp=_hit)
+assert "score" in _rrow and "add " not in _rrow, f"rocket zone not suspended: {_rrow}"
+# the 🐳 whale-dip promotion is defined by distance to a chip shelf: a suspect
+# name must not reach the discovery list on a shelf we just disowned
+_whl = _whale("WHL")
+assert daily_run.whale_dip(_whl[0]), "fixture should be a whale-dip"
+_shown = daily_run.render_digest([], [_whl], {}, None, REFINE, [], TODAY,
+                                 fund=_fund)
+_hidden = daily_run.render_digest([], [_whl], {}, None, REFINE, [], TODAY,
+                                  fund=_fund, suspect={"WHL": _hit})
+assert "WHL" in _shown and "WHL" not in _hidden, \
+    "a suspect name must not be promoted into the 🐳 discovery tier"
+print("[24] Corp action: 10:1 + reverse split caught, crash isn't, levels off  PASS")
+
 print("\nAll structural assertions passed.")
