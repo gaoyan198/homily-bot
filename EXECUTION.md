@@ -23,7 +23,7 @@ around it may (#17).
 
 | Session | Task | Notes |
 |---|---|---|
-| 0 | Write `SPECS.md` (PRD §8.1 Week-1/Month-1 items: #16 #13 #15 #34 #17 #18 #19 #31 #35), reconcile item #22 (whale gate already PASSED — commit 51fee67), append PRD §8.5 plan review | planning only, no code; align with DESIGNS.md Part I |
+| 0 | ~~Write `SPECS.md`~~ (done 2026-07-11, late — specs now cover the REMAINING backlog; #22 was already reconciled in place; the PRD §8.5 entry is DEFERRED — a concurrent planning session was actively editing PRD.md at write time, adding #68–75; add the §8.5 session-0 note and reconcile SPECS §1 with those items once that session commits) | **queue continues in SPECS.md §1** — next: #64 provenance column |
 | 1 | #49 golden-file digest tests | the safety net — before ANY digest-touching change |
 | 2 | #16 validate-gates-the-send | see R5 before touching the workflow |
 | 3 | #13 signals ledger + snapshot.json | see R3, R7 — the track record starts here |
