@@ -10,10 +10,15 @@ each MONTH END: index close above its 10-month SMA -> BULL (invested);
 below -> BEAR (cash). It is deliberately slow — it fires a handful of times
 a decade, which is what makes it decisive rather than noisy.
 
-Protocol encoded for the digest (user's plan, 2026-07-06):
-  BEAR fires  -> halt all adds, exit satellite/🚀 names, raise dry powder;
-                 long-horizon SRS index core stays (30y horizon ≠ timing).
-  BULL resumes-> redeploy dry powder via the ⭐/🚀 screens.
+Protocol encoded for the digest (PLAYBOOK §4; reframed per D-63 2026-07-10
+as PRICED TAIL INSURANCE, not a return enhancer — measured over 33y it gave
+up ~1 pt/yr vs never-selling and cut worst drawdown −76% -> −29%; in the
+2022 V-bear it cost ~7 pts/yr of its 5y window):
+  BEAR fires  -> margin to zero; sell weak satellites ONCE at onset -> dry
+                 powder; index core stays; monthly buys keep going, into
+                 the index, all bear long.
+  BULL resumes-> redeploy dry powder into the ⭐/🚀 screens in thirds over
+                 three months.
 
 The regime is judged on BOTH SPY and QQQ month-end closes:
   BULL    both above their 10m SMA
@@ -76,10 +81,12 @@ def market_regime(symbols=("SPY", "QQQ")):
                                  "sell trigger = BOTH month-end closes "
                                  "below 10m SMA")
     elif not any(above):
-        label, action = "BEAR", ("DECISIVE SELL: halt adds, exit satellite/"
-                                 "🚀 names, raise dry powder; SRS index core "
-                                 "stays; re-enter when a month-end close "
-                                 "regains the 10m SMA")
+        label, action = "BEAR", ("tail-insurance protocol (PLAYBOOK §4): "
+                                 "margin→0, sell weak satellites ONCE → dry "
+                                 "powder; index core stays, monthly buys → "
+                                 "index all bear; on 🐂 re-enter in thirds/"
+                                 "3mo. Costs ~1pt/yr over 33y (−7pt/yr in a "
+                                 "2022-style V) to cut −76% dd to −29%")
     else:
         label, action = "MIXED", ("split signal — no action; judge at the "
                                   "next month-end close")

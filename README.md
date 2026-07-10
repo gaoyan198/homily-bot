@@ -92,24 +92,25 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 All IBKR holdings + Danny-core **ASML** (marked `†` = not held). SOXL is
 excluded (3x leveraged ETF — leverage is out of scope by design).
 
-## When to sell — market regime 🐂/🐻
-Per-stock selling loses (see backtests) but **index-level** timing has a real
-record: month-end 10m-SMA rule on SPY **and** QQQ. Both below = 🐻 BEAR =
-the decisive sell (halt adds, exit satellites, raise dry powder, index core
-stays); both above = 🐂 BULL. 33y/26y backtest
-(`homily_regime_backtest.py`): QQQ timed = same final wealth, −37% vs −81%
-MaxDD; SPY timed pays ~1% CAGR for −24% vs −52% MaxDD. Fails in flash
-crashes (COVID), lags strong bulls — full tables in
-[docs/index.html](docs/index.html) §4. Banner tops every digest.
+## When to sell — market regime 🐂/🐻 (priced tail insurance)
+Per-stock trend-selling loses (see backtests); the month-end 10m-SMA rule on
+SPY **and** QQQ (both below = 🐻 BEAR, both above = 🐂 BULL) survives — as
+**insurance, not a return enhancer**. The D-63 decomposition
+(`homily_bear_backtest.py`, 2026-07-10, 1993→2026 incl. dot-com + 2008):
+following PLAYBOOK §4 (sell weak satellites *once* at onset → dry powder,
+keep buying the index all bear, re-enter stars in thirds on 🐂) returned
+20.4%/yr vs 21.3%/yr for never-selling while cutting worst drawdown from
+**−76% to −29%**; in the V-shaped 2022 bear it cost ~7 pts/yr of its 5y
+window. "Pause adds but don't sell" tested worst of both worlds; the index
+core never sells either way. Banner tops every digest and words it this way.
 
-**THE test** (`homily_strategy_backtest.py`, 2021-07→2026-07, $1/month,
-point-in-time): ⭐-dip accumulation across a loser-salted 2021 control
-universe returned **2.10× vs QQQ DCA 1.74× / SPY 1.50×** — promising, one
-window, not proven. But adding the 🐻 full-liquidation overlay halved it to
-1.31× (a V-recovery window; §4's 33y test shows regime pays only in
-grinding bears). Hence the protocol: BEAR de-risks **satellites** and pauses
-adds — the index core never sells. Full table + verdict in
-[docs/index.html](docs/index.html) §5.
+**The bar re-test** (`homily_multiwindow_backtest.py`, 2026-07-10, every
+≥5y window since 2015, honest-control universe): the engine **beats SPY
+more often than not, does NOT reliably beat QQQ**, at 2–3× the index
+drawdown — the earlier "5y QQQ win" was partly an eligibility artifact.
+The one arm that *added* return on the wreck-salted control was the
+per-name PLAYBOOK §5.2 exit (+3.4 pts/yr at 10y). Full tables + verdict:
+[BACKTEST_RESULTS.md](BACKTEST_RESULTS.md).
 
 ## Multi-bagger conviction screen 🚀
 Every name (held or not) runs through 5 hard gates — size (<$5B/day dollar

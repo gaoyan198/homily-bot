@@ -1,105 +1,198 @@
-# Backtest results — strategy vs S&P 500 / Nasdaq-100 (5y and 10y)
+# Backtest results — strategy vs S&P 500 / Nasdaq-100
 
-**Windows:** 5y = 2021-07-08 → 2026-07-07 · 10y = 2016-07-08 → 2026-07-07 ·
-**$1/month contributions** · **10 bps per trade** · **point-in-time** (signals
-computed only from bars up to each decision day — no look-ahead).
+**Re-run in full 2026-07-10 (D-63 session).** Windows roll with the run
+date, so bars shift a few days vs the 2026-07-08 figures; deltas ≤0.4 pt.
+**$1/month contributions** · **10 bps per trade** · **point-in-time**
+(signals computed only from bars up to each decision day — no look-ahead).
 
-Reproduce: `python homily_strategy_backtest.py` (5y, prints both variants below).
-The 10y figures use the same functions with `rng="10y"`. Every number is raw
-output — nothing is hand-entered.
+Reproduce: `python homily_strategy_backtest.py` (5y THE test) ·
+`python homily_bear_backtest.py` (D-63 bear decomposition, Steps 1+2) ·
+`python homily_multiwindow_backtest.py` (every ≥5y window since 2015).
+Every number is raw output — nothing is hand-entered.
 
-> ### ⚠ Correction (this file was revised)
-> An earlier version of this file said the strategy "sat in cash 2016–2020" and
-> used that to explain the weak 10-year result. **That was a bug in the backtest,
-> not the strategy.** [PLAYBOOK.md §3.5](PLAYBOOK.md#L57) says *"if there are no
-> ⭐ names, buy the index with the full amount"* — but the old code let cash sit
-> idle instead. The backtest now implements the index fallback (`index_bars=`
-> param). Fixing it **lowered the 5-year number** (the idle cash had been
-> lump-concentrating into winners, flattering the result) and **barely changed
-> the 10-year one**. The corrected numbers are below.
+> ### ⚠ Data-integrity note (2026-07-10)
+> Yahoo's chart API **silently returns monthly bars for `range=max`** while
+> honouring daily granularity for `5y`/`10y`. Every previous "max-range"
+> replay (the D-63 Step-2 grinding-bear run of 2026-07-08, which also
+> crashed before printing) was computing daily signals on monthly bars —
+> garbage. `homily_data.py` now requests epoch `period1/period2` for full
+> history and **refuses any non-daily response** (validate test [22]).
+> All 5y/10y numbers were unaffected (verified by regression); every
+> max-range number below is from the fixed fetch.
+
+> ### ⚠ Correction (kept from the 2026-07-08 revision)
+> An earlier version let no-⭐ months sit in cash instead of buying the
+> index per PLAYBOOK §3.5. The idx-fallback rows below are the faithful
+> strategy; the old cash-wait variant flattered the 5y number.
 
 ---
 
-## The faithful strategy (PLAYBOOK §3.5): no ⭐ → buy the index
+## 1 · THE test (committed protocol): 5y and 10y, honest control
 
-This is what the operating manual actually prescribes, and what the numbers below
-labelled **"idx-fallback"** now test: every month, split the contribution across
-the ⭐ ACCUMULATE names; **if there are none, buy the index core** (never sold).
-The old **"cash-wait"** rows are kept only to show the size of that earlier bug.
+Universe B = "hype-2021 control": winners AND wrecks a growth investor
+plausibly held in mid-2021 (PTON ZM DOCU ROKU LCID…). Names fetched at
+window length, so a name needs a year of in-window bars before it can be
+bought (see §3 for the cleaner full-history protocol — it lowers the 5y
+result).
 
 ### 5-year window (2021-07 → 2026-07)
 
-| Scenario | MOIC | CAGR | Growth of $10k | MaxDD |
-|---|---:|---:|---:|---:|
-| DCA S&P 500 (SPY) | 1.50 | 11.3% | $17,036 | −23% |
-| DCA Nasdaq-100 (QQQ) | 1.73 | 14.7% | $19,880 | −34% |
-| **Strategy — honest control, idx-fallback** | **1.77** | **16.7%** | **$21,675** | −26% |
-| Strategy — honest control, + bear-sell overlay | 1.25 | 6.4% | $13,637 | −28% |
-| *(old buggy cash-wait variant, for reference)* | *2.14* | *22.7%* | *$27,794* | *−30%* |
-| Hindsight univ (discount entirely), idx-fallback | 2.59 | 29.2% | $35,964 | −23% |
-
-**Read:** over 5 years the faithful strategy beat both indices — **16.7% vs 11.3%
-(S&P) / 14.7% (QQQ)**, $10k → $21.7k vs $17.0k / $19.9k. A real but *modest* edge,
-about **+2 points/yr over QQQ** — not the +8 the buggy version implied.
+| Scenario | MOIC | CAGR | MaxDD |
+|---|---:|---:|---:|
+| DCA S&P 500 (SPY) | 1.51 | 11.3% | −23% |
+| DCA Nasdaq-100 (QQQ) | 1.77 | 14.7% | −34% |
+| **Strategy — honest control, idx-fallback** | **1.77** | **16.7%** | −26% |
+| Strategy — honest control, + bear-sell overlay (mode b) | 1.27 | 6.8% | −28% |
+| Hindsight univ (discount entirely), idx-fallback | 2.67 | 29.9% | −23% |
 
 ### 10-year window (2016-07 → 2026-07)
 
-The fallback index matters a lot here (most early months have no ⭐, so they buy
-the index). PLAYBOOK Bucket A is an SPY+QQQ blend, so both ends are shown:
+| Scenario | MOIC | CAGR | MaxDD |
+|---|---:|---:|---:|
+| DCA S&P 500 (SPY) | 2.09 | 13.1% | −24% |
+| **DCA Nasdaq-100 (QQQ)** | **2.92** | **20.1%** | −34% |
+| Strategy — honest control, idx-fallback = SPY | 2.07 | 16.4% | −67% |
+| Strategy — honest control, + bear-sell overlay (mode b) | 1.35 | 9.5% | −64% |
+| Strategy — honest control, §5.2 per-name exit (mode f) | 2.54 | 19.8% | −65% |
 
-| Scenario | MOIC | CAGR | Growth of $10k | MaxDD |
-|---|---:|---:|---:|---:|
-| DCA S&P 500 (SPY) | 2.08 | 13.1% | $34,359 | −24% |
-| **DCA Nasdaq-100 (QQQ)** | **2.86** | **20.1%** | **$62,554** | −34% |
-| Strategy — honest control, idx-fallback = **SPY** | 2.05 | 16.3% | $45,298 | −67% |
-| Strategy — honest control, idx-fallback = **QQQ** | 2.31 | 19.2% | $57,925 | −66% |
-| Strategy — honest control, + bear-sell overlay | 1.33 | 9.4% | $24,513 | −64% |
-
-**Read:** over 10 years the faithful strategy **beats the S&P but loses to a plain
-QQQ index fund** — *regardless of the fallback index.* Best case (QQQ fallback)
-19.2% vs QQQ 20.1%; MOIC 2.31 vs 2.86. And it does so with a **−66% drawdown vs
-QQQ's −34%.** You take roughly double the risk to slightly underperform "buy QQQ,
-never look."
+**Read:** 5y — beat both indexes modestly (but see §3: the cleaner
+protocol erases the QQQ win). 10y — beats SPY on CAGR, **loses to QQQ**
+(2.07–2.54 vs 2.92 MOIC) at roughly **double the drawdown**. The best
+strategy arm over 10y is the **per-name §5.2 exit**, not any market-timing.
 
 ---
 
-## What actually drives the result
+## 2 · D-63 — the 🐻 sell step decomposed (the bear-regime verdict)
 
-- **Over 5y the edge is real but small.** The concentrated-leaders tilt added
-  ~2 pts/yr over QQQ. The earlier "+8 pts" was an artifact of idle cash being
-  lump-deployed into winners at favourable later dates — not a repeatable edge.
-- **Over 10y the tilt does not beat QQQ.** Because ~half the decade had no ⭐
-  candidates (the growth names hadn't listed), the strategy was mostly *just the
-  index* plus a growth kicker — and after the 2022 collapse the kicker didn't net
-  enough alpha to beat holding QQQ outright.
-- **The bear-selling overlay hurt in BOTH windows** (6.4% at 5y, 9.4% at 10y) —
-  a V-recovery whipsaw. This is why the protocol de-risks *satellites* only and
-  never sells the index core.
-- **Tail risk is the real cost.** −66% to −75% peak-to-trough on the concentrated
-  book. Danny's whole edge is the conviction to hold through that; the backtest
-  confirms the drop is real and most people would capitulate.
-- **The ⭐ entry timing has no edge of its own** (`homily_danny_backtest.py`):
-  waiting for the ⭐ zone got a *worse* average cost than plain DCA. The (modest)
-  outperformance comes from *which* names are held, not *when* they're bought.
+The committed "bear-sell overlay" (rows above) sells *everything*, every
+bear month, into cash, and lump re-enters. PLAYBOOK §4 never said that.
+The decomposition isolates each decision (`homily_bear_backtest.py`;
+modes: a hold-through · b the tested overlay · c freeze-only, no sells,
+contributions→index · d faithful §4: sell once at onset→dry powder,
+contributions→index, re-enter in thirds · e sell satellites into index at
+onset · f no market selling, §5.2 per-name exit only).
+
+### Step 1 — honest control, windows containing only the 2022 (V-shaped) bear
+
+| mode | 5y MOIC | 5y CAGR | 5y MaxDD | 10y MOIC | 10y CAGR | 10y MaxDD |
+|---|---:|---:|---:|---:|---:|---:|
+| (a) hold-through | 1.77 | 16.7% | −26% | 2.07 | 16.4% | −67% |
+| (b) sell-all + cash | 1.27 | 6.8% | −28% | 1.35 | 9.5% | −64% |
+| (c) freeze-only | 1.69 | 15.0% | −23% | 2.05 | 16.2% | −65% |
+| (d) faithful §4 | 1.37 | 9.9% | −23% | 1.60 | 11.3% | −43% |
+| (e) sell-into-index | 1.70 | 15.2% | −23% | 2.27 | 16.0% | −27% |
+| (f) §5.2 per-name only | 1.79 | 16.7% | −25% | 2.54 | 19.8% | −65% |
+
+2022 episode in isolation: every de-risking mode (c/d/e) held 0.92 vs
+hold-through's 0.88 — **the overlay's V-bear cost lives in the recovery
+months**, when hold-through was still averaging into crushed names and the
+protocol was re-entering in thirds.
+
+### Step 2 — grinding bears (the design case): 1993→2026, dot-com + 2008 + 2022
+
+High-beta survivors (AMZN NVDA AAPL MSFT ADBE INTC CSCO QCOM ORCL EBAY) —
+**survivor-biased, which flatters hold-through**, since the names that
+died in 2000–02 aren't fetchable.
+
+| mode | MOIC | CAGR | MaxDD |
+|---|---:|---:|---:|
+| DCA SPY | 5.87 | 8.8% | −54% |
+| DCA QQQ (from 1999-03) | 10.66 | 10.0% | −80% |
+| (a) hold-through | 73.45 | 21.3% | **−76%** |
+| (b) sell-all + cash | 59.13 | 21.1% | −36% |
+| (c) freeze-only | 53.83 | 20.1% | −76% |
+| **(d) faithful §4** | **50.00** | **20.4%** | **−29%** |
+| (e) sell-into-index | 13.58 | 15.2% | −64% |
+| (f) §5.2 per-name only | 47.83 | 19.5% | −79% |
+
+### D-63 verdict (per the pre-committed decision rule)
+
+* **The sell step is real tail insurance, priced.** Through two grinding
+  bears + one V-bear, faithful §4 gave up ~**1 pt/yr** (and ~⅓ of final
+  wealth) vs never-selling to cut the worst drawdown from **−76% to −29%**.
+  In the V-shaped 2022 window alone the premium was ~7 pts/yr. It is kept,
+  reframed as insurance — PLAYBOOK §4 now quotes these numbers.
+* **The overlay the earlier tables maligned was never the playbook** —
+  selling monthly into cash + lump re-entry (b) is strictly worse than
+  once-at-onset + index-contributions + thirds re-entry (d) in grinders
+  (−36% vs −29% MaxDD) and similar in the V-window. Correction recorded.
+* **Freeze-only (c) — pause adds but don't sell — is the worst of both
+  worlds:** kept the entire −76% grinder drawdown AND still lagged
+  hold-through in the V-window. It is not a middle way; PLAYBOOK §4 now
+  says so.
+* **Sell-into-index (e) is catastrophic in grinders** (15.2% vs 20.4%):
+  it locks in the satellite loss at onset and never participates in the
+  recovery. Dead idea.
+* **The per-name §5.2 exit (f) is the only mode that ADDED return on the
+  honest control** (+3.4 pts/yr over hold at 10y) — it takes out the
+  PTON/ZM class. But it provides **zero crash insurance** (−79% in
+  grinders). §4 = insurance; §5.2 = trash-taker. Different jobs, both kept.
+  *(Caveat: (f) was tested without its F-gate — an aggressive upper bound.)*
 
 ---
 
-## Bottom line — does our method work?
+## 3 · Multi-window re-test — the owner's bar (2026-07-10)
 
-**Over 5 years: a modest, honest win.** Holding trending leaders (with the index
-as the no-⭐ fallback) returned **16.7% CAGR vs 11.3% (S&P) / 14.7% (QQQ)**, $10k →
-**$21.7k vs $17.0k / $19.9k**. About +2 pts/yr over the Nasdaq — real, but small,
-and from one window.
+*"If the strategy cannot clear the S&P 500 or the Nasdaq over multiple
+≥5-year periods, our efforts are not worth it."*
+(`homily_multiwindow_backtest.py`: 7 rolling 5y windows + 2 ten-year
+windows, full-history bars — names are eligible the day a window opens,
+the cleaner protocol.)
 
-**Over 10 years: it does not beat a plain QQQ index fund.** 16–19% CAGR vs QQQ's
-20.1%, at roughly *double* the drawdown (−66% vs −34%). It beats the S&P; it does
-not beat the Nasdaq-100.
+**A curated list is only out-of-sample AFTER its construction date.** The
+"honest" control was assembled as *what a growth investor held in
+mid-2021* — so pre-2021 windows on it are as hindsight-flattered as the
+current universe is for 2026 (they print 54–84% CAGR; ignore them). The
+windows that mean something:
 
-**Honest verdict:** the core idea — concentrate in trending leaders and never
-per-name-sell — is defensible and edged the S&P in both windows and QQQ over the
-recent 5y. But it is **not** a proven QQQ-beater over a full decade, its real
-price of admission is a **~two-thirds drawdown**, and the mechanical
-market-timing overlay actively hurt. For most people, *"DCA into QQQ and hold"*
-was as good or better with far less pain. This method is a **conviction-and-
-risk-tolerance** play, not a demonstrated index-beater — treat every figure here
-as suggestive evidence, not a promise.
+| window (univ B) | DCA SPY | DCA QQQ | strategy (a) | per-name (f) | honest? | verdict |
+|---|---:|---:|---:|---:|---|---|
+| 2017→2022 | 1.20 | 1.31 | 1.04 | 1.44 | straddles 2021 | (a) loses to both |
+| 2018→2023 | 1.29 | 1.49 | 0.98 | 1.21 | straddles | loses to both |
+| 2019→2024 | 1.41 | 1.62 | 1.10 | 1.26 | straddles | loses to both |
+| 2020→2025 | 1.40 | 1.53 | 1.71 | 1.68 | straddles | beats both |
+| **2021→2026** | **1.50** | **1.78** | **1.70** | **1.69–1.78** | **fully honest** | **beats SPY, ties-to-loses QQQ** |
+| 2016→2026 (10y) | 2.09 | 2.96 | 2.76 | 3.36–3.83 | straddles | (a) loses QQQ; (f) beats |
+
+(MOIC, money-weighted — the saver's number. Strategy MaxDD in these
+windows: −59…−76% vs index −23/−34%. The current universe A sweeps all 9
+windows vs both indexes — that is the hindsight upper bound, not
+evidence.)
+
+**Protocol honesty:** under this cleaner eligibility protocol the
+committed "5y win over QQQ" (1.77 vs 1.77 at 16.7% CAGR) **degrades to
+1.70 vs 1.78 — a small loss** — because the committed run force-parked the
+first year in the index while names accrued bars, accidentally dodging
+part of the 2022 drawdown.
+
+**Why the straddling windows lose:** the ⭐ gate (monthly-up + weekly-RED
++ chip support) kept qualifying ZM/PTON-class names through 2020–21 as
+they became eligible — momentum entries into a bubble. The gate does not
+dodge regime-scale overvaluation; nothing in the system currently does.
+
+---
+
+## Bottom line — measured against the owner's bar
+
+**The strategy engine, as an index-beating machine, does not clear the
+bar.** On construction-honest evidence it beats the S&P 500 more often
+than not, but it does **not** reliably beat QQQ over ≥5y windows — the
+fully honest window loses to QQQ slightly, the 2021-straddling windows
+lose to both, and every strategy arm carries **2–3× the index drawdown**
+(−59…−76% vs −34%). "DCA into QQQ and never look" remains the strongest
+simple competitor, exactly as the 2026-07-08 revision concluded — and the
+cleaner protocol strengthens that conclusion.
+
+**What the system measurably IS good for:**
+1. **The per-name §5.2 exit added ~3 pts/yr on the wreck-salted control**
+   — the one arm with a repeatable, attributable edge (getting out of
+   broken businesses). Worth calibrating properly (#51) and promoting only
+   through its gate.
+2. **The 🐻 protocol is honestly-priced tail insurance** — ~1 pt/yr over
+   33 years to turn −76% into −29%. That is a *behavioural* product: it
+   exists so the human survives the grinder without capitulating.
+3. **Discipline infrastructure** — the ledger, alerts, buy-day copilot and
+   honesty gates change the savings rate and the behaviour gap (#58),
+   which PLAYBOOK §8 already ranks above any signal.
+
+Anything claiming more than that is not supported by our own numbers.

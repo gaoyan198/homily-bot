@@ -447,4 +447,32 @@ assert _errs == ["BAD"], f"failing fetch must land in errs, got {_errs}"
 assert [x[0].ticker for x in _res] == ["AAA", "BBB"], "threaded screen not sorted"
 print("[21] Fetch: retry+rotation, contract intact, threaded screen sorted . PASS")
 
+# --- 22. Granularity guard: Yahoo range=max silently returns 1mo bars -------
+# (found 2026-07-10: D-63 Step 2 ran signals on monthly bars). fetch_daily
+# must (a) request epoch period params — not the max token — so history stays
+# daily, and (b) refuse any response whose meta says the bars aren't 1d.
+_ok_url = _Flaky(0)
+homily_data.fetch_daily("TEST", rng="max", opener=_ok_url)
+assert "period1=0" in _ok_url.hosts[0] and "range=max" not in _ok_url.hosts[0], \
+    "rng=max must use epoch period params (range=max degrades to 1mo bars)"
+_COARSE = json.dumps({"chart": {"result": [{
+    "meta": {"dataGranularity": "1mo"},
+    "timestamp": [1700000000],
+    "indicators": {"quote": [{"open": [10], "high": [10.5], "low": [9.5],
+                              "close": [10], "volume": [100]}]}}]}}).encode()
+
+
+class _CoarseResp(_Flaky):
+    def __call__(self, req, timeout=None, context=None):
+        self.hosts.append(req.full_url)
+        return _Resp(_COARSE)
+
+
+try:
+    homily_data.fetch_daily("TEST", rng="max", opener=_CoarseResp(0))
+    raise SystemExit("[22] FAIL: coarse (non-1d) bars must raise")
+except ValueError:
+    pass
+print("[22] Granularity guard: max=epoch params, non-1d bars refused ........ PASS")
+
 print("\nAll structural assertions passed.")
