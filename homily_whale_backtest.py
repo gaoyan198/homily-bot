@@ -66,11 +66,68 @@ def episodes(idxs, gap=5):
     return n
 
 
+def episode_starts(idxs, gap=5):
+    """First day-index of each distinct episode (same clustering as
+    episodes()) — #67 Step 4 sizes the whale cap from the dispersion of
+    per-EPISODE outcomes, and the first day is when the money would move."""
+    out, prev = [], None
+    for i in idxs:
+        if prev is None or i - prev > gap:
+            out.append(i)
+        prev = i
+    return out
+
+
+def dispersion_block():
+    """#67 Step 4 (D-67): derive the ≤2% whale-dip cap from episode
+    dispersion instead of gut. Rule, pre-committed: cap sized so a
+    5th-percentile episode costs ≤0.5% of book; adopt the derived figure
+    iff it lands in [1%, 4%], else keep 2% and note the fragility."""
+    univ_all = UNIV_A + [n for n in UNIV_B if n not in UNIV_A]
+    rets = []
+    for sym in univ_all:
+        try:
+            bars = fetch_daily(sym, rng="5y")
+        except Exception:
+            continue
+        closes = [b[4] for b in bars]
+        hits = scan(sym, bars)
+        for i in episode_starts(hits["dip+shelf+whale"]):
+            r = fwd(closes, i, 60)
+            if r is not None:
+                rets.append(r)
+        print(f"  scanned {sym}", flush=True)
+    rets.sort()
+    n = len(rets)
+    q = lambda p: rets[min(n - 1, int(p * (n - 1) + 0.5))]
+    p5 = q(0.05)
+    print(f"\n#67 Step 4 — whale-dip episode dispersion ({n} episodes, "
+          f"fwd60 from episode entry):")
+    print(f"  p5 {p5 * 100:+.1f}%  p25 {q(0.25) * 100:+.1f}%  "
+          f"median {q(0.5) * 100:+.1f}%  p75 {q(0.75) * 100:+.1f}%  "
+          f"p95 {q(0.95) * 100:+.1f}%")
+    if p5 < 0:
+        derived = 0.005 / abs(p5)
+        verdict = ("ADOPT derived figure" if 0.01 <= derived <= 0.04
+                   else "keep 2% — derived figure outside [1%,4%], note the"
+                        " estimate's fragility")
+        print(f"  cap so a p5 episode costs ≤0.5% of book: "
+              f"{derived * 100:.1f}%  → {verdict}")
+    else:
+        print("  p5 is non-negative — the 0.5%-loss sizing rule doesn't "
+              "bind; keep 2% (insurance against the tail the window "
+              "didn't show)")
+
+
 def fwd(closes, i, n):
     return closes[i + n] / closes[i] - 1 if i + n < len(closes) else None
 
 
 if __name__ == "__main__":
+    import sys
+    if "--dispersion" in sys.argv:        # #67 Step 4, reuses scan() as-is
+        dispersion_block()
+        raise SystemExit(0)
     univ_all = UNIV_A + [n for n in UNIV_B if n not in UNIV_A]
     data, dead = {}, []
     for n in univ_all:

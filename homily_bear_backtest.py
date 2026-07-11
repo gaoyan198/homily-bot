@@ -102,6 +102,15 @@ def _screen(names, data, d, min_bars):
     return cands or backs
 
 
+def _bucketb_exempt(hold, data, d, val, bucketb):
+    """#67 Step 3: names whose weight has EARNED core status (≥ threshold
+    of the book) survive the 🐻 satellite sale, per PLAYBOOK §1."""
+    if not bucketb or val <= 0:
+        return set()
+    return {n for n, sh in hold.items()
+            if sh * (close_on(data[n], d) or 0) / val >= bucketb}
+
+
 def _deploy(picks, cash, hold, core, data, d, ipx, index_bars):
     """The THE-test bull-month deployment, verbatim: split cash across picks;
     else buy the index core (§3.5); else let cash wait. Returns
@@ -125,11 +134,15 @@ def _deploy(picks, cash, hold, core, data, d, ipx, index_bars):
 
 
 def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
-             win=None):
+             win=None, bucketb=None):
     """Point-in-time backtest under one `bear_mode`. Returns
     (MOIC, TWR-CAGR, MaxDD, cash_months, trades). `win=(start,end)` isolates
     an episode: months outside the range are skipped but full bar history
-    still feeds the SMA regime and the signals (no look-ahead lost)."""
+    still feeds the SMA regime and the signals (no look-ahead lost).
+    `bucketb` (#67 Step 3): §1's earned-core proxy — at a 🐻 onset, names
+    whose weight ≥ this fraction of the book are EXEMPT from the satellite
+    sale (modes faithful/sell_index only; None keeps D-63's no-bucket
+    pessimistic bound, which is what the committed tables used)."""
     assert mode in MODES, mode
     is_bear = regime_series(spy, qqq)
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
@@ -177,12 +190,15 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
         # ---- (d) faithful §4: sell once at onset -> 0% dry powder --------
         elif mode == "faithful":
             if onset:
+                keep = _bucketb_exempt(hold, data, d, val, bucketb)
                 for n, sh in hold.items():
+                    if n in keep:
+                        continue
                     px = close_on(data[n], d)
                     if px:
                         powder += sh * px * (1 - COST)
                         trades += 1
-                hold = {}
+                hold = {n: hold[n] for n in keep}
                 reentry_left = 0
             if bear:                       # contributions -> index (§4 step 6)
                 if index_bars and ipx > 0 and cash > 0:
@@ -205,12 +221,15 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
         elif mode == "sell_index":
             if onset:
                 proceeds = 0.0
+                keep = _bucketb_exempt(hold, data, d, val, bucketb)
                 for n, sh in hold.items():
+                    if n in keep:
+                        continue
                     px = close_on(data[n], d)
                     if px:
                         proceeds += sh * px * (1 - COST)
                         trades += 1
-                hold = {}
+                hold = {n: hold[n] for n in keep}
                 if ipx > 0:
                     core += proceeds / ipx
                 else:
@@ -359,6 +378,29 @@ def _run_window(title, names, rng, universe_tag, isolate_2022=False):
 
 
 if __name__ == "__main__":
+    import sys
+    if "--bucketb" in sys.argv:
+        # #67 Step 3: Bucket-B "earned core" threshold sensitivity {8,10,15}%
+        # on the modes whose 🐻 sale the exemption actually gates. A
+        # sensitivity table, never a headline (D-67); univ B, 5y — the one
+        # window with a bear onset. None = the committed no-bucket bound.
+        spy = fetch_daily("SPY", rng="5y")
+        qqq = fetch_daily("QQQ", rng="5y")
+        data, dead = _fetch(UNIV_B, "5y")
+        live = [n for n in UNIV_B if n in data]
+        print(f"#67 Step 3 — Bucket-B threshold sensitivity, univ B 5y "
+              f"({spy[0][0]} → {spy[-1][0]})"
+              + (f" (dead: {', '.join(dead)})" if dead else ""))
+        print(f"{'mode':<22}{'exempt≥':<9}{'MOIC':>6}{'CAGR':>9}{'MaxDD':>8}")
+        for mode in ("faithful", "sell_index"):
+            for bb in (None, 0.08, 0.10, 0.15):
+                m, c, dd, _, _ = run_mode(live, data, spy, qqq, mode,
+                                          index_bars=spy, bucketb=bb)
+                lbl = "none" if bb is None else f"{int(bb * 100)}%"
+                print(f"{MODE_LABEL[mode]:<22}{lbl:<9}{m:>6.2f}"
+                      f"{c * 100:>8.1f}%{dd * 100:>7.0f}%", flush=True)
+        raise SystemExit(0)
+
     print("D-63 bear-regime decomposition. CAVEATS: 5y/10y windows hold ONE"
           " (V-shaped) bear — decomposition, not proof. No Bucket A/B model:"
           " every name is a satellite, so modes that SELL are §4's pessimistic"
