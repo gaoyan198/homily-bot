@@ -9,7 +9,7 @@ accumulate-on-dip guidance anchored on chip support — there is no SELL state.
 
 Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
-import os, re, html, urllib.request, urllib.parse, urllib.error
+import os, re, html, datetime, urllib.request, urllib.parse, urllib.error
 from concurrent.futures import ThreadPoolExecutor
 from homily_data import fetch_series
 from homily_danny import danny_signal
@@ -236,7 +236,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
-                  bearready=""):
+                  bearready="", gaps=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -319,6 +319,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
     if errs:
         lines.append(f"⚠️ fetch failed: {esc(', '.join(errs))}")
+    if gaps:
+        # #70: a weekday with no ledger rows = the runner never started —
+        # say so, or the live record grows silent holes
+        lines.append(f"⚠️ no ledger rows for {esc(', '.join(gaps))} — runner "
+                     "missed, live record has a hole")
 
     # #34 F0: legend + algo-health fold into ONE expandable blockquote so the
     # actionable digest above stays short; details are one tap away.
@@ -412,9 +417,18 @@ def build_digest():
                                                          today)
     except Exception as e:
         print(f"[bearready] skipped: {e}")
+    # #70: surface recent runner misses (last ~2 weeks; the snapshot keeps
+    # the full history so an old hole doesn't nag forever). Non-fatal.
+    gaps = []
+    try:
+        cov = homily_ledger.coverage_of(homily_ledger._read_rows(), today)
+        cutoff = (today - datetime.timedelta(days=14)).isoformat()
+        gaps = [d for d in cov["missing"] if d >= cutoff]
+    except Exception as e:
+        print(f"[coverage] skipped: {e}")
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today, suspect=suspect, positions=POSITIONS,
-                           buyday=buyday, bearready=bearready)
+                           buyday=buyday, bearready=bearready, gaps=gaps)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

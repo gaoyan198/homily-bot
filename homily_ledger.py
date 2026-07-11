@@ -248,7 +248,35 @@ def append_rows(new_rows, day, *, ledger=LEDGER, hashfile=HASHFILE):
     return rows
 
 
-def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT):
+def coverage_of(rows, today):
+    """#70 missed-run detector: which weekday run-dates since the ledger
+    began have NO rows at all. #16 catches a run that fails; this catches a
+    run that never STARTS — a track record with silent holes is biased
+    toward the days the infra was healthy (R3's mirror image). Expected =
+    every Mon–Fri from the first row's date through the last weekday BEFORE
+    `today` (today's rows may not exist yet while the digest builds; the
+    cron fires Mon–Fri regardless of market holidays, so a weekday without
+    rows IS a miss — including a run halted by a red validate gate, which
+    should be loud here too). -> {"expected","have","missing","pct"}."""
+    dates = sorted({r["date"] for r in rows})
+    if not dates:
+        return {"expected": 0, "have": 0, "missing": [], "pct": 100.0}
+    d = datetime.date.fromisoformat(dates[0])
+    have = set(dates)
+    expected, missing = 0, []
+    while d < today:
+        if d.weekday() < 5:
+            expected += 1
+            if d.isoformat() not in have:
+                missing.append(d.isoformat())
+        d += datetime.timedelta(days=1)
+    pct = 100.0 * (expected - len(missing)) / expected if expected else 100.0
+    return {"expected": expected, "have": expected - len(missing),
+            "missing": missing, "pct": round(pct, 2)}
+
+
+def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT,
+                   coverage=None):
     """Full structured state -> docs/snapshot.json (data contract for F / Claude)."""
     reg = None
     if regime is not None:
@@ -259,6 +287,8 @@ def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT):
         "generated_utc": datetime.datetime.now(datetime.timezone.utc)
                          .replace(microsecond=0).isoformat(),
         "regime": reg,
+        # #70: ledger coverage — #14 must report this next to its returns
+        "coverage": coverage,
         "holdings": holdings,
         "discovery": discovery,
     }
@@ -295,8 +325,9 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
         st["rs12_rank"] = ranks[st["ticker"]]
         st["whale_rank"] = wranks[st["ticker"]]
     rows = [csv_row(st, day) for st in all_states]
-    append_rows(rows, day, ledger=ledger, hashfile=hashfile)
-    write_snapshot(day, regime, held_states, disco_states, path=snapshot)
+    all_rows = append_rows(rows, day, ledger=ledger, hashfile=hashfile)
+    write_snapshot(day, regime, held_states, disco_states, path=snapshot,
+                   coverage=coverage_of(all_rows, day))
 
 
 def verify_history(ledger=LEDGER, hashfile=HASHFILE):

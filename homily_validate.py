@@ -978,4 +978,30 @@ assert homily_promotions.forward_check(
     "too few measured rows must defer, never decide"
 print("[31] Promotions: registry complete, checker PASS/FAIL/defer, 🐳rank . PASS")
 
+# --- 32. Missed-run detector (#70): planted gap found, weekends aren't -----
+# #16 catches a run that FAILS; this catches one that never STARTS. Rows on
+# Mon 2026-07-06 and Wed 2026-07-08; Tue is a hole, Thu is a hole, the
+# weekend is never expected, and today itself is not yet expected.
+_rows32 = [{"date": "2026-07-06", "ticker": "A"},
+           {"date": "2026-07-08", "ticker": "A"},
+           {"date": "2026-07-08", "ticker": "B"}]
+_cov32 = homily_ledger.coverage_of(_rows32, datetime.date(2026, 7, 10))
+assert _cov32["missing"] == ["2026-07-07", "2026-07-09"] \
+    and _cov32["expected"] == 4 and _cov32["have"] == 2, _cov32
+_cov32b = homily_ledger.coverage_of(_rows32 + [
+    {"date": "2026-07-07", "ticker": "A"}, {"date": "2026-07-09", "ticker": "A"}],
+    datetime.date(2026, 7, 13))          # Monday after a Friday hole
+assert _cov32b["missing"] == ["2026-07-10"] and _cov32b["pct"] == 80.0, \
+    f"Fri hole survives the weekend, Sat/Sun never expected: {_cov32b}"
+assert homily_ledger.coverage_of([], datetime.date(2026, 7, 10)) == \
+    {"expected": 0, "have": 0, "missing": [], "pct": 100.0}, "empty ledger"
+# the digest line renders only when gaps are passed; default is unchanged
+_out32 = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
+                                 fund=_fund, gaps=["2026-07-09"])
+assert "no ledger rows for 2026-07-09" in _out32 and "hole" in _out32
+_out32q = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
+                                  fund=_fund)
+assert "ledger rows for" not in _out32q, "no gaps -> no line"
+print("[32] Missed runs: gaps found, weekends exempt, digest line renders . PASS")
+
 print("\nAll structural assertions passed.")
