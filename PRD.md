@@ -526,6 +526,21 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-07-12 · #83 shipped; D-83's committed-board scope was wrong by 4×.**
+D-83 said the committed small board = "held + actionable" cards under
+≤300 KB. Measured: a real candle card costs ~20–30 KB and held+actionable
+is ~49 names → 1.16 MB, four times the budget. Resolution (recorded, not
+improvised): the committed board charts **held names only**; actionable
+discovery names keep searchable *facts* cards there (state pill, levels,
+chips row — ~1 KB each) with their charts on the FULL board, which is sent
+nightly and never committed, exactly as D-83 §search already split it.
+Also trimmed per card: per-bin histogram tooltips dropped, sub-0.5%-of-max
+bins skipped (~30% of bytes, invisible ink). Result: committed board
+262 KB with all 49 names still searchable, full board 1.48 MB with 68
+charts. Sunday's deep-dive now sends Friday's committed board as-is
+instead of regenerating bar-less (regeneration would have stripped the
+charts — found while wiring `bars_map`).
+
 **2026-07-11 (late) · the gated-research backlog executed in one sitting;
 two items found the plan wrong.** Owner instruction: "execute the
 remaining items to the fullest." Ran, each on its own branch with its gate

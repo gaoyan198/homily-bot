@@ -1019,7 +1019,8 @@ _snap33 = {
                "spent": 1302.0, "leftover": 248.0, "mode": "normal",
                "manual": [], "skipped": [], "index_amt": 0.0,
                "srs_covers_index": True},
-    "holdings": [{"ticker": "AAA", "state": "ACCUMULATE", "close": 100.0,
+    "holdings": [{"ticker": "AAA", "held": True, "state": "ACCUMULATE",
+                  "close": 100.0,
                   "zone_lo": 95.0, "zone_hi": 101.0, "poc": 97.0,
                   "pct_in_profit": 88.0, "wk_circle": "RED", "wk_score": 4,
                   "wk_weeks": 12, "conv_score": 80, "conv_tier": "CONVICTION",
@@ -1053,20 +1054,43 @@ _ref33 = [{"date": "2026-07-08", "champion": "{'ef': 13}", "champ_oos": "0.3",
 _doc33 = homily_dashboard.render(_snap33, _rows33, _ref33)
 assert _doc33 == homily_dashboard.render(_snap33, _rows33, _ref33), \
     "render must be deterministic"
-# self-containment: no external fetches of any kind (the svg xmlns is an
-# identifier, not a fetch — allow exactly that one URL)
-_leaks33 = [ln for ln in _doc33.split("\n")
-            if ("http" in ln or "src=" in ln or "url(" in ln)
-            and "http://www.w3.org/2000/svg" not in ln]
-assert not _leaks33, f"external references leaked: {_leaks33[:3]}"
-assert "<script" not in _doc33.lower(), "zero JS, by design (D-36)"
+# #83: bars in -> candle cards; still deterministic on both boards
+_bmap33 = {"AAA": _mkbars([100 * 1.0002 ** i for i in range(300)],
+                          [1e6] * 300),
+           "DDD": _mkbars([30 * 0.999 ** i for i in range(300)],
+                          [1e6] * 300)}
+_doc33b = homily_dashboard.render(_snap33, _rows33, _ref33,
+                                  bars_map=_bmap33)
+assert _doc33b == homily_dashboard.render(_snap33, _rows33, _ref33,
+                                          bars_map=_bmap33), \
+    "bars render must be deterministic"
+_doc33f = homily_dashboard.render(_snap33, _rows33, _ref33,
+                                  bars_map=_bmap33, full=True)
+for _doc in (_doc33, _doc33b, _doc33f):
+    # self-containment: no external fetches of any kind (the svg xmlns is
+    # an identifier, not a fetch — allow exactly that one URL)
+    _leaks33 = [ln for ln in _doc.split("\n")
+                if ("http" in ln or "src=" in ln or "url(" in ln)
+                and "http://www.w3.org/2000/svg" not in ln]
+    assert not _leaks33, f"external references leaked: {_leaks33[:3]}"
+    # D-83: the search filter is the ONE inline script; nothing external —
+    # the deliberate, recorded relaxation of D-36's zero-JS rule
+    assert "<script src" not in _doc.lower(), "scripts must be inline (D-83)"
+    assert _doc.lower().count("<script") == 1, "one inline script: the filter"
 # content: card, discovery row, heatmap cells, reused alert wording, buy day
 assert "AAA" in _doc33 and "DDD" in _doc33 and "<svg" in _doc33
 assert "entered ACCUMULATE" in _doc33 and "passed all 5" in _doc33, \
     "timeline must reuse #15's alert wording via diff_alerts"
 assert "BUY 3 TSM" in _doc33 and "never placed" in _doc33
 assert "66.67" in _doc33 and "2026-07-09" in _doc33, "coverage + holes shown"
-print("[33] Dashboard: self-contained zero-JS render, snapshot contract .. PASS")
+assert "chart unavailable" in _doc33, "no bars -> facts row, never a crash"
+# #83 card anatomy: engine-coloured candles, ribbon, label rail, search bar,
+# the pinned red=bullish legend; the committed board honours its size budget
+assert homily_dashboard.BULL in _doc33b and "wk circle" in _doc33b
+assert 'id="q"' in _doc33b and "bullish" in _doc33b and "med run" in _doc33b
+assert 'id="AAA"' in _doc33b and 'data-tk="AAA"' in _doc33b
+assert len(_doc33b) < 300_000, "small board must stay committable (<300 KB)"
+print("[33] Dashboard: searchable candle board, deterministic + contract ... PASS")
 
 # --- 34. Breadth canary (#26): math right, line only on a hostile tape -----
 _bars34u = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)

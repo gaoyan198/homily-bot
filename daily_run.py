@@ -560,11 +560,17 @@ def build_digest(flex_notes=None):
                              origins=ORIGINS, buyday=buyplan, shadow=shadow)
     except Exception as e:
         print(f"[ledger] skipped: {e}")
-    # #36 nightly dashboard: regenerate docs/dashboard.html from the just-
-    # written snapshot + ledger; committed by the workflow (R8) and sent as
-    # a document below. Non-fatal.
+    # #36/#83 nightly boards from the just-written snapshot + ledger + this
+    # run's bars: the SMALL board (docs/dashboard.html — committed by the
+    # workflow, R8) and the FULL searchable board (temp path, sent below,
+    # NEVER committed — D-83 §search). Stale temp unlinked first so a failed
+    # render can never send yesterday's board. Non-fatal.
     try:
-        homily_dashboard.write_dashboard()
+        if os.path.exists(homily_dashboard.BOARD_FULL):
+            os.unlink(homily_dashboard.BOARD_FULL)
+        homily_dashboard.write_dashboard(bars_map=all_bars)
+        homily_dashboard.write_dashboard(homily_dashboard.BOARD_FULL,
+                                         bars_map=all_bars, full=True)
     except Exception as e:
         print(f"[dashboard] skipped: {e}")
     # #35 chart cards: top-3 actionable names rendered from the bars the
@@ -702,10 +708,14 @@ def sunday_deepdive():
     if not summary:
         print("[weekly] no rows this week — nothing to send")
         return
-    try:
-        homily_dashboard.write_dashboard()
-    except Exception as e:
-        print(f"[dashboard] skipped: {e}")
+    # #83: the committed board already carries Friday's candle charts (built
+    # WITH bars by Friday's run); regenerating here without bars would strip
+    # them. Only build a fresh one if the file is missing entirely.
+    if not os.path.exists(homily_dashboard.DASHBOARD):
+        try:
+            homily_dashboard.write_dashboard()
+        except Exception as e:
+            print(f"[dashboard] skipped: {e}")
     send(summary)
     if os.path.exists(homily_dashboard.DASHBOARD):
         send_document(homily_dashboard.DASHBOARD,
@@ -734,5 +744,8 @@ if __name__ == "__main__":
     if os.path.exists(homily_dashboard.DASHBOARD):   # #36: nightly dashboard
         send_document(homily_dashboard.DASHBOARD,
                       "📊 dashboard — tap to open (works offline)")
+    if os.path.exists(homily_dashboard.BOARD_FULL):  # #83: sent, not committed
+        send_document(homily_dashboard.BOARD_FULL,
+                      "🔎 full board — every screened name, searchable")
     if alert:                       # #15: only on a state change, never quiet
         send(alert)
