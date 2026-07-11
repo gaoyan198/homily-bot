@@ -3,6 +3,8 @@ name: homily-daily
 on:
   schedule:
     - cron: '0 1 * * 1-5'      # 01:00 UTC = 09:00 SGT, Mon–Fri
+    - cron: '0 2 * * 0'        # #33: Sunday 10:00 SGT — weekly deep dive
+                               # (daily_run detects Sunday; fetch-free path)
   workflow_dispatch: {}         # manual "Run workflow" button
 
 permissions:
