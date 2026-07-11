@@ -1,0 +1,40 @@
+{
+  "_v": 1,
+  "_comment": "#69 promotion lifecycle registry. One entry per gate-passed candidate or pre-registered challenger. Standing rule (PRD #69, adopted 2026-07-11): NOTHING is promoted without a demotion rule written in its entry BEFORE promotion — a promoted signal that stops working leaves by rule, not by debate. homily_promotions.py executes the forward checks against the #13 ledger; homily_validate.py asserts every entry names its gate artifact and demotion rule. Edit this file only by appending entries or filling a decision — never rewrite a frozen criterion after data starts accruing.",
+  "entries": [
+    {
+      "id": "rs12-top3",
+      "status": "gate-passed",
+      "what": "concentrate the monthly stock-half into the top-3 ⭐ candidates by 12m relative strength (PRD §5j)",
+      "gate_date": "2026-07-10",
+      "gate_artifact": "homily_selection_backtest.py (rule pre-registered in docstring) + BACKTEST_RESULTS.md §4 + PRD §5j",
+      "earliest_promotion": "2026-10-01",
+      "forward_check": {
+        "rank_column": "rs12_rank",
+        "window": ["2026-07-10", "2026-09-30"],
+        "horizon_rows": 21,
+        "min_measured_rows": 30,
+        "criterion": "mean forward-21-ledger-row raw-close return of ⭐ rows with rank<=3 must EXCEED the mean of ⭐ rows with rank>3 over the window; fewer than min_measured_rows on either side = INSUFFICIENT, decision deferred, no promotion"
+      },
+      "if_promoted": "digest orders ⭐ rows by RS12 with top-3 marked; PLAYBOOK §3.4 becomes split-across-top-3; homily_buyday allocates top-3 (MAX_STARS/ordering); one session, one commit",
+      "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion"
+    },
+    {
+      "id": "whale-top3",
+      "status": "registered-challenger",
+      "what": "select between ⭐ candidates by whale-accumulation intensity instead of RS12 (PRD §5k / #80, MARA-vs-WULF pattern)",
+      "gate_date": null,
+      "gate_artifact": "NOT YET RUN — pre-registered 2026-07-11 (PRD §8.3 #80): enters the #24 three-way harness at the 2026-10-01 read (whale-top3 vs rs12-top3 vs equal-all) and must tie-or-beat rs12-top3 on all three honest windows incl. the hype-2021 control, else CLOSED",
+      "earliest_promotion": "2027-01-01",
+      "forward_check": {
+        "rank_column": "whale_rank",
+        "window": ["2026-07-13", "2026-09-30"],
+        "horizon_rows": 21,
+        "min_measured_rows": 30,
+        "criterion": "informational until the backtest gate runs: mean forward-21-row return of ⭐ rows with whale_rank<=3 vs rank>3 over the window (whale_rank column live from 2026-07-13)"
+      },
+      "if_promoted": "selection/ordering by whale_rank instead of rs12_rank, same surfaces as rs12-top3",
+      "demotion_rule": "same rolling-6-month underperformance rule as rs12-top3, frozen here before any gate runs"
+    }
+  ]
+}

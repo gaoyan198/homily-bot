@@ -825,8 +825,9 @@ print("[28] Chart cards: PNG valid, pixel-hash pinned, top-3 ⭐/🔵/🎯 pick 
 # "owner-request" so nothing can masquerade as mechanically screened. NB the
 # column append changed the guard-#62 hash serialisation — the checkpoint was
 # regenerated DELIBERATELY in the same commit that added the column.
-assert homily_ledger.COLUMNS[-1] == "origin", \
-    "append-only-columns rule: new columns go at the END"
+assert homily_ledger.COLUMNS.index("origin") \
+    > homily_ledger.COLUMNS.index("rs12_rank"), \
+    "append-only-columns rule: origin was appended after the earlier columns"
 
 _sigU29, _convU29, _ = _up("ORG")
 _stH29 = homily_ledger.state_of(_sigU29, _convU29, True, fund=_fund,
@@ -928,5 +929,53 @@ _out30 = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
                                  fund=_fund, bearready=_txt30z)
 assert "BEAR READINESS" in _out30
 print("[30] Bear readiness: §4 a/b/c order, margin+SRS nags, first-Monday . PASS")
+
+# --- 31. Promotion registry (#69) + whale_rank column (#80) ---------------
+# The 2026-10-01 decision must be a program's output: registry entries are
+# structurally complete (no promotion without a pre-registered demotion
+# rule), the forward-checker PASSes/FAILs/defers on synthetic ledgers, and
+# the whale_rank column ranks by footprint intensity with RS12 tiebreak.
+import homily_promotions
+
+homily_promotions.verify_registry()          # every entry names its pieces
+_ids31 = {e["id"] for e in homily_promotions.load_registry()}
+assert "rs12-top3" in _ids31, "the §5j promotion candidate must be on file"
+
+def _wst(tk, state, a, d, sh, rs):
+    return {"ticker": tk, "state": state, "absorption": a, "divergence": d,
+            "shelf_stable": sh, "rs12": rs}
+_w31 = [_wst("HOT", "ACCUMULATE", True, True, True, 0.1),
+        _wst("MID", "ACCUMULATE", True, False, False, 9.9),
+        _wst("TIE", "ACCUMULATE", True, True, False, 0.5),
+        _wst("TIE2", "ACCUMULATE", True, True, False, 0.4),
+        _wst("HOLD", "HOLD", True, True, True, 9.9)]
+_wr31 = homily_ledger.whale_ranks(_w31)
+assert _wr31 == {"HOT": 1, "TIE": 2, "TIE2": 3, "MID": 4, "HOLD": None}, \
+    f"intensity desc, RS12 tiebreak, non-candidates blank: {_wr31}"
+assert homily_ledger.COLUMNS[-1] == "whale_rank", "END-appended (#80)"
+
+# forward-checker on a synthetic ledger: top-3 name compounds +1%/row,
+# other name flat -> PASS; swap the ranks -> FAIL; tiny window -> INSUFFICIENT
+def _rows31(n, top_rank, other_rank):
+    rows = []
+    for i in range(n):
+        d = (datetime.date(2026, 7, 13) + datetime.timedelta(days=i)).isoformat()
+        rows.append({"date": d, "ticker": "TOP", "state": "ACCUMULATE",
+                     "close": f"{100 * 1.01 ** i:.4f}", "rs12_rank": top_rank})
+        rows.append({"date": d, "ticker": "OTH", "state": "ACCUMULATE",
+                     "close": "100", "rs12_rank": other_rank})
+    return rows
+_e31 = {"id": "fix", "forward_check": {
+    "rank_column": "rs12_rank", "window": ["2026-07-13", "2026-12-31"],
+    "horizon_rows": 5, "min_measured_rows": 10, "criterion": "test"}}
+_r31 = homily_promotions.forward_check(_e31, _rows31(30, "1", "4"))
+assert _r31["status"] == "PASS" and _r31["n_top"] == 25 \
+    and _r31["mean_top"] > _r31["mean_other"], _r31
+assert homily_promotions.forward_check(
+    _e31, _rows31(30, "4", "1"))["status"] == "FAIL", "inverted ranks: FAIL"
+assert homily_promotions.forward_check(
+    _e31, _rows31(8, "1", "4"))["status"] == "INSUFFICIENT", \
+    "too few measured rows must defer, never decide"
+print("[31] Promotions: registry complete, checker PASS/FAIL/defer, 🐳rank . PASS")
 
 print("\nAll structural assertions passed.")
