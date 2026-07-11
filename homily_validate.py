@@ -1342,4 +1342,21 @@ assert _dip42([100.0] * 50) == 0, \
     "[42] FAIL: sub-warmup series must return 0, never guess"
 print("[42] Pullback clock: dip age counts, caps, warmup-guarded .......... PASS")
 
+# --- 43. Conviction backtest (#20): pure helpers + band determinism ---------
+import homily_conviction_backtest as _cb
+
+assert _cb.spearman([0, 1, 2, 3, 4], [10, 20, 30, 40, 50]) == 1.0 and \
+    _cb.spearman([0, 1, 2, 3, 4], [50, 40, 30, 20, 10]) == -1.0, \
+    "[43] FAIL: spearman must be ±1 on perfectly (anti)monotone input"
+_d43 = _cb.deciles_of([(chr(97 + i), i) for i in range(20)])
+assert _d43["t"] == 9 and _d43["a"] == 0 and _d43["j"] == 4, \
+    f"[43] FAIL: within-day decile assignment wrong: {_d43}"
+_obs43 = [0.01 * ((i % 7) - 3) for i in range(60)]
+assert _cb.boot_band(_obs43) == _cb.boot_band(_obs43), \
+    "[43] FAIL: same seed must reproduce the same 90% band (replay determinism)"
+_lo43, _hi43 = _cb.boot_band(_obs43)
+assert _lo43 <= sum(_obs43) / len(_obs43) <= _hi43, \
+    "[43] FAIL: the point estimate must sit inside its own band"
+print("[43] Conviction backtest: spearman, deciles, deterministic bands ... PASS")
+
 print("\nAll structural assertions passed.")

@@ -402,6 +402,44 @@ turn).
 
 ---
 
+## 11 · #20 conviction-score backtest (run 2026-07-11) — the score ranks; the tiers don't
+
+Weekly point-in-time replay 2021-07 → 2026-07 (260 Fridays), live
+`danny_signal`+`conviction` on trailing-5y windows, within-day score
+deciles, block-bootstrap 90% bands, ≥30 obs per row. A = live 70-name book
+(HINDSIGHT), B = frozen hype-2021 control. Reproduce:
+`python homily_conviction_backtest.py`.
+
+**Decision (pre-committed in D-20): the relabel branch does NOT trigger.**
+OOS (2024-07→2026-07) decile means are monotone on BOTH universes —
+A: ρ = +1.00, D0 +2.7% → D9 +30.1% fwd126 excess; B: ρ = +0.99 (computed
+from the committed run's decile means), D0 −12.3% → D9 +14.6% (band on
+B's top decile is wide: [−0.9, +32.0]%). Top-decile excess > 0 on both.
+The 🚀 footer keeps its wording; any weight change is a Phase-C promotion
+that queues behind R10 (Q4 belongs to #24 first).
+
+**The honest second finding: the TIER CUTS add nothing.** Episode-level
+outcomes within 500 bars:
+
+| tier (universe) | episodes | P(≥2×) | P(≥5×) | P(−50% first) |
+|---|---|---|---|---|
+| CONVICTION (A / B) | 577 / 219 | 44% / 26% | 8% / 3% | 18% / 36% |
+| STARTER (A / B) | 595 / 170 | 39% / 22% | 4% / 2% | 13% / 37% |
+| fails (A / B) | 731 / 243 | 40% / 24% | 7% / 3% | 17% / 39% |
+
+CONVICTION ≈ STARTER ≈ fails on every outcome. The score's *cross-
+sectional ranking* carries information (deciles above); the 75/60
+*thresholds* — which set the ≤5%/≤2% sizing tiers — separate nothing, and
+the five gates passed 144 wreck-episodes on B (36% of gated CONVICTION
+entries halved before doubling — full list in the run output). Danny-style
+sizing by score TIER is, on this evidence, sizing by noise around the
+cuts; the ranking, not the label, is where the signal lives. Full-window
+A also shows a U-shape (D0/D1 fat from 2021-22 losers mean-reverting) —
+another reason the within-day OOS read, not the pooled one, is the
+decision input.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
