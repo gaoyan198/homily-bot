@@ -19,6 +19,7 @@ from homily_regime import market_regime
 from homily_refine import daily_refine
 from homily_corp import corp_action_bar, suspended_note
 from homily_ribbon_backtest import RED_MEDIAN_RUN_W
+from homily_pullback_backtest import dip_age, DIP_MEDIAN_D, DIP_P90_D
 import homily_ledger
 import homily_alerts
 import homily_positions
@@ -117,7 +118,7 @@ def whale_dip(s):
             and s.chips.last <= s.add_zone[1])
 
 
-def fmt_row(s, watch=False, young=False, corp=None, pos=None):
+def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
@@ -156,10 +157,17 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None):
     # against how much accumulate-window typically remains. Info-only.
     wk_age = (f"{s.weekly.weeks_in_regime}w · med run {RED_MEDIAN_RUN_W}w"
               if s.weekly.circle == "RED" else f"{s.weekly.weeks_in_regime}w")
+    # #78 pullback clock: a non-RED daily-candle run inside an intact weekly
+    # RED = a dip in progress; print its age against the measured base rate
+    # (1,594 resolved dips, both universes — homily_pullback_backtest.py).
+    # Deliberately NOT a warning at p90: the study showed failures resolve
+    # faster, not slower, so age alone never escalates. Info-only.
+    dp = (f" · dip d{dip} (med {DIP_MEDIAN_D}d · p90 {DIP_P90_D}d)"
+          if dip and s.weekly.circle == "RED" else "")
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
             f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
             f"({wk_age}) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{vh}{at}{wh}{yg}{bk}")
+            f"d{s.candle[0]}{dp}{vh}{at}{wh}{yg}{bk}")
 
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
@@ -264,7 +272,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
-                  flex_notes=None):
+                  flex_notes=None, dips=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -279,6 +287,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     arguments, no extra fetching."""
     sus = suspect or {}
     pos = positions or {}
+    dip = dips or {}
     prices = {s.ticker: s.chips.last for s, _, _ in sigs if s.ticker in pos}
     book_value = homily_positions.stock_book_value(pos, prices)
     lines = [f"<b>Homily × Danny digest — {esc(today)}</b>"]
@@ -324,7 +333,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             cur = s.state
             lines.append(f"<b>{ICON[cur]} {esc(cur)}</b>")
         pv = homily_positions.position_view(s.ticker, pos, prices, book_value)
-        lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker), pv))
+        lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker),
+                             pv, dip.get(s.ticker, 0)))
         # #28: PLAYBOOK §5 trim rules as flags on held rows — info only
         if s.ticker in pos:
             for fl in homily_positions.trim_flags(
@@ -484,10 +494,20 @@ def build_digest(flex_notes=None):
         conc = homily_clusters.concentration(all_bars, POSITIONS, prices_held)
     except Exception as e:
         print(f"[lens] skipped: {e}")
+    # #78: dip-day counter for held/watch rows in an intact weekly RED.
+    # Pure read of already-fetched bars; non-fatal, info-only.
+    dips = {}
+    try:
+        dips = {s.ticker: dip_age([b[4] for b in all_bars[s.ticker]])
+                for s, _c, _y in sigs
+                if s.weekly.circle == "RED" and s.ticker in all_bars}
+    except Exception as e:
+        print(f"[dips] skipped: {e}")
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
-                           breadth_read=br, conc=conc, flex_notes=flex_notes)
+                           breadth_read=br, conc=conc, flex_notes=flex_notes,
+                           dips=dips)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

@@ -59,6 +59,15 @@ It is context for how much accumulate-window typically remains, not a
 prediction: the distribution is wide (p25 2w, p75 23w), entry-candle size
 added no stable conditioning, and the number gates nothing.
 
+When a weekly-RED row's daily candle has gone non-RED, the row counts the
+dip — `dip d3 (med 4d · p90 22d)` — against the measured base rate of 1,594
+resolved pullbacks (`homily_pullback_backtest.py`, #78; stable across both
+universes and OOS halves, which was the pre-committed ship condition).
+Danny's "3–7 trading days" matches the median (4d) but not the spread
+(p25–p75 = 1–14d). Deliberately absent: any warning when a dip outlasts
+p90 — the same study showed trend failures resolve *faster* than healthy
+pullbacks, so dip age alone never escalates anything.
+
 If a name's recent tape holds a **>45% one-day move on abnormal volume** — the
 signature of a split or spin-off the data feed never adjusted — every one of
 those levels is built on prices that never traded. The row then prints

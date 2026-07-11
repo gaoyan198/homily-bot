@@ -143,7 +143,10 @@ def scenario_populated():
     held = [_up("AAA"), _dn("BBB"), _bottoming("CCC", young=True), _whale("WHL")]
     held.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))  # as screen() does
     disco = [_leader("LEAD"), _bottoming("GEM")]
-    return render_digest(held, disco, {}, BULL, REFINE, [], TODAY, fund=_fund)
+    # AAA is weekly RED -> its fixture dip exercises the #78 dip-day suffix;
+    # BBB is not RED, so its entry must render nothing (both branches pinned)
+    return render_digest(held, disco, {}, BULL, REFINE, [], TODAY, fund=_fund,
+                         dips={"AAA": 3, "BBB": 5})
 
 
 def scenario_empty():
