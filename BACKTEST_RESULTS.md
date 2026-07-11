@@ -368,6 +368,40 @@ ships nowhere. Closed per Part III rule 6.
 
 ---
 
+## 10 · #79 whale-distribution warning (run 2026-07-11) — PASSED its gate; ship queued
+
+The inverse of the 🐳 accumulation footprints (the LULU sell anatomy):
+rally context (≥5% above the 60d closing low) + ≥2 of {heavy-volume weak
+closes at the 20d ceiling · OBV AND A/D both below the pre-rally trough ·
+top support shelf receiving zero fresh volume}. Monthly lower-highs/
+lower-lows reported as a split, not folded in. 58 names, 5y, point-in-time.
+Reproduce: `python homily_dist_backtest.py`.
+
+| arm (ALL combined) | days | fwd60 | fwd120 |
+|---|---|---|---|
+| baseline (all days) | 55,217 | +9.7% | +19.6% |
+| rally untagged | 43,215 | +9.5% | +19.5% |
+| rally TAGGED | 1,833 | **+7.8%** | **+16.7%** |
+| tagged + monthly LH/LL | 178 | **+5.4%** | **−0.3%** |
+
+Pre-committed rule (tagged < untagged AND < baseline at both horizons on
+ALL): **PASSED** — unlike VH breakdowns (§5b), distribution footprints do
+predict forward underperformance. Two honesty caveats before anyone ships
+it: (1) the effect is carried by universe B (tagged fwd60 +1.5% vs +5.9%
+base; on the hindsight-picked A universe the plain tag was NOT predictive —
++14.0% vs +13.2%), i.e. it flags the 2021-wreck top anatomy, not every
+rally; (2) the sharp variant is the monthly-LH/LL confluence (n=178,
+fwd120 −0.3% vs +19.6%) — the plain tag alone would nag plenty of winners.
+
+Shipping is NOT this session (Part III rule 5): the digest surface — PRD
+scope guard verbatim: held satellites / Bucket-B rows and a 🚀-candidacy
+veto input only, core names and the index never get a sell tag — is its
+own future gated session, preferring the +mLHLL variant, and any veto
+behaviour queues behind R10 (Q4 is #24's natural slot; this waits its
+turn).
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
