@@ -25,6 +25,7 @@ import homily_buyday
 import homily_bearready
 import homily_png
 import homily_dashboard
+import homily_clusters
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -207,6 +208,24 @@ def screen(book, errs, spy, spy_adj=None, suspect=None, bars_out=None):
     return out
 
 
+def breadth(screened, all_bars):
+    """#26 breadth canary: % of everything screened above its 200d SMA + %
+    weekly RED. Info-only forever until a year of ledger data argues
+    otherwise (PRD #26). -> {"above200","red","n"} or None."""
+    above = red = n = 0
+    for s, _c, _y in screened:
+        bars = all_bars.get(s.ticker)
+        if not bars or len(bars) < 200:
+            continue
+        closes = [b[4] for b in bars]
+        n += 1
+        above += closes[-1] > sum(closes[-200:]) / 200
+        red += s.weekly.circle == "RED"
+    if not n:
+        return None
+    return {"above200": 100.0 * above / n, "red": 100.0 * red / n, "n": n}
+
+
 def select_charts(screened, suspect=None):
     """#35: the top-3 actionable names (⭐/🔵, or any name whose dip reached
     its add zone — the 🎯 set), ordered by state precedence then conviction
@@ -237,7 +256,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
-                  bearready="", gaps=None):
+                  bearready="", gaps=None, breadth_read=None, conc=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -269,6 +288,18 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                          " decade.")
     else:
         lines.append("⚖️ regime check unavailable today")
+    # #26 breadth canary: one line, only on a hostile tape, info-only
+    if breadth_read and breadth_read["above200"] < 30:
+        lines.append(f"⚠️ breadth: only {breadth_read['above200']:.0f}% of "
+                     f"the {breadth_read['n']}-name screen above its 200d "
+                     f"SMA ({breadth_read['red']:.0f}% weekly RED) — hostile "
+                     "tape, historically a poor month for new adds "
+                     "(info only, gates nothing)")
+    # #29 concentration lens: the book's real diversification, one line
+    if conc:
+        stars = [s.ticker for s, _c, _y in sigs
+                 if s.state == "ACCUMULATE" and s.ticker in pos]
+        lines += [ln for ln in homily_clusters.render(conc, stars, esc)]
 
     if buyday:
         # #31: on the first trading day of the month the copilot's 🛒 order
@@ -286,6 +317,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             lines.append(f"<b>{ICON[cur]} {esc(cur)}</b>")
         pv = homily_positions.position_view(s.ticker, pos, prices, book_value)
         lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker), pv))
+        # #28: PLAYBOOK §5 trim rules as flags on held rows — info only
+        if s.ticker in pos:
+            for fl in homily_positions.trim_flags(
+                    pv, s.state, s.weekly.weeks_in_regime, fund(s.ticker)):
+                lines.append(f"　⚠️ <b>{esc(fl)}</b>")
         if s.ticker in proxy:
             lines.append(proxy[s.ticker])
 
@@ -427,9 +463,19 @@ def build_digest():
         gaps = [d for d in cov["missing"] if d >= cutoff]
     except Exception as e:
         print(f"[coverage] skipped: {e}")
+    # #26 breadth + #29 concentration: both pure reads of already-fetched
+    # bars; both non-fatal, both info-only.
+    br, conc = None, None
+    try:
+        br = breadth(sigs + disco, all_bars)
+        prices_held = {s.ticker: s.chips.last for s, _c, _y in sigs}
+        conc = homily_clusters.concentration(all_bars, POSITIONS, prices_held)
+    except Exception as e:
+        print(f"[lens] skipped: {e}")
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today, suspect=suspect, positions=POSITIONS,
-                           buyday=buyday, bearready=bearready, gaps=gaps)
+                           buyday=buyday, bearready=bearready, gaps=gaps,
+                           breadth_read=br, conc=conc)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
