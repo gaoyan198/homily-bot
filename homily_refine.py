@@ -84,21 +84,34 @@ def load_champion():
     return {"params": DEFAULT, "oos_calmar": basket_score(0.6, DEFAULT),
             "since": str(datetime.date.today())}
 
-def daily_refine(margin=0.10):
+def daily_refine(margin=0.10, bars_map=None):
     champ = load_champion()
     challenger, oos_chal, oos_def = search()
     champ_oos = basket_score(0.6, champ["params"])
     adopted = False
     # adopt challenger only if it beats the CURRENT champion OOS by a margin
     if oos_chal > champ_oos * (1 + margin) and challenger != champ["params"]:
+        # "objective" (R2/#21): which regime this champion was selected
+        # under — Calmar until the #21 parallel read flips it, so a log
+        # reader can always tell which meaning a champion carries.
         champ = {"params": challenger, "oos_calmar": oos_chal,
-                 "since": str(datetime.date.today())}
+                 "since": str(datetime.date.today()), "objective": "calmar"}
         json.dump(champ, open(CHAMPION, "w"), indent=2)
         adopted = True
     row = f'{datetime.date.today()},{champ["params"]},{champ_oos:.3f},{oos_chal:.3f},{oos_def:.3f},{adopted}\n'
     if not os.path.exists(LOG):
         open(LOG, "w").write("date,champion,champ_oos,challenger_oos,default_oos,adopted\n")
     open(LOG, "a").write(row)
+    # #21 parallel run: score champion + challenger on the NEW objective,
+    # logged to the sibling J file (this file's history stays byte-frozen,
+    # R2). Needs the daily bars the digest already fetched; absent bars or
+    # any error -> skip silently, the Calmar loop is never held hostage.
+    if bars_map:
+        try:
+            from homily_refine_objective import log_parallel
+            log_parallel(bars_map, champ["params"], challenger)
+        except Exception as e:
+            print(f"[refine-j] skipped: {e}")
     return champ, challenger, oos_chal, oos_def, champ_oos, adopted
 
 if __name__ == "__main__":
