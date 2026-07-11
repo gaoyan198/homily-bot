@@ -1147,4 +1147,35 @@ _short36 = {d: 0.01 for d in range(30)}
 assert homily_clusters.corr(_short36, _short36) is None
 print("[36] Clusters: ρ≥0.6 blocks recovered, value weights, ⭐ nudge ..... PASS")
 
+# --- 37. Sunday deep-dive (#33): fetch-free weekly summary ------------------
+import homily_weekly
+
+def _wr37(d, tk, state, conv, whale="0", vh=""):
+    return {"date": d, "ticker": tk, "state": state, "conv_score": conv,
+            "whale": whale, "vh_status": vh}
+_rows37 = [
+    _wr37("2026-07-06", "AAA", "CAUTION", "40"),
+    _wr37("2026-07-07", "AAA", "BOTTOMING", "45", whale="1"),
+    _wr37("2026-07-08", "AAA", "ACCUMULATE", "52"),
+    _wr37("2026-07-09", "AAA", "ACCUMULATE", "55"),
+    _wr37("2026-07-10", "AAA", "ACCUMULATE", "58", vh="BREAKOUT"),
+    _wr37("2026-07-10", "ZZZ", "HOLD", "70"),        # not held -> no row line
+    _wr37("2026-06-30", "AAA", "CAUTION", "10"),     # last week -> excluded
+]
+_snap37 = {"holdings": [{"ticker": "AAA", "held": True, "close": 105.0,
+                         "zone_lo": 95.0, "zone_hi": 100.0}],
+           "coverage": {"pct": 100.0}}
+_sun37 = datetime.date(2026, 7, 12)                  # the Sunday after
+_txt37 = homily_weekly.weekly_summary(_rows37, _snap37, _sun37)
+assert "WEEK IN REVIEW — w/e 2026-07-12" in _txt37 and "5 trading days" in _txt37
+assert "⚪🔵⭐⭐⭐" in _txt37, f"Mon→Fri state timeline: {_txt37}"
+assert "conv 40→58" in _txt37, "conviction drift first→last"
+assert "5% above add zone" in _txt37, "distance to zone from the snapshot"
+assert "🐳 AAA" in _txt37 and "VH↑ AAA" in _txt37, "the week's events"
+assert "ZZZ" not in _txt37, "unheld names stay out of the weekly rows"
+assert homily_weekly.weekly_summary(_rows37, _snap37,
+                                    datetime.date(2026, 8, 2)) == "", \
+    "a week with no rows sends nothing"
+print("[37] Weekly: timeline, drift, zone distance, events, quiet week .... PASS")
+
 print("\nAll structural assertions passed.")

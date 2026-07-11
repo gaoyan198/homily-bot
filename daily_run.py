@@ -620,7 +620,36 @@ def send_document(path, caption):
         print(f"[dashboard send failed, dropped: {e}]")
 
 
+def sunday_deepdive():
+    """#33: the Sunday run is fetch-free — the week's ledger rows + Friday's
+    snapshot make the summary; the dashboard is regenerated from the same
+    committed artifacts and sent as the deep dive. No engine call, no
+    ledger write on a non-trading day (R3)."""
+    import json
+    import homily_weekly
+    today = homily_ledger.run_date()
+    rows = homily_ledger._read_rows()
+    snap = {}
+    if os.path.exists(homily_ledger.SNAPSHOT):
+        snap = json.load(open(homily_ledger.SNAPSHOT))
+    summary = homily_weekly.weekly_summary(rows, snap, today)
+    if not summary:
+        print("[weekly] no rows this week — nothing to send")
+        return
+    try:
+        homily_dashboard.write_dashboard()
+    except Exception as e:
+        print(f"[dashboard] skipped: {e}")
+    send(summary)
+    if os.path.exists(homily_dashboard.DASHBOARD):
+        send_document(homily_dashboard.DASHBOARD,
+                      "📒 weekly deep dive — the full picture, offline")
+
+
 if __name__ == "__main__":
+    if homily_ledger.run_date().weekday() == 6:      # Sunday SGT → #33
+        sunday_deepdive()
+        raise SystemExit(0)
     digest, alert, charts = build_digest()
     send(digest)
     for _tk, png, caption in charts:    # #35: top-3 actionable chart cards
