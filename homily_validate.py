@@ -1456,4 +1456,62 @@ assert (_hq.tier_of(5), _hq.tier_of(4), _hq.tier_of(3), _hq.tier_of(2)) == \
     ("Q1", "Q2", "Q2", "Q3"), "[45] FAIL: tier cuts drifted from D-66"
 print("[45] Quality tier: as-of filing honesty, cuts, Q:— on no data ...... PASS")
 
+# --- 46. Mechanical universe (#65): L0 filters, gates, L2 cut, shadow rows --
+import homily_universe as _hu
+
+for _sym46, _nm46, _etf46, _tst46, _ex46, _want46 in (
+        ("AAPL", "Apple Inc. - Common Stock", "N", "N", True, True),
+        ("FOO", "Foo Corp Warrant", "N", "N", True, False),
+        ("BARQ", "Bar Acquisition Corp", "N", "N", True, False),
+        ("SPYX", "Some ETF", "Y", "N", True, False),
+        ("TSTT", "Test Co", "N", "Y", True, False),
+        ("BRK.A", "Berkshire Class A", "N", "N", True, False),
+        ("SKHYV", "SK hynix when issued", "N", "N", True, False),
+        ("XCHG", "Off-exchange Co", "N", "N", False, False)):
+    assert _hu._l0_keep(_sym46, _nm46, _etf46, _tst46, _ex46) == _want46, \
+        f"[46] FAIL: L0 filter wrong for {_sym46}"
+assert _hu.gate("OK", (10.0, 60e6, 60)) and \
+    _hu.gate("CHEAP", (4.0, 60e6, 60)) is None and \
+    _hu.gate("THIN", (10.0, 40e6, 60)) is None and \
+    _hu.gate("YNG", (10.0, 60e6, 30))["young"], \
+    "[46] FAIL: L1 gate thresholds drifted"
+_stats46 = {f"N{i:03d}": (10.0, (200 - i) * 1e6, 60) for i in range(200)}
+_stats46["HELD"] = (10.0, 51e6, 60)
+_stats46["STKY"] = (10.0, 52e6, 60)
+_u46 = _hu.build(sorted(_stats46), _stats46, {"HELD"}, {"STKY"},
+                 since="2026-07-11")
+_names46 = {n["symbol"] for n in _u46["names"]}
+assert len([n for n in _names46 if n.startswith("N")]) == _hu.TOP_N and \
+    "HELD" in _names46 and "STKY" in _names46, \
+    "[46] FAIL: L2 must keep top-N plus holdings plus sticky"
+assert all(n["origin"] == "screen" for n in _u46["names"]), \
+    "[46] FAIL: mechanical arrivals must carry origin=screen"
+
+# shadow rows: origin shadow-screen, blank ranks, and the digest's rank
+# cross-section must be IDENTICAL with and without shadow present
+_shdir46 = os.path.join(_tmp44.mkdtemp(), "")
+_led46 = os.path.join(_shdir46, "led.csv")
+_hsh46 = os.path.join(_shdir46, "hash.json")
+_snp46 = os.path.join(_shdir46, "snap.json")
+_sigA46 = _up("AVIS")               # reuse the check-17 fixture builders
+_sigB46 = _up("SHDW")
+_day46 = _dt.date(2026, 7, 11)
+homily_ledger.record([_sigA46], [], None, _day46,
+                     set(), fund=lambda t: "F:—",
+                     shadow=[(_sigB46[0], _sigB46[1])],
+                     ledger=_led46, snapshot=_snp46, hashfile=_hsh46)
+_rows46 = homily_ledger._read_rows(_led46)
+_bytk46 = {r["ticker"]: r for r in _rows46}
+assert _bytk46["SHDW"]["origin"] == "shadow-screen" and \
+    _bytk46["SHDW"]["rs12_rank"] == "" and \
+    _bytk46["SHDW"]["whale_rank"] == "", \
+    f"[46] FAIL: shadow row malformed: {_bytk46.get('SHDW')}"
+assert _bytk46["AVIS"]["rs12_rank"] == "1", \
+    "[46] FAIL: shadow rows must not perturb the visible rank cross-section"
+_snap46 = json.load(open(_snp46))
+assert all(s["ticker"] != "SHDW"
+           for s in _snap46["holdings"] + _snap46["discovery"]), \
+    "[46] FAIL: shadow names must stay out of the snapshot"
+print("[46] Mechanical universe: L0/L1/L2 rules, shadow rows fenced off ... PASS")
+
 print("\nAll structural assertions passed.")

@@ -30,6 +30,7 @@ import homily_dashboard
 import homily_clusters
 import homily_flex
 import homily_quality
+import homily_universe
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -534,13 +535,29 @@ def build_digest(flex_notes=None):
                 homily_alerts.build_alerts(states, regime, today), today)
     except Exception as e:
         print(f"[alerts] skipped: {e}")
+    # #65 shadow quarter: screen the mechanical universe.json names the hand
+    # list does NOT already cover; their rows land in the ledger tagged
+    # origin "shadow-screen" (no digest surface, no rank participation).
+    # The D-65 adoption gate reads one quarter of these rows (~2026-10):
+    # keep ≥90% of what the hand list surfaced AND find ≥1 setup it missed.
+    # Non-fatal, like everything downstream of the digest.
+    shadow = []
+    try:
+        mech = homily_universe.load_names()
+        extra = {tk: tk for tk in mech
+                 if tk not in HOLDINGS and tk not in WATCH
+                 and tk not in UNIVERSE}
+        shadow = [(s, c) for s, c, _ in
+                  screen(extra, [], spy, spy_adj)]
+    except Exception as e:
+        print(f"[shadow] skipped: {e}")
     # #13 signals ledger + snapshot: record what the digest printed today.
     # Non-fatal to the send (the user always gets their digest); any history
     # corruption is caught hard by the validate gate (check [17]) that #16
     # runs BEFORE this step in CI.
     try:
         homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
-                             origins=ORIGINS, buyday=buyplan)
+                             origins=ORIGINS, buyday=buyplan, shadow=shadow)
     except Exception as e:
         print(f"[ledger] skipped: {e}")
     # #36 nightly dashboard: regenerate docs/dashboard.html from the just-
