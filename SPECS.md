@@ -43,9 +43,24 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #66 Q-tier gate + label | 2026-07-11 | wreck-separation FAILED (§14), validate [45]; label-only ships, 💎/veto dead |
 | #65 universe.json + shadow quarter | 2026-07-11 | validate [46]; adoption read ~2026-10 |
 
-## 1 · Remaining queue (updated 2026-07-11 late — the buildable backlog is EMPTY)
+## 1 · Remaining queue (updated 2026-07-12)
 
-Everything remaining is DATE- or OWNER-gated; nothing is buildable today:
+**Correction 2026-07-12:** the 07-11 claim "the buildable backlog is
+EMPTY" was true of the *queued/spec'd* items only — the Part-II idea bank
+was never empty. Buildable in any session, no date gate: the
+**nice-to-have shelf** — #73 digest line budget (S) · #54 weekly diff
+(S) · #57 中文 toggle (S) · #53 SGD lens (S) · #59 flash-crash note (S) ·
+#60 data-QA cross-check (S) · #58 behaviour-gap tracker (M) — and the
+**study shelf**: #51 ⚪ time-stop (M — first pick: BACKTEST_RESULTS'
+bottom line names it a lever; PLAYBOOK edited only after its gate) ·
+#47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
+money-touching result queues behind R10.
+
+**Next build session (owner-requested 2026-07-12):** **#83 Danny-style
+chart board** — spec below, design D-83, visual target
+`docs/mockup-83.html`.
+
+Everything else remaining is DATE- or OWNER-gated:
 
 1. **~2026-08-11** · #14a first matured read (info-only; just run
    `python3 homily_flipscore.py`).
@@ -239,6 +254,28 @@ rows (PRD §8.3) to one-liners. Keep all item numbering intact — #14's
 scorecard and the provenance audit (#67) reference these numbers.
 **Gate:** docs-only — validate green, goldens untouched; spot-check that
 every archived section is reachable from a pointer where it used to live.
+
+### #83 · Danny-style chart board — dashboard v2 (M–L; design D-83)
+**Goal:** replace the unreadable levels-band cards with per-name
+candlestick cards in the Homily/Danny chart language (owner-requested
+2026-07-12). The full design — card anatomy, geometry, normative palette,
+size budget, label-rail collision rule — is **D-83**; the owner-approved
+rendering is `docs/mockup-83.html` (three cards, live engine data).
+**Files:** `homily_dashboard.py` (rewrite of the card section; heatmap /
+timeline / refine sections stay), `daily_run.py` (pass `bars_map` to
+`write_dashboard`), `homily_validate.py` (extend [33] with fixture bars +
+size-budget assert). Delete `docs/mockup-83.html` in the same commit.
+**Build:** per D-83 — engines frozen, presentation only; reuse
+`homily_png._display_bins` / `_ribbon_circles` (homily_png is not
+frozen; share, don't duplicate); candles grouped per colour (one wick
+path + one body group), never per-bar elements; snapshot.json schema
+unchanged (#75).
+**Gate:** deterministic fixture render + self-containment + ≤300 KB
+asserts green; digest goldens untouched (dashboard-only change).
+**Risks:** R8 (dashboard already in the workflow git-add — no change
+needed); R9 (no "little fixes" to engine files while in there); the
+red=bullish legend must ship — an unlabeled inverse colour convention is
+a misread waiting to happen.
 
 ### T3 · MCP order routine (own session; PRD §9.2)
 Only after: two T2 months executed verbatim + cloud GitHub access fixed.

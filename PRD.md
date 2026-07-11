@@ -470,7 +470,9 @@ below (owner-requested 2026-07-10), #68 = total-return backtest migration
 (§8.5; renumbered 2026-07-11 from a duplicate "64"), #69–75 = 2026-07-11
 protect-the-referee / execution additions in Phases A/B/E/F plus #74
 below, #76 = planning-doc pruning below, #77–82 = Danny latest-posts
-review below (§5k, owner-requested 2026-07-11), new proposals start #83):
+review below (§5k, owner-requested 2026-07-11), #83 = Danny-style chart
+board below (owner-requested 2026-07-12; design D-83), new proposals
+start #84):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -501,6 +503,7 @@ review below (§5k, owner-requested 2026-07-11), new proposals start #83):
 | 81 | **Weekly-timeframe whale detection** (from §5k, "whales on daily play tricks") — recompute #12's three footprints on weekly bars; his own practice tracks accumulation weekly. Confluence table: daily-🐳 vs weekly-🐳 vs both firing | M | rides #23's confluence harness; counts against the R10 one-modifier-per-quarter budget; 2021 control included; only the winning variant (if any) keeps the 🐳 promotion |
 | 82 | ~~Ribbon run-length stat~~ — **shipped 2026-07-11** (BACKTEST_RESULTS §7): 1,439 spells, combined median 8w (p25 2w / p75 23w / p90 42w) → RED rows print `med run 8w`. Entry-candle conditioning failed its pre-committed rule (A +3w, B −1w) → unconditional only, per the item's own gate | S–M | study ran; info-only suffix shipped, goldens re-pinned deliberately |
 | 67 | ~~Hard-rule provenance audit~~ — **ran 2026-07-11** (BACKTEST_RESULTS §12): registry shipped; cap priced (premium +0.05 MOIC on the honest window — near free; payout +0.26/+0.40 MOIC at −80/−95% shock) and STAYS at 10% (25% clears the formal prongs but surrenders half the payout; any move queues behind R10); Bucket-B threshold insensitive; whale cap DERIVED at 1.6% (in band, tightening queued); max-5 ≈ null; PLAYBOOK §3.4 quotes the premium | M | pre-committed rules applied; step-2a hypothesis confirmed (the ⭐ gate, not the cap, contains wrecks) |
+| 83 | **Danny-style chart board — dashboard v2** (owner-requested 2026-07-12: "the dashboard looks like trash and I can't even read it — mimic the charts Danny always shows") — per-name candlestick cards in the Homily/Danny chart language the methodology is stated in: engine-coloured candles (red = bullish via `daily_candle()`), chip histogram + POC, VH zone, add-zone band, weekly-circle ribbon; zero-JS inline SVG, dark, D-36 constraints stand. Design **D-83**; owner-approved visual target `docs/mockup-83.html` (delete when #83 ships) | M–L | presentation-only: deterministic fixture render (extends [33]) + self-containment + size-budget asserts; digest goldens untouched — no signal, level or state computation changes anywhere |
 
 ### 8.4 Planning → execution handoff
 

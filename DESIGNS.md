@@ -397,14 +397,104 @@ File: `homily_cap_backtest.py` (+ an episode-dispersion block in
 reproduce the committed emergent numbers (regression, same pattern as
 D-63 mode (b)).
 
+### D-83 · Danny-style chart board — dashboard v2 (#83)
+
+**Owner-requested 2026-07-12** ("the dashboard looks like trash and I
+can't even read it properly — build a proper UI that mimics the charts
+Danny always shows in his X posts"). Mockup built the same day from live
+engine outputs and approved as the visual target: **`docs/mockup-83.html`**
+(three cards — NVDA ⭐ / TSLA ⚪🐳 / SHOP 🔵; delete the file in the
+commit that ships #83, per §9.3 "delete, don't accrete").
+
+**Why the current dashboard fails.** `_card_svg` draws a 640×150 band of
+levels plus a sparkline of LEDGER closes — and the ledger is days old, so
+every card renders as an empty rectangle with an apology. No candles, no
+price history, no chip histogram, no VH zone: the board speaks a
+different visual language from the methodology it reports, which is
+stated entirely in Danny/Homily chart terms (PRD §2, §5b).
+
+**The card (one per name; all elements are frozen-engine outputs):**
+
+1. **~6 months of daily candlesticks** (VIEW=120 bars), coloured by
+   `homily_danny.daily_candle()` on close prefixes — **red = bullish,
+   yellow = bearish, gray = neutral**. This is Danny's colour language,
+   the inverse of Western charts; the page pins a legend at the top for
+   exactly this reason and the footer says it again.
+2. **Right-hand chip histogram** — `homily_png._display_bins()` (engine
+   constants NBINS/HALF_LIFE), split at last close: in-profit teal below,
+   trapped slate above, POC bin emphasized orange. POC + top-1
+   support/resistance as dashed lines; labels live on a right-hand
+   **collision-resolved label rail** (level labels sorted by y and nudged
+   ≥13px apart; grid ticks yield to level labels within 12px — the #1
+   readability defect of hand-placed labels).
+3. **Volatility-hole zone** — `find_hole()`: translucent violet band from
+   formation bar to the right edge, dashed boundaries, status label
+   ("vh breakout ↑" / "vh breakdown ↓" / "vh zone").
+4. **Add-zone band** — translucent teal across the plot with an
+   `add lo–hi` rail label (whole numbers ≥100).
+5. **52-week circle ribbon** along the bottom — `_ribbon_circles()`
+   blocks (RED/AMBER/WHITE; WHITE at reduced opacity), captioned
+   "wk circle · RED {n}w · med run 8w" (#82's stat).
+6. **Facts chips row** (HTML, above the SVG): state pill · close · add
+   zone · POC · % chips in profit · dip counter `dip d{n} (med 4d · p90
+   22d)` (#78) · VH status · 🐳 · RS12 · conv · F-tag · book% + cap note
+   (the position-aware fields stay).
+
+**Architecture decisions.**
+
+* **Bars arrive in-memory:** `write_dashboard(..., bars_map=…)` called
+  from `daily_run` (which already fetched every name's bars).
+  `docs/snapshot.json` does NOT grow a bars section — it is a committed
+  artifact under the #75 schema contract and 68×500 bars would bloat it.
+  `render()` stays a pure function — (snapshot, ledger rows, refine rows,
+  bars_map) → HTML — so determinism check [33] extends with fixture bars.
+* **Zero-JS, self-contained, dark** (D-36 stands). Native `<title>`
+  tooltips only; the consumer is Telegram's in-app browser = touch, so
+  nothing may depend on hover — every number a tooltip would carry is
+  printed on the label rail or in the chips row. Dark-only is deliberate
+  (the chart language is a dark-terminal idiom), not an omission.
+* **Size budget:** cards for HELD names + today's actionable set (⭐/🔵/🎯
+  in discovery) only, cap ~20 cards; discovery stays a table; the ledger
+  heatmap, alerts timeline and refine chart sections remain below the
+  cards. Candles are grouped per colour — one wick `<path>` + one body
+  `<g>` per colour, ≈6 elements per card, never one element per candle.
+  Assert total ≤300 KB in validate (the nightly commit must stay
+  reviewable, R8).
+* **Palette is normative** (validated against the dataviz six checks on
+  the dark surface, 2026-07-12): bull `#e5484d` · bear `#b8890d` · profit
+  `#25a897` · trapped `#6d83d1` · POC `#d47114` · VH `#8b7ff5` · surface
+  `#0c1017` · panel `#111722` · ink `#dde3ee` · muted `#7e8798`. Reuse
+  these hexes; don't re-derive.
+* **Engine freeze respected:** reads `daily_candle` / `homily_circle` /
+  `find_hole` outputs and homily_png's existing display helpers
+  (`_display_bins`, `_ribbon_circles` — homily_png is NOT frozen; share
+  the helpers, don't duplicate them). `_card_svg` and the ledger-close
+  sparkline are deleted (superseded — the candles ARE the price history;
+  ledger closes remain in the heatmap).
+
+**Explicitly NOT in this item:** price targets or measured moves (PRD §5k
+rejected them), client JS, external assets, new deps/secrets, any change
+to what the digest prints (dashboard-only), any signal/level/state
+computation change anywhere. Footer keeps the §2 honesty constraints
+verbatim: approximation of documented behaviour, not Danny's or Homily's
+formulas; red-bullish colour convention restated.
+
+**Gate (presentation-only):** deterministic render on fixture
+bars+snapshot+ledger (extends [33]) · self-containment assert unchanged ·
+size-budget assert · digest goldens untouched. Info-only by definition.
+
+File: `homily_dashboard.py` rewrite + the `daily_run.py` call-site +
+validate fixtures · Effort M–L · one session.
+
 ---
 
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
-Numbering continues PRD §8 (#61–82 taken — see PRD §8.3 index; #68–75
+Numbering continues PRD §8 (#61–83 taken — see PRD §8.3 index; #68–75
 assigned 2026-07-11 in PRD §8 phases; #77–82 = Danny latest-posts review,
-PRD §5k, full rows in the §8.3 table; new proposals start #83).
+PRD §5k, full rows in the §8.3 table; #83 = Danny-style chart board,
+D-83 above; new proposals start #84).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):
