@@ -257,6 +257,33 @@ compare a live RS12 print against a number in §1–§4 to the tenth of a point.
 
 ---
 
+## 6 · #39 bootstrap CIs on THE test (run 2026-07-11)
+
+Circular block bootstrap (block 6 ≈ a regime half-year, 10,000 resamples,
+seed 39) over each arm's 60 monthly NAV returns from the 5y THE-test window
+(2021-07 → 2026-07, idx-fallback+regime arm, the faithful strategy).
+P(>QQQ DCA) uses PAIRED draws — the same blocks applied to both series —
+so the arms' correlation is preserved. Reproduce: `python homily_bootstrap.py`.
+
+| arm | realized MOIC | p5 | p25 | p50 | p75 | p95 | P(>QQQ DCA) |
+|---|---|---|---|---|---|---|---|
+| DCA SPY (benchmark) | 1.52 | 0.99 | 1.21 | 1.36 | 1.52 | 1.76 | — |
+| DCA QQQ (benchmark) | 1.77 | 0.92 | 1.23 | 1.49 | 1.77 | 2.26 | — |
+| strategy A current univ (HINDSIGHT) | 1.65 | 0.96 | 1.24 | 1.48 | 1.79 | 2.36 | 53.5% |
+| strategy B hype-2021 control | 1.29 | 0.79 | 1.01 | 1.21 | 1.46 | 1.91 | **23.8%** |
+
+Reading: the one-window numbers §1 committed are points inside WIDE bands —
+QQQ DCA's own 5–95 band spans 0.92–2.26×. On the honest universe the
+strategy beats QQQ DCA in only ~24% of resampled paths; even the
+hindsight-picked universe is a coin flip (53.5%). This does not change the
+bottom-line verdict below — it quantifies how little one 5y window can
+prove in either direction, which is exactly why #14's live scorecard (and
+#71's pre-registered noise band, which reuses this machinery) referees all
+future promotions. CAVEAT (mandatory, D-39): bootstrap cannot manufacture
+unseen regimes — these are within-window uncertainty bands, not forecasts.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the

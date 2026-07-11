@@ -1301,4 +1301,27 @@ assert "CAUTION→BOTTOMING" in _r40 and "R3" in _r40, \
     "[40] FAIL: render must carry the transitions and the R3 honesty line"
 print("[40] Flip scorecard: flips at logged dates only, excess math, R3 ... PASS")
 
+# --- 41. Bootstrap CIs (#39): deterministic seed, caveat mandatory ----------
+import homily_bootstrap as _bs
+
+_r41 = [0.02, -0.03, 0.05, 0.01, -0.02, 0.04, 0.00, 0.03, -0.01, 0.02,
+        0.06, -0.04] * 5                       # 60 synthetic monthly returns
+_m41a = _bs.block_moics(_r41, n_resamples=200)
+_m41b = _bs.block_moics(_r41, n_resamples=200)
+assert _m41a == _m41b, "[41] FAIL: same seed must reproduce identical bands"
+# constant returns -> every circular block is identical -> degenerate band
+_flat41 = _bs.block_moics([0.01] * 60, n_resamples=50)
+assert abs(_flat41[0] - _flat41[-1]) < 1e-12 and \
+    abs(_flat41[0] - _bs.moic_of([0.01] * 60)) < 1e-12, \
+    "[41] FAIL: constant-return series must band exactly on its point MOIC"
+# paired P(A>B): A strictly dominates B every month -> probability 1
+assert _bs.paired_beats([0.02] * 60, [0.01] * 60, n_resamples=50) == 1.0, \
+    "[41] FAIL: a dominating series must win every paired draw"
+_out41 = _bs.render(
+    [("fixture", _bs.moic_of(_r41), _bs.percentiles(_m41a), 0.5)], 60)
+assert _bs.CAVEAT in _out41, \
+    "[41] FAIL: the D-39 caveat line is mandatory in every rendered table"
+assert "p5" in _out41 and "p95" in _out41, "[41] FAIL: percentile header"
+print("[41] Bootstrap CIs: deterministic, degenerate band exact, caveat .... PASS")
+
 print("\nAll structural assertions passed.")
