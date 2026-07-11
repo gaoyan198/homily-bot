@@ -62,6 +62,13 @@ fallback.*
 4. Other half → split **equally** across the ⭐ names (holdings + discovery,
    max 5 names). Skip any name that would exceed 10% of your stock book.
    Prefer F:2+ names when choosing among many.
+   *(The 10% cap is now priced, not gut — #67, BACKTEST_RESULTS §12: it
+   cost ~0.05 MOIC per $1 on the honest 2021→2026 control (essentially
+   free) and pays +0.26…+0.40 MOIC when the book's biggest name gaps
+   −80…−95% and never recovers. It exists for the gap-down the trend gate
+   can't see; wrecks lose ⭐ long before they reach 10%, so in practice it
+   binds on winners — that is the premium you're paying. The max-5 rule
+   measured ≈ null (§5g stands): keep it for simplicity, not for edge.)*
 5. **If there are no ⭐ names: buy Bucket A with the full amount.** The
    backtest is clear — cash waiting for stars costs more than it saves.
 6. **Optional aggressive add (🎯 on a 🟡 row):** a still-bullish name whose

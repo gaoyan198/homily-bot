@@ -440,6 +440,89 @@ decision input.
 
 ---
 
+## 12 · #67 hard-rule provenance audit (run 2026-07-11) — every declared constant priced
+
+Owner's question: "any smart way to determine these hard rules instead of
+gut feeling?" Method: a declared rule is insurance — price the PREMIUM
+(cost on realized paths) and the PAYOUT (what it saves in the wreck case).
+Fidelity: the uncapped arm reproduces the committed emergent EQ numbers to
+drift 0.00e+00 before any sweep number is read. Reproduce:
+`python homily_cap_backtest.py` · `python homily_bear_backtest.py
+--bucketb` · `python homily_whale_backtest.py --dispersion`.
+
+### The rule-provenance registry (who owns each hard constant)
+
+| Constant | Where | Provenance after this run | Owner study |
+|---|---|---|---|
+| 10m SMA regime, monthly close | §4 | tested (30y; D-63) | #63 done |
+| no adds while ⚪ | §1/§2 | tested implicitly (emergent) | — |
+| no ⭐ → full amount to index | §3.5 | tested | — |
+| never-sell / hold-through | §3/§5 | tested (THE · emergent · multiwindow) | #40 yearly |
+| 🐳 WHALE-DIP tier exists | §3.6b | tested + gated (§5h) | — |
+| **10%/name add-cap** | §3.4 | **declared → PRICED (Step 1–2 below); stays** | this study |
+| 10% Bucket-B "earned" threshold | §1 | declared → measured insensitive (Step 3) | this study |
+| ≤2% whale-dip cap | §3.6b | declared → **derived 1.6%** (Step 4); adoption queued | this study |
+| max 5 ⭐ names/month | §3.4 | declared → measured ≈ null (Step 5) | this study |
+| 50/50 A-vs-stock split | §7 | declared, behavioural; frontier printed (Step 5) | info-only forever |
+| ⚪ 12w + F:0–1 → sell half | §5.2 | declared | #51 (queued) |
+| thirds re-entry / bear trim | §4.7/§4.3b | declared | D-63 modes |
+| margin zero | §6 | ruin-avoidance — not tunable | excluded by design |
+| F thresholds | homily_fund | declared, info-only | #66 absorbs |
+| score <60 → no capital | HOW_IT_WORKS | declared → §11: tier cuts separate nothing | #20 ran |
+
+### Step 1–2 · the add-cap, priced (universe B = the judge)
+
+Premium (uncapped − 10%-cap MOIC, redistribute treatment, per window):
++0.63/+0.97 in the sparse 2015/2016 5y windows (3–8 eligible names — the
+cap fights diversification itself there), **+0.05 in the fully honest
+2021→2026 window**, ±0.03 in 2017–2020 starts, +0.51/+0.55 in the 10y
+windows. On hindsight universe A the cap is free-to-beneficial (uncapped
+loses 6/9 redistribute windows). Formal prong check: 25%-redistribute
+ties-or-beats 10% in 7/9 windows with shock-MaxDD within 5 pts → **by the
+letter of D-67 a move UP to 25% is adoptable**; uncapped also clears the
+prongs but ∞ is excluded by rule.
+
+Payout (top name gapped at the uncapped book's peak-top1 date, no
+recovery, 10y window, shock target SHOP): at −80%, 10%-cap MOIC 1.96 vs
+uncapped 1.70; at −95%, 1.89 vs 1.49 — and 25% gives back half the
+protection (1.70 @ −95%). On the 5y wreck window (target PLTR) the cap
+bought nothing (1.40 vs 1.43 @ −80%): redistribution pushed the skipped
+cash into other 2021 wrecks. Step 2a natural pricing: worst-single-name
+damage is ≤1.8% of paid at EVERY cap level in EVERY window — **wrecks lose
+⭐ long before they accumulate; the ⭐ gate, not the cap, contains wrecks**
+(the D-67 hypothesis, confirmed).
+
+**Decision (per the pre-committed rule + R10):** the cap STAYS at 10%
+today — §8.0's one-live-change/90-day spacing and R10 bind any move (🐳
+holds Q3), and the shock table shows 25% surrenders half the payout the
+cap exists for (a dimension the prongs didn't pin, recorded here so the
+Q4+ promotion session weighs it). PLAYBOOK §3.4 now quotes the measured
+premium in place.
+
+### Step 3 · Bucket-B threshold {none, 8, 10, 15}% — insensitive
+
+Faithful-§4 arm, univ B 5y: MOIC 1.36/1.44/1.44/1.36; sell-into-index:
+1.70/1.67/1.67/1.70. Spread ≤0.08 MOIC with one bear onset in the window —
+a sensitivity table, never a headline. The 10% digit is not load-bearing.
+
+### Step 4 · whale-dip cap derived from episode dispersion
+
+680 whale-dip episodes (5y, 58 names): fwd60 p5 −31.7%, median +7.3%,
+p95 +67.6%. Cap sized so a p5 episode costs ≤0.5% of book: **1.6%** —
+inside the pre-committed [1%, 4%] adoption band, so the 2% rule graduates
+from gut to derived. The 0.4-pt tightening (and the #31 copilot constant
+sync) queues behind the same 90-day spacing as everything else.
+
+### Step 5 · max-⭐ sweep + the 50/50 frontier (info-only)
+
+Max ⭐ {3, 5, 8, ∞} on the honest 2021 window: B 1.74/1.74/1.70/1.70
+MOIC — ≈ null, as §5g predicted (A: 3.85/3.93/3.80/3.78). Keep max-5 for
+simplicity, not edge. Blend frontier (B, vs DCA-SPY 1.50): stock-half
+30/50/70% → 1.56/1.60/1.64 — the split buys drawdown tolerance, not
+return; §7's behavioural definition stands, info-only forever.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
