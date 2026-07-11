@@ -30,6 +30,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #69 promotion registry + #80 whale_rank column | 2026-07-11 | validate [31] |
 | #70 missed-run detector | 2026-07-11 | validate [32] |
 | #61 engine-freeze manifest guard | 2026-07-11 | validate [39] (negative case proven) |
+| #76 planning-doc pruning | 2026-07-11 | docs-only — validate green, goldens untouched, archive pointers verified |
 
 ## 1 · Remaining queue (recommended order)
 
@@ -59,8 +60,9 @@ Guards #61 (engine-freeze SHA manifest) and #62 (ledger hash) — #62
 shipped with #13; #61 shipped 2026-07-11 (`engine_freeze.json`, validate
 [39]). Both guards are now live.
 
-**#76 planning-doc pruning** (S, docs-only, spec in §2) — slot into any
-session; the sooner it ships the less context every later session burns.
+~~**#76 planning-doc pruning**~~ — shipped 2026-07-11: resolved PRD
+addenda (§5c–5j), shipped §8 item texts, and shipped Part-I designs live
+verbatim in `docs/archive/` with pointers at every original location.
 
 ## 2 · Build specs
 
@@ -241,9 +243,9 @@ The concurrent planning session committed (#68–75 slotting, §5k → #77–82,
 [32]), the #69 forward-checker + #80 whale_rank column shipped together
 as flagged (gate [31]), #14's spec addition and #14a live in §2, the PRD
 §8.5 session-0 note is written. Still open from that pass: **#71
-scorecard power line** (rides #14, build them together), **#75 snapshot
-schema contract** (ride #36), **#76 doc pruning** (any docs-only
-session), and the #77–82 gated research queue (slotting in PRD §8.1).
+scorecard power line** (rides #14, build them together) and the #77–82
+gated research queue (slotting in PRD §8.1); #75 shipped with #36 (gate
+[33]) and #76 shipped 2026-07-11.
 
 *Written 2026-07-11 by the executing model (session 0, late). If reality
 contradicts a spec, record it in PRD §8.5 and stop — don't improvise.*

@@ -102,6 +102,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_buyday.py` | Buy-day copilot (#31): first run of the month resolves `BUY_BUDGET_USD` into printed IBKR-ready orders + a basket CSV (`docs/orders_YYYY-MM.csv`) — **info-only, never places an order** |
 | `daily_run.py` | Entrypoint: fetch → composite signals → refine → Telegram |
 | `PRD.md` | Danny-methodology spec + scope limits |
+| `docs/archive/` | Verbatim planning history moved out of the live docs (#76): resolved PRD addenda §5c–5j, shipped §8 item texts, shipped designs |
 | `homily_champion.json`, `homily_refine_log.csv` | Persisted state (committed daily by the workflow) |
 
 ## Watchlist
