@@ -56,6 +56,9 @@ jobs:
           git config user.name "homily-bot"
           git config user.email "actions@users.noreply.github.com"
           git add homily_champion.json homily_refine_log.csv homily_fund_cache.json 2>/dev/null || true
+          # #66 quarterly quality-tier cache (R8) — same pattern as the
+          # fund cache above
+          git add homily_quality_cache.json 2>/dev/null || true
           # #21 parallel-objective log (R8): the 30-day J record accrues
           # here; losing rows restarts the parallel-run clock
           git add homily_refine_j.csv 2>/dev/null || true

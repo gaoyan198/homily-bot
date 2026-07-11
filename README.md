@@ -68,6 +68,15 @@ Danny's "3–7 trading days" matches the median (4d) but not the spread
 p90 — the same study showed trend failures resolve *faster* than healthy
 pullbacks, so dip age alone never escalates anything.
 
+Rocket and discovery rows also carry `Q1/Q2/Q3` — a sticky quality tier
+(quarterly EDGAR read + 3y RS, frozen between refreshes,
+`homily_quality.py`, #66). It is a LABEL and nothing more: its gate
+backtest failed honestly — computed from as-of filings, Q could not
+separate the 2021 wrecks (ZM/DOCU/ROKU scored Q1 on then-stellar
+fundamentals; that class was a valuation collapse, not broken businesses)
+— so no buy state, no veto, and no sizing reads it
+(BACKTEST_RESULTS §14). Non-US names print `Q:—`.
+
 If a name's recent tape holds a **>45% one-day move on abnormal volume** — the
 signature of a split or spin-off the data feed never adjusted — every one of
 those levels is built on prices that never traded. The row then prints

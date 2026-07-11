@@ -1416,4 +1416,44 @@ with open(_jf44) as _f44:
         "[44] FAIL: J log header drifted"
 print("[44] Refine re-point: lock-step circle, J math, idempotent J log ... PASS")
 
+# --- 45. Quality tier (#66): as-of honesty, scoring cuts, tier bounds -------
+import homily_quality as _hq
+
+# facts: FY2020 filed 2021-02, FY2021 filed 2022-02. As-of 2021-11 the
+# second year is INVISIBLE — using it would be look-ahead.
+_facts45 = {
+    "rev": [("2019-12-31", "2020-02-10", 100.0),
+            ("2020-12-31", "2021-02-10", 130.0),
+            ("2021-12-31", "2022-02-10", 90.0)],
+    "ni": [("2019-12-31", "2020-02-10", 5.0),
+           ("2020-12-31", "2021-02-10", 12.0),
+           ("2021-12-31", "2022-02-10", -40.0)],
+    "ocf": [("2019-12-31", "2020-02-10", 10.0),
+            ("2020-12-31", "2021-02-10", 20.0),
+            ("2021-12-31", "2022-02-10", -30.0)],
+    "capex": [("2019-12-31", "2020-02-10", 3.0),
+              ("2020-12-31", "2021-02-10", 4.0),
+              ("2021-12-31", "2022-02-10", 4.0)],
+    "shares": [("2020-01-31", "2020-02-10", 1000.0),
+               ("2021-01-31", "2021-02-10", 1050.0),
+               ("2022-01-31", "2022-02-10", 1600.0)],
+}
+_q45a = _hq.q_points(_facts45, _dt.date(2021, 11, 1), rs3y=0.5)
+_q45b = _hq.q_points(_facts45, _dt.date(2022, 11, 1), rs3y=-0.2)
+assert _q45a and _q45a[0] == 7 and _hq.tier_of(_q45a[0]) == "Q1", \
+    f"[45] FAIL: 2021 view must score the healthy year: {_q45a}"
+assert _q45b and _q45b[0] <= 2 and _hq.tier_of(_q45b[0]) == "Q3", \
+    f"[45] FAIL: 2022 view must see the broken year: {_q45b}"
+assert not _q45a[1].get("dilution") is False, \
+    "[45] FAIL: 5%/yr dilution must pass the <12% cut"
+assert _q45b[1]["dilution"] is False, \
+    "[45] FAIL: 52%/yr dilution must fail the cut"
+assert _hq.q_points({"rev": [], "ni": [], "ocf": [], "capex": [],
+                     "shares": []}, _dt.date(2024, 1, 1), None) is None \
+    and _hq.q_points(None, _dt.date(2024, 1, 1), 0.1) is None, \
+    "[45] FAIL: no data must yield None (prints Q:—), never a guess"
+assert (_hq.tier_of(5), _hq.tier_of(4), _hq.tier_of(3), _hq.tier_of(2)) == \
+    ("Q1", "Q2", "Q2", "Q3"), "[45] FAIL: tier cuts drifted from D-66"
+print("[45] Quality tier: as-of filing honesty, cuts, Q:— on no data ...... PASS")
+
 print("\nAll structural assertions passed.")
