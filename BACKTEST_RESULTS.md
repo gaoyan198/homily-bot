@@ -523,6 +523,34 @@ return; §7's behavioural definition stands, info-only forever.
 
 ---
 
+## 13 · #21 refine re-point (built 2026-07-11) — diagnostic passed, parallel run started
+
+The Calmar objective tunes a strategy §1 retired; the circle's live job is
+gating composite states. New objective (D-21): J(p) = mean fwd-60d excess
+of ⭐(p) days vs same-name drift − 0.5 × FB(p), FB = fraction of ⚪(p)
+days followed by ≥+15% in 60d (the PLTR-June class as a first-class term).
+Reproduce: `python homily_refine_objective.py --diagnostic`.
+
+**Diagnostic (D-21 step 1, ran before anything else):** pooled ⭐-days
+per walk-forward fold = 479 / 1,012 / 736 on the 8-name basket — all ≥100,
+so the ⭐ objective stands (no RED-day fallback). λ sensitivity: param
+rankings IDENTICAL at λ=0.25 and 0.5, reshuffled at λ=1.0 — λ stays 0.5
+(fixed a priori), and the eventual switch session must treat the ranking
+as FB-sensitive at high λ. First read of J levels: J(champion) −0.276,
+J(default) −0.281, with FB ≈ 52–54% — on this momentum basket half of all
+blocked days were followed by +15% in 60 days, i.e. the false-block cost
+the objective exists to punish is real and large in this window.
+
+**Parallel run live:** `homily_refine_j.csv` (sibling append-only file —
+the Calmar log's history stays byte-identical, R2) accrues J(champion) and
+J(challenger) daily via `daily_refine(bars_map=…)`; workflow commits it
+(R8). `homily_champion.json` now carries `"objective": "calmar"` so every
+champion states which regime selected it. Earliest switch read:
+**2026-08-22** (30 rows), its own session, same +10% OOS margin — champion
+selection stays Calmar until then.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the

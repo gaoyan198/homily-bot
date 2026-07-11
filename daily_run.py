@@ -503,7 +503,8 @@ def build_digest(flex_notes=None):
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
         print(f"[dips] skipped: {e}")
-    digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
+    digest = render_digest(sigs, disco, proxy, regime,
+                           daily_refine(bars_map=all_bars), errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, flex_notes=flex_notes,

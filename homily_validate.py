@@ -1359,4 +1359,61 @@ assert _lo43 <= sum(_obs43) / len(_obs43) <= _hi43, \
     "[43] FAIL: the point estimate must sit inside its own band"
 print("[43] Conviction backtest: spearman, deciles, deterministic bands ... PASS")
 
+# --- 44. Refine re-point (#21): objective math + lock-step + idempotence ----
+import tempfile as _tmp44
+import homily_refine_objective as _ro
+from homily_refine import circle_series_p as _csp_ref, DEFAULT as _def44
+
+# the objective's circle MUST stay in lock-step with the refine loop's
+_ser44 = [100 * (1.004 ** i) for i in range(120)] \
+    + [100 * (1.004 ** 119) * (0.99 ** i) for i in range(40)]
+assert _ro.circle_series_p(_ser44, _def44) == \
+    _csp_ref(_ser44, _def44["ef"], _def44["es"]), \
+    "[44] FAIL: objective circle drifted from homily_refine's arithmetic"
+assert _ro.circle_series_p(_ser44, _def44)[-1] != "RED" and \
+    _ro.circle_series_p([100 * 1.004 ** i for i in range(160)],
+                        _def44)[-1] == "RED", \
+    "[44] FAIL: circle direction sanity"
+
+# J math on synthetic bars: an uptrend under RED-fallback has ⭐ days and a
+# finite J; a collapse-then-rally makes ⚪ days register false blocks
+def _mk44(prices):
+    d0 = _dt.date(2023, 1, 2)
+    return [(d0 + _dt.timedelta(days=i), p, p + 0.5, p - 0.5, p, 1e6)
+            for i, p in enumerate(prices)]
+
+_up44 = _mk44([100 * 1.002 ** i for i in range(800)])
+_ctx44 = _ro.day_context(_up44)
+_m44, _n44, _fb44, _bl44 = _ro.j_of(_up44, _ctx44, _def44,
+                                    fallback_red=True)
+assert _n44 > 0 and _m44 == _m44, "[44] FAIL: uptrend must yield ⭐(p) days"
+_px44 = [100 * 1.002 ** i for i in range(500)] \
+    + [150 * 0.997 ** i for i in range(200)] \
+    + [90 * 1.01 ** i for i in range(100)]
+_dn44 = _mk44(_px44)
+_ctx44b = _ro.day_context(_dn44)
+_, _, _fbr44, _nb44 = _ro.j_of(_dn44, _ctx44b, _def44, span=(500, 740),
+                               fallback_red=True)
+assert _nb44 > 0 and _fbr44 > 0, \
+    "[44] FAIL: a recovery after ⚪ days must register as false blocks"
+
+# log_parallel: appends once per (date, params), never twice
+_jf44 = os.path.join(_tmp44.mkdtemp(), "j.csv")
+_bm44 = {"NVDA": _up44}
+_keep44, _keepfb44 = _ro.BASKET_J, _ro.FALLBACK_RED
+_ro.BASKET_J = ("NVDA",)
+_ro.FALLBACK_RED = True     # fixture independence from chip-shelf geometry
+_day44 = _dt.date(2026, 7, 11)
+_n1 = _ro.log_parallel(_bm44, _def44, {"ef": 8, "es": 26, "inv": "RED"},
+                       day=_day44, path=_jf44)
+_n2 = _ro.log_parallel(_bm44, _def44, {"ef": 8, "es": 26, "inv": "RED"},
+                       day=_day44, path=_jf44)
+_ro.BASKET_J, _ro.FALLBACK_RED = _keep44, _keepfb44
+assert _n1 == 2 and _n2 == 0, \
+    f"[44] FAIL: parallel log must be idempotent per day ({_n1}/{_n2})"
+with open(_jf44) as _f44:
+    assert _f44.readline().strip() == _ro.J_HEADER.strip(), \
+        "[44] FAIL: J log header drifted"
+print("[44] Refine re-point: lock-step circle, J math, idempotent J log ... PASS")
+
 print("\nAll structural assertions passed.")
