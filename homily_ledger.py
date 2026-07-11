@@ -49,6 +49,7 @@ COLUMNS = [
     "conv_score", "conv_tier", "gates_ok", "gates_failed", "ftag",
     "rs12_rank",
     "origin",
+    "whale_rank",
 ]
 
 
@@ -124,6 +125,26 @@ def rs12_ranks(states):
     accum = [s for s in states if s["state"] == "ACCUMULATE"]
     cands = accum or [s for s in states if s["state"] == "BOTTOMING"]
     ranked = sorted(cands, key=lambda s: -s["rs12"])
+    ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
+    return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
+
+
+def whale_ranks(states):
+    """#80 (PRD §5k, MARA-vs-WULF): cross-sectional whale-accumulation
+    intensity rank over the SAME candidate set as rs12_ranks (⭐ else 🔵) —
+    Danny picks *between* similar names by main-force intensity, so the
+    challenger for the 2026-10-01 #24 read needs this frozen at print time.
+    Intensity = footprint events printing today (absorption + divergence +
+    shelf_stable, 0–3); ties break by RS12 desc then ticker so the rank is
+    deterministic. Pure measurement — nothing consumes it live; the whale
+    booleans stay in the CSV too, so the study can re-derive its own
+    reading, but the rank the digest COULD have acted on is pinned here."""
+    accum = [s for s in states if s["state"] == "ACCUMULATE"]
+    cands = accum or [s for s in states if s["state"] == "BOTTOMING"]
+    ranked = sorted(cands,
+                    key=lambda s: (-(int(s["absorption"]) + int(s["divergence"])
+                                     + int(s["shelf_stable"])),
+                                   -s["rs12"], s["ticker"]))
     ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
     return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
 
@@ -269,8 +290,10 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
                              origin=_origin(s.ticker)) for s, c, _ in disco]
     all_states = held_states + disco_states
     ranks = rs12_ranks(all_states)
+    wranks = whale_ranks(all_states)
     for st in all_states:
         st["rs12_rank"] = ranks[st["ticker"]]
+        st["whale_rank"] = wranks[st["ticker"]]
     rows = [csv_row(st, day) for st in all_states]
     append_rows(rows, day, ledger=ledger, hashfile=hashfile)
     write_snapshot(day, regime, held_states, disco_states, path=snapshot)
