@@ -222,24 +222,25 @@ def write_basket(p, day, docs=DOCS):
 
 def buyday_block(states, positions, regime, day, *, yahoo=None,
                  ledger=homily_ledger.LEDGER, docs=DOCS):
-    """IO shell daily_run calls: env + ledger in, rendered block out (empty
-    string on a non-buy-day or with no budget configured). A regime of None
-    (check unavailable) is treated as a normal buy day — §3 only reroutes
-    on an explicit 🐻."""
+    """IO shell daily_run calls: env + ledger in -> (rendered block, plan).
+    ("", None) on a non-buy-day or with no budget configured. The plan dict
+    also lands in docs/snapshot.json (#75) — the machine-readable twin the
+    T3 order routine will read. A regime of None (check unavailable) is
+    treated as a normal buy day — §3 only reroutes on an explicit 🐻."""
     try:
         budget = float(os.getenv("BUY_BUDGET_USD", "") or 0)
     except ValueError:
         budget = 0.0
     if budget <= 0:
-        return ""
+        return "", None
     if not is_buy_day(day, homily_ledger._read_rows(ledger)):
-        return ""
+        return "", None
     srs = os.getenv("SRS_COVERS_INDEX", "").lower() in ("1", "true", "yes", "on")
     p = plan(budget, states, positions,
              regime.label if regime is not None else "MIXED",
              srs_covers_index=srs, yahoo=yahoo)
     write_basket(p, day, docs=docs)
-    return render(p, day)
+    return render(p, day), p
 
 
 if __name__ == "__main__":

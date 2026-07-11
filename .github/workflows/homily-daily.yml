@@ -56,5 +56,7 @@ jobs:
           # #31/T2 basket CSV (R8): commit the buy-day orders file the day
           # it's written, or the month's basket is silently discarded
           git add docs/orders_*.csv 2>/dev/null || true
+          # #36 dashboard (R8): the nightly render is a committed artifact
+          git add docs/dashboard.html 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"

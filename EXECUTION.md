@@ -23,7 +23,7 @@ around it may (#17).
 
 | Session | Task | Notes |
 |---|---|---|
-| 0 | ~~Write `SPECS.md`~~ (done 2026-07-11, late — specs now cover the REMAINING backlog; #22 was already reconciled in place; the PRD §8.5 entry is DEFERRED — a concurrent planning session was actively editing PRD.md at write time, adding #68–75; add the §8.5 session-0 note and reconcile SPECS §1 with those items once that session commits) | **queue continues in SPECS.md §1** — ~~#64 provenance column~~ (done 2026-07-11, gate [29]) · ~~#30 bear-readiness line~~ (done 2026-07-11, gate [30]); next: #36 nightly dashboard (the Quarter centrepiece) |
+| 0 | ~~Write `SPECS.md`~~ (done 2026-07-11, late — specs now cover the REMAINING backlog; #22 was already reconciled in place; the PRD §8.5 entry is DEFERRED — a concurrent planning session was actively editing PRD.md at write time, adding #68–75; add the §8.5 session-0 note and reconcile SPECS §1 with those items once that session commits) | **queue continues in SPECS.md §1** — 2026-07-11 batch all done: #64 [29] · #30 [30] · #69+#80 [31] · #70 [32] · #36+#75 [33]; next: S/M digest features per SPECS §1 (#25 #26 #28 #29), then #32/#33 |
 | 1 | #49 golden-file digest tests | the safety net — before ANY digest-touching change |
 | 2 | #16 validate-gates-the-send | see R5 before touching the workflow |
 | 3 | #13 signals ledger + snapshot.json | see R3, R7 — the track record starts here |

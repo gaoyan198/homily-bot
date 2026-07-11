@@ -24,6 +24,7 @@ import homily_positions
 import homily_buyday
 import homily_bearready
 import homily_png
+import homily_dashboard
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -401,10 +402,10 @@ def build_digest():
     # #31 buy-day copilot: on the month's first run (per the ledger, D-31),
     # resolve BUY_BUDGET_USD into printed orders + the T2 basket CSV.
     # Non-fatal to the send, like everything downstream of the digest.
-    buyday = ""
+    buyday, buyplan = "", None
     try:
         if states:
-            buyday = homily_buyday.buyday_block(
+            buyday, buyplan = homily_buyday.buyday_block(
                 states, POSITIONS, regime, today,
                 yahoo={**HOLDINGS, **WATCH, **UNIVERSE})
     except Exception as e:
@@ -444,9 +445,16 @@ def build_digest():
     # runs BEFORE this step in CI.
     try:
         homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
-                             origins=ORIGINS)
+                             origins=ORIGINS, buyday=buyplan)
     except Exception as e:
         print(f"[ledger] skipped: {e}")
+    # #36 nightly dashboard: regenerate docs/dashboard.html from the just-
+    # written snapshot + ledger; committed by the workflow (R8) and sent as
+    # a document below. Non-fatal.
+    try:
+        homily_dashboard.write_dashboard()
+    except Exception as e:
+        print(f"[dashboard] skipped: {e}")
     # #35 chart cards: top-3 actionable names rendered from the bars the
     # screen already fetched. Per-name try — one bad render never costs the
     # others, and never the digest.
@@ -534,10 +542,45 @@ def send_photo(png, caption):
         print(f"[chart send failed, dropped: {e}]")
 
 
+def send_document(path, caption):
+    """#36: sendDocument (same multipart pattern as send_photo); the
+    dashboard file lands in the chat, one tap to open, works offline."""
+    tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
+    if not (tok and chat):
+        print(f"[document {os.path.basename(path)} ready — no TELEGRAM_* "
+              "env, not sent]")
+        return
+    with open(path, "rb") as f:
+        blob = f.read()
+    boundary = "homilyF2boundary"
+    enc = lambda s: str(s).encode()
+    body = b"".join([
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"chat_id\"\r\n\r\n{chat}\r\n"),
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"caption\"\r\n\r\n{caption[:1024]}\r\n"),
+        enc(f"--{boundary}\r\nContent-Disposition: form-data; "
+            f"name=\"document\"; "
+            f"filename=\"{os.path.basename(path)}\"\r\n"
+            "Content-Type: text/html\r\n\r\n"),
+        blob, enc(f"\r\n--{boundary}--\r\n")])
+    req = urllib.request.Request(
+        f"https://api.telegram.org/bot{tok}/sendDocument", data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+    try:
+        urllib.request.urlopen(req, timeout=30)
+        print("[dashboard sent to Telegram]")
+    except Exception as e:
+        print(f"[dashboard send failed, dropped: {e}]")
+
+
 if __name__ == "__main__":
     digest, alert, charts = build_digest()
     send(digest)
     for _tk, png, caption in charts:    # #35: top-3 actionable chart cards
         send_photo(png, caption)
+    if os.path.exists(homily_dashboard.DASHBOARD):   # #36: nightly dashboard
+        send_document(homily_dashboard.DASHBOARD,
+                      "📊 dashboard — tap to open (works offline)")
     if alert:                       # #15: only on a state change, never quiet
         send(alert)

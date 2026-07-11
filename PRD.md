@@ -985,7 +985,10 @@ snapshot.json): `AUTOTRADE` repo variable must read `on` (kill switch) ·
 whitelist = that day's ⭐ set + index ETF · buy-only · LIMIT ≤ last close
 ×1.01, day-expiry · per-order cap BUY_BUDGET/5, monthly cap BUY_BUDGET ·
 skip any name >10% of book post-buy · no margin · HK excluded (R12) · one
-attempt then report, never retry into a moving market. **First T3 month =
+attempt then report, never retry into a moving market · the routine reads
+`docs/snapshot.json`'s buy-day block and REFUSES to act on a snapshot
+`_v` it doesn't know (#75 — a silently renamed field must never cost
+money; `homily_ledger.verify_snapshot` pins the contract in CI). **First T3 month =
 report-only** (order instructions created, not transmitted), diffed
 against T2's basket. Promotion gates: T2→T3 needs two consecutive months
 of the basket executed verbatim with zero manual corrections; T3 keeps
