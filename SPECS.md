@@ -29,6 +29,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #30 bear-readiness line | 2026-07-11 | validate [30] |
 | #69 promotion registry + #80 whale_rank column | 2026-07-11 | validate [31] |
 | #70 missed-run detector | 2026-07-11 | validate [32] |
+| #61 engine-freeze manifest guard | 2026-07-11 | validate [39] (negative case proven) |
 
 ## 1 · Remaining queue (recommended order)
 
@@ -55,8 +56,8 @@ frozen (EXECUTION §0), every gate restated before coding.
    cloud repo access works. Guardrails verbatim from PRD §9.2.
 
 Guards #61 (engine-freeze SHA manifest) and #62 (ledger hash) — #62
-shipped with #13; **#61 is still unbuilt** and is a free S-sized rider on
-any session that touches validate.
+shipped with #13; #61 shipped 2026-07-11 (`engine_freeze.json`, validate
+[39]). Both guards are now live.
 
 **#76 planning-doc pruning** (S, docs-only, spec in §2) — slot into any
 session; the sooner it ships the less context every later session burns.
