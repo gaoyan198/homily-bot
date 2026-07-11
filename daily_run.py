@@ -29,6 +29,7 @@ import homily_png
 import homily_dashboard
 import homily_clusters
 import homily_flex
+import homily_quality
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -254,7 +255,7 @@ def select_charts(screened, suspect=None):
     return pool[:3]
 
 
-def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
+def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None, qual=None):
     tag = "" if held else "†"
     top = sorted(c.parts.items(), key=lambda kv: -kv[1])[:2]
     why = ", ".join(f"{k} {v}" for k, v in top)
@@ -264,15 +265,18 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
     else:
         zone = (f" · add {g(s.add_zone[0])}-{g(s.add_zone[1])}"
                 if s.add_zone else "")
+    # #66: the sticky quality tier next to F: — info-only label (D-66's
+    # cheap forward step; 💎/veto stay dead until their own gates pass)
+    q = f" · {esc(qual(s.ticker))}" if qual else ""
     return (f"🚀 <code>{esc(f'{s.ticker:<5}')}</code>{tag} score {c.score} → "
             f"{size} · RS12 {c.rs12:+.0f}pts · ${c.dvol/1e9:.1f}B/d{zone} · "
-            f"{esc(why)} · {esc(fund(s.ticker))}")
+            f"{esc(why)} · {esc(fund(s.ticker))}{q}")
 
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
-                  flex_notes=None, dips=None):
+                  flex_notes=None, dips=None, qual=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -350,7 +354,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               "leader-RS, basis, data)</b>"]
     if rockets:
         lines += [fmt_rocket(s, c, s.ticker in HOLDINGS, fund=fund,
-                             corp=sus.get(s.ticker))
+                             corp=sus.get(s.ticker), qual=qual)
                   for s, c in rockets[:5]]
         lines.append("<i>sizing guide: CONVICTION ≤5% of account · STARTER "
                      "≤2% · hard cap 10%/name incl. existing · add at ⭐ "
@@ -369,7 +373,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               "screened, not held)</b>"]
     if hits:
         lines += [fmt_row(s, True, y, sus.get(s.ticker))
-                  + f" · {esc(fund(s.ticker))}" for s, y in hits]
+                  + f" · {esc(fund(s.ticker))}"
+                  + (f" · {esc(qual(s.ticker))}" if qual else "")
+                  for s, y in hits]
     else:
         lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
     # #32: the Flex sync's one-line diffs (or its failure warning) — book
@@ -406,7 +412,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               " prints, the levels would not be prices you could trade"
               " · F:n/m = EDGAR fundamentals"
               " checks passed (growth/profit/dilution; info only, never a"
-              " timing input) · † = not held</i>",
+              " timing input) · Q1/Q2/Q3 = sticky quality tier (quarterly"
+              " EDGAR read + 3y RS, frozen between refreshes — business"
+              " quality that does not move with the tape; info only)"
+              " · † = not held</i>",
               "", "<b>Algo health (auto-refine, OOS-gated):</b>",
               f"champion <code>{esc(champ['params'])}</code> since "
               f"{esc(champ['since'])}",
@@ -503,12 +512,19 @@ def build_digest(flex_notes=None):
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
         print(f"[dips] skipped: {e}")
+    # #66: sticky quality tier, quarterly-cached EDGAR read + 3y RS from the
+    # bars already fetched. Info-only label; quality_tag never raises.
+    spy_cl = [b[4] for b in spy_bars]
+    def qual(tk):
+        bars = all_bars.get(tk)
+        return homily_quality.quality_tag(
+            tk, [b[4] for b in bars] if bars else None, spy_cl)
     digest = render_digest(sigs, disco, proxy, regime,
                            daily_refine(bars_map=all_bars), errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, flex_notes=flex_notes,
-                           dips=dips)
+                           dips=dips, qual=qual)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

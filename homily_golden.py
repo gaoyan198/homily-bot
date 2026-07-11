@@ -130,9 +130,13 @@ BULL = Regime(
 REFINE = ({"params": {"ef": 10, "es": 30, "inv": "RED"}, "since": "2026-07-01"},
           {"ef": 10, "es": 30, "inv": "RED"}, 1.10, 1.05, 1.23, False)
 
-# stand-in for fund_tag(): deterministic, no EDGAR call
+# stand-ins for fund_tag()/quality_tag(): deterministic, no EDGAR call
 def _fund(_ticker):
     return "F:2/3"
+
+
+def _qual(_ticker):
+    return "Q2"
 
 
 TODAY = datetime.date(2026, 7, 7)
@@ -144,9 +148,10 @@ def scenario_populated():
     held.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))  # as screen() does
     disco = [_leader("LEAD"), _bottoming("GEM")]
     # AAA is weekly RED -> its fixture dip exercises the #78 dip-day suffix;
-    # BBB is not RED, so its entry must render nothing (both branches pinned)
+    # BBB is not RED, so its entry must render nothing (both branches pinned).
+    # qual exercises the #66 Q label on the rocket + discovery rows.
     return render_digest(held, disco, {}, BULL, REFINE, [], TODAY, fund=_fund,
-                         dips={"AAA": 3, "BBB": 5})
+                         dips={"AAA": 3, "BBB": 5}, qual=_qual)
 
 
 def scenario_empty():

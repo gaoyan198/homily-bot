@@ -551,6 +551,37 @@ selection stays Calmar until then.
 
 ---
 
+## 14 · #66 right-stock discipline (run 2026-07-11) — wreck-separation FAILED; label only
+
+Sticky quality tier Q (0–7 pts: growth 10/25% · profit · margin direction
+· FCF · dilution <12% · 3y RS ≥ SPY; Q1 ≥5, Q2 3–4, Q3 ≤2 — cuts committed
+before the run) computed from filings FILED on/before 2021-11-01, judged
+on forward 24m. 45 scoreable names, both universes. Reproduce:
+`python homily_quality_backtest.py`.
+
+| tier @2021-11 | n | mean fwd24m | median |
+|---|---|---|---|
+| Q1 | 32 | −24.6% | −23.1% |
+| Q2 | 8 | −70.9% | −71.7% |
+| Q3 | 5 | −50.2% | −43.8% |
+
+**Pre-committed rule: FAIL.** The Q1−Q3 gap (+25.5 pts) clears its prong,
+but only 4/8 canonical wrecks scored ≤Q2 (need ≥60%) — ZM, DOCU, ROKU and
+W were **Q1 on their as-of filings** (ZM: profitable, revenue +300%; the
+2021 class was overwhelmingly a VALUATION collapse, not broken businesses
+at filing time), and the tier ordering isn't even monotone (Q2 fared
+worst). Fundamentals-as-filed cannot separate that wreck class; a Q-gated
+💎 buy signal or thesis-break veto built on it would be false confidence.
+Per D-66's own rule: **the Q label ships info-only (it still changes what
+a human reads during the next NVDA-2022) and everything downstream — 💎
+buyable state, dip-add veto, #24's Q tie-break arm, #51's Q split — stays
+dead.** The PLTR regression passed for the record (Q1 as-of 2026-06, the
+veto would not have blocked Danny's add) but is moot. Implementation note:
+Q lives in NEW `homily_quality.py` — the frozen `homily_fund.py` was not
+touched, so no engine-freeze question arises either way.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
