@@ -284,6 +284,30 @@ unseen regimes — these are within-window uncertainty bands, not forecasts.
 
 ---
 
+## 7 · #82 ribbon run-length (run 2026-07-11)
+
+How long does a weekly-RED spell last once it opens? Max-history weekly
+closes, live circle engine on prefixes, both universes; completed spells
+only (29 open spells excluded as right-censored). Reproduce:
+`python homily_ribbon_backtest.py`.
+
+| universe | n spells | median | p25 | p75 | p90 | mean |
+|---|---|---|---|---|---|---|
+| A current | 1,110 | 9w | 2w | 24w | 44w | 17.0w |
+| B hype-2021 | 329 | 7w | 2w | 22w | 36w | 14.8w |
+| **combined** | **1,439** | **8w** | 2w | 23w | 42w | 16.5w |
+
+Entry-candle conditioning ("big red candles open runs lasting weeks to
+months") did NOT clear its pre-committed rule (big-entry median must beat
+small-entry by ≥3w on BOTH universes: A +3w, B −1w) — the unconditional
+base rate ships alone. Shipped: RED rows print `med run 8w`
+(`RED_MEDIAN_RUN_W`, info-only, gates nothing). Danny's qualitative claim
+is directionally supported — a quarter of runs last 23w+ — but entry-candle
+size is not the tell he implies, at least not at our weekly-circle
+approximation.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the

@@ -18,6 +18,7 @@ from homily_fund import fund_tag
 from homily_regime import market_regime
 from homily_refine import daily_refine
 from homily_corp import corp_action_bar, suspended_note
+from homily_ribbon_backtest import RED_MEDIAN_RUN_W
 import homily_ledger
 import homily_alerts
 import homily_positions
@@ -150,9 +151,14 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None):
                                           ("flow", s.whale.divergence),
                                           ("shelf", s.whale.shelf_stable)) if on)
             wh = (f" · 🐳{ev}" + (" ≤2% WHALE-DIP add" if whale_dip(s) else ""))
+    # #82: RED rows carry the historical base rate (median completed RED run,
+    # 1,439 spells, both universes — homily_ribbon_backtest.py) so "8w" reads
+    # against how much accumulate-window typically remains. Info-only.
+    wk_age = (f"{s.weekly.weeks_in_regime}w · med run {RED_MEDIAN_RUN_W}w"
+              if s.weekly.circle == "RED" else f"{s.weekly.weeks_in_regime}w")
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
             f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
-            f"({s.weekly.weeks_in_regime}w) · {'mUP' if s.monthly_up else 'mDN'} · "
+            f"({wk_age}) · {'mUP' if s.monthly_up else 'mDN'} · "
             f"d{s.candle[0]}{vh}{at}{wh}{yg}{bk}")
 
 
