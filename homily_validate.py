@@ -748,7 +748,7 @@ with tempfile.TemporaryDirectory() as _tmp27:
 
 # no BUY_BUDGET_USD configured -> the copilot stays dark, digest unchanged
 os.environ.pop("BUY_BUDGET_USD", None)
-assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ""
+assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ("", None)
 print("[27] Buy-day copilot: detection, F/RS order, 10% cap, basket CSV ... PASS")
 
 # --- 28. Chart cards (#35): valid PNG, deterministic pixels, top-3 pick ----
@@ -1003,5 +1003,69 @@ _out32q = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
                                   fund=_fund)
 assert "ledger rows for" not in _out32q, "no gaps -> no line"
 print("[32] Missed runs: gaps found, weekends exempt, digest line renders . PASS")
+
+# --- 33. Dashboard (#36) self-contained + snapshot contract (#75) ----------
+# D-36's promise is longevity: one HTML file, zero JS, zero external assets,
+# deterministic. And the snapshot the dashboard (and later T3) reads is now
+# a pinned contract — a silently renamed field must fail CI, not cost money.
+import homily_dashboard
+
+_snap33 = {
+    "_v": 1, "date": "2026-07-11", "generated_utc": "2026-07-11T01:00:00+00:00",
+    "regime": {"label": "BULL", "action": "stay invested", "detail": {}},
+    "coverage": {"expected": 3, "have": 2, "missing": ["2026-07-09"],
+                 "pct": 66.67},
+    "buyday": {"orders": [["TSM", 3, 434.0, ""]], "budget": 1550.0,
+               "spent": 1302.0, "leftover": 248.0, "mode": "normal",
+               "manual": [], "skipped": [], "index_amt": 0.0,
+               "srs_covers_index": True},
+    "holdings": [{"ticker": "AAA", "state": "ACCUMULATE", "close": 100.0,
+                  "zone_lo": 95.0, "zone_hi": 101.0, "poc": 97.0,
+                  "pct_in_profit": 88.0, "wk_circle": "RED", "wk_score": 4,
+                  "wk_weeks": 12, "conv_score": 80, "conv_tier": "CONVICTION",
+                  "rs12": 40.0, "ftag": "F:3/3", "origin": "holding",
+                  "support": [[96.0, 1.0]], "resistance": [[110.0, 0.5]],
+                  "whale": False, "book_pct": 9.0, "cap_note": None}],
+    "discovery": [{"ticker": "DDD", "state": "BOTTOMING", "close": 20.0,
+                   "zone_lo": None, "zone_hi": None, "poc": 21.0,
+                   "pct_in_profit": 10.0, "wk_circle": "WHITE", "wk_score": 1,
+                   "wk_weeks": 3, "conv_score": 40, "conv_tier": "fails",
+                   "rs12": -5.0, "ftag": "F:—", "origin": "owner-request",
+                   "support": [], "resistance": [], "whale": True}],
+}
+homily_ledger.verify_snapshot(_snap33)          # the #75 contract, green
+try:                                            # ...and it bites on drift
+    homily_ledger.verify_snapshot({**_snap33, "_v": 99})
+    raise SystemExit("[33] FAIL: unknown _v must be refused")
+except AssertionError:
+    pass
+
+_rows33 = [
+    {"date": "2026-07-08", "ticker": "AAA", "state": "CAUTION", "close": "95",
+     "whale": "0", "gates_ok": "0"},
+    {"date": "2026-07-10", "ticker": "AAA", "state": "ACCUMULATE",
+     "close": "100", "whale": "0", "gates_ok": "1"},
+]
+_ref33 = [{"date": "2026-07-08", "champion": "{'ef': 13}", "champ_oos": "0.3",
+           "challenger_oos": "0.5", "adopted": "True"},
+          {"date": "2026-07-10", "champion": "{'ef': 13}", "champ_oos": "0.5",
+           "challenger_oos": "0.4", "adopted": "False"}]
+_doc33 = homily_dashboard.render(_snap33, _rows33, _ref33)
+assert _doc33 == homily_dashboard.render(_snap33, _rows33, _ref33), \
+    "render must be deterministic"
+# self-containment: no external fetches of any kind (the svg xmlns is an
+# identifier, not a fetch — allow exactly that one URL)
+_leaks33 = [ln for ln in _doc33.split("\n")
+            if ("http" in ln or "src=" in ln or "url(" in ln)
+            and "http://www.w3.org/2000/svg" not in ln]
+assert not _leaks33, f"external references leaked: {_leaks33[:3]}"
+assert "<script" not in _doc33.lower(), "zero JS, by design (D-36)"
+# content: card, discovery row, heatmap cells, reused alert wording, buy day
+assert "AAA" in _doc33 and "DDD" in _doc33 and "<svg" in _doc33
+assert "entered ACCUMULATE" in _doc33 and "passed all 5" in _doc33, \
+    "timeline must reuse #15's alert wording via diff_alerts"
+assert "BUY 3 TSM" in _doc33 and "never placed" in _doc33
+assert "66.67" in _doc33 and "2026-07-09" in _doc33, "coverage + holes shown"
+print("[33] Dashboard: self-contained zero-JS render, snapshot contract .. PASS")
 
 print("\nAll structural assertions passed.")

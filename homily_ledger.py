@@ -275,20 +275,51 @@ def coverage_of(rows, today):
             "missing": missing, "pct": round(pct, 2)}
 
 
+SNAPSHOT_V = 1     # #75: consumers (dashboard, Claude, the future T3 order
+                   # routine) refuse a version they don't know — a silently
+                   # renamed field must never cost money
+
+
+def verify_snapshot(snap):
+    """#75 schema contract, enforced in CI (check [33]). Pins the fields the
+    dashboard and T3 read; extending the snapshot is fine, renaming or
+    retyping these is a version bump."""
+    assert snap.get("_v") == SNAPSHOT_V, f"unknown snapshot _v: {snap.get('_v')}"
+    for k in ("date", "generated_utc", "regime", "coverage", "holdings",
+              "discovery"):
+        assert k in snap, f"snapshot missing {k}"
+    for s in snap["holdings"] + snap["discovery"]:
+        for k in ("ticker", "state", "close", "origin"):
+            assert k in s, f"snapshot row {s.get('ticker')}: missing {k}"
+    b = snap.get("buyday")
+    if b is not None:
+        for k in ("orders", "budget", "spent", "leftover", "mode"):
+            assert k in b, f"snapshot buyday missing {k}"
+        for o in b["orders"]:
+            tk, n, px, note = o           # exactly (ticker, shares, px, note)
+            assert isinstance(tk, str) and isinstance(n, int) \
+                and isinstance(px, (int, float)) and isinstance(note, str), \
+                f"buyday order malformed: {o}"
+
+
 def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT,
-                   coverage=None):
+                   coverage=None, buyday=None):
     """Full structured state -> docs/snapshot.json (data contract for F / Claude)."""
     reg = None
     if regime is not None:
         reg = {"label": regime.label, "action": regime.action,
                "detail": {sym: list(v) for sym, v in regime.detail.items()}}
     snap = {
+        "_v": SNAPSHOT_V,
         "date": day.isoformat(),
         "generated_utc": datetime.datetime.now(datetime.timezone.utc)
                          .replace(microsecond=0).isoformat(),
         "regime": reg,
         # #70: ledger coverage — #14 must report this next to its returns
         "coverage": coverage,
+        # #75/T3: the buy-day plan (None off buy days) — the machine-readable
+        # twin of the digest's 🛒 block, schema pinned by verify_snapshot()
+        "buyday": buyday,
         "holdings": holdings,
         "discovery": discovery,
     }
@@ -300,7 +331,8 @@ def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT,
 
 
 def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
-           origins=None, ledger=LEDGER, snapshot=SNAPSHOT, hashfile=HASHFILE):
+           origins=None, buyday=None, ledger=LEDGER, snapshot=SNAPSHOT,
+           hashfile=HASHFILE):
     """Orchestrator called by daily_run after the digest is built. `sigs` is
     the held+watch group, `disco` the not-held discovery group; `holdings_set`
     is the set of actually-held tickers (WATCH names screen in `sigs` but are
@@ -327,7 +359,7 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
     rows = [csv_row(st, day) for st in all_states]
     all_rows = append_rows(rows, day, ledger=ledger, hashfile=hashfile)
     write_snapshot(day, regime, held_states, disco_states, path=snapshot,
-                   coverage=coverage_of(all_rows, day))
+                   coverage=coverage_of(all_rows, day), buyday=buyday)
 
 
 def verify_history(ledger=LEDGER, hashfile=HASHFILE):
