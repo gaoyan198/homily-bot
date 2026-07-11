@@ -333,6 +333,41 @@ nobody re-derives the idea.
 
 ---
 
+## 9 · #77 multi-timeframe volatility hole (run 2026-07-11) — NULL, closed
+
+Weekly/monthly resamples fed to the frozen daily `find_hole` engine; event
+walker identical to the committed daily study. This consumed 2026-Q3's one
+timing-modifier research slot (R10 / PRD §8.1 — #74 and #81 wait for later
+quarters). Reproduce: `python homily_mtf_vol_backtest.py`.
+
+**1 · SPY-monthly replication (Danny's Apr-2026 "perfect record since Dec
+2013" claim): does NOT replicate as an edge.** At ref 24mo: 5 resolved
+breakouts, all positive fwd6m (+2.2…+10.2%, mean +5.1%), 4/5 positive
+fwd12m (mean +7.9%). But SPY's UNCONDITIONAL forward returns over the same
+period are +6.0% fwd6m (78% positive) and +12.3% fwd12m (83% positive) —
+the breakouts ran at or BELOW the market's base rate. The "perfect record"
+is the equity drift, not the indicator; and n=5 in 12 years could not
+support a rule even if the mean were above baseline. (Engine-default
+ref 60: 4 events, same picture.)
+
+**2 · Weekly-VH event study (58 names, 5y): NULL.** A: breakout fwd4w
++5.5% vs baseline +4.2% but fwd12w 12.2% vs 13.1% (below); B: below
+baseline at both horizons (+1.2% vs +2.1% / +4.7% vs +6.0%); ALL: +3.5% vs
++3.2% / 8.1% vs 9.6%. The daily study's modest breakout edge (+4.4 vs
++2.8 / +11.5 vs +8.5) does NOT survive the move to weekly bars.
+
+**3 · Sequence claim (daily fires first, weekly confirms): directionally
+present, not usable.** Weekly breakouts preceded by a daily-VH breakout
+within 56 days did better than those without (fwd4w +3.6% vs +2.9%, fwd12w
++8.8% vs +5.5%) — but neither leg beats the all-weeks baseline, so there
+is nothing to gate money on.
+
+Verdict: the DAILY hole keeps its place (🔵 upgrade + score component);
+weekly/monthly confirmation adds nothing measurable in our universes and
+ships nowhere. Closed per Part III rule 6.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
