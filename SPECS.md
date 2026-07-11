@@ -56,9 +56,11 @@ bottom line names it a lever; PLAYBOOK edited only after its gate) ·
 #47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
 money-touching result queues behind R10.
 
-**Next build session (owner-requested 2026-07-12):** **#83 Danny-style
-chart board** — spec below, design D-83, visual target
-`docs/mockup-83.html`.
+**Next build sessions (owner-requested 2026-07-12):** **#83 Danny-style
+chart board, searchable** — spec below, design D-83 (incl. the §search
+addendum), visual target `docs/mockup-83.html`, reading manual
+`HOW_TO_READ.md` — then **#84 any-ticker chart CLI** (own session, reuses
+#83's renderer).
 
 Everything else remaining is DATE- or OWNER-gated:
 
@@ -255,27 +257,56 @@ scorecard and the provenance audit (#67) reference these numbers.
 **Gate:** docs-only — validate green, goldens untouched; spot-check that
 every archived section is reachable from a pointer where it used to live.
 
-### #83 · Danny-style chart board — dashboard v2 (M–L; design D-83)
+### #83 · Danny-style chart board — dashboard v2, searchable (M–L; design D-83)
 **Goal:** replace the unreadable levels-band cards with per-name
 candlestick cards in the Homily/Danny chart language (owner-requested
-2026-07-12). The full design — card anatomy, geometry, normative palette,
-size budget, label-rail collision rule — is **D-83**; the owner-approved
-rendering is `docs/mockup-83.html` (three cards, live engine data).
+2026-07-12), searchable over every screened name. The full design — card
+anatomy, geometry, normative palette, size budget, label-rail collision
+rule, search + distribution split — is **D-83**; the owner-approved
+rendering is `docs/mockup-83.html` (three cards + working search bar,
+live engine data); the human manual is `HOW_TO_READ.md` (update it if
+the build diverges).
 **Files:** `homily_dashboard.py` (rewrite of the card section; heatmap /
-timeline / refine sections stay), `daily_run.py` (pass `bars_map` to
-`write_dashboard`), `homily_validate.py` (extend [33] with fixture bars +
-size-budget assert). Delete `docs/mockup-83.html` in the same commit.
+timeline / refine sections stay; new `--full` mode), `daily_run.py`
+(pass `bars_map` to `write_dashboard`; sendDocument the full board),
+`homily_validate.py` (extend [33] with fixture bars + size-budget +
+inline-script-only asserts). Delete `docs/mockup-83.html` in the same
+commit.
 **Build:** per D-83 — engines frozen, presentation only; reuse
 `homily_png._display_bins` / `_ribbon_circles` (homily_png is not
 frozen; share, don't duplicate); candles grouped per colour (one wick
 path + one body group), never per-bar elements; snapshot.json schema
-unchanged (#75).
-**Gate:** deterministic fixture render + self-containment + ≤300 KB
-asserts green; digest goldens untouched (dashboard-only change).
-**Risks:** R8 (dashboard already in the workflow git-add — no change
-needed); R9 (no "little fixes" to engine files while in there); the
-red=bullish legend must ship — an unlabeled inverse colour convention is
-a misread waiting to happen.
+unchanged (#75). Search: ticker-chip anchor index (zero-JS baseline) +
+sticky filter input (≤20 lines inline JS, enhancement-only — D-36
+relaxation recorded in D-83). Committed `docs/dashboard.html` = small
+board (held + actionable, ≤300 KB); FULL board sent nightly via
+sendDocument, NEVER committed (git-history discipline; regenerate with
+`--full`).
+**Gate:** deterministic fixture render + self-containment +
+inline-script-only + ≤300 KB asserts green; digest goldens untouched
+(dashboard-only change).
+**Risks:** R8 (committed artifacts unchanged — the full board is
+sent-not-committed by design, do NOT add it to git-add); R9 (no "little
+fixes" to engine files while in there); the red=bullish legend must ship
+— an unlabeled inverse colour convention is a misread waiting to happen.
+
+### #84 · Any-ticker chart CLI (S–M; rides #83's renderer, own session)
+**Goal:** `python3 homily_chart.py TICKER [TICKER…]` — the owner can pull
+the Homily card for ANY Yahoo-resolvable symbol (incl. `.HK`/`.SI`) on
+demand, not just screened names.
+**Files:** new `homily_chart.py` (thin CLI: fetch 2y bars →
+`danny_signal`/`conviction` read-only → #83's card renderer → one
+self-contained HTML in the working dir, path printed); `homily_validate.py`
+(one fixture check reusing #83's fixtures).
+**Build:** import the card renderer from `homily_dashboard` — zero
+duplicated geometry. The card carries an **`ad-hoc — not screened, no
+ledger history`** banner; NOTHING is written to the ledger or snapshot
+(R3: a chart on demand is context, not a tracked call). Non-fatal on
+fetch failure (print the error, render nothing).
+**Gate:** fixture render determinism; engines untouched; no ledger/
+snapshot writes (assert in the fixture test).
+**Risks:** scope — resist making the CLI log "calls"; the ledger records
+only what the daily digest printed (R3), and an ad-hoc chart is neither.
 
 ### T3 · MCP order routine (own session; PRD §9.2)
 Only after: two T2 months executed verbatim + cloud GitHub access fixed.
