@@ -308,6 +308,31 @@ approximation.
 
 ---
 
+## 8 · #78 pullback clock (run 2026-07-11)
+
+Dip = maximal run of non-RED daily candles inside an intact weekly-RED
+spell; resolved by a RED candle (weekly still RED), failed if the weekly
+circle breaks mid-run. 5y daily, live engines on prefixes. Reproduce:
+`python homily_pullback_backtest.py`.
+
+| cut | n | median | p25 | p75 | p90 |
+|---|---|---|---|---|---|
+| A all / H1 / H2 | 1082 / 361 / 721 | 5d / 6d / 4d | 1d | 13–14d | 21d |
+| B all / H1 / H2 | 512 / 128 / 384 | 4d / 5d / 4d | 1d | 14–16d | 21–23d |
+| **combined resolved** | **1,594** | **4d** | 1d | 14d | 22d |
+| failures (weekly broke mid-dip) | 483 | 3d | 1d | 10d | 17d |
+
+STABLE per the pre-committed rule (medians within ±1d, p90 within ±2d
+across A/B × H1/H2) → the info-only digest counter shipped: weekly-RED
+rows with a non-RED candle print `dip d{n} (med 4d · p90 22d)`. Danny's
+"3–7 trading days" holds at the median, not the spread. NOT shipped: the
+past-p90 trend-failure warning the PRD floated — failures resolve FASTER
+(median 3d), so the resolved:failed ratio at long ages ≈ the base rate and
+dip age alone carries no escalation signal. That null is recorded here so
+nobody re-derives the idea.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the

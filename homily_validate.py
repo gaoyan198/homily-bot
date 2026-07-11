@@ -1324,4 +1324,22 @@ assert _bs.CAVEAT in _out41, \
 assert "p5" in _out41 and "p95" in _out41, "[41] FAIL: percentile header"
 print("[41] Bootstrap CIs: deterministic, degenerate band exact, caveat .... PASS")
 
+# --- 42. Pullback clock (#78): dip_age counts live non-RED candle days -----
+from homily_pullback_backtest import dip_age as _dip42, DIP_SCAN as _scan42
+from homily_danny import daily_candle as _cand42
+
+_up42 = [100 * 1.003 ** i for i in range(895)]
+_dipped42 = _up42 + [_up42[-1] * (0.98 ** (k + 1)) for k in range(5)]
+assert _cand42(_up42) == "RED" and _cand42(_dipped42) != "RED", \
+    "[42] FAIL: fixture must flip the daily candle off RED"
+assert _dip42(_up42) == 0, "[42] FAIL: an intact uptrend has no dip age"
+assert _dip42(_dipped42) == 5, \
+    f"[42] FAIL: 5 falling days must count dip d5, got {_dip42(_dipped42)}"
+_long42 = _up42 + [_up42[-1] * (0.99 ** (k + 1)) for k in range(60)]
+assert _dip42(_long42) == _scan42, \
+    "[42] FAIL: dip age must cap at the scan window, not walk the series"
+assert _dip42([100.0] * 50) == 0, \
+    "[42] FAIL: sub-warmup series must return 0, never guess"
+print("[42] Pullback clock: dip age counts, caps, warmup-guarded .......... PASS")
+
 print("\nAll structural assertions passed.")
