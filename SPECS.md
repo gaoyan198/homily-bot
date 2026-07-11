@@ -25,13 +25,19 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #27 position-aware book math | 2026-07-10 | validate [26] |
 | #31 buy-day copilot + T2 basket CSV | 2026-07-10 | validate [27] |
 | #35 chart cards (stdlib PNG) | 2026-07-11 | validate [28] pixel-hash |
+| #64 provenance column | 2026-07-11 | validate [29] |
+| #30 bear-readiness line | 2026-07-11 | validate [30] |
+| #69 promotion registry + #80 whale_rank column | 2026-07-11 | validate [31] |
+| #70 missed-run detector | 2026-07-11 | validate [32] |
 
 ## 1 · Remaining queue (recommended order)
 
-1. **#64 provenance column** — every origin-less ledger day is unsplittable
-   forever; this was a Week-1 item and slipped. Do it next.
-2. **#30 bear-readiness line** — S, closes the loop on the D-63 verdict.
-3. **#36 nightly dashboard** — the Quarter centrepiece (owner-confirmed).
+1. ~~#64 provenance~~ · ~~#30 bear-readiness~~ · ~~#69 registry + #80
+   whale_rank~~ · ~~#70 missed-run detector~~ — all shipped 2026-07-11
+   (gates [29]–[32]); the time-sensitive ledger columns are accruing.
+3. **#36 nightly dashboard** — the Quarter centrepiece (owner-confirmed);
+   ride **#75 snapshot schema contract** (S, blocks T3) in the same
+   session if scope allows.
 4. **#25 real market cap** · **#26 breadth canary** · **#28 trim-rule
    flags** · **#29 concentration lens** — S/M digest features, any order.
 5. **#32 Flex auto-sync** · **#33 Sunday deep-dive** — after #36.
@@ -227,16 +233,16 @@ whitelist = that day's ⭐ + index ETF, buy-only LIMIT ≤ close×1.01 day
 orders, per-order/monthly caps, no margin, HK excluded, one attempt then
 report; first month report-only diffed against T2's basket.
 
-## 3 · Known in-flight work (reconcile when it lands)
+## 3 · In-flight work — RESOLVED 2026-07-11
 
-A concurrent planning session was editing PRD.md while this file was
-written (2026-07-11), adding items **#68–75** (seen in its working tree:
-#68 = total-return backtest migration, renumbered from a duplicate "64";
-#70 = missed-run detector; #71 = scorecard power line; #74 = 缩量 dry-up
-dip tag; plus a #14 spec addition — MaxDD / coverage / noise band on the
-scorecard). Once that session commits: fold #70/#71 into §1 (both are S
-and ride #13/#14 — #70 belongs right after #64), extend the #14 spec in
-§2 with its addition, and write the deferred PRD §8.5 session-0 note.
+The concurrent planning session committed (#68–75 slotting, §5k → #77–82,
+#76 pruning spec) and this section's reconcile is done: #70 shipped (gate
+[32]), the #69 forward-checker + #80 whale_rank column shipped together
+as flagged (gate [31]), #14's spec addition and #14a live in §2, the PRD
+§8.5 session-0 note is written. Still open from that pass: **#71
+scorecard power line** (rides #14, build them together), **#75 snapshot
+schema contract** (ride #36), **#76 doc pruning** (any docs-only
+session), and the #77–82 gated research queue (slotting in PRD §8.1).
 
 *Written 2026-07-11 by the executing model (session 0, late). If reality
 contradicts a spec, record it in PRD §8.5 and stop — don't improvise.*

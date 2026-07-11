@@ -890,6 +890,27 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-07-11 · session 0 ran LAST; a Week-1 item had silently slipped;
+two sessions shared the repo.** `SPECS.md` was queued first and written
+after every Week-1/Month-1 item had shipped without it — the PRD/DESIGNS
+text plus EXECUTION.md's risk register proved sufficient spec for S/M
+items. Review found: (1) **#64 provenance was in §8.1's Week-1 row ("64
+rides along with 13") but never made EXECUTION.md's session queue** — the
+ledger accrued origin-less rows 2026-07-08→10; those stay blank forever
+(R3). Shipped same day (gate [29]), as were #30 [30], #69+#80 [31], #70
+[32]. (2) The queue's "reconcile #22" task was stale — already struck
+through here. (3) #31 followed EXECUTION R12 (non-USD excluded, "manual:"
+line) over D-31's HK board-lot sketch — the stricter, later rule won.
+(4) A planning session and this execution session ran concurrently; the
+execution session kept to code files and committed only its own work, the
+planning session's PRD/DESIGNS edits landed separately (6ae518c), and its
+last SPECS paragraph — orphaned uncommitted when it ended — was folded in
+by the reconcile commit. Worked, but two live sessions in one checkout is
+luck, not process: prefer one repo-writing session at a time. (5) Ledger
+column appends (#64 origin, #80 whale_rank) each require a DELIBERATE
+guard-#62 checkpoint regeneration — done in the same commits, stated in
+their messages; the guard held green before and after both.
+
 **2026-07-10 · #19 shipped; "volume spike" was half the tell.** The item
 specified `|1-day move| > 45%` **on a volume spike**. That catches a forward
 split (10:1 leaves prices divided and volume multiplied) and misses the reverse
