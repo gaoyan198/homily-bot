@@ -29,6 +29,7 @@ rule the buy-day copilot (#31) will use.
 """
 import json
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOLDINGS_FILE = os.path.join(HERE, "holdings.json")
@@ -86,3 +87,29 @@ def position_view(ticker, positions, prices, book_value):
     else:
         cap_note = None
     return {"pct": pct, "bucket": bucket, "cap_note": cap_note}
+
+
+def trim_flags(pos_view, state, wk_weeks, ftag):
+    """#28: PLAYBOOK §5 as executable flags, wording mirrored from §5 —
+    info only, there is still no SELL state (PRD §1 survives).
+      Rule 1 (§5.1): a position BOUGHT (not grown) above 10% of the stock
+        book → trim back to 10%. Bucket B (earned core) gets the §5 pass,
+        so only bucket C fires; #27's cap note handles the adds side, this
+        flag is the trim side.
+      Rule 2 (§5.2): ⚪ CAUTION 12+ weeks AND fundamentals failing (F:0–1)
+        → sell half, review the remainder in one quarter. The weekly
+        WHITE-circle run length stands in for "weeks in CAUTION" (the
+        state is gated on that circle). F:— is unknown, not failing.
+      Rule 3 (need the money / margin exists) is a human rule — no flag.
+    """
+    flags = []
+    if pos_view and pos_view.get("bucket") == "C" \
+            and pos_view.get("pct") is not None \
+            and pos_view["pct"] > CAP_PCT:
+        flags.append(f"RULE 1: {pos_view['pct']:.0f}% bought-not-earned — "
+                     "trim back to 10%, proceeds to ⭐/index (§5.1)")
+    m = re.match(r"F:(\d)", ftag or "")
+    if state == "CAUTION" and wk_weeks >= 12 and m and int(m.group(1)) <= 1:
+        flags.append(f"RULE 2 REVIEW: ⚪ {wk_weeks}w + {ftag} — sell half, "
+                     "review the remainder in one quarter (§5.2)")
+    return flags

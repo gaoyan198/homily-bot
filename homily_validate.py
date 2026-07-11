@@ -1068,4 +1068,83 @@ assert "BUY 3 TSM" in _doc33 and "never placed" in _doc33
 assert "66.67" in _doc33 and "2026-07-09" in _doc33, "coverage + holes shown"
 print("[33] Dashboard: self-contained zero-JS render, snapshot contract .. PASS")
 
+# --- 34. Breadth canary (#26): math right, line only on a hostile tape -----
+_bars34u = _mkbars([100 * 1.003 ** i for i in range(900)], [1e6] * 900)
+_bars34d = _mkbars([100 * 0.997 ** i for i in range(900)], [1e6] * 900)
+_scr34 = [_up("AAA"), _dn("BBB"), _dn("CCC")]
+_ab34 = {"AAA": _bars34u, "BBB": _bars34d, "CCC": _bars34d}
+_br34 = daily_run.breadth(_scr34, _ab34)
+assert _br34["n"] == 3 and abs(_br34["above200"] - 100 / 3) < 1e-6, _br34
+assert abs(_br34["red"] - 100 / 3) < 1e-6, "one RED uptrend of three"
+_out34 = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
+                                 fund=_fund,
+                                 breadth_read={"above200": 20.0, "red": 10.0,
+                                               "n": 50})
+assert "hostile tape" in _out34 and "20% of the 50-name screen" in _out34
+_out34q = daily_run.render_digest([_up2("AAA")], [], {}, BULL, _REF, [], _TD,
+                                  fund=_fund,
+                                  breadth_read={"above200": 55.0, "red": 40.0,
+                                                "n": 50})
+assert "hostile tape" not in _out34q, "healthy breadth prints nothing (#26)"
+print("[34] Breadth canary: 200d/RED math, line only under 30% ........... PASS")
+
+# --- 35. Trim-rule flags (#28): §5 wording, right rows, info-only ----------
+_r1 = homily_positions.trim_flags({"bucket": "C", "pct": 12.3, "cap_note": ""},
+                                  "HOLD", 3, "F:3/3")
+assert _r1 == ["RULE 1: 12% bought-not-earned — trim back to 10%, proceeds "
+               "to ⭐/index (§5.1)"], _r1
+assert homily_positions.trim_flags({"bucket": "B", "pct": 25.0,
+                                    "cap_note": None}, "HOLD", 3, "F:3/3") \
+    == [], "bucket B earned its size — §5 pass, no Rule 1"
+_r2 = homily_positions.trim_flags(None, "CAUTION", 13, "F:1/3")
+assert _r2 and "RULE 2 REVIEW" in _r2[0] and "sell half" in _r2[0], _r2
+assert homily_positions.trim_flags(None, "CAUTION", 13, "F:—") == [], \
+    "F:— is unknown, not failing — no Rule 2 (#28)"
+assert homily_positions.trim_flags(None, "CAUTION", 11, "F:0/3") == [], \
+    "12-week floor is §5.2 verbatim"
+assert homily_positions.trim_flags(None, "HOLD", 30, "F:0/3") == [], \
+    "Rule 2 is a ⚪ rule only"
+print("[35] Trim flags: §5.1/§5.2 wording, B exempt, F:— exempt, ⚪-only .. PASS")
+
+# --- 36. Concentration lens (#29): planted blocks recovered exactly --------
+import homily_clusters
+import math as _m
+
+def _cbars(seed_moves, n=120):
+    px, out = 100.0, []
+    for i in range(n):
+        px *= _m.exp(seed_moves[i % len(seed_moves)])
+        out.append((datetime.date(2026, 1, 1) + datetime.timedelta(days=i),
+                    px, px, px, px, 1e6))
+    return out
+# two planted blocks: A/B share one move series (ρ=1), C/D another; E runs
+# a third series pre-computed to be near-orthogonal to both (|ρ| < 0.01),
+# so it must stay a singleton
+_mv1 = [0.01, -0.02, 0.015, -0.005, 0.02, -0.01]
+_mv2 = [-0.01, 0.01, -0.01, 0.02, -0.02, 0.005]
+_mv3 = [-0.0114, -0.002, 0.0109, -0.0125, -0.0186, -0.0139]
+_ab36 = {"A": _cbars(_mv1), "B": _cbars(_mv1),
+         "C": _cbars(_mv2), "D": _cbars(_mv2),
+         "E": _cbars(_mv3)}
+_pos36 = {t: {"yahoo": t, "shares": 1, "cost": 1, "sector": sec}
+          for t, sec in (("A", "semis"), ("B", "semis"), ("C", "soft"),
+                         ("D", "soft"), ("E", "other"))}
+_px36 = {"A": 40, "B": 30, "C": 15, "D": 10, "E": 5}
+_conc36 = homily_clusters.concentration(_ab36, _pos36, _px36)
+_cl36 = {tuple(c["tickers"]): round(c["pct"]) for c in _conc36["clusters"]}
+assert _cl36 == {("A", "B"): 70, ("C", "D"): 25, ("E",): 5}, \
+    f"planted blocks must be recovered exactly (D-29): {_cl36}"
+assert _conc36["clusters"][0]["label"] == "semis"
+_lines36 = homily_clusters.render(_conc36, ["A"], lambda x: x)
+assert "semis 70% (A B)" in _lines36[0] and "other 5%" in _lines36[0], _lines36
+assert len(_lines36) == 2 and "deepens the 70% semis cluster" in _lines36[1], \
+    "⭐ inside a >60% cluster must get the §3 nudge"
+assert len(homily_clusters.render(_conc36, ["C"], lambda x: x)) == 1, \
+    "⭐ outside the top cluster: no nudge"
+# pairs below the 60-day overlap floor contribute no edge (D-29 / HK holidays)
+assert homily_clusters.corr({}, {}) is None
+_short36 = {d: 0.01 for d in range(30)}
+assert homily_clusters.corr(_short36, _short36) is None
+print("[36] Clusters: ρ≥0.6 blocks recovered, value weights, ⭐ nudge ..... PASS")
+
 print("\nAll structural assertions passed.")
