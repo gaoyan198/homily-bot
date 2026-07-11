@@ -1178,4 +1178,57 @@ assert homily_weekly.weekly_summary(_rows37, _snap37,
     "a week with no rows sends nothing"
 print("[37] Weekly: timeline, drift, zone distance, events, quiet week .... PASS")
 
+# --- 38. Flex sync (#32): parser contract, owner fields survive, never adds -
+import homily_flex
+
+_XML38 = """<FlexQueryResponse queryName="pos" type="AF">
+ <FlexStatements count="1"><FlexStatement accountId="U000">
+  <OpenPositions>
+   <OpenPosition symbol="NVDA" position="20.5" costBasisPrice="190.1" currency="USD"/>
+   <OpenPosition symbol="AAA" position="7" costBasisPrice="10" currency="USD"/>
+   <OpenPosition symbol="9992" position="600" costBasisPrice="182.37" currency="HKD"/>
+  </OpenPositions>
+ </FlexStatement></FlexStatements>
+</FlexQueryResponse>"""
+_fx38 = homily_flex.parse_positions(_XML38)
+assert _fx38["NVDA"] == {"shares": 20.5, "cost": 190.1, "currency": "USD"}
+assert set(_fx38) == {"NVDA", "AAA", "9992"}
+
+with tempfile.TemporaryDirectory() as _t38:
+    _hp38 = os.path.join(_t38, "holdings.json")
+    json.dump({"_v": 2, "positions": {
+        "NVDA": {"yahoo": "NVDA", "shares": 14.85, "cost": 186.99,
+                 "sector": "AI/semis", "bucket": "B"},
+        "GONE": {"yahoo": "GONE", "shares": 5, "cost": 1},
+        "9992": {"yahoo": "9992.HK", "shares": 600, "cost": 182.37,
+                 "currency": "HKD"}}}, open(_hp38, "w"))
+    _diff38 = homily_flex.sync(_fx38, _hp38)
+    _doc38 = json.load(open(_hp38))
+    _nv38 = _doc38["positions"]["NVDA"]
+    assert _nv38["shares"] == 20.5 and _nv38["cost"] == 190.1, _nv38
+    assert _nv38["sector"] == "AI/semis" and _nv38["bucket"] == "B", \
+        "owner-owned fields must survive a sync"
+    assert "AAA" not in _doc38["positions"], "sync never auto-adds a symbol"
+    assert "GONE" in _doc38["positions"], "sync never auto-deletes a symbol"
+    assert any("AAA" in d and "add by hand" in d for d in _diff38), _diff38
+    assert any("GONE" in d and "NOT at IBKR" in d for d in _diff38), _diff38
+    assert any("NVDA: shares" in d for d in _diff38), _diff38
+    # already in sync -> no rewrite, no diff
+    _before38 = open(_hp38).read()
+    _diff38b = homily_flex.sync(homily_flex.parse_positions(_XML38), _hp38)
+    assert not any("->" in d for d in _diff38b) \
+        and open(_hp38).read() == _before38, "in-sync book must be untouched"
+
+# env-gated + never fatal: unset -> no-op; a raising fetch -> warning line
+os.environ.pop("IBKR_FLEX_TOKEN", None)
+assert homily_flex.auto_sync() == []
+os.environ["IBKR_FLEX_TOKEN"] = "t"
+os.environ["IBKR_FLEX_QUERY"] = "q"
+def _boom38(t, q):
+    raise RuntimeError("wire down")
+_w38 = homily_flex.auto_sync(fetch=_boom38)
+assert len(_w38) == 1 and "yesterday's committed book" in _w38[0], _w38
+del os.environ["IBKR_FLEX_TOKEN"], os.environ["IBKR_FLEX_QUERY"]
+print("[38] Flex sync: parse, owner fields kept, no add/delete, non-fatal . PASS")
+
 print("\nAll structural assertions passed.")

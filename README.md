@@ -95,6 +95,8 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_png.py` | Chart cards (#35): pure-stdlib PNG (price + add-zone/POC/res + chip histogram + weekly ribbon); top-3 actionable names sent as photos after the digest |
 | `homily_dashboard.py` | Nightly dashboard (#36): self-contained zero-JS `docs/dashboard.html` — holding cards, ledger state heatmap, reconstructed alerts timeline, refine chart; committed + sent as a document |
 | `homily_promotions.py` + `promotions.json` | Promotion lifecycle registry (#69): pre-registered gates, forward-checker, and mandatory demotion rules — the Oct-2026 rs12-top3 decision is this program's output |
+| `homily_weekly.py` | Sunday deep-dive (#33): fetch-free weekly summary from the week's ledger rows + the dashboard file |
+| `homily_flex.py` | IBKR Flex auto-sync (#32): shares/cost from a Flex query at run start; owner fields survive; never adds/deletes; unset secrets = manual fallback |
 | `homily_clusters.py` | Concentration lens (#29): 90d-correlation clusters of the book, one digest line + a ⭐-deepens-cluster nudge; info-only |
 | `homily_bearready.py` | Bear-readiness rehearsal (#30): first-Monday digest block — bucket split, margin/SRS confirmations, the pre-computed PLAYBOOK §4 sell list; info-only |
 | `homily_buyday.py` | Buy-day copilot (#31): first run of the month resolves `BUY_BUDGET_USD` into printed IBKR-ready orders + a basket CSV (`docs/orders_YYYY-MM.csv`) — **info-only, never places an order** |
