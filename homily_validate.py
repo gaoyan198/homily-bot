@@ -1256,4 +1256,49 @@ for _f61 in _FROZEN61:
         "commit message.")
 print("[39] Engine freeze: 8 frozen files match engine_freeze.json ......... PASS")
 
+# --- 40. Flip scorecard (#14a): flips only at logged dates, math correct ----
+import homily_flipscore as _fs
+
+_rows40 = [
+    {"date": "2026-07-01", "ticker": "AAA", "state": "CAUTION"},
+    {"date": "2026-07-02", "ticker": "AAA", "state": "BOTTOMING"},  # flip
+    {"date": "2026-07-03", "ticker": "AAA", "state": "BOTTOMING"},  # no flip
+    {"date": "2026-07-01", "ticker": "BBB", "state": "HOLD"},
+    # BBB missed 07-02 (fetch error); its next row is 07-03 — the flip must
+    # date to 07-03, the day the digest actually printed the new state (R3)
+    {"date": "2026-07-03", "ticker": "BBB", "state": "ACCUMULATE"},
+    {"date": "2026-07-01", "ticker": "CCC", "state": "HOLD"},       # never flips
+    {"date": "2026-07-03", "ticker": "CCC", "state": "HOLD"},
+]
+_fl40 = _fs.flips(_rows40)
+assert [(f["date"], f["ticker"], f["prev"], f["new"]) for f in _fl40] == [
+    ("2026-07-02", "AAA", "CAUTION", "BOTTOMING"),
+    ("2026-07-03", "BBB", "HOLD", "ACCUMULATE")], \
+    f"[40] FAIL: flip detection wrong: {_fl40}"
+
+# aligned daily series: AAA +2%/day, QQQ +1%/day -> +1d excess = 2%-1% ≈ +0.99%
+_d40 = [datetime.date(2026, 7, 1) + datetime.timedelta(days=i)
+        for i in range(30)]
+_ser40 = {"AAA": (_d40, [100 * 1.02 ** i for i in range(30)]),
+          "BBB": (_d40, [50 * 1.00 ** i for i in range(30)]),
+          "QQQ": (_d40, [400 * 1.01 ** i for i in range(30)])}
+_tab40, _n40 = _fs.scorecard(_rows40, _ser40)
+assert _n40 == 2, f"[40] FAIL: expected 2 flips, got {_n40}"
+_c40 = _tab40["CAUTION→BOTTOMING"][1]
+assert _c40["n"] == 1 and abs(_c40["mean"] - (1.02 - 1.01)) < 1e-9, \
+    f"[40] FAIL: +1d excess math wrong: {_c40}"
+_b40 = _tab40["HOLD→ACCUMULATE"][5]
+assert _b40["n"] == 1 and _b40["mean"] < 0, \
+    "[40] FAIL: flat name must show negative excess vs a rising QQQ"
+# immature horizon: flip near the series end -> zero-count cell, never a crash
+_late40 = [{"date": "2026-07-28", "ticker": "AAA", "state": "HOLD"},
+           {"date": "2026-07-29", "ticker": "AAA", "state": "CAUTION"}]
+_tabl40, _ = _fs.scorecard(_late40, _ser40)
+assert _tabl40["HOLD→CAUTION"][20]["n"] == 0, \
+    "[40] FAIL: unmatured horizon must count 0, not invent a return"
+_r40 = _fs.render(_tab40, _n40, ["2026-07-01", "2026-07-03"])
+assert "CAUTION→BOTTOMING" in _r40 and "R3" in _r40, \
+    "[40] FAIL: render must carry the transitions and the R3 honesty line"
+print("[40] Flip scorecard: flips at logged dates only, excess math, R3 ... PASS")
+
 print("\nAll structural assertions passed.")
