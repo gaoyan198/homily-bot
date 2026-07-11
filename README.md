@@ -52,6 +52,13 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 ↑ close above it = bottoming confirmation, ↓ below = topping-process warning
 (note only, see honesty point 3), ◻ = still inside, unresolved.
 
+Weekly-RED rows also print the historical base rate next to the run's age —
+`wk RED/4 (8w · med run 8w)` — the median completed weekly-RED spell across
+1,439 spells in both backtest universes (`homily_ribbon_backtest.py`, #82).
+It is context for how much accumulate-window typically remains, not a
+prediction: the distribution is wide (p25 2w, p75 23w), entry-candle size
+added no stable conditioning, and the number gates nothing.
+
 If a name's recent tape holds a **>45% one-day move on abnormal volume** — the
 signature of a split or spin-off the data feed never adjusted — every one of
 those levels is built on prices that never traded. The row then prints
