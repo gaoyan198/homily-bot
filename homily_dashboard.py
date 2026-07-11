@@ -1,118 +1,356 @@
 #!/usr/bin/env python3
 """
-Nightly dashboard (backlog #36) — one self-contained HTML file, zero JS.
-========================================================================
+Danny-style chart board (#83; supersedes the #36 levels-band cards)
+====================================================================
 
-`docs/dashboard.html`, rendered from `docs/snapshot.json` + the #13 ledger
-+ the refine log, committed by the workflow and sent via sendDocument:
-private in the chat, one tap to open, works offline, renders identically
-in Telegram's in-app browser and in five years (D-36: server-side static
-SVG, no client JS, no external assets — a strict self-containment test in
-validate keeps it that way).
+One self-contained HTML file per board, dark, searchable. Two boards from
+one renderer (D-83 §search):
 
-Sections: regime + coverage header · per-holding <details> cards (levels,
-chip peaks, ledger-close sparkline) · discovery table · ledger state
-heatmap (every name × every day, the live record at a glance) · alerts
-timeline (#15's alert wording REUSED via homily_alerts.diff_alerts over
-consecutive ledger dates — every alert ever, reconstructed and auditable,
-owner request 2026-07-10; regime flips aren't in ledger rows, so the
-timeline reconstructs state/whale/gate transitions only) · refine-log
-OOS chart. #14's scorecard tables join once the ledger is 3 months old.
+* the SMALL board — `docs/dashboard.html`, held + actionable names only,
+  committed by the workflow (R8) and sent via sendDocument; ≤300 KB so the
+  nightly diff stays reviewable;
+* the FULL board — every screened name, written to a temp path and SENT
+  each night, never committed (~1.4 MB/day would put ~350 MB/yr into git
+  history; the Telegram chat is its archive).
 
-The render is a pure function of its three inputs — deterministic, which
-is what check [33] pins. Engines frozen (§0): reads committed artifacts
-only. Sparklines use ledger closes (raw, R1) and honestly say how young
-the ledger is rather than fetching history that predates the record.
+Each card speaks the Homily/Danny chart language the methodology is stated
+in (HOW_TO_READ.md is the manual): daily candles coloured by the frozen
+engine's own `daily_candle()` on close prefixes — RED = BULLISH, yellow =
+bearish, the Chinese convention, legend pinned on the page for exactly
+that reason — plus the chip histogram split at the last close (POC bin
+emphasized), the volatility-hole zone from `find_hole()`, the add-zone
+band, POC/support/resistance on a collision-resolved label rail, and the
+52-week circle ribbon. Engines frozen (§0): every mark is an engine
+output; the histogram backdrop and ribbon REUSE homily_png's helpers
+(share, don't duplicate).
+
+Search: a ticker-chip anchor index works with zero JS in any renderer;
+the sticky filter input is a ~20-line inline-vanilla-JS enhancement — the
+one deliberate, recorded relaxation of D-36's zero-JS rule (self-contained
+/ no external assets / offline all still hold; validate [33] now asserts
+scripts are inline-only). Palette hexes are D-83-normative (validated
+against the dark surface).
+
+The render stays a pure function — (snapshot, ledger rows, refine rows,
+bars_map) → HTML — which is what check [33] pins. bars arrive in-memory
+from daily_run's screen (snapshot.json does NOT grow a bars section; #75
+schema unchanged). No bars for a name → the card degrades to its facts
+row, never crashes. Sections below the cards are unchanged from #36:
+ledger state heatmap, alerts timeline (homily_alerts.diff_alerts reused
+verbatim), refine OOS chart.
 """
 import os
 import json
 import html
+import tempfile
 
 import homily_ledger
 import homily_alerts
+from homily_danny import daily_candle
+from homily_vol import find_hole
+from homily_png import _display_bins, _ribbon_circles
+from homily_pullback_backtest import dip_age, DIP_MEDIAN_D, DIP_P90_D
+from homily_ribbon_backtest import RED_MEDIAN_RUN_W
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DASHBOARD = os.path.join(HERE, "docs", "dashboard.html")
+BOARD_FULL = os.path.join(tempfile.gettempdir(), "homily_board_full.html")
 REFINE_LOG = os.path.join(HERE, "homily_refine_log.csv")
 
-ICON = {"ACCUMULATE": "⭐", "HOLD": "🟢", "PULLBACK": "🟡",
-        "BOTTOMING": "🔵", "CAUTION": "⚪"}
-COLOR = {"ACCUMULATE": "#2e7d32", "HOLD": "#8bc34a", "PULLBACK": "#f9a825",
-         "BOTTOMING": "#1565c0", "CAUTION": "#b0b0b0"}
+# D-83 normative palette (validated on the dark surface 2026-07-12).
+BULL = "#e5484d"      # red candle = BULLISH — Danny/Homily colour language
+BEAR = "#b8890d"      # yellow candle = bearish
+NEUT = "#4a5264"
+PROFIT = "#25a897"    # chips in profit / support / add zone
+TRAPPED = "#6d83d1"   # trapped chips / resistance
+POC = "#d47114"
+VH = "#8b7ff5"
+INK, MUTED, GRID = "#dde3ee", "#7e8798", "#1c2333"
+SURFACE, PANEL, EDGE = "#0c1017", "#111722", "#212a3a"
+RIB = {"RED": BULL, "AMBER": BEAR, "WHITE": "#aeb6c4"}
+STATE = {"ACCUMULATE": (PROFIT, "⭐ ACCUMULATE"),
+         "HOLD": ("#7ba05b", "🟢 HOLD"),
+         "PULLBACK": (BEAR, "🟡 PULLBACK"),
+         "BOTTOMING": (VH, "🔵 BOTTOMING"),
+         "CAUTION": ("#8b93a3", "⚪ CAUTION")}
+ORDER = {"ACCUMULATE": 0, "BOTTOMING": 1, "PULLBACK": 2, "HOLD": 3,
+         "CAUTION": 4}
+
+VIEW = 120            # ~6 months of daily candles per card
+MIN_BARS = 30         # fewer -> facts row only, no chart
+W, PH, H = 780, 286, 352
+PL, PR = 8, 556       # price panel x-range
+HX0, HX1 = 560, 688   # chip-histogram panel
+AX = 694              # right label rail
+RIBY0, RIBY1 = 322, 338
 E = lambda x: html.escape(str(x), quote=True)
 
 
-# --- tiny SVG helpers (strings in, strings out, nothing clever) -------------
-def _svg(w, h, body, title=None):
-    t = f"<title>{E(title)}</title>" if title else ""
-    return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
-            f'xmlns="http://www.w3.org/2000/svg">{t}{body}</svg>')
+# --- card geometry helpers ---------------------------------------------------
+def _yscale(view, levels):
+    lo = min(b[3] for b in view)
+    hi = max(b[2] for b in view)
+    for p in levels:
+        if p and lo * 0.85 < p < hi * 1.15:
+            lo, hi = min(lo, p), max(hi, p)
+    span = (hi - lo) or lo * 0.01 or 1.0
+    lo, hi = lo - span * 0.05, hi + span * 0.05
+    return (lambda p: 10 + (hi - p) / (hi - lo) * (PH - 20)), lo, hi
 
 
-def _card_svg(s, closes):
-    """One holding's picture: zone band + POC/res lines + chip peaks on the
-    right + the ledger-close sparkline (however young)."""
-    w, h, pad = 640, 150, 8
-    marks = [s["close"], s["poc"]] + [c for _, c in closes]
-    if s.get("zone_lo") is not None:
-        marks += [s["zone_lo"], s["zone_hi"]]
-    peaks = (s.get("support") or []) + (s.get("resistance") or [])
-    marks += [p for p, _ in peaks]
-    lo, hi = min(marks), max(marks)
-    span = (hi - lo) or lo * 0.01
-    lo, hi = lo - span * 0.07, hi + span * 0.07
-    y = lambda p: h - pad - (p - lo) / (hi - lo) * (h - 2 * pad)
-    plot_r = w - 150
-    parts = [f'<rect width="{w}" height="{h}" fill="#fafafa"/>']
-    if s.get("zone_lo") is not None:
-        parts.append(f'<rect x="{pad}" y="{y(s["zone_hi"]):.1f}" '
-                     f'width="{plot_r - pad}" '
-                     f'height="{y(s["zone_lo"]) - y(s["zone_hi"]):.1f}" '
-                     f'fill="#c8e6c9"><title>add zone {s["zone_lo"]}–'
-                     f'{s["zone_hi"]}</title></rect>')
-    parts.append(f'<line x1="{pad}" x2="{plot_r}" y1="{y(s["poc"]):.1f}" '
-                 f'y2="{y(s["poc"]):.1f}" stroke="#ef6c00">'
-                 f'<title>POC {s["poc"]}</title></line>')
-    for p, wt in peaks:
-        col = "#81c784" if p <= s["close"] else "#e57373"
-        parts.append(f'<rect x="{plot_r + 6}" y="{y(p) - 2:.1f}" '
-                     f'width="{6 + wt * 120:.1f}" height="4" fill="{col}">'
-                     f'<title>chip peak {p} (rel {wt})</title></rect>')
-    if len(closes) >= 2:
-        step = (plot_r - 2 * pad) / (len(closes) - 1)
-        pts = " ".join(f"{pad + i * step:.1f},{y(c):.1f}"
-                       for i, (_d, c) in enumerate(closes))
-        parts.append(f'<polyline points="{pts}" fill="none" '
-                     f'stroke="#1a3f8f" stroke-width="2">'
-                     f'<title>ledger closes {closes[0][0]} → '
-                     f'{closes[-1][0]}</title></polyline>')
-    else:
-        parts.append(f'<text x="{pad}" y="{h // 2}" font-size="11" '
-                     f'fill="#888">ledger too young for a sparkline — '
-                     f'the record starts 2026-07-08, honestly</text>')
-    parts.append(f'<circle cx="{plot_r - pad}" cy="{y(s["close"]):.1f}" '
-                 f'r="3" fill="#1a3f8f"><title>close {s["close"]}</title>'
-                 '</circle>')
-    return _svg(w, h, "".join(parts), f'{s["ticker"]} levels')
+def _ticks(lo, hi, n=4):
+    raw = (hi - lo) / n
+    mag = 10 ** len(str(int(raw))) / 10
+    step = max(1, round(raw / mag)) * mag
+    t, out = (int(lo / step) + 1) * step, []
+    while t < hi:
+        out.append(t)
+        t += step
+    return out
 
 
-def _facts(s):
-    bits = [f'{ICON.get(s["state"], "")} <b>{E(s["state"])}</b>',
-            f'close {E(s["close"])}']
-    if s.get("zone_lo") is not None:
-        bits.append(f'add {E(s["zone_lo"])}–{E(s["zone_hi"])}')
-    bits += [f'POC {E(s["poc"])}', f'{E(s["pct_in_profit"])}% in profit',
-             f'wk {E(s["wk_circle"])}/{E(s["wk_score"])} '
-             f'({E(s["wk_weeks"])}w)',
-             f'conv {E(s["conv_score"])} ({E(s["conv_tier"])})',
-             f'RS12 {E(s.get("rs12", "—"))}', E(s.get("ftag") or "F:—")]
-    if s.get("book_pct") is not None:
-        bits.append(f'{E(s["book_pct"])}% of book')
-    if s.get("cap_note"):
-        bits.append(f'⚠️ {E(s["cap_note"])}')
+def _fmt(v):
+    return f"{v:.0f}" if v >= 500 else f"{v:.1f}"
+
+
+def _card_svg(s, bars):
+    """The Danny card picture. Every mark is a frozen-engine output; the
+    right-hand label rail is collision-resolved (labels nudged ≥13px apart,
+    grid ticks yield) — hand-placed labels were the #36 board's defect."""
+    view = bars[-VIEW:]
+    n = len(view)
+    colors = [daily_candle([b[4] for b in bars[:len(bars) - n + i + 1]])
+              for i in range(n)]
+    y, lo, hi = _yscale(view, [s.get("zone_lo"), s.get("zone_hi"), s["poc"]])
+    step = (PR - PL) / n
+    x = lambda i: PL + i * step + step / 2
+    close = s["close"]
+    p = [f'<rect width="{W}" height="{H}" fill="{PANEL}" rx="6"/>']
+    axis = []                                      # (y, text, colour)
+
+    ticks = _ticks(lo, hi)
+    for t in ticks:
+        p.append(f'<line x1="{PL}" x2="{HX1}" y1="{y(t):.1f}" '
+                 f'y2="{y(t):.1f}" stroke="{GRID}"/>')
+    last_m = view[0][0].month
+    for i, b in enumerate(view):
+        if b[0].month != last_m:
+            last_m = b[0].month
+            p.append(f'<text x="{x(i):.0f}" y="310" font-size="9" '
+                     f'fill="{MUTED}" text-anchor="middle">'
+                     f'{b[0].strftime("%b")}</text>')
+
+    hole = find_hole(bars)
+    if hole:
+        x0 = max(PL, x(n - min(hole.age, n)) - step / 2)
+        yu, yl = y(hole.upper), y(hole.lower)
+        p.append(f'<rect x="{x0:.1f}" y="{yu:.1f}" width="{PR - x0:.1f}" '
+                 f'height="{yl - yu:.1f}" fill="{VH}" fill-opacity="0.12"/>')
+        for yy in (yu, yl):
+            p.append(f'<line x1="{x0:.1f}" x2="{PR}" y1="{yy:.1f}" '
+                     f'y2="{yy:.1f}" stroke="{VH}" stroke-width="1" '
+                     'stroke-dasharray="2 3"/>')
+        lbl = {"BREAKOUT": "vh breakout ↑", "BREAKDOWN": "vh breakdown ↓",
+               "INSIDE": "vh zone"}[hole.status]
+        p.append(f'<text x="{x0 + 4:.1f}" y="{yu - 4:.1f}" font-size="10" '
+                 f'fill="{VH}">{lbl}</text>')
+
+    # levels can sit off-scale when a card is rebuilt from a stale snapshot
+    # against fresh bars (local __main__ path) — skip, never draw garbage
+    if s.get("zone_lo") is not None and s["zone_hi"] > lo and s["zone_lo"] < hi:
+        zl = min(y(max(s["zone_lo"], lo)), PH - 10.0)
+        zh = max(y(min(s["zone_hi"], hi)), 10.0)
+        p.append(f'<rect x="{PL}" y="{zh:.1f}" width="{PR - PL}" '
+                 f'height="{max(zl - zh, 1.0):.1f}" fill="{PROFIT}" '
+                 'fill-opacity="0.13"/>')
+        zf = lambda v: f"{v:.0f}" if v >= 100 else f"{v:.1f}"
+        axis.append(((zl + zh) / 2,
+                     f'add {zf(s["zone_lo"])}–{zf(s["zone_hi"])}', PROFIT))
+
+    blo, bwidth, weights = _display_bins(bars)
+    mx = max(weights) or 1
+    poc_bin = weights.index(mx)
+    bin_h = max(1.6, (PH - 20) / ((hi - lo) / bwidth) - 0.6)
+    for j, wt in enumerate(weights):
+        pr = blo + (j + 0.5) * bwidth
+        # sub-0.5%-of-max bins are invisible ink — skipping them is ~30% of
+        # the card's bytes (size budget, D-83)
+        if not lo < pr < hi or wt / mx < 0.005:
+            continue
+        col, op = ((POC, 1.0) if j == poc_bin else
+                   (PROFIT, 0.55) if pr <= close else (TRAPPED, 0.55))
+        p.append(f'<rect x="{HX0}" y="{y(pr) - bin_h / 2:.1f}" '
+                 f'width="{(wt / mx) * (HX1 - HX0):.1f}" '
+                 f'height="{bin_h:.1f}" fill="{col}" fill-opacity="{op}"/>')
+
+    if lo < s["poc"] < hi:
+        p.append(f'<line x1="{PL}" x2="{HX1}" y1="{y(s["poc"]):.1f}" '
+                 f'y2="{y(s["poc"]):.1f}" stroke="{POC}" stroke-width="1.2" '
+                 'stroke-dasharray="5 3"/>')
+        axis.append((y(s["poc"]), f'POC {_fmt(s["poc"])}', POC))
+    for peaks, col, tag in ((s.get("support") or [], PROFIT, "sup"),
+                            (s.get("resistance") or [], TRAPPED, "res")):
+        for pr, _wt in peaks[:1]:
+            if not lo < pr < hi or abs(pr - s["poc"]) / pr < 0.015:
+                continue
+            p.append(f'<line x1="{PL}" x2="{HX1}" y1="{y(pr):.1f}" '
+                     f'y2="{y(pr):.1f}" stroke="{col}" stroke-width="1" '
+                     'stroke-dasharray="3 4"/>')
+            axis.append((y(pr), f'{tag} {_fmt(pr)}', col))
+
+    axis.sort()
+    placed = []
+    for yy, txt, col in axis:
+        if placed and yy - placed[-1][0] < 13:
+            yy = placed[-1][0] + 13
+        placed.append((min(max(yy, 14.0), PH - 4), txt, col))
+    for yy, txt, col in placed:
+        p.append(f'<text x="{AX}" y="{yy + 3:.1f}" font-size="10" '
+                 f'fill="{col}">{txt}</text>')
+    for t in ticks:
+        if all(abs(y(t) - yy) >= 12 for yy, _t, _c in placed):
+            p.append(f'<text x="{AX}" y="{y(t) + 3:.1f}" font-size="10" '
+                     f'fill="{MUTED}">{t:g}</text>')
+
+    for col, key in ((BULL, "RED"), (BEAR, "YELLOW"), (NEUT, "NEUTRAL")):
+        wick, bodies = [], []
+        bw = step * 0.62
+        for i, b in enumerate(view):
+            if colors[i] != key:
+                continue
+            _d, o, hh, ll, c, _v = b
+            wick.append(f'M{x(i):.1f} {y(hh):.1f}V{y(ll):.1f}')
+            top, bot = max(o, c), min(o, c)
+            bodies.append(f'<rect x="{x(i) - bw / 2:.1f}" y="{y(top):.1f}" '
+                          f'width="{bw:.1f}" '
+                          f'height="{max(1.0, y(bot) - y(top)):.1f}"/>')
+        if wick:
+            p.append(f'<path d="{"".join(wick)}" stroke="{col}" '
+                     'stroke-width="1" fill="none" stroke-opacity="0.75"/>')
+            p.append(f'<g fill="{col}">{"".join(bodies)}</g>')
+
     if s.get("whale"):
-        bits.append("🐳 whale footprint")
-    return " · ".join(bits)
+        p.append(f'<text x="{x(n - 3):.0f}" '
+                 f'y="{y(min(b[3] for b in view[-10:])) + 16:.1f}" '
+                 'font-size="13" text-anchor="middle">🐳</text>')
+
+    circles = _ribbon_circles(s["ticker"], bars)
+    if circles:
+        rw = (PR - PL) / len(circles)
+        for i, c in enumerate(circles):
+            p.append(f'<rect x="{PL + i * rw:.1f}" y="{RIBY0}" '
+                     f'width="{max(rw - 1.2, 2):.1f}" '
+                     f'height="{RIBY1 - RIBY0}" fill="{RIB.get(c, GRID)}"'
+                     + (' fill-opacity="0.45"' if c == "WHITE" else "")
+                     + "/>")
+    p.append(f'<text x="{HX0}" y="{RIBY1 - 4}" font-size="10" '
+             f'fill="{MUTED}">wk circle · {E(s["wk_circle"])} '
+             f'{E(s["wk_weeks"])}w · med run {RED_MEDIAN_RUN_W}w</text>')
+    return (f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+            f'xmlns="http://www.w3.org/2000/svg" role="img" '
+            f'aria-label="{E(s["ticker"])} daily chart">{"".join(p)}</svg>')
+
+
+# --- facts row + card shell --------------------------------------------------
+def _chip(txt, col=None):
+    st = f' style="color:{col};border-color:{col}55"' if col else ""
+    return f'<span class="chip"{st}>{txt}</span>'
+
+
+def _card_html(s, bars, banner=None, charted=True):
+    col, label = STATE.get(s["state"], ("#8b93a3", s["state"]))
+    chips = [_chip(f'close <b>{E(s["close"])}</b>')]
+    if s.get("zone_lo") is not None:
+        chips.append(_chip(f'add {E(s["zone_lo"])}–{E(s["zone_hi"])}',
+                           PROFIT))
+    chips.append(_chip(f'POC {_fmt(s["poc"])}', POC))
+    chips.append(_chip(f'{E(s["pct_in_profit"])}% chips in profit'))
+    if bars and len(bars) >= MIN_BARS and s["wk_circle"] == "RED":
+        dip = dip_age([b[4] for b in bars])
+        if dip:
+            chips.append(_chip(f'dip d{dip} (med {DIP_MEDIAN_D}d · '
+                               f'p90 {DIP_P90_D}d)', BEAR))
+    if s.get("vh_status"):
+        chips.append(_chip(f'VH {E(s["vh_status"])}', VH))
+    if s.get("whale"):
+        chips.append(_chip("🐳 whale footprint", TRAPPED))
+    chips += [_chip(f'RS12 {E(s.get("rs12", "—"))}'),
+              _chip(f'conv {E(s["conv_score"])}'),
+              _chip(E(s.get("ftag") or "F:—"))]
+    if s.get("book_pct") is not None:
+        chips.append(_chip(f'{E(s["book_pct"])}% of book'))
+    if s.get("cap_note"):
+        chips.append(_chip(f'⚠️ {E(s["cap_note"])}', BEAR))
+    note = ("held" if s.get("held") else "🔎 discovery")
+    if not charted:
+        # committed-board size budget (D-83 / PRD §8.5 2026-07-12): the
+        # small board charts held names only; everyone else keeps a
+        # searchable facts card and their chart lives on the full board
+        chart = ('<p class="nochart">chart on the nightly full board — '
+                 'the committed board keeps charts to held names</p>')
+    elif bars and len(bars) >= MIN_BARS:
+        chart = _card_svg(s, bars)
+    else:
+        chart = ('<p class="nochart">chart unavailable — no bars in this '
+                 'run (levels above are from the morning snapshot)</p>')
+    ban = f'<p class="banner">{E(banner)}</p>' if banner else ""
+    return (f'<section class="card" id="{E(s["ticker"])}" '
+            f'data-tk="{E(s["ticker"])}">'
+            f'<header><span class="tk">{E(s["ticker"])}</span>'
+            f'<span class="pill" style="color:{col};border-color:{col}">'
+            f'{label}</span><span class="note">{note}</span></header>{ban}'
+            f'<div class="chips">{"".join(chips)}</div>'
+            f'<div class="chartwrap">{chart}</div></section>')
+
+
+def _actionable(s):
+    """Small-board card set: mirrors select_charts' rule — ⭐/🔵, or a dip
+    that reached its add zone (the 🎯 set)."""
+    return (s["state"] in ("ACCUMULATE", "BOTTOMING")
+            or (s.get("zone_lo") is not None
+                and s["close"] <= s["zone_hi"]))
+
+
+def _cards_and_index(snap, bars_map, full):
+    rows = list(snap.get("holdings", [])) + [
+        s for s in snap.get("discovery", [])
+        if full or _actionable(s)]
+    rows.sort(key=lambda s: (not s.get("held"),
+                             ORDER.get(s["state"], 9), s["ticker"]))
+    bm = bars_map or {}
+    cards = "".join(_card_html(s, bm.get(s["ticker"]),
+                               charted=full or bool(s.get("held")))
+                    for s in rows)
+    icon = {k: v[1].split()[0] for k, v in STATE.items()}
+    idx = "".join(
+        f'<a class="idx" href="#{E(s["ticker"])}" data-tk="{E(s["ticker"])}" '
+        f'style="border-color:{STATE.get(s["state"], ("#8b93a3",))[0]}55">'
+        f'{icon.get(s["state"], "")} {E(s["ticker"])}</a>'
+        for s in rows)
+    return cards, idx, len(rows)
+
+
+_SEARCH_JS = """<script>
+(function () {
+  var q = document.getElementById("q"), nohit = document.getElementById("nohit");
+  if (!q) return;
+  var items = [].slice.call(document.querySelectorAll("[data-tk]"));
+  q.addEventListener("input", function () {
+    var s = q.value.trim().toUpperCase(), hits = 0;
+    items.forEach(function (el) {
+      var hit = !s || el.getAttribute("data-tk").indexOf(s) === 0;
+      el.style.display = hit ? "" : "none";
+      if (hit && el.tagName === "SECTION") hits++;
+    });
+    nohit.style.display = s && !hits ? "block" : "none";
+  });
+})();
+</script>"""
+
+
+# --- sections carried over from the #36 board (ledger memory) ----------------
+HEAT = {"ACCUMULATE": PROFIT, "HOLD": "#7ba05b", "PULLBACK": BEAR,
+        "BOTTOMING": VH, "CAUTION": NEUT}
 
 
 def _heatmap(rows):
@@ -126,20 +364,22 @@ def _heatmap(rows):
     for j, d in enumerate(dates):
         if j == 0 or d[8:] == "01" or j % 5 == 0:
             parts.append(f'<text x="{lx + j * cw}" y="12" font-size="9" '
-                         f'fill="#666">{E(d[5:])}</text>')
+                         f'fill="{MUTED}">{E(d[5:])}</text>')
     for i, tk in enumerate(tickers):
         yy = 18 + i * ch
         parts.append(f'<text x="0" y="{yy + 10}" font-size="10" '
-                     f'font-family="monospace">{E(tk)}</text>')
+                     f'fill="{INK}" font-family="monospace">{E(tk)}</text>')
         for j, d in enumerate(dates):
             st = state.get((d, tk))
             if st is None:
                 continue
             parts.append(f'<rect x="{lx + j * cw}" y="{yy}" '
                          f'width="{cw - 2}" height="{ch - 2}" '
-                         f'fill="{COLOR.get(st, "#eee")}">'
+                         f'fill="{HEAT.get(st, EDGE)}">'
                          f'<title>{E(d)} {E(tk)} {E(st)}</title></rect>')
-    return _svg(w, h, "".join(parts), "ledger state history")
+    return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
+            f'xmlns="http://www.w3.org/2000/svg">'
+            f'<title>ledger state history</title>{"".join(parts)}</svg>')
 
 
 def _timeline(rows):
@@ -150,9 +390,8 @@ def _timeline(rows):
     by_date = {d: [r for r in rows if r["date"] == d] for d in dates}
     out = []
     for prev_d, cur_d in zip(dates, dates[1:]):
-        lines = homily_alerts.diff_alerts(by_date[cur_d], None,
-                                          by_date[prev_d], None)
-        for ln in lines:
+        for ln in homily_alerts.diff_alerts(by_date[cur_d], None,
+                                            by_date[prev_d], None):
             out.append((cur_d, ln))
     out.reverse()                                        # newest first
     if not out:
@@ -180,38 +419,90 @@ def _refine_chart(refine_rows):
                            + f'"><title>{k}</title></polyline>')
     dots = "".join(
         f'<circle cx="{pad + i * step:.1f}" '
-        f'cy="{y(float(r["champ_oos"])):.1f}" r="4" fill="#ef6c00">'
+        f'cy="{y(float(r["champ_oos"])):.1f}" r="4" fill="{POC}">'
         f'<title>{E(r["date"])} ADOPTED {E(r["champion"])}</title></circle>'
         for i, r in enumerate(rows) if r.get("adopted") == "True")
-    return _svg(w, h, line("champ_oos", "#1a3f8f")
-                + line("challenger_oos", "#9e9e9e") + dots,
-                "champion vs challenger OOS Calmar") \
-        + ("<p><small>blue champion · grey challenger · orange dot = "
-           "challenger adopted (OOS-gated)</small></p>")
+    return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
+            f'xmlns="http://www.w3.org/2000/svg">'
+            f'<title>champion vs challenger OOS Calmar</title>'
+            + line("champ_oos", TRAPPED) + line("challenger_oos", MUTED)
+            + dots + "</svg>"
+            + "<p><small>blue champion · grey challenger · orange dot = "
+              "challenger adopted (OOS-gated)</small></p>")
 
 
-def render(snap, rows, refine_rows):
-    """Pure, deterministic: snapshot dict + ledger rows + refine rows -> the
-    full HTML document string."""
+# --- the page ----------------------------------------------------------------
+# Legend + CSS are module constants so #84's single-card CLI page reuses
+# them verbatim — one visual language, zero duplicated styling.
+LEGEND = (f'<span class="sw" style="background:{BULL}"></span> red candle '
+          f'= <b>bullish</b> &nbsp;<span class="sw" style="background:'
+          f'{BEAR}"></span> yellow = bearish &nbsp;<span class="sw" '
+          f'style="background:{NEUT}"></span> neutral &nbsp;·&nbsp; '
+          f'chips: <span class="sw" style="background:{PROFIT}"></span> '
+          f'in profit <span class="sw" style="background:{TRAPPED}">'
+          f'</span> trapped <span class="sw" style="background:{POC}">'
+          f'</span> POC &nbsp;·&nbsp; <span class="sw" style="background:'
+          f'{VH}"></span> volatility-hole zone &nbsp;·&nbsp; '
+          'manual: HOW_TO_READ.md')
+
+
+CSS = f"""body{{background:{SURFACE};color:{INK};margin:0;
+  font:14px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace}}
+.wrap{{max-width:880px;margin:0 auto;padding:16px 12px 40px}}
+h1{{font-size:17px;letter-spacing:.1em;margin:0}}
+h1 small{{color:{MUTED};font-weight:400;letter-spacing:0}}
+h2{{margin:22px 0 6px;font-size:15px}}
+.sub{{color:{MUTED};font-size:12px;margin:6px 0 2px}}
+.legend{{font-size:12px;color:{MUTED};margin:10px 0 0;line-height:1.9}}
+.sw{{display:inline-block;width:10px;height:10px;border-radius:2px;
+  vertical-align:-1px}}
+.searchbar{{position:sticky;top:0;z-index:5;background:{SURFACE}ee;
+  padding:10px 0 8px;border-bottom:1px solid {EDGE};margin:8px 0 14px}}
+.searchbar input{{width:100%;box-sizing:border-box;background:{PANEL};
+  border:1px solid {EDGE};border-radius:6px;color:{INK};padding:8px 12px;
+  font:14px ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:.06em}}
+.searchbar input::placeholder{{color:{MUTED}}}
+.searchbar input:focus{{outline:2px solid {PROFIT}66;border-color:{PROFIT}}}
+.idxrow{{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
+.idx{{border:1px solid;border-radius:999px;padding:1px 10px;font-size:12px;
+  color:{INK};text-decoration:none}}
+.nohit{{display:none;color:{MUTED};font-size:13px;padding:14px 0}}
+.card{{background:{PANEL};border:1px solid {EDGE};border-radius:8px;
+  padding:12px 12px 6px;margin:0 0 16px}}
+.card header{{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}}
+.tk{{font-size:22px;font-weight:700;letter-spacing:.06em}}
+.pill{{border:1px solid;border-radius:999px;padding:1px 10px;font-size:12px}}
+.note{{color:{MUTED};font-size:12px;margin-left:auto}}
+.banner{{color:{BEAR};font-size:12px;margin:6px 0 0}}
+.chips{{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 10px}}
+.chip{{border:1px solid {EDGE};border-radius:4px;padding:1px 7px;
+  font-size:11.5px;color:{MUTED};font-variant-numeric:tabular-nums}}
+.chip b{{color:{INK}}}
+.chartwrap{{overflow-x:auto}}
+.chartwrap svg{{max-width:100%;height:auto}}
+.nochart{{color:{MUTED};font-size:12px}}
+.wrapx{{overflow-x:auto}}
+table{{border-collapse:collapse}} td,th{{padding:2px 8px;text-align:left;
+  border-bottom:1px solid {EDGE}}}
+code{{color:{INK}}}
+footer{{color:{MUTED};font-size:11.5px;border-top:1px solid {EDGE};
+  padding-top:12px;margin-top:18px;line-height:1.7}}
+ul{{padding-left:18px}}
+a{{color:{TRAPPED}}}
+"""
+
+
+def render(snap, rows, refine_rows, bars_map=None, full=False):
+    """Pure, deterministic: snapshot dict + ledger rows + refine rows (+
+    in-memory bars) -> the full HTML document string."""
     reg = snap.get("regime") or {}
-    ricon = {"BULL": "🐂", "BEAR": "🐻", "MIXED": "⚖️"}.get(reg.get("label"), "⚖️")
+    ricon = {"BULL": "🐂", "BEAR": "🐻",
+             "MIXED": "⚖️"}.get(reg.get("label"), "⚖️")
     cov = snap.get("coverage") or {}
-    closes_by = {}
-    for r in rows:
-        if r.get("close"):
-            closes_by.setdefault(r["ticker"], []).append(
-                (r["date"], float(r["close"])))
-    for v in closes_by.values():
-        v.sort()
-    cards = "".join(
-        f'<details{" open" if s["state"] == "ACCUMULATE" else ""}>'
-        f'<summary>{ICON.get(s["state"], "")} <b>{E(s["ticker"])}</b> '
-        f'{E(s["close"])} — {E(s["state"])}</summary>'
-        f'<p>{_facts(s)}</p>{_card_svg(s, closes_by.get(s["ticker"], []))}'
-        '</details>'
-        for s in snap.get("holdings", []))
+    cards, idx, ncards = _cards_and_index(snap, bars_map, full)
     disco = "".join(
-        f'<tr><td>{ICON.get(s["state"], "")} {E(s["ticker"])}</td>'
+        f'<tr><td>{STATE.get(s["state"], ("", ""))[1].split()[0]} '
+        f'{E(s["ticker"])}</td>'
         f'<td>{E(s["state"])}</td><td>{E(s["close"])}</td>'
         f'<td>{E(s.get("rs12", ""))}</td><td>{E(s.get("ftag") or "")}</td></tr>'
         for s in snap.get("discovery", [])
@@ -226,41 +517,52 @@ def render(snap, rows, refine_rows):
                   f'<p>budget ${b.get("budget", 0):,.0f} · leftover '
                   f'${b.get("leftover", 0):,.0f} · '
                   '<i>printed, never placed — §7 stands</i></p>')
+    scope = ("every screened name" if full
+             else "held + actionable — the full board arrives nightly by "
+                  "document; any other symbol: python3 homily_chart.py TICKER")
+    legend = LEGEND
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>homily dashboard {E(snap.get("date", ""))}</title>
+<title>homily board {E(snap.get("date", ""))}</title>
 <style>
-body{{font:14px/1.45 -apple-system,system-ui,sans-serif;margin:16px;
-     max-width:720px}}
-details{{border:1px solid #ddd;border-radius:6px;padding:6px 10px;
-        margin:6px 0}}
-summary{{cursor:pointer}}
-table{{border-collapse:collapse}} td{{padding:2px 8px;
-     border-bottom:1px solid #eee}}
-h2{{margin:18px 0 6px;font-size:16px}}
-.wrap{{overflow-x:auto}}
+{CSS}
 </style></head><body>
-<h1>Homily × Danny — {E(snap.get("date", ""))}</h1>
-<p>{ricon} <b>{E(reg.get("label", "regime unavailable"))}</b>
+<div class="wrap">
+<h1>HOMILY × DANNY <small>— board · {E(snap.get("date", ""))}</small></h1>
+<p class="sub">{ricon} <b>{E(reg.get("label", "regime unavailable"))}</b>
  <i>{E(reg.get("action", ""))}</i></p>
-<p><small>ledger coverage: {E(cov.get("have", "—"))}/{E(cov.get("expected",
-"—"))} weekday runs ({E(cov.get("pct", "—"))}%)
+<p class="sub">ledger coverage: {E(cov.get("have", "—"))}/{E(cov.get(
+    "expected", "—"))} weekday runs ({E(cov.get("pct", "—"))}%)
 {("· holes: " + E(", ".join(cov["missing"]))) if cov.get("missing") else ""}
-</small></p>
+ · {ncards} cards ({E(scope)})</p>
+<p class="legend">{legend}</p>
+<div class="searchbar">
+<input id="q" type="search" placeholder="search ticker — e.g. NVDA"
+ aria-label="search ticker">
+<div class="idxrow" id="idx">{idx}</div>
+</div>
+<p class="nohit" id="nohit">no card for that ticker on this board —
+any name on demand: <code>python3 homily_chart.py TICKER</code>, or add it
+to WATCH and it appears tomorrow.</p>
 {buyday}
-<h2>holdings</h2>{cards}
+{cards}
 <h2>🔎 discovery (⭐/🔵 only)</h2>
-<div class="wrap"><table><tr><th></th><th>state</th><th>close</th>
-<th>RS12</th><th>F</th></tr>{disco or '<tr><td colspan="5">none today</td></tr>'}
+<div class="wrapx"><table><tr><th></th><th>state</th><th>close</th>
+<th>RS12</th><th>F</th></tr>{disco or
+    '<tr><td colspan="5">none today</td></tr>'}
 </table></div>
-<h2>ledger state history</h2><div class="wrap">{_heatmap(rows)}</div>
+<h2>ledger state history</h2><div class="wrapx">{_heatmap(rows)}</div>
 <h2>alerts timeline (reconstructed from ledger diffs; regime flips not
 recorded per-row)</h2>{_timeline(rows)}
 <h2>auto-refine, out-of-sample</h2>{_refine_chart(refine_rows)}
-<p><small>generated {E(snap.get("generated_utc", ""))} · self-contained,
-no external assets, no scripts · approximation of Danny/Homily behaviour,
-not their formulas — levels are context, not advice.</small></p>
+<footer>Danny/Homily colour language on purpose: red = bullish, yellow =
+bearish (inverse of Western charts). generated {E(snap.get("generated_utc",
+""))} · self-contained, no external assets, inline script only ·
+approximation of Danny/Homily behaviour, not their formulas — levels are
+context, not advice.</footer>
+</div>
+{_SEARCH_JS}
 </body></html>"""
 
 
@@ -283,15 +585,16 @@ def _read_refine(path=REFINE_LOG):
     return out
 
 
-def write_dashboard(path=DASHBOARD, *, snapshot=None, ledger=None):
-    """IO shell: committed artifacts in, docs/dashboard.html out."""
+def write_dashboard(path=DASHBOARD, *, snapshot=None, ledger=None,
+                    bars_map=None, full=False):
+    """IO shell: committed artifacts (+ this run's bars) in, one board out."""
     snap_path = snapshot or homily_ledger.SNAPSHOT
     if not os.path.exists(snap_path):
         return None
     with open(snap_path) as f:
         snap = json.load(f)
     rows = homily_ledger._read_rows(ledger or homily_ledger.LEDGER)
-    doc = render(snap, rows, _read_refine())
+    doc = render(snap, rows, _read_refine(), bars_map=bars_map, full=full)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write(doc)
@@ -299,6 +602,28 @@ def write_dashboard(path=DASHBOARD, *, snapshot=None, ledger=None):
 
 
 if __name__ == "__main__":
-    p = write_dashboard()
-    print(f"wrote {p} ({os.path.getsize(p):,} bytes)" if p
+    # Local regenerate: fetch bars for the card set (R11: modest fan-out),
+    # --full = every screened name -> temp path, else the small board in
+    # docs/. The CI path never runs this — daily_run passes bars in-memory.
+    import sys
+    from concurrent.futures import ThreadPoolExecutor
+    import homily_data
+    full = "--full" in sys.argv
+    snap = json.load(open(homily_ledger.SNAPSHOT))
+    import daily_run                       # symbol map only (IO shell)
+    sym = {**daily_run.WATCH, **daily_run.UNIVERSE, **daily_run.HOLDINGS}
+    names = [s["ticker"] for s in
+             snap.get("holdings", []) + [d for d in snap.get("discovery", [])
+                                         if full or _actionable(d)]]
+    bars_map = {}
+    def _one(tk):
+        try:
+            bars_map[tk] = homily_data.fetch_daily(sym.get(tk, tk), rng="2y")
+        except Exception as e:
+            print(f"[{tk}] no bars: {e}")
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        list(ex.map(_one, names))
+    out = write_dashboard(BOARD_FULL if full else DASHBOARD,
+                          bars_map=bars_map, full=full)
+    print(f"wrote {out} ({os.path.getsize(out):,} bytes)" if out
           else "no snapshot yet — run daily_run first")

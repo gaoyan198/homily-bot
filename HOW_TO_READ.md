@@ -1,7 +1,7 @@
 # HOW TO READ — the chart card manual (筹码图 reading guide)
 
-This teaches you to read one **chart card** on the Danny board (#83 /
-`docs/mockup-83.html`; any-ticker cards via #84 once built). Siblings:
+This teaches you to read one **chart card** on the Danny board (#83,
+shipped 2026-07-12; any-ticker cards via #84). Siblings:
 `HOW_IT_WORKS.md` explains *why* the engines compute what they compute;
 `PLAYBOOK.md` §2 reads the *text* digest; this file reads the *picture*.
 Every mark on the card is a frozen-engine output — the chart never draws
@@ -130,7 +130,7 @@ they gate nothing):
 | `F:n/3` | EDGAR checks: revenue growth >10% · NI>0 or OCF>0 · dilution <12% | info-only; `F:—` = non-US. Sharpens hold-through-⚪ judgment, never times entries |
 | `x% of book` / ⚠ cap note | position awareness | ⚠ means an add would breach the 10% cap — copilot already sized for it |
 
-## 6 · How it combines — worked examples (the three mockup cards)
+## 6 · How it combines — three worked examples (cards as of 2026-07-10)
 
 **NVDA (⭐, the setup you're hunting):** ribbon red 15w with a shallow
 2-day dip · price sitting ON the teal add band · POC below (basis support,
@@ -174,17 +174,17 @@ itself — receipts in `BACKTEST_RESULTS.md`):
 
 ## 8 · Looking up any stock
 
-* **Board search (#83):** the production board carries a card for **every
-  screened name** (~68) — type in the search bar or tap a ticker chip.
+* **Two boards arrive in Telegram nightly:** 📊 the small board (held
+  charts + facts cards for today's actionable set — the committed one) and
+  🔎 the **full board** with a chart for **every screened name** (~68) —
+  type in the search bar or tap a ticker chip.
 * **Any ticker at all (#84):** `python3 homily_chart.py TICKER` fetches
-   2y of bars, runs the same frozen engines read-only, and renders the
+  2y of bars, runs the same frozen engines read-only, and renders the
   same card for any Yahoo-resolvable symbol (incl. `.HK`/`.SI`). The card
   carries an `ad-hoc — not screened, no ledger history` banner: a chart on
   demand is context, not a tracked call.
 * **Make it permanent:** add the name to `WATCH`/universe and it appears
   on the board (and in the ledger) from the next run, provenance-tagged.
-* Until #83/#84 ship: the digest's top-3 PNG cards, `docs/mockup-83.html`
-  for the pattern, or ask Claude in a session.
 
 *Levels are context, not advice. The chart is an approximation of
 documented Danny/Homily behaviour — not their formulas, and never a
