@@ -74,9 +74,12 @@ def close_on(bars, d):
 
 
 def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260,
-                 index_bars=None):
+                 index_bars=None, nav_out=None):
     """index_bars set -> PLAYBOOK §3.5: months with no ⭐/🔵 buy the INDEX
-    core (never sold) instead of parking cash. None -> legacy cash-waits."""
+    core (never sold) instead of parking cash. None -> legacy cash-waits.
+    `nav_out` (a list, filled in place) exposes the monthly unit-NAV path so
+    #39's bootstrap reads the exact series this run scored (R6: no
+    reimplementation)."""
     is_bear = regime_series(spy, qqq)
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
     cash = paid = 0.0
@@ -135,6 +138,8 @@ def run_strategy(names, data, spy, qqq, use_regime=True, min_bars=260,
                                      for n, sh in hold.items())
     unit_val = final / units
     nav.append(unit_val)
+    if nav_out is not None:
+        nav_out[:] = nav
     yrs = len(months) / 12
     cagr = (nav[-1] / nav[0]) ** (1 / yrs) - 1
     mdd = min(nav[j] / max(nav[:j + 1]) - 1 for j in range(1, len(nav)))
