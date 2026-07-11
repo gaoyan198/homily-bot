@@ -110,12 +110,12 @@ USD-only until an FX line ships (#53).
 
 ## 3. Mechanical guards (new backlog items — build in session 1–2)
 
-61. **Engine-freeze CI guard** (S) — `homily_validate.py` asserts the
-    SHA-256 of each frozen engine file against a committed manifest
-    (`engine_freeze.json`); an engine change fails CI unless the manifest
-    is updated in the same commit — making every engine edit loud,
-    deliberate, and reviewable. **Gate:** none (guard infra); update the
-    manifest ONLY in Phase-C sessions whose backtest gate passed.
+61. ~~**Engine-freeze CI guard**~~ (S) — **done 2026-07-11** (validate
+    [39]): `homily_validate.py` asserts the SHA-256 of each frozen engine
+    file against `engine_freeze.json`; an engine change fails CI unless
+    the manifest is updated in the same commit — every engine edit is
+    loud, deliberate, and reviewable. Update the manifest ONLY in Phase-C
+    sessions whose backtest gate passed.
 62. **Ledger append-only guard** (S; with #13) — validate recomputes a
     running hash of all ledger rows older than today and compares to a
     committed checkpoint; any retro-edit of history fails CI. Enforces R3

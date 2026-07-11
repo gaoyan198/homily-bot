@@ -1231,4 +1231,29 @@ assert len(_w38) == 1 and "yesterday's committed book" in _w38[0], _w38
 del os.environ["IBKR_FLEX_TOKEN"], os.environ["IBKR_FLEX_QUERY"]
 print("[38] Flex sync: parse, owner fields kept, no add/delete, non-fatal . PASS")
 
+# --- 39. Engine freeze (#61): frozen files match the committed manifest -----
+# EXECUTION §0: these files ARE the algorithm. Any edit must update
+# engine_freeze.json in the same commit -- and per the freeze rule that is
+# only legitimate in a Phase-C session whose backtest gate passed. This test
+# makes a silent engine drive-by impossible: touch an engine file without
+# touching the manifest and CI goes red.
+import hashlib
+
+_FROZEN61 = ["homily_chips.py", "homily_clone.py", "homily_danny.py",
+             "homily_vol.py", "homily_whale.py", "homily_conviction.py",
+             "homily_regime.py", "homily_fund.py"]
+_here61 = os.path.dirname(os.path.abspath(__file__))
+_man61 = json.load(open(os.path.join(_here61, "engine_freeze.json")))
+assert set(_man61) == set(_FROZEN61), \
+    "engine_freeze.json must list exactly the EXECUTION §0 frozen files"
+for _f61 in _FROZEN61:
+    _sha61 = hashlib.sha256(
+        open(os.path.join(_here61, _f61), "rb").read()).hexdigest()
+    assert _sha61 == _man61[_f61], (
+        f"[39] FAIL: {_f61} changed but engine_freeze.json was not updated. "
+        "Engines are frozen (EXECUTION §0); if this edit passed a Phase-C "
+        "gate, update the manifest in the SAME commit and say so in the "
+        "commit message.")
+print("[39] Engine freeze: 8 frozen files match engine_freeze.json ......... PASS")
+
 print("\nAll structural assertions passed.")
