@@ -45,6 +45,10 @@ jobs:
           # #30 bear-readiness: owner confirms margin is zero (§6) by setting
           # this variable; unset = the monthly rehearsal block nags.
           MARGIN_ZERO: ${{ vars.MARGIN_ZERO }}
+          # #32 Flex auto-sync (SECRETS — a token, unlike the vars above).
+          # Unset = no sync, holdings.json stays the manual fallback.
+          IBKR_FLEX_TOKEN: ${{ secrets.IBKR_FLEX_TOKEN }}
+          IBKR_FLEX_QUERY: ${{ secrets.IBKR_FLEX_QUERY }}
         run: python daily_run.py
 
       - name: Commit refined champion + log
@@ -60,5 +64,7 @@ jobs:
           git add docs/orders_*.csv 2>/dev/null || true
           # #36 dashboard (R8): the nightly render is a committed artifact
           git add docs/dashboard.html 2>/dev/null || true
+          # #32 (R8): a Flex-synced book must be committed the day it syncs
+          git add holdings.json 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"

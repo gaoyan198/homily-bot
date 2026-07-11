@@ -26,6 +26,7 @@ import homily_bearready
 import homily_png
 import homily_dashboard
 import homily_clusters
+import homily_flex
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -256,7 +257,8 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None):
 
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
-                  bearready="", gaps=None, breadth_read=None, conc=None):
+                  bearready="", gaps=None, breadth_read=None, conc=None,
+                  flex_notes=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -354,6 +356,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   + f" · {esc(fund(s.ticker))}" for s, y in hits]
     else:
         lines.append("no ⭐/🔵/🐳-dip setups in the universe today")
+    # #32: the Flex sync's one-line diffs (or its failure warning) — book
+    # changes and sync problems both belong where the owner will read them
+    for note in (flex_notes or []):
+        lines.append(f"📒 book sync: {esc(note)}")
     if errs:
         lines.append(f"⚠️ fetch failed: {esc(', '.join(errs))}")
     if gaps:
@@ -401,7 +407,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     return "\n".join(lines)
 
 
-def build_digest():
+def build_digest(flex_notes=None):
     """IO shell: fetch everything the digest needs, then hand it to the pure
     render_digest(). The network/clock/state-mutating calls live ONLY here."""
     errs, suspect, all_bars = [], {}, {}
@@ -475,7 +481,7 @@ def build_digest():
     digest = render_digest(sigs, disco, proxy, regime, daily_refine(), errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
-                           breadth_read=br, conc=conc)
+                           breadth_read=br, conc=conc, flex_notes=flex_notes)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
@@ -650,7 +656,18 @@ if __name__ == "__main__":
     if homily_ledger.run_date().weekday() == 6:      # Sunday SGT → #33
         sunday_deepdive()
         raise SystemExit(0)
-    digest, alert, charts = build_digest()
+    # #32: sync the book from IBKR Flex BEFORE anything reads it. Env-gated
+    # (unset secrets = no-op), never fatal; on any change the module-level
+    # book views are rebuilt so this run screens the synced book.
+    flex_notes = homily_flex.auto_sync()
+    if flex_notes:
+        for _d in flex_notes:
+            print(f"[flex] {_d}")
+        POSITIONS = homily_positions.load_positions()
+        HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
+        ORIGINS = {**{tk: "owner-request" for tk in {**WATCH, **UNIVERSE}},
+                   **{tk: "holding" for tk in HOLDINGS}}
+    digest, alert, charts = build_digest(flex_notes)
     send(digest)
     for _tk, png, caption in charts:    # #35: top-3 actionable chart cards
         send_photo(png, caption)
