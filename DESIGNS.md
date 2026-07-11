@@ -479,22 +479,57 @@ computation change anywhere. Footer keeps the §2 honesty constraints
 verbatim: approximation of documented behaviour, not Danny's or Homily's
 formulas; red-bullish colour convention restated.
 
+**Search & distribution (added 2026-07-12, owner request: "if I want to
+analyse any stock I should be able to search it and get the Homily
+chart").**
+
+* **Board scope grows to ALL screened names** (~68: universe + holdings +
+  watch), one card each — not just held+actionable. Search covers what the
+  system screens; arbitrary out-of-universe symbols are #84's CLI job.
+* **Search mechanics, progressive enhancement:** baseline = a
+  state-coloured **ticker-chip index** at the top (`<a href="#NVDA">` per
+  card — zero-JS, works in any renderer, plus the browser's find-in-page).
+  Enhancement = a sticky filter `<input>` with **≤20 lines of inline
+  vanilla JS** (prefix match on `data-tk`, hides non-matching cards and
+  chips; a no-hit hint points at the #84 CLI and at adding the name to
+  WATCH). This is a **deliberate, recorded relaxation of D-36's zero-JS
+  rule**: the rule's actual goals — one self-contained file, no external
+  assets, offline, no hosting, renders identically in five years — all
+  still hold; the JS is optional sugar and the page is fully usable
+  without it. The self-containment validate check gains one assert: no
+  external `script src` (inline only).
+* **Distribution split (the size problem, solved by not committing it):**
+  ~68 cards × ~20 KB ≈ 1.4 MB — fine to *send*, wrong to *commit* (≈350
+  MB/yr of git history at daily cadence). So: `docs/dashboard.html`
+  (committed, workflow git-add unchanged) stays the SMALL board — held +
+  actionable, ≤300 KB budget as above — while the FULL board is generated
+  each night and delivered via `sendDocument` only; Telegram chat history
+  is its archive, and `python3 homily_dashboard.py --full` regenerates it
+  locally on demand. R8 unaffected (sent-not-committed artifacts don't
+  enter the git-add list).
+* **Reading manual:** `HOW_TO_READ.md` (top-level, registered in PRD §9.3)
+  teaches the card element-by-element with the three mockup cards as
+  worked examples; ships with the plan, updated if the build diverges.
+
 **Gate (presentation-only):** deterministic render on fixture
-bars+snapshot+ledger (extends [33]) · self-containment assert unchanged ·
-size-budget assert · digest goldens untouched. Info-only by definition.
+bars+snapshot+ledger (extends [33]) · self-containment assert + inline-
+script-only assert · committed-board ≤300 KB budget assert · digest
+goldens untouched. Info-only by definition.
 
 File: `homily_dashboard.py` rewrite + the `daily_run.py` call-site +
-validate fixtures · Effort M–L · one session.
+validate fixtures · Effort M–L (search/full-board adds breadth, not
+depth — same card renderer) · one session; **#84 (any-ticker CLI) is its
+own follow-up session reusing the renderer** (spec in SPECS §2).
 
 ---
 
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
-Numbering continues PRD §8 (#61–83 taken — see PRD §8.3 index; #68–75
+Numbering continues PRD §8 (#61–84 taken — see PRD §8.3 index; #68–75
 assigned 2026-07-11 in PRD §8 phases; #77–82 = Danny latest-posts review,
 PRD §5k, full rows in the §8.3 table; #83 = Danny-style chart board,
-D-83 above; new proposals start #84).
+D-83 above; #84 = any-ticker chart CLI; new proposals start #85).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):
