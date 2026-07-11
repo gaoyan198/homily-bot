@@ -31,30 +31,41 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #70 missed-run detector | 2026-07-11 | validate [32] |
 | #61 engine-freeze manifest guard | 2026-07-11 | validate [39] (negative case proven) |
 | #76 planning-doc pruning | 2026-07-11 | docs-only — validate green, goldens untouched, archive pointers verified |
+| #14a flip scorecard rider | 2026-07-11 | validate [40]; first matured read ~2026-08 |
+| #39 bootstrap CIs | 2026-07-11 | validate [41]; CI table = BACKTEST_RESULTS §6 |
+| #82 ribbon run-length + digest suffix | 2026-07-11 | study ran (§7); conditioning null per its own rule |
+| #78 pullback clock + dip counter | 2026-07-11 | stability rule PASSED (§8), validate [42]; p90-warning refuted, never ships |
+| #77 multi-timeframe VH | 2026-07-11 | NULL, closed (§9); consumed Q3's timing-modifier slot |
+| #79 whale-distribution study | 2026-07-11 | gate PASSED (§10); ship queued behind R10 (+mLHLL variant preferred) |
+| #20 conviction-score backtest | 2026-07-11 | ran (§11), validate [43]; score ranks OOS, tier cuts null, no relabel |
+| #67 hard-rule audit | 2026-07-11 | pre-committed rules applied (§12); cap stays + premium quoted in PLAYBOOK §3.4 |
+| #21 diagnostic + parallel J log | 2026-07-11 | validate [44]; switch read ≥2026-08-22 (§13) |
+| #66 Q-tier gate + label | 2026-07-11 | wreck-separation FAILED (§14), validate [45]; label-only ships, 💎/veto dead |
+| #65 universe.json + shadow quarter | 2026-07-11 | validate [46]; adoption read ~2026-10 |
 
-## 1 · Remaining queue (recommended order)
+## 1 · Remaining queue (updated 2026-07-11 late — the buildable backlog is EMPTY)
 
-1. ~~#64 provenance~~ · ~~#30 bear-readiness~~ · ~~#69 registry + #80
-   whale_rank~~ · ~~#70 missed-run detector~~ — all shipped 2026-07-11
-   (gates [29]–[32]); the time-sensitive ledger columns are accruing.
-3. **#36 nightly dashboard** — the Quarter centrepiece (owner-confirmed);
-   ride **#75 snapshot schema contract** (S, blocks T3) in the same
-   session if scope allows.
-4. **#25 real market cap** · **#26 breadth canary** · **#28 trim-rule
-   flags** · **#29 concentration lens** — S/M digest features, any order.
-5. **#32 Flex auto-sync** · **#33 Sunday deep-dive** — after #36.
-6. **#14 live scorecard** — first read ~2026-10 (needs ~3 ledger months).
-   Its **#14a flip-scorecard rider** (1/5/20-day flip returns vs QQQ) can
-   read ~2026-08 and may ship earlier with any digest session.
-7. **#24 promotion decision** — 2026-10-01 at the earliest, per §2·24.
-8. **Phase C / studies, one per session, each behind its own gate:**
-   #20 conviction backtest · #21 refine re-point · #65 mechanical
-   universe · #66 right-stock discipline · #67 hard-rule audit · #39
-   bootstrap CIs. R10: max ONE promoted behaviour change per quarter —
-   whale holds Q3; #24 (if its forward-check passes) is the natural Q4
-   slot; anything else that passes WAITS.
-9. **T3 order routine** — own session; only after two clean T2 months AND
-   cloud repo access works. Guardrails verbatim from PRD §9.2.
+Everything remaining is DATE- or OWNER-gated; nothing is buildable today:
+
+1. **~2026-08-11** · #14a first matured read (info-only; just run
+   `python3 homily_flipscore.py`).
+2. **≥2026-08-22** · #21 switch decision — 30 rows of `homily_refine_j.csv`,
+   own session, same +10% OOS margin; §13's λ caveat applies.
+3. **~2026-10** · #14 live scorecard (+#71 noise band, build together) —
+   3 ledger months; also the #65 shadow-quarter adoption read (D-65 rule)
+   and the first #64-split scorecard.
+4. **2026-10-01+** · #24 promotion decision per §2·24 — Q4's R10 slot,
+   first in line. QUEUED BEHIND IT (each its own gated session, R10-spaced):
+   #79 distribution-tag ship (+mLHLL variant, scope guard verbatim) ·
+   #67's whale-cap tightening to 1.6% (+ #31 copilot constant sync) ·
+   any #20 weight change · #25 real market cap (engine edit, §8.5) ·
+   possible add-cap move-up (§12 caveat: 25% surrenders half the payout).
+5. **Quarterly** · #65 universe refresh (`--shard k/N` over CI nights) +
+   #44 hygiene issue; #74/#81 timing-modifier studies — ONE per quarter.
+6. **Owner-gated** · T3 (two clean T2 months + cloud repo access; PRD §9.2
+   verbatim) · IBKR_FLEX_TOKEN/QUERY secrets (#32) · MARGIN_ZERO ·
+   BUY_BUDGET_USD back to 1550 · F3 only if two weeks of F2 shows
+   file-open friction.
 
 Guards #61 (engine-freeze SHA manifest) and #62 (ledger hash) — #62
 shipped with #13; #61 shipped 2026-07-11 (`engine_freeze.json`, validate
