@@ -331,14 +331,19 @@ def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT,
 
 
 def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
-           origins=None, buyday=None, ledger=LEDGER, snapshot=SNAPSHOT,
-           hashfile=HASHFILE):
+           origins=None, buyday=None, shadow=None, ledger=LEDGER,
+           snapshot=SNAPSHOT, hashfile=HASHFILE):
     """Orchestrator called by daily_run after the digest is built. `sigs` is
     the held+watch group, `disco` the not-held discovery group; `holdings_set`
     is the set of actually-held tickers (WATCH names screen in `sigs` but are
     not held). `origins` (#64) maps ticker -> provenance; anything unmapped
     falls back to "holding" if held else "owner-request" (conservative —
-    never lets a name masquerade as mechanically screened)."""
+    never lets a name masquerade as mechanically screened).
+    `shadow` (#65): (sig, conv) pairs from the mechanical screen's D-65
+    shadow quarter — logged as rows with origin "shadow-screen" so the
+    adoption gate can be measured, but OUTSIDE the rank cross-sections
+    (rs12/whale ranks stay what the digest could have acted on), outside
+    the snapshot, and with no digest surface."""
     org = origins or {}
 
     def _origin(tk):
@@ -356,7 +361,9 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
     for st in all_states:
         st["rs12_rank"] = ranks[st["ticker"]]
         st["whale_rank"] = wranks[st["ticker"]]
-    rows = [csv_row(st, day) for st in all_states]
+    shadow_states = [state_of(s, c, False, fund=fund, origin="shadow-screen")
+                     for s, c in (shadow or [])]
+    rows = [csv_row(st, day) for st in all_states + shadow_states]
     all_rows = append_rows(rows, day, ledger=ledger, hashfile=hashfile)
     write_snapshot(day, regime, held_states, disco_states, path=snapshot,
                    coverage=coverage_of(all_rows, day), buyday=buyday)
