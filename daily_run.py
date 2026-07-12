@@ -394,8 +394,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                              corp=sus.get(s.ticker), qual=qual)
                   for s, c in rockets[:5]]
         lines.append("<i>sizing guide: CONVICTION ≤5% of account · STARTER "
-                     "≤2% · hard cap 10%/name incl. existing · add at ⭐ "
-                     "zones only</i>")
+                     "≤2% · add-cap 25%/name incl. existing (#92, demotion "
+                     "watch armed) · add at ⭐ zones only</i>")
     else:
         lines.append("no name passes all 5 gates today — that's the point")
 
@@ -447,7 +447,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               " shelf = chip shelf replenished while price sits on it);"
               " ⚪ + 🎯 + 🐳 = WHALE-DIP tier, the one case a ⚪ name may be"
               " added — discretionary, ≤2% of account, same monthly budget,"
-              " 10%/name hard cap (gate backtest: fwd60 +10.9% vs +9.5% DCA,"
+              " 25%/name add-cap (gate backtest: fwd60 +10.9% vs +9.5% DCA,"
               " 58 names incl. 2021 wrecks) · ⚠️ levels suspended = a >45%"
               " one-day move on abnormal volume sits in the chip window, so a"
               " split/spin-off may be mis-adjusted: the state row still"
@@ -542,6 +542,20 @@ def build_digest(flex_notes=None):
             promos = homily_promotions.month_start_block(lrows, today, esc=esc)
     except Exception as e:
         print(f"[promotions] skipped: {e}")
+    # #92: the promoted add-cap's demotion watch — EVERY run, not just
+    # month-start (a halving must surface the day it prints). Highs are the
+    # max close since the promotion date, from bars already fetched.
+    try:
+        _cd = datetime.date.fromisoformat(homily_positions.CAP_PROMOTED)
+        highs = {tk: max((b[4] for b in bs if b[0] >= _cd), default=None)
+                 for tk, bs in all_bars.items()}
+        prices_now = {s.ticker: s.chips.last for s, _c, _y in sigs}
+        capdem = homily_positions.cap_demotion_line(POSITIONS, prices_now,
+                                                    highs)
+        if capdem:
+            promos = f"{promos}\n\n{capdem}" if promos else capdem
+    except Exception as e:
+        print(f"[cap-demotion] skipped: {e}")
     # #70: surface recent runner misses (last ~2 weeks; the snapshot keeps
     # the full history so an old hole doesn't nag forever). Non-fatal.
     gaps = []

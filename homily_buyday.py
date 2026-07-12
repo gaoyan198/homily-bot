@@ -18,8 +18,8 @@ Allocation (D-31, PLAYBOOK §3):
   names by RS12 (holdings + discovery — #24 promoted 2026-07-12, owner
   override, promotions.json carries the basis + demotion rule; the
   F:2+-first tie-break retired with equal-split-max-5) → per name the
-  post-buy value is capped at 10% of the post-deploy stock book (#27's
-  CAP_PCT), overflow redistributed to the remaining stars → round DOWN
+  post-buy value is capped at CAP_PCT of the post-deploy stock book
+  (#27's constant — 25% since the #92 promotion, 2026-07-12), overflow redistributed to the remaining stars → round DOWN
   to whole shares → leftover printed, rolls to next month.
 
 R12: non-USD names never get an order line — no cross-currency budget
@@ -54,6 +54,7 @@ MAX_STARS = 3                # #24 promoted 2026-07-12: top-3 by RS12
                              # rolling demotion check restores max-5)
 INDEX_FRAC = 0.5             # PLAYBOOK §3.3: half to index, half to stars
 CAP_FRAC = homily_positions.CAP_PCT / 100.0   # one cap constant (D-27 interlock)
+CAP_PCT_INT = int(homily_positions.CAP_PCT)   # for printed messages
 
 
 def is_buy_day(day, ledger_rows):
@@ -161,7 +162,7 @@ def plan(budget, states, positions, regime_label, *, srs_covers_index=False,
             orders.append((tk, n, px, ""))
             spent += n * px
         elif alloc.get(tk, 0.0) <= 1e-9 and star_pool > 0:
-            skipped.append(f"{tk}: at the 10% cap — no add")
+            skipped.append(f"{tk}: at the {CAP_PCT_INT}% cap — no add")
         elif star_pool > 0:
             skipped.append(f"{tk}: allocation ${alloc[tk]:,.0f} "
                            f"< 1 share (~${px:,.0f})")

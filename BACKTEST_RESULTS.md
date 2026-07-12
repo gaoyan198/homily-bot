@@ -501,6 +501,16 @@ damage is ≤1.8% of paid at EVERY cap level in EVERY window — **wrecks lose
 ⭐ long before they accumulate; the ⭐ gate, not the cap, contains wrecks**
 (the D-67 hypothesis, confirmed).
 
+**2026-07-12 update: PROMOTED to 25% by owner override** (#92/D-92,
+`promotions.json` "add-cap-25") — ahead of the clean 2027-Q1 slot, on the
+letter-of-D-67 adoptability above. The recorded cost stands: 25%
+surrenders half the −95% shock payout (1.70 vs 1.89). Demotion armed and
+checked every run (validate [50]): a ≥15%-of-book name closing −50% from
+its post-promotion high reverts the cap to 10% mechanically. R10
+arithmetic: 2027-Q1's slot is spent early; next free slot 2027-Q2. The
+original decision text below stands as the record of what the study
+itself concluded.
+
 **Decision (per the pre-committed rule + R10):** the cap STAYS at 10%
 today — §8.0's one-live-change/90-day spacing and R10 bind any move (🐳
 holds Q3), and the shock table shows 25% surrenders half the payout the

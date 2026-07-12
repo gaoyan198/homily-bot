@@ -704,17 +704,19 @@ assert [s["ticker"] for s in _usd27] == ["SML", "BIG", "NEW"], \
 assert [s["ticker"] for s in _man27] == ["0700"], "non-USD ⭐ -> manual (R12)"
 
 # SRS covers the index (PRD §9.4): whole $1,000 to stars. Stock book =
-# BIG 900 + SML 10 = 910 (bucket A out); post-deploy denom 1910 -> 10% cap
-# $191/name. BIG (at $900) is fully capped; SML capped at $181 -> 18 shares;
-# NEW capped at $191 -> 6 whole shares; the rest is leftover, printed.
+# BIG 900 + SML 10 = 910 (bucket A out); post-deploy denom 1910 -> 25% cap
+# (#92, 2026-07-12) $477.50/name. BIG (at $900) is STILL fully capped —
+# the cap keeps binding, just later; equal split 333.33/name, BIG's share
+# redistributes to SML/NEW (500 each), SML caps at 477.50-10=467.50 -> 46
+# shares, NEW caps at 477.50 -> 15 whole shares; the rest is leftover.
 _p27 = homily_buyday.plan(1000, _st27, _pos27, "BULL",
                           srs_covers_index=True, yahoo=_yh27)
 assert _p27["mode"] == "normal" and _p27["index_amt"] == 0
 _ord27 = {tk: n for tk, n, _px, _nt in _p27["orders"]}
-assert _ord27 == {"SML": 18, "NEW": 6}, f"cap + whole-share floor: {_ord27}"
+assert _ord27 == {"SML": 46, "NEW": 15}, f"cap + whole-share floor: {_ord27}"
 assert any(s.startswith("BIG:") for s in _p27["skipped"]), \
-    "a name at the 10% cap is skipped loudly, not silently dropped"
-assert abs(_p27["spent"] - 360) < 1e-9 and abs(_p27["leftover"] - 640) < 1e-9
+    "a name at the 25% cap is skipped loudly, not silently dropped"
+assert abs(_p27["spent"] - 910) < 1e-9 and abs(_p27["leftover"] - 90) < 1e-9
 assert _p27["manual"] == ["0700"]
 
 # normal path: half to Bucket A (5 × CSPX@100), half to stars
@@ -732,7 +734,7 @@ for _states, _reg, _mode in ((_flat27, "BULL", "nostars"),
 
 # render leads with 🛒, prints IBKR-ready lines, never places (§7)
 _txt27 = homily_buyday.render(_p27, _d27)
-assert _txt27.startswith("🛒") and "BUY  18 SML" in _txt27 \
+assert _txt27.startswith("🛒") and "BUY  46 SML" in _txt27 \
     and "printed, never placed" in _txt27 and "manual: 0700" in _txt27, _txt27
 
 # T2 basket CSV: same orders, IBKR BasketTrader header, USD-only rows
@@ -1114,11 +1116,13 @@ assert "hostile tape" not in _out34q, "healthy breadth prints nothing (#26)"
 print("[34] Breadth canary: 200d/RED math, line only under 30% ........... PASS")
 
 # --- 35. Trim-rule flags (#28): §5 wording, right rows, info-only ----------
-_r1 = homily_positions.trim_flags({"bucket": "C", "pct": 12.3, "cap_note": ""},
+# (Rule-1 threshold = CAP_PCT, 25% since the #92 promotion — the fixture
+# sits just over it so the flag still exercises the same path)
+_r1 = homily_positions.trim_flags({"bucket": "C", "pct": 27.3, "cap_note": ""},
                                   "HOLD", 3, "F:3/3")
-assert _r1 == ["RULE 1: 12% bought-not-earned — trim back to 10%, proceeds "
+assert _r1 == ["RULE 1: 27% bought-not-earned — trim back to 25%, proceeds "
                "to ⭐/index (§5.1)"], _r1
-assert homily_positions.trim_flags({"bucket": "B", "pct": 25.0,
+assert homily_positions.trim_flags({"bucket": "B", "pct": 40.0,
                                     "cap_note": None}, "HOLD", 3, "F:3/3") \
     == [], "bucket B earned its size — §5 pass, no Rule 1"
 _r2 = homily_positions.trim_flags(None, "CAUTION", 13, "F:1/3")
@@ -1616,5 +1620,28 @@ _src49 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 assert "urlopen" not in _src49 and "write_text" not in _src49 and \
     ".record(" not in _src49, "the ladder line is pure render — no IO"
 print("[49] Leverage ladder line: constants pinned, regimes render, pure .. PASS")
+
+# --- 50. #92 add-cap promotion: constants interlocked, demotion watch ------
+assert homily_positions.CAP_PCT == 25.0 and homily_positions.WARN_PCT == 20.0, \
+    "#92: cap constants (a demotion reverts BOTH to 10.0/8.0)"
+assert homily_buyday.CAP_FRAC == homily_positions.CAP_PCT / 100.0, \
+    "D-27 interlock: the copilot cap IS homily_positions.CAP_PCT"
+_reg50 = {e["id"]: e for e in homily_promotions.load_registry()}
+assert "add-cap-25" in _reg50 and _reg50["add-cap-25"]["demotion_rule"], \
+    "#92 must be in promotions.json with its demotion rule"
+_pos50 = {"BIG": {"yahoo": "BIG", "shares": 100.0, "cost": 10.0},
+          "SML": {"yahoo": "SML", "shares": 1.0, "cost": 10.0}}
+_px50 = {"BIG": 40.0, "SML": 40.0}                 # BIG ≈ 99% of book
+# halved from its post-promotion high (80 → 40) → banner fires
+_ln50 = homily_positions.cap_demotion_line(_pos50, _px50, {"BIG": 80.0})
+assert "DEMOTION TRIGGERED" in _ln50 and "BIG" in _ln50 and "10%" in _ln50, \
+    f"halved ≥15% name must fire the banner: {_ln50!r}"
+# −40% from high → quiet; small name halved → quiet; missing highs → quiet
+assert homily_positions.cap_demotion_line(_pos50, _px50, {"BIG": 66.0}) == ""
+assert homily_positions.cap_demotion_line(
+    _pos50, _px50, {"SML": 80.0}) == ""
+assert homily_positions.cap_demotion_line(_pos50, _px50, {}) == ""
+assert homily_positions.cap_demotion_line({}, {}, None) == ""
+print("[50] #92 add-cap 25%: interlock + registry + demotion watch fires .. PASS")
 
 print("\nAll structural assertions passed.")
