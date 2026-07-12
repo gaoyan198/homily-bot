@@ -42,6 +42,8 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #21 diagnostic + parallel J log | 2026-07-11 | validate [44]; switch read ≥2026-08-22 (§13) |
 | #66 Q-tier gate + label | 2026-07-11 | wreck-separation FAILED (§14), validate [45]; label-only ships, 💎/veto dead |
 | #65 universe.json + shadow quarter | 2026-07-11 | validate [46]; adoption read ~2026-10 |
+| #83 Danny chart board (searchable, dual boards) | 2026-07-12 | validate [33] extended; §8.5 size-split note; goldens untouched |
+| #84 any-ticker chart CLI | 2026-07-12 | validate [47]; R3 pinned mechanically |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
@@ -56,11 +58,10 @@ bottom line names it a lever; PLAYBOOK edited only after its gate) ·
 #47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
 money-touching result queues behind R10.
 
-**Next build sessions (owner-requested 2026-07-12):** **#83 Danny-style
-chart board, searchable** — spec below, design D-83 (incl. the §search
-addendum), visual target `docs/mockup-83.html`, reading manual
-`HOW_TO_READ.md` — then **#84 any-ticker chart CLI** (own session, reuses
-#83's renderer).
+~~**Next build sessions (owner-requested 2026-07-12):** #83 + #84~~ —
+**both shipped 2026-07-12** (gates [33]/[47]; the committed-board size
+contradiction is recorded in PRD §8.5). The mockup file is deleted as
+spec'd; `HOW_TO_READ.md` is the manual.
 
 Everything else remaining is DATE- or OWNER-gated:
 

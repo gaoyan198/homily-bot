@@ -8,7 +8,9 @@ and its daily out-of-sample-gated auto-refine loop. Telegram digest via GitHub
 Actions cron — no server, no paid data, pure stdlib. See `PRD.md` for the full
 spec and the honesty constraints. **Start with [PLAYBOOK.md](PLAYBOOK.md)** —
 the plain-English operating manual (bear-market steps, core vs satellite,
-trim rules, how to read the digest in 2 minutes).
+trim rules, how to read the digest in 2 minutes) — and
+**[HOW_TO_READ.md](HOW_TO_READ.md)**, the chart-card manual for the #83
+board (red-candle-is-BULLISH colour language, chip histogram, VH zones).
 
 > ⚠️ **Two honest backtest results are baked into the digest on purpose:**
 > 1. Mechanically holding 🔴 and cutting ⚪ trails buy-and-hold on return
@@ -118,7 +120,8 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_danny_backtest.py` | 5y daily ⭐-gated accumulation vs monthly DCA (it loses too) |
 | `homily_refine.py` | Daily auto-refine: walk-forward, champion replaced only if it wins **out-of-sample** |
 | `homily_png.py` | Chart cards (#35): pure-stdlib PNG (price + add-zone/POC/res + chip histogram + weekly ribbon); top-3 actionable names sent as photos after the digest |
-| `homily_dashboard.py` | Nightly dashboard (#36): self-contained zero-JS `docs/dashboard.html` — holding cards, ledger state heatmap, reconstructed alerts timeline, refine chart; committed + sent as a document |
+| `homily_dashboard.py` | Danny chart board (#83, supersedes #36): searchable dark board of candle cards (engine-coloured candles, chip histogram + POC, VH zone, add-zone band, 52w ribbon) + ledger heatmap/alerts timeline/refine chart. Small board committed (`docs/dashboard.html`, held charts + actionable facts cards); FULL board (every screened name) sent nightly, never committed. One inline filter script — the recorded D-36 relaxation. Manual: `HOW_TO_READ.md` |
+| `homily_chart.py` | Any-ticker chart CLI (#84): `python3 homily_chart.py TICKER…` renders the same card for any Yahoo symbol — ad-hoc banner, nothing written to the ledger (R3) |
 | `homily_promotions.py` + `promotions.json` | Promotion lifecycle registry (#69): pre-registered gates, forward-checker, and mandatory demotion rules — the Oct-2026 rs12-top3 decision is this program's output |
 | `homily_weekly.py` | Sunday deep-dive (#33): fetch-free weekly summary from the week's ledger rows + the dashboard file |
 | `homily_flex.py` | IBKR Flex auto-sync (#32): shares/cost from a Flex query at run start; owner fields survive; never adds/deletes; unset secrets = manual fallback |
