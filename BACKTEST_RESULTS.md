@@ -591,6 +591,56 @@ touched, so no engine-freeze question arises either way.
 
 ---
 
+## 15 · #91 leverage-ladder backtest (run 2026-07-12) — PASSED; LEVERAGE.md signed
+
+The D-91 ladder (BULL ≤1.30× / MIXED ≤1.15× / BEAR = margin zero) simulated
+on total-return QQQ with month-end 10m-SMA regime labels (SPY+QQQ, applied
+next session — no look-ahead), monthly releverage, maintenance 0.25,
+financing constant 5.8%/yr base + 7.8% stress (DELIBERATELY conservative:
+the ZIRP decade's real ~2% margin would flatter every levered arm).
+Decision rule frozen in the file docstring before the run. Reproduce:
+`python homily_leverage_backtest.py`.
+
+| window | QQQ B&H | timed (cash in 🐻) | ladder 1.15× | **ladder 1.30×** | 1.50× (info) |
+|---|---:|---:|---:|---:|---:|
+| 2020→2025 | 2.27 | 1.88 | 2.38 | **2.57** | 2.84 |
+| 2021→2026 | 2.14 | 1.53 | 2.18 | **2.29** | 2.45 |
+| 2016→2026 (10y) | 7.30 | 3.78 | 8.10 | **9.43** | 11.49 |
+| MAX 1999→2026 | 16.86 | 19.66 | 20.55 | **25.53** | 33.44 |
+
+**Readout (pre-registered): PASS at L=1.30.** (a) Zero margin-call breaches
+in any window — every rolling 5y since 2015, both 10y, and the max-history
+path through dot-com + 2008 + 2022 — at base AND stress financing; worst
+equity/position ratio 0.68 (boundary 0.25). (b) Beat unlevered QQQ on 3/3
+construction-honest read windows net of financing (stress cells also
+clear: 2.51 / 2.24 / 8.98). LEVERAGE.md signed same day at 1.30/1.15/1.00
+(owner override, §8.5 — the policy's only immediate live effects are
+constraints).
+
+**Honesty box:** (1) the ladder does NOT protect from bears — BEAR = 1.00×
+stays invested, so the max-history levered drawdown is −86% vs QQQ's −83%
+(protection is the CORE book's 🐻 protocol, a different product; the timed
+arm shows what exiting does: −37% MaxDD but it loses every modern 5y/10y
+window to buy-and-hold, 1.53–3.78 vs 2.14–7.30 — regime EXIT only pays
+across giant bears, which is exactly the D-63 conclusion re-found on the
+index). (2) The edge is the equity risk premium financed below its return,
+gated so the margin never sees a bear — +1…+2.5 CAGR pts/yr on the read
+windows; it is NOT stock-picking alpha and it does not touch the §14
+bottom-line verdict on the strategy engine. (3) Intra-day gaps below the
+daily close are not modeled; the 0.68 worst ratio is the measured headroom
+against that risk, and concentrated maintenance >0.25 would shrink it —
+both stated in LEVERAGE.md §1. (4) The CORE-BOOK BAN is arithmetic, not
+simulation: d\*(L) = (1−mL)/(L(1−m)) puts every constant L ≥ 1.25 inside
+the strategy book's own measured −59…−76% drawdown range. No leverage on
+the core monthly book, ever.
+
+**The new referee this creates:** any levered arm (the #93 swing sleeve
+included) is now scored against regime-gated 1.30× QQQ at the same
+financing — 2.57 / 2.29 / 9.43 on the read windows. Leverage that cannot
+beat the same leverage on the index belongs on the index.
+
+---
+
 ## Bottom line — measured against the owner's bar
 
 **The strategy engine, as an index-beating machine, does not clear the
@@ -624,3 +674,12 @@ change at a time; the scorecard (#14) referees.
    which PLAYBOOK §8 already ranks above any signal.
 
 Anything claiming more than that is not supported by our own numbers.
+
+**2026-07-12 addendum (§15, owner max-return directive):** the first
+measured, adoptable path PAST the QQQ bar at account level now exists and
+it is not stock-picking — **regime-gated 1.30× leverage on QQQ itself**
+(+0.15…+2.13 MOIC over the read windows net of financing, zero margin
+calls on any measured path incl. 1999→2026). LEVERAGE.md governs it. The
+bar for every strategy arm accordingly RISES: beat levered QQQ at the same
+L, not just QQQ. The strategy engine's verdict above is unchanged; what
+changed is that "outperform QQQ" no longer requires the engine to do it.

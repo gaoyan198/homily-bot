@@ -145,7 +145,19 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 
 ## Watchlist
 All IBKR holdings + Danny-core **ASML** (marked `†` = not held). SOXL is
-excluded (3x leveraged ETF — leverage is out of scope by design).
+excluded (3x leveraged ETF — levered ETFs stay out of scope).
+
+## Leverage (#91 — policy: [LEVERAGE.md](LEVERAGE.md))
+The digest prints a ⚖️ ladder line under the regime banner: **BULL ≤1.30× /
+MIXED ≤1.15× (no new margin) / BEAR = margin zero at onset**. Honesty note:
+the ladder was adopted because regime-gated 1.30× **QQQ** passed a
+pre-registered survival + edge readout (BACKTEST_RESULTS §15) — it is the
+equity risk premium financed below its return, NOT stock-picking alpha, and
+it does not protect from bears (BEAR=1.00× stays invested; protection is
+the 🐻 protocol). Borrowed dollars may fund only gate-passed swing entries
+(paper until #93); **the core monthly book never carries margin** — its own
+measured −59…−76% paths sit inside the margin-call boundary at any constant
+≥1.25×.
 
 ## When to sell — market regime 🐂/🐻 (priced tail insurance)
 Per-stock trend-selling loses (see backtests); the month-end 10m-SMA rule on

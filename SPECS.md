@@ -45,6 +45,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #83 Danny chart board (searchable, dual boards) | 2026-07-12 | validate [33] extended; §8.5 size-split note; goldens untouched |
 | #84 any-ticker chart CLI | 2026-07-12 | validate [47]; R3 pinned mechanically |
 | #90 GAMBIT merge — self-contained `gambit/`, weekly CI, ♟️ SWING block | 2026-07-12 | all four D-90 gates: both validates green (gambit 70 tests from new location, homily [48], zero golden re-pins) · journal chain verifies · same-bars replay byte-identical through both trees · tombstone in the old repo. Deviations in PRD §8.5 |
+| #91 leverage ladder — backtest PASSED at 1.30×, LEVERAGE.md signed, ⚖️ digest line | 2026-07-12 | pre-registered readout (BACKTEST_RESULTS §15) + validate [49]; rule-5 override recorded in §8.5; yearly re-run + shrink rule = LEVERAGE.md §5 |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
