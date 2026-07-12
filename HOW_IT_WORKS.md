@@ -310,7 +310,7 @@ makes sense within a job:
 | 3 | **RS12 ranking** (buy the top-3 by RS12 among ⭐ names) | which | only pre-registered change that pushed the honest window past QQQ (**1.82 vs 1.78 MOIC**); beat 200 random draws above their p90 in all 3 read windows | gate PASSED; **promoted 2026-07-12 by owner override**, ahead of the live forward-check — the check still publishes at every month-start through Oct 2026, and a FAIL demotes it mechanically (promotions.json) |
 | 4 | **🐳 WHALE-DIP** (⚪+🎯+🐳) | when | +10.9% fwd-60d vs +9.5% DCA vs +9.7% plain ⚪ dips (58 names, point-in-time) | the only *entry trigger* that beat DCA. Shipped, but capped ≤2% because outcomes are wild (worst 5% of episodes: **−31.7%** in 60d) |
 | 5 | **🔵 VH breakout** | when | +4.4% vs +2.8% baseline fwd-20d; +11.5% vs +8.5% fwd-60d (daily holes only) | real but modest. Earns the 🔵 state and 10 score points, nothing more |
-| 6 | **⭐ gate** (monthly up + weekly RED + shelf) | which | as a *timing* trigger it **lost to DCA on every name tested** (average cost −1%…−13% worse). But as a *selector/container*: wrecks lose their ⭐ long before you can build size — the cap study showed the ⭐ gate, not the 10% cap, is what contains wrecks | the workhorse — but for the *which* job, not the *when* job. Its levels are context for adds, never a reason to sit in cash |
+| 6 | **⭐ gate** (monthly up + weekly RED + shelf) | which | as a *timing* trigger it **lost to DCA on every name tested** (average cost −1%…−13% worse). But as a *selector/container*: wrecks lose their ⭐ long before you can build size — the cap study showed the ⭐ gate, not the add-cap, is what contains wrecks (the basis on which #92 later raised the cap to 25%) | the workhorse — but for the *which* job, not the *when* job. Its levels are context for adds, never a reason to sit in cash |
 | 7 | **Distribution warning** (#79, inverse-whale) | when (to worry) | tagged rally days +7.8% fwd-60 vs +9.7% baseline; with monthly lower-highs/lows: **−0.3% fwd-120 vs +19.6%** | passed its gate but NOT shipped yet — edge lives in the wreck universe, and the digest surface is its own future gated change |
 | — | conv score (the number) | which | OOS decile returns rise monotonically with score on both universes | real as a *ranking*… |
 | — | conv tiers (the labels) | how much | CONVICTION ≈ STARTER ≈ fails on every outcome (P(2×), P(5×), P(halve-first)) | …but the 75/60 cutoffs are noise. Read the number, ignore the word |
@@ -418,12 +418,17 @@ Survivors get the 0–100 score:
 | listing age | 10 | < ~4.5y of data → 10 (young, room to run) · else 5 |
 
 Tiers: **≥75 CONVICTION** up to 5% of the account · **60–74 STARTER** up
-to 2% · **<60** watch only. Hard caps regardless: **10% per name**
-including what you already hold; whale-dips ≤2%. Honesty (measured, §6):
-the score's *ranking* is real, the tier *labels* are noise — compare
-names by number. The 10% cap was priced: it costs almost nothing in the
-honest window and buys real protection in single-name blowups (10y shock
-test: MOIC 1.89 capped vs 1.49 uncapped when the top name gaps −95%).
+to 2% · **<60** watch only. Hard caps regardless: **25% per name**
+including what you already hold (raised from 10% by the #92 promotion,
+2026-07-12 — owner override, demotion watch armed); whale-dips ≤2%.
+Honesty (measured, §6): the score's *ranking* is real, the tier *labels*
+are noise — compare names by number. The cap trade-off was priced before
+the raise: 10% costs almost nothing in the honest window and buys real
+protection in single-name blowups (10y shock test: MOIC 1.89 capped at
+10% vs 1.70 at 25% vs 1.49 uncapped when the top name gaps −95%) — the
+raise deliberately spends half that insurance for room to add into
+winners; a ≥15%-of-book name halving from its post-promotion high
+reverts it mechanically.
 
 ---
 

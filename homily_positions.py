@@ -5,9 +5,10 @@ Position-aware book math (backlog #27).
 
 Turns raw shares+cost (`holdings.json` schema `_v: 2`) into the per-name
 view PLAYBOOK §1 talks about: % of the STOCK book (not the whole account —
-Bucket A's index sleeve is a separate, never-sold pool) and a 10%-cap
-proximity note. Pure math over prices the caller already fetched; never
-touches money, never places an order.
+Bucket A's index sleeve is a separate, never-sold pool) and an add-cap
+proximity note (CAP_PCT — 25% since the #92 promotion, 2026-07-12; the
+demotion watch below can send it back to 10%). Pure math over prices the
+caller already fetched; never touches money, never places an order.
 
 Bucket A/B/C (PLAYBOOK §1):
   A — the index sleeve (CSPX today). Hardcoded via holdings.json's
@@ -34,8 +35,17 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOLDINGS_FILE = os.path.join(HERE, "holdings.json")
 
-CAP_PCT = 10.0    # PLAYBOOK §1 / §5 Rule 1: the per-name hard cap
-WARN_PCT = 8.0    # PRD #27 example: "NVDA 9.4% — next add breaches the cap"
+CAP_PCT = 25.0    # PLAYBOOK §3.4 / §5 Rule 1: the per-name ADD cap.
+                  # PROMOTED 10→25 on 2026-07-12 (#92/D-92, owner override;
+                  # promotions.json "add-cap-25"): D-67 priced the move as
+                  # formally adoptable (§12) at a recorded cost — half the
+                  # −95% single-name shock payout. Demotion rule armed:
+                  # cap_demotion_line() below; revert to 10.0 is mandatory
+                  # when it fires, not a discussion.
+WARN_PCT = 20.0   # "next add breaches the cap" nudge, scaled with the cap
+CAP_DEMOTION_WATCH_PCT = 15.0   # D-92: names this big are on the wreck watch
+CAP_DEMOTION_DRAWDOWN = 0.50    # halved from held high-water since promotion
+CAP_PROMOTED = "2026-07-12"     # HWM epoch start for the demotion watch
 
 
 def load_positions(path=HOLDINGS_FILE):
@@ -107,9 +117,47 @@ def trim_flags(pos_view, state, wk_weeks, ftag):
             and pos_view.get("pct") is not None \
             and pos_view["pct"] > CAP_PCT:
         flags.append(f"RULE 1: {pos_view['pct']:.0f}% bought-not-earned — "
-                     "trim back to 10%, proceeds to ⭐/index (§5.1)")
+                     f"trim back to {CAP_PCT:.0f}%, proceeds to ⭐/index "
+                     "(§5.1)")
     m = re.match(r"F:(\d)", ftag or "")
     if state == "CAUTION" and wk_weeks >= 12 and m and int(m.group(1)) <= 1:
         flags.append(f"RULE 2 REVIEW: ⚪ {wk_weeks}w + {ftag} — sell half, "
                      "review the remainder in one quarter (§5.2)")
     return flags
+
+
+def cap_demotion_line(positions, prices, highs):
+    """#92 (D-92) — the promoted cap's pre-registered demotion watch, checked
+    every run: a held name ≥ CAP_DEMOTION_WATCH_PCT of the stock book whose
+    last close sits ≤ (1−CAP_DEMOTION_DRAWDOWN)× its highest close SINCE the
+    promotion date is exactly the wreck the old 10% cap insured against.
+
+    `highs` = {ticker: max close since CAP_PROMOTED} — computed by the caller
+    from bars it already fetched (no fetching here). Returns "" (quiet) or
+    the 🚨 banner. The banner does not edit constants: the revert of CAP_PCT
+    to 10.0 is executed in the next session, MANDATORY per promotions.json
+    ("add-cap-25"), and this line keeps printing until it happens."""
+    if not positions or not prices:
+        return ""
+    book = stock_book_value(positions, prices)
+    if book <= 0:
+        return ""
+    hits = []
+    for tk, p in positions.items():
+        if p.get("bucket") == "A" or p.get("currency", "USD") != "USD":
+            continue
+        px, hi = prices.get(tk), (highs or {}).get(tk)
+        if px is None or not hi:
+            continue
+        pct = 100.0 * p["shares"] * px / book
+        if pct >= CAP_DEMOTION_WATCH_PCT and \
+                px <= (1.0 - CAP_DEMOTION_DRAWDOWN) * hi:
+            hits.append(f"{tk} {pct:.0f}% of book, {px / hi - 1.0:+.0%} from "
+                        f"its post-promotion high")
+    if not hits:
+        return ""
+    return ("🚨 <b>ADD-CAP DEMOTION TRIGGERED (#92)</b> — " +
+            "; ".join(hits) +
+            f". Per promotions.json the {CAP_PCT:.0f}% cap REVERTS to 10% "
+            "in the next session — mandatory, not a discussion; this line "
+            "prints until the revert lands.")

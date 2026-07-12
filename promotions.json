@@ -22,6 +22,23 @@
       "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion"
     },
     {
+      "id": "add-cap-25",
+      "status": "promoted",
+      "promoted": "2026-07-12",
+      "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12 (#92/D-92): promoted ahead of the clean 2027-Q1 R10 slot on the owner's directive ('concentration is also ok and should be encouraged, allow me to add into winners on dips instead of keeping the 10% hard rule' + 'execute them NOW, dont stop until you're done'). The gate itself ran earlier and independently: D-67/BACKTEST_RESULTS §12 priced 25% as formally adoptable (ties-or-beats 10% in 7/9 redistribute windows, shock-MaxDD within 5 pts) at a recorded cost (−95% single-name shock payout 1.70 vs 1.89 MOIC — half the insurance surrendered deliberately). Uncapped stays excluded (its −95% cell is 1.49; excluded by pre-registered rule). R10 arithmetic: 2026-Q3 🐳 · 2026-Q4 rs12-top3 (spent early) · 2027-Q1 this entry (spent early) — the next free promotion slot is 2027-Q2, and October's #14/#85 reads must split THREE 2026 epochs.",
+      "what": "per-name ADD cap on the stock book raised 10% → 25% (homily_positions.CAP_PCT, D-27 interlock reaches the buy-day copilot); PLAYBOOK §3.4/§5.1 and digest texts moved with it; dip-adds into winners route through the existing surfaces (⭐-at-shelf · 🟡+🎯 · ⚪+🎯+🐳 ≤2%)",
+      "gate_date": "2026-07-11",
+      "gate_artifact": "homily_cap_backtest.py (D-67 pre-committed prongs) + BACKTEST_RESULTS §12 + DESIGNS D-92",
+      "earliest_promotion": "2027-01-01",
+      "forward_check": {
+        "type": "custom",
+        "checker": "homily_positions.cap_demotion_line — every daily run (validate [50]), not month-start only",
+        "criterion": "any single held name >=15% of the USD stock book whose last close sits <=50% of its highest close since 2026-07-12 prints the 🚨 demotion banner; the banner repeats daily until acted on"
+      },
+      "if_promoted": "already live: CAP_PCT=25.0 + WARN_PCT=20.0, copilot cap via CAP_FRAC interlock, PLAYBOOK/digest texts, goldens re-pinned deliberately in the same commit",
+      "demotion_rule": "revert CAP_PCT to 10.0 (and WARN_PCT to 8.0) in the next session after the custom forward_check fires — mandatory, not a discussion; ALSO revert if a yearly #40 re-run of homily_cap_backtest.py shows 25% losing its D-67 prongs (stops tying-or-beating 10% on redistribute windows or shock-MaxDD spread exceeds 5 pts)"
+    },
+    {
       "id": "whale-top3",
       "status": "registered-challenger",
       "what": "select between ⭐ candidates by whale-accumulation intensity instead of RS12 (PRD §5k / #80, MARA-vs-WULF pattern)",

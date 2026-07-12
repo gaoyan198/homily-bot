@@ -117,7 +117,7 @@ they gate nothing):
 
 | Chip | What it means | What you do (PLAYBOOK ref) |
 |---|---|---|
-| ⭐ ACCUMULATE | monthly UP + weekly RED + price at/near a major chip shelf | candidate for the monthly buy (§3); the buy-day splits across the top-3 by RS12 (`RS#n`, #24 promoted 2026-07-12); cap 10%/name (§3.4) |
+| ⭐ ACCUMULATE | monthly UP + weekly RED + price at/near a major chip shelf | candidate for the monthly buy (§3); the buy-day splits across the top-3 by RS12 (`RS#n`, #24 promoted 2026-07-12); add-cap 25%/name (§3.4; #92 promoted 2026-07-12, demotion watch armed) |
 | 🟢 HOLD | uptrend intact but price extended above support | do nothing; wait for the pullback to the teal band |
 | 🟡 PULLBACK | weekly AMBER while monthly still UP | dip forming — watch the shelf; 🎯 on a 🟡 = optional aggressive add (§3 step 6) |
 | ⚪ CAUTION | weekly WHITE or monthly trend down | pause adds. **Not a sell** — selling has its own three rules (§5) and none of them is "the chart turned white" |
@@ -128,7 +128,7 @@ they gate nothing):
 | `RS12` / `RS#n` | 12-month **total** return minus SPY's (dividends counted, pts); `RS#n` = today's ⭐ rank | the selection ranker — **live since 2026-07-12** (#24 promoted by owner override): the buy-day splits the stock half across the top-3; the forward-check keeps publishing at month-starts through 2026-10 and a FAIL demotes it |
 | `conv NN` | conviction score 0–100 | honesty (#20, BACKTEST §11): the score's *ranking* is real OOS; the 75/60 tier labels separate nothing. Compare names by score, ignore the label |
 | `F:n/3` | EDGAR checks: revenue growth >10% · NI>0 or OCF>0 · dilution <12% | info-only; `F:—` = non-US. Sharpens hold-through-⚪ judgment, never times entries |
-| `x% of book` / ⚠ cap note | position awareness | ⚠ means an add would breach the 10% cap — copilot already sized for it |
+| `x% of book` / ⚠ cap note | position awareness | ⚠ means an add would breach the 25% add-cap (#92) — copilot already sized for it |
 
 ## 6 · How it combines — three worked examples (cards as of 2026-07-10)
 

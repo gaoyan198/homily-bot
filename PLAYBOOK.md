@@ -61,17 +61,22 @@ fallback.*
    if SRS is funded and invested, your cash DCA may go fully to step 4.
 4. Other half → split across the **top-3 ⭐ names by RS12** (holdings +
    discovery; the digest marks them `RS#1–3`). Skip any name that would
-   exceed 10% of your stock book.
+   exceed **25%** of your stock book.
    *(#24 promoted 2026-07-12 — by owner override, AHEAD of its live
    forward-check; the check keeps publishing at each month-start through
    2026-10 and a FAIL demotes this back to equal-split-max-5 mechanically
-   (promotions.json). The 10% cap is priced, not gut — #67,
-   BACKTEST_RESULTS §12: it cost ~0.05 MOIC per $1 on the honest
-   2021→2026 control (essentially free) and pays +0.26…+0.40 MOIC when
-   the book's biggest name gaps −80…−95% and never recovers. It exists
-   for the gap-down the trend gate can't see; wrecks lose ⭐ long before
-   they reach 10%, so in practice it binds on winners — that is the
-   premium you're paying.)*
+   (promotions.json). The add-cap was 10% until 2026-07-12: #92/D-92
+   promoted it to 25% — the move D-67 (§12) had already priced as
+   formally adoptable (ties-or-beats 10% in 7/9 windows) at a RECORDED
+   cost: when the book's biggest name gaps −95% and never recovers, the
+   25% cap keeps 1.70 MOIC vs the 10% cap's 1.89 — half the insurance
+   payout, surrendered deliberately for room to add into winners. What
+   still contains wrecks is the ⭐ gate itself (wrecks lose ⭐ long
+   before they accumulate — D-67 step 2a). The demotion rule is armed
+   and checked every run: any name ≥15% of the stock book closing −50%
+   from its post-promotion high prints a 🚨 banner and the cap reverts
+   to 10% in the next session, mandatorily. Uncapped remains excluded —
+   its −95% shock number is 1.49.)*
 5. **If there are no ⭐ names: buy Bucket A with the full amount.** The
    backtest is clear — cash waiting for stars costs more than it saves.
 6. **Optional aggressive add (🎯 on a 🟡 row):** a still-bullish name whose
@@ -84,7 +89,7 @@ fallback.*
    flowing in vs price, shelf being replenished). This one IS backtested
    (58 names incl. the 2021 wrecks: beat both DCA and plain dip-buying at
    20d and 60d) — but the edge is modest, so the cap is small: **≤2% of
-   the account per name**, same monthly budget, same 10% hard cap. A ⚪
+   the account per name**, same monthly budget, same 25% add-cap. A ⚪
    row with 🎯 but NO 🐳 stays a no — the level alone tested WORSE than
    plain dip-buying; it's the footprint that carries the edge.
 7. Close the app. Do not look at prices until next month.
@@ -156,9 +161,11 @@ premium on the insurance, not a malfunction.
 
 ## 5 · Trim rules — the ONLY three reasons to sell a stock in a bull market
 
-1. **Size, not earned:** a position bought (not grown) above 10% of the
-   stock book → trim back to 10%, proceeds to ⭐/index. *(A grown position
-   gets a pass — see Bucket B — but its adds stop at CAUTION.)*
+1. **Size, not earned:** a position bought (not grown) above 25% of the
+   stock book → trim back to 25%, proceeds to ⭐/index. *(A grown position
+   gets a pass — see Bucket B — but its adds stop at CAUTION. Threshold
+   moved 10→25 with the #92 cap promotion, 2026-07-12; it reverts with
+   the cap if the demotion rule fires.)*
 2. **Broken business, not just broken chart:** in ⚪ CAUTION for 12+ weeks
    **and** fundamentals failing (profit check failed / F:0–1) → sell half,
    set a note to review the remainder in one quarter. A broken chart with a
@@ -169,7 +176,9 @@ premium on the insurance, not a malfunction.
    it's what gets you out of the PTON/ZM class. It is a return protector on
    broken names, NOT crash insurance: it kept the full −79% grinder
    drawdown. §4 is the insurance; this is the trash-taker.)*
-3. **You need the money, or margin exists.**
+3. **You need the money, or margin exists** *(margin on the CORE book,
+   that is — LEVERAGE.md (2026-07-12) governs the regime-gated swing
+   ladder separately; the core monthly book still never carries margin)*.
 
 **Never trim** a Bucket-B compounder in RED/uptrend because it "got big by
 itself" — that is the entire engine of this method. (It's also exactly the

@@ -46,6 +46,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #84 any-ticker chart CLI | 2026-07-12 | validate [47]; R3 pinned mechanically |
 | #90 GAMBIT merge — self-contained `gambit/`, weekly CI, ♟️ SWING block | 2026-07-12 | all four D-90 gates: both validates green (gambit 70 tests from new location, homily [48], zero golden re-pins) · journal chain verifies · same-bars replay byte-identical through both trees · tombstone in the old repo. Deviations in PRD §8.5 |
 | #91 leverage ladder — backtest PASSED at 1.30×, LEVERAGE.md signed, ⚖️ digest line | 2026-07-12 | pre-registered readout (BACKTEST_RESULTS §15) + validate [49]; rule-5 override recorded in §8.5; yearly re-run + shrink rule = LEVERAGE.md §5 |
+| #92 add-cap 10%→25% — PROMOTED (owner override; promotions.json "add-cap-25") | 2026-07-12 | D-67 prongs + demotion watch live every run (validate [50]); goldens re-pinned deliberately; next free R10 slot 2027-Q2 |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
@@ -61,7 +62,8 @@ lever; PLAYBOOK edited only after its gate) · #86 dip war-chest (M,
 D-86 — owner instinct, rule pre-registered) · #87 concentration
 conditioner (M, D-87 — the live top-3's reversal weakness) ·
 #47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
-money-touching result queues behind R10 (next slot 2027-Q1).
+money-touching result queues behind R10 (next slot 2027-Q2 — Q3 🐳,
+Q4 rs12-top3 early, 2027-Q1 add-cap-25 early).
 **Time-sensitive rider:** #89's `rs6_rank` ledger column ships with the
 NEXT ledger-touching session (same pattern as #80's whale_rank —
 forward rows only accrue after it lands; the rs6/blend study itself
@@ -98,13 +100,12 @@ Everything else remaining is DATE- or OWNER-gated:
    and runs the mandatory demotion check). Same read hosts the selection
    harness: #80 whale-top3 + #89 rs6/blend arms (each vs the live
    rs12-top3, gates in their rows). QUEUED (each its own gated
-   session, R10-spaced, next slot 2027-Q1):
+   session, R10-spaced, next slot 2027-Q2):
    #79 distribution-tag ship (+mLHLL variant, scope guard verbatim) ·
    #67's whale-cap tightening to 1.6% (+ #31 copilot constant sync) ·
    any #20 weight change · #25 real market cap (engine edit, §8.5) ·
-   **#92 add-cap 10%→25%** (now designed — D-92; demotion rule armed in
-   the promotion commit; owner-override lever recorded in PRD §8.5 with
-   its three-epoch attribution cost).
+   ~~#92 add-cap 10%→25%~~ — **PROMOTED early 2026-07-12** (owner
+   override; §0 row; demotion watch live, validate [50]).
 4b. **≥2027-01-09** · #93 swing live-arming read (D-93): P2 paper gate —
    26 wks AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ
    bar — then LIVE_ENABLE two-artifact + G-S7 order rail; leverage per

@@ -537,7 +537,7 @@ D-90…D-93 (§8.5 records the directive), new proposals start #94):
 | 89 | **RS-horizon challenger — rs6 / blended rank** — the conviction score already reads RS6, but nobody has tested rank-by-rs6 or 0.5·rs6+0.5·rs12 as the concentration key. Ship an `rs6_rank` ledger column NOW (S — rides the next ledger-touching session; same time-sensitive pattern as #80's whale_rank: forward rows only accrue after it ships), then enter both variants as challengers in the #24 harness (now five-way: equal · rs12 · whale · rs6 · blend) at the 2026-10-01 read | S column + M study | same bar as #80: tie-or-beat rs12-top3 on all three construction-honest windows incl. the hype-2021 control; else closed. Column is pure measurement, no gate |
 | 90 | ~~**GAMBIT merge — one repo, three books**~~ — **shipped 2026-07-12** (owner directive; design D-90): self-contained `gambit/` (docs stayed in-package, NOT `docs/gambit/` — §8.5 deviation: [K6] reads PRD.md ROOT-relative), byte-identical move (hashes verified), weekly CI job (`gambit-weekly.yml`, Sat 02:00 UTC, validate→run→commit→♟️ Telegram), ♟️ SWING (paper) block in the daily digest (validate [48], goldens untouched), first paper journal rows accrued (2026-07-10 Friday decision — the #93 26-week clock is LIVE), tombstone committed in the old repo | M | PASSED all four D-90 gates incl. same-bars byte-identical replay through both trees |
 | 91 | ~~**Leverage policy — regime-gated ladder, sleeve-only**~~ — **shipped 2026-07-12** (owner directive; design D-91): `homily_leverage_backtest.py` ran with its rule frozen first — readout **PASSED at L=1.30** (zero margin-call breaches on every window incl. 1999→2026 at base AND stress financing, worst equity/position 0.68 vs boundary 0.25; beat unlevered QQQ 3/3 read windows net of 5.8%: 2.57/2.29/9.43 vs 2.27/2.14/7.30 — BACKTEST_RESULTS §15). **LEVERAGE.md SIGNED same session by owner override** (§8.5 rule-5 note; the policy's immediate live effects are constraints — shrink-only legacy margin, BEAR=margin-zero, core-book ban). Digest ⚖️ ladder line live (validate [49]); referee for all levered arms = regime-gated 1.30× QQQ | M+S | PASSED its pre-registered readout; LEVERAGE.md §5 carries the yearly re-run + mechanical shrink rule |
-| 92 | **Concentration promotion — add-cap 10%→25% + dip-adds into winners** (owner directive 2026-07-12; design D-92) — the move D-67 already priced as formally adoptable (25% ties-or-beats 10% in 7/9 windows, shock-MaxDD within 5 pts; recorded cost: half the −95% shock payout, 1.70 vs 1.89 MOIC); the ⭐ gate stays the wreck container; uncapped stays excluded; PLAYBOOK §3.4 + bucket-C threshold + copilot constant move together | S | D-67 ran already — gate = the pre-registered demotion rule (a ≥15%-of-book name closing −50% from held HWM reverts the cap to 10% mechanically) armed in the promotion commit; clean R10 slot 2027-Q1, owner-override path recorded with its three-epoch attribution cost |
+| 92 | ~~**Concentration promotion — add-cap 10%→25% + dip-adds into winners**~~ — **PROMOTED 2026-07-12 by owner override** (design D-92; promotions.json "add-cap-25"): `CAP_PCT` 10→25 (one constant, D-27 interlock reaches the copilot), WARN 8→20, PLAYBOOK §3.4/§5.1 + digest/reader texts moved together, goldens re-pinned deliberately (text-only diff eyeballed); demotion watch LIVE and checked every run (`cap_demotion_line`, validate [50]) — a ≥15%-of-book name closing −50% from its post-promotion high reverts the cap to 10% mechanically; uncapped stays excluded (−95% shock 1.49) | S | D-67's prongs (already run) + demotion rule armed in the same commit; R10 arithmetic in §8.5 — next free slot 2027-Q2 |
 | 93 | **Swing sleeve live-arming** (design D-93) — P2 paper gate green (≥26wk from 2026-07-11 AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ bar, no backtest credit) → LIVE_ENABLE two-artifact → G-S7 order rail (human approval per order) → leverage attaches per D-91 only if L2 holds on the paper ledger's own MAR; K1–K6 kill switches live from row 1 | M | the P2 ledger IS the gate; earliest ~2027-01-09 |
 
 ### 8.4 Planning → execution handoff
@@ -559,6 +559,20 @@ and #62 (ledger append-only hash check).
 
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
+
+**2026-07-12 (execution, latest) · #92 promoted; the R10 ledger now reads
+three-spent.** The add-cap raise was designed for the clean 2027-Q1 slot;
+the owner's "execute them NOW" spent it early (basis verbatim in
+promotions.json "add-cap-25"). Accounting: 🐳 (Q3) · rs12-top3 (Q4,
+early) · add-cap-25 (2027-Q1, early) — **next free promotion slot
+2027-Q2**, and every #14/#14a/#85 read of 2026 H2 rows must now split
+THREE promotion epochs (2026-07-06 / -07-12a / -07-12b share a quarter;
+the two same-day changes are at least cleanly co-dated). Registry schema
+note: verify_registry gained a `custom` forward_check type (criterion +
+checker required) because the cap's demotion watch is not a ledger-rank
+check; the rank schema stands unchanged for signal entries. Golden files
+re-pinned deliberately (legend/sizing text only — the diff was eyeballed:
+two lines per scenario, all "10%"→"25%" wording).
 
 **2026-07-12 (execution, later) · #91 shipped; Part-III rule-5 override
 recorded.** Rule 5 says never promote in the same session as the gate's

@@ -107,6 +107,14 @@ def month_start_block(rows, day, esc=lambda x: x):
     lines = ["📋 <b>PROMOTIONS — month-start forward check (#69)</b>"]
     for e in load_registry():
         fc = e["forward_check"]
+        if fc.get("type") == "custom":
+            # #92-style entries: their checker runs elsewhere (named in the
+            # entry); this block just reminds that the watch is armed
+            lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
+                         + (f" {esc(e['promoted'])}"
+                            if e.get("promoted") else "")
+                         + f" · custom watch: {esc(fc['checker'])}")
+            continue
         frozen = forward_check(e, rows)
         lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
                      + (f" {esc(e['promoted'])}" if e.get("promoted") else "")
@@ -133,10 +141,18 @@ def verify_registry(path=REGISTRY):
                       "earliest_promotion", "status"):
             assert e.get(field), f"registry entry {e.get('id')}: missing {field}"
         fc = e.get("forward_check") or {}
-        for field in ("rank_column", "window", "horizon_rows",
-                      "min_measured_rows", "criterion"):
-            assert fc.get(field), \
-                f"registry entry {e.get('id')}: forward_check missing {field}"
+        if fc.get("type") == "custom":
+            # #92: non-rank promotions (e.g. the add-cap) carry their own
+            # checker; they still need a frozen criterion + a named checker
+            for field in ("criterion", "checker"):
+                assert fc.get(field), \
+                    f"registry entry {e.get('id')}: custom forward_check " \
+                    f"missing {field}"
+        else:
+            for field in ("rank_column", "window", "horizon_rows",
+                          "min_measured_rows", "criterion"):
+                assert fc.get(field), \
+                    f"registry entry {e.get('id')}: forward_check missing {field}"
 
 
 if __name__ == "__main__":
@@ -144,6 +160,12 @@ if __name__ == "__main__":
     today = datetime.date.today().isoformat()
     print(f"promotions registry — {len(rows)} ledger rows, as of {today}\n")
     for e in load_registry():
+        if (e.get("forward_check") or {}).get("type") == "custom":
+            print(f"[{e['id']}] {e['status']} · earliest "
+                  f"{e['earliest_promotion']}\n  custom watch: "
+                  f"{e['forward_check']['checker']}\n"
+                  f"  demotion rule on file: yes\n")
+            continue
         r = forward_check(e, rows)
         mt = f"{r['mean_top']:+.2f}%" if r["mean_top"] is not None else "—"
         mo = f"{r['mean_other']:+.2f}%" if r["mean_other"] is not None else "—"
