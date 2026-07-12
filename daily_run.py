@@ -32,6 +32,7 @@ import homily_clusters
 import homily_flex
 import homily_quality
 import homily_universe
+import homily_swing
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -293,7 +294,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None, qual=None):
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
-                  flex_notes=None, dips=None, qual=None, promos=""):
+                  flex_notes=None, dips=None, qual=None, promos="", swing=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -420,6 +421,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         # say so, or the live record grows silent holes
         lines.append(f"⚠️ no ledger rows for {esc(', '.join(gaps))} — runner "
                      "missed, live record has a hole")
+    if swing:
+        # #90 (D-90): the merged gambit sleeve's paper state — fenced,
+        # counters only; the weekly ♟️ digest carries the priced book
+        lines += ["", swing]
 
     # #34 F0: legend + algo-health fold into ONE expandable blockquote so the
     # actionable digest above stays short; details are one tap away.
@@ -540,6 +545,14 @@ def build_digest(flex_notes=None):
         gaps = [d for d in cov["missing"] if d >= cutoff]
     except Exception as e:
         print(f"[coverage] skipped: {e}")
+    # #90: SWING (paper) sleeve state — pure read of the committed gambit
+    # snapshot; non-fatal, never fetches, never writes sleeve state (R3).
+    swing = ""
+    try:
+        swing = homily_swing.swing_block(homily_swing.load_state(), today,
+                                         esc=esc)
+    except Exception as e:
+        print(f"[swing] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched
     # bars; both non-fatal, both info-only.
     br, conc = None, None
@@ -570,7 +583,7 @@ def build_digest(flex_notes=None):
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, flex_notes=flex_notes,
-                           dips=dips, qual=qual, promos=promos)
+                           dips=dips, qual=qual, promos=promos, swing=swing)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
