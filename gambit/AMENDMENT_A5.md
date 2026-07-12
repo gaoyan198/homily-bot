@@ -14,8 +14,13 @@ override in this repo's history and is recorded as such.
   margin-zero), with **mandatory stops (−20%), TPs (+40% half, once) and a
   12-week time stop** on every position.
 * **Bankroll: US$3,000 contributed** (≈9% of net liq; top-ups recorded,
-  total ≤10% of net liq). Proceeds sweep to BUY_BUDGET (listed monthly);
-  losses are the recorded cost of business.
+  total ≤10% of net liq). Proceeds sweep to BUY_BUDGET via the mechanized
+  **flywheel skim** (#95 / D-95, added 2026-07-12 late): once a quarter the
+  live book banks profit above contributed capital, prints the amount on
+  the order sheet and in the homily 🛒 BUY DAY block, and the owner moves
+  that cash into the monthly DCA. Realized profit only — never principal,
+  never a forced sale; a quarter below contributed skims US$0. Losses are
+  the recorded cost of business.
 * **Kill rules, pre-registered:** KILL-A equity ≤ **70% of contributed**
   (US$900 loss on the initial funding) → liquidate, experiment DEAD,
   failure memo owed. KILL-B expectancy ≤ 0 over the trailing 20 closed
@@ -53,9 +58,15 @@ override in this repo's history and is recorded as such.
 ## Reporting (all mechanical, all committed)
 
 Weekly: order sheet + Friday mark (equity, kill-line distance, gross vs
-ladder cap) in the ♟️ digest. Daily: SWING LIVE status line in the homily
-digest (validate [51]). Monthly (first run of the month): realized P&L per
-closed trade with reason codes, cumulative, sweepable-to-DCA amount.
+ladder cap) in the ♟️ digest — plus a 💧 SKIM line the quarter it fires.
+Daily: SWING LIVE status line in the homily digest (validate [51]).
+Monthly (first run of the month): realized P&L per closed trade with reason
+codes, cumulative, and the **flywheel line** (#95) — cumulative banked
+skims + the sleeve's score (equity + all skims vs contributed). Skims are
+recorded as `SKIM` journal rows, never in `realized`, so KILL-B's
+expectancy over the trailing 20 CLOSED TRADES is untouched and KILL-A only
+ever gets closer as banked cash leaves the book — the kills are never
+softened by the sleeve's own successes (D-95).
 Journal: `gambit_live_journal.csv`, hash-chained from row 1 (K4 verified
 before every append). Registry note: like LEVERAGE.md, this lives outside
 promotions.json (the rank schema doesn't fit); THIS FILE is the registry
