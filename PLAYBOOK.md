@@ -187,14 +187,22 @@ was adding size to a name whose trend had broken.)
 
 ---
 
-## 6 · Margin policy: zero. Always.
+## 6 · Margin policy: zero on the core book. Always.
 
 Floating mortgage + margin loan + concentrated stocks is the one
 configuration that can end the compounding permanently (a margin call in a
 bear forces you to sell Bucket B at the bottom — the unrecoverable error).
-Margin is cleared **now, in the bull, from strength** — before the first
-dollar of new DCA. The backtested strategies in this repo assume zero
-leverage; with margin, their −30% drawdowns become forced liquidations.
+Legacy margin is cleared **now, in the bull, from strength** — before the
+first dollar of new DCA. The backtested strategies in this repo assume
+zero leverage; with margin, their −30% drawdowns become forced
+liquidations.
+
+*(Amended 2026-07-12: LEVERAGE.md governs the ONE sanctioned exception —
+the ring-fenced swing sleeve of §9, regime-gated BULL ≤1.30× / MIXED
+≤1.15× / BEAR margin-zero, sized so even its total loss is a bounded
+"cost of business". Buckets A/B/C — the core book — never carry margin;
+that is arithmetic (BACKTEST_RESULTS §15's core-ban table), not
+preference. The sleeve arms only after the legacy loan is cleared.)*
 
 ---
 
@@ -231,6 +239,57 @@ that's optimal on paper.
 - The system self-improves daily (out-of-sample-gated refine), the
   strategy re-test re-runs every July, and the improvement backlog lives in
   PRD.md §6. Expect evolution, not miracles.
+
+---
+
+## 9 · The swing sleeve — LIVE, levered, 5 minutes a week (#93 / A5)
+
+The one levered book. Ring-fenced experiment money: **US$3,000
+contributed** (top-ups allowed, total ≤10% of net liq, each recorded).
+Proceeds fund the monthly DCA; losses are the recorded cost of business.
+The bot decides and prints; **you place every order** — nothing is
+automated.
+
+**Before it starts (once):** clear the legacy margin loan, then set the
+`MARGIN_ZERO` repo variable. The first order sheet prints the Saturday
+after. Until then the digest says "waiting for the clean slate."
+
+**The weekly routine (Monday morning, ~5 minutes):**
+1. Open Saturday's ♟️ weekly digest. Find the **ORDER SHEET**.
+2. Place exactly what it says: for a BUY — market order, then the GTC
+   STOP (−20%) and the GTC LIMIT sell for half (+40%) at the printed
+   prices. For a SELL — market, and cancel that name's GTC orders.
+3. Close the app. **Never move a stop or TP between sheets.** Adjustments
+   happen only when a re-rank sheet says so — that is the pre-commitment
+   that keeps this from becoming day-trading.
+
+**What the machine does for you:** sizes every entry to the LEVERAGE.md
+ladder (BULL 1.30× / MIXED 1.15× / BEAR = flat, margin zero) · mirrors
+the S1 rotation (4-weekly re-ranks) · enforces the 12-week time stop ·
+marks the book every Friday · reports **realized P&L monthly** in the
+daily digest, per trade, with the reason (STOP / TP / TIME / ROTATE /
+REGIME / KILL) · keeps a hash-chained journal of every decision.
+
+**The kill rules (pre-registered, mandatory, not a discussion):**
+- **KILL-A — the "too huge" number: equity ≤ 70% of contributed capital**
+  (on US$3,000: a US$900 total loss). The sheet says LIQUIDATE, you
+  liquidate, the experiment is over and declared a failure in writing.
+- **KILL-B: expectancy ≤ 0 over the trailing 20 closed trades** — a
+  system that loses on average has no business borrowing money. Same
+  ending.
+- **Any margin call, any size** → LEVERAGE.md §5 already answers: ladder
+  to 1.00× permanently pending post-mortem.
+- No restart after a kill without a brand-new gated design and a signed
+  amendment. "One more try" is how experiments become habits.
+
+**Honesty box (why this is an experiment, not a strategy):** the P2 paper
+gate was overridden by the owner (A5) — this book runs on ~2 days of
+paper history, not the 26 weeks the gate asked for. The stops it carries
+FAILED the backtest (S1-stopped: 0/3 windows; KILL_MEMO) — they are here
+to bound losses, not to add return, and the paper S1-pure book runs
+beside this one as the no-stops counterfactual so we measure exactly what
+they cost. Fills in the report are modeled (Monday opens, trigger
+prices); reconcile against IBKR statements monthly.
 
 *Everything in this file is pre-commitment, not prediction. The edge is
 discipline; the indicators just tell you where to point it.*

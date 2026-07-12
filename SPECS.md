@@ -47,6 +47,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #90 GAMBIT merge — self-contained `gambit/`, weekly CI, ♟️ SWING block | 2026-07-12 | all four D-90 gates: both validates green (gambit 70 tests from new location, homily [48], zero golden re-pins) · journal chain verifies · same-bars replay byte-identical through both trees · tombstone in the old repo. Deviations in PRD §8.5 |
 | #91 leverage ladder — backtest PASSED at 1.30×, LEVERAGE.md signed, ⚖️ digest line | 2026-07-12 | pre-registered readout (BACKTEST_RESULTS §15) + validate [49]; rule-5 override recorded in §8.5; yearly re-run + shrink rule = LEVERAGE.md §5 |
 | #92 add-cap 10%→25% — PROMOTED (owner override; promotions.json "add-cap-25") | 2026-07-12 | D-67 prongs + demotion watch live every run (validate [50]); goldens re-pinned deliberately; next free R10 slot 2027-Q2 |
+| #93 swing sleeve LIVE-ARMED (Amendment A5, owner override of the P2 gate) | 2026-07-12 | A5 two-artifact; kill rules pre-registered (KILL-A −30% contributed / KILL-B 20-trade expectancy); arms on MARGIN_ZERO; validate [51] + 10 pytest cases; paper book = counterfactual |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
@@ -106,10 +107,12 @@ Everything else remaining is DATE- or OWNER-gated:
    any #20 weight change · #25 real market cap (engine edit, §8.5) ·
    ~~#92 add-cap 10%→25%~~ — **PROMOTED early 2026-07-12** (owner
    override; §0 row; demotion watch live, validate [50]).
-4b. **≥2027-01-09** · #93 swing live-arming read (D-93): P2 paper gate —
-   26 wks AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ
-   bar — then LIVE_ENABLE two-artifact + G-S7 order rail; leverage per
-   D-91 only if L2 holds on the paper ledger's own MAR.
+4b. ~~≥2027-01-09 · #93 swing live-arming read~~ — **LIVE-ARMED EARLY
+   2026-07-12 by owner override (Amendment A5; P2 gate overridden, not
+   passed)**. Standing reads instead: the P2 paper gate keeps publishing
+   (♟️ block) as the counterfactual; the A5 kill rules are the live
+   book's only exit; **owner to-do: clear legacy margin, then set
+   MARGIN_ZERO — nothing trades until then.**
 5. **Quarterly** · #65 universe refresh (`--shard k/N` over CI nights) +
    #44 hygiene issue; #74/#81 timing-modifier studies — ONE per quarter.
 6. **Owner-gated** · T3 (two clean T2 months + cloud repo access; PRD §9.2

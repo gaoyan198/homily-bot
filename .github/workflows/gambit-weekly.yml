@@ -42,6 +42,18 @@ jobs:
         working-directory: gambit
         run: python weekly_run.py | tee "$RUNNER_TEMP/weekly_digest.txt"
 
+      # #93 (Amendment A5): the LIVE overlay — mirrors the paper decisions
+      # under the LEVERAGE.md ladder with stops/TPs and kill checks, and
+      # prints the owner's Monday ORDER SHEET. Arms only once MARGIN_ZERO
+      # is set (the owner's clean-slate condition); prints a waiting line
+      # until then. The bot still places NO orders — the owner does.
+      - name: Advance the LIVE book + print the order sheet
+        working-directory: gambit
+        env:
+          MARGIN_ZERO: ${{ vars.MARGIN_ZERO }}
+        run: |
+          python live_run.py | tee -a "$RUNNER_TEMP/weekly_digest.txt"
+
       - name: Send weekly ♟️ digest to Telegram (skipped if secrets unset)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -70,5 +82,8 @@ jobs:
           git config user.name "homily-bot"
           git config user.email "actions@users.noreply.github.com"
           git add gambit/gambit_journal.csv gambit/snapshot.json 2>/dev/null || true
-          git commit -m "gambit weekly paper $(date -u +%F)" || echo "no state change"
+          # #93: the live book + its hash-chained journal are the track
+          # record of real money — losing them breaks the monthly report
+          git add gambit/gambit_live_book.json gambit/gambit_live_journal.csv 2>/dev/null || true
+          git commit -m "gambit weekly paper+live $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
