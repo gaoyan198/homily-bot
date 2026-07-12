@@ -1592,4 +1592,29 @@ assert ".record(" not in _src48 and "append_rows" not in _src48 and \
     "homily_swing is read-only: no ledger/journal/snapshot writes, no network"
 print("[48] SWING paper block: deterministic counters, fenced, read-only .. PASS")
 
+# --- 49. Leverage ladder line (#91/LEVERAGE.md): constants + rendering ----
+import homily_leverage
+assert homily_leverage.LADDER == {"BULL": 1.30, "MIXED": 1.15,
+                                  "BEAR": 1.00}, \
+    "ladder constants are LEVERAGE.md §1 — any change is a §5 shrink event"
+_l49 = homily_leverage.leverage_line("BULL", False)
+assert "1.30" in _l49 and "margin NEVER" in _l49 and \
+    "shrink-only" in _l49, "BULL line: cap + core ban + legacy reminder"
+assert "shrink-only" not in homily_leverage.leverage_line("BULL", True), \
+    "MARGIN_ZERO=true silences the legacy-margin reminder"
+_b49 = homily_leverage.leverage_line("BEAR", False)
+assert "MARGIN TO ZERO" in _b49 and "1.00" in _b49, \
+    "BEAR line must order margin to zero (PLAYBOOK §4 step 1)"
+assert "no NEW margin" in homily_leverage.leverage_line("MIXED", True), \
+    "MIXED = no new margin"
+assert homily_leverage.leverage_line("???", False) == "", \
+    "unknown regime renders nothing, never raises"
+assert homily_leverage.leverage_line("BULL", False) == \
+    homily_leverage.leverage_line("BULL", False), "deterministic"
+_src49 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_leverage.py")).read()
+assert "urlopen" not in _src49 and "write_text" not in _src49 and \
+    ".record(" not in _src49, "the ladder line is pure render — no IO"
+print("[49] Leverage ladder line: constants pinned, regimes render, pure .. PASS")
+
 print("\nAll structural assertions passed.")
