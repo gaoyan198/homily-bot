@@ -70,6 +70,14 @@ joins the 2026-10-01 #24 harness read).
 contradiction is recorded in PRD §8.5). The mockup file is deleted as
 spec'd; `HOW_TO_READ.md` is the manual.
 
+**Next build session (owner-requested 2026-07-12): #90 GAMBIT merge**
+(D-90 — gate: both validates green, zero homily golden re-pins, journal
+hash chain verifies, one in-repo weekly run byte-identical to
+standalone, tombstone in the old repo). Then **#91's
+`homily_leverage_backtest.py`** (M, D-91 — must run and pass its
+pre-registered readout BEFORE the LEVERAGE.md policy signs; no levered
+order exists before the owner signature).
+
 Everything else remaining is DATE- or OWNER-gated:
 
 1. **~2026-08-11** · #14a first matured read (info-only; just run
@@ -92,7 +100,13 @@ Everything else remaining is DATE- or OWNER-gated:
    #79 distribution-tag ship (+mLHLL variant, scope guard verbatim) ·
    #67's whale-cap tightening to 1.6% (+ #31 copilot constant sync) ·
    any #20 weight change · #25 real market cap (engine edit, §8.5) ·
-   possible add-cap move-up (§12 caveat: 25% surrenders half the payout).
+   **#92 add-cap 10%→25%** (now designed — D-92; demotion rule armed in
+   the promotion commit; owner-override lever recorded in PRD §8.5 with
+   its three-epoch attribution cost).
+4b. **≥2027-01-09** · #93 swing live-arming read (D-93): P2 paper gate —
+   26 wks AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ
+   bar — then LIVE_ENABLE two-artifact + G-S7 order rail; leverage per
+   D-91 only if L2 holds on the paper ledger's own MAR.
 5. **Quarterly** · #65 universe refresh (`--shard k/N` over CI nights) +
    #44 hygiene issue; #74/#81 timing-modifier studies — ONE per quarter.
 6. **Owner-gated** · T3 (two clean T2 months + cloud repo access; PRD §9.2
