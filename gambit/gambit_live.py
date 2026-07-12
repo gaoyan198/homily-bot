@@ -33,8 +33,8 @@ PRE-REGISTERED (frozen here; changes = a recorded amendment, PRD §8.5):
   same. Killed is killed: this module refuses to trade after it.
   ARMING: the first live order sheet prints only once MARGIN_ZERO is set
   (the owner's clean-slate condition) — until then the block says waiting.
-  Proceeds: realized profit above contributed is listed monthly as
-  "sweepable → BUY_BUDGET"; losses are the recorded cost of business.
+  Proceeds: the flywheel skim (#95 / D-95) banks realized profit to the DCA
+  each quarter — see maybe_skim(); losses are the recorded cost of business.
 """
 import datetime
 
@@ -50,13 +50,18 @@ LADDER = {"BULL": 1.30, "MIXED": 1.15, "BEAR": 1.00}
 COST = 0.00125                       # per side, = gambit_backtest.COST_SIDE
 FIN = 0.058                          # LEVERAGE.md financing, on negative cash
 N = 5
+SKIM_MONTHS = {1, 4, 7, 10}          # D-95: quarter-ends (first run of each)
+SKIM_MIN = 1.0                       # don't bother the owner with cents
 
 
 def new_book(capital=BANKROLL):
     return {"armed": None, "contributed": capital, "cash": capital,
             "positions": {}, "pending": [], "realized": [],
             "hwm": capital, "equity": capital, "last_decision": None,
-            "last_processed": None, "killed": None}
+            "last_processed": None, "killed": None,
+            # #95 flywheel: cumulative profit banked to the DCA + the record
+            # of each skim (never in `realized` — a skim is not a trade).
+            "skimmed": 0.0, "skims": [], "last_skim_q": None}
 
 
 def _iso(d):
@@ -223,6 +228,62 @@ def check_kill(book, series, as_of, rows):
                      "side": "", "reason_code": "KILL", "notes": reason})
 
 
+def _quarter(d):
+    d = _date(d)
+    return f"{d.year}-Q{(d.month - 1) // 3 + 1}"
+
+
+def maybe_skim(book, qqq, as_of, rows):
+    """#95 / D-95 — the flywheel skim: at the first weekly run of each
+    quarter (Jan/Apr/Jul/Oct), bank realized profit to the monthly DCA.
+
+    The bar for "profit not yet banked" is `equity − contributed`, NOT the
+    weekly high-water mark (`book["hwm"]` tracks equity every week, so
+    `equity − hwm` ≈ 0 and the skim would never fire). Contributed is the
+    right floor precisely because a skim REDUCES equity by the banked amount:
+    once 600 of profit is skimmed, equity drops from 3600 to 3000, so the
+    same 600 can never be skimmed again — and genuinely NEW profit earned
+    afterward (3000 → 3150) is correctly bankable as its own 150. This is
+    D-95's "the HWM ratchets so the same profit is never skimmed twice",
+    achieved by the equity drop itself; `skimmed` is a cumulative record for
+    the report, never part of the bar (adding it would double-count — bar
+    raised AND cash removed). A drawdown below contributed skims 0, and that
+    is correct (G8: red quarters pay nothing, no borrowing to fake
+    stability).
+
+    Skims are CONSERVATIVE with respect to the pre-registered kills: the
+    banked cash leaves the book, so equity moves TOWARD KILL-A, never away;
+    and a skim is never appended to `realized`, so KILL-B's expectancy over
+    the trailing 20 CLOSED TRADES is untouched. Pre-registered kill rules do
+    not get softened by the sleeve's own successes — the money just leaves
+    the casino. Returns the skimmed amount (0.0 if none)."""
+    if not book.get("armed") or book.get("killed"):
+        return 0.0
+    book.setdefault("skims", [])                  # forward-compat: a book
+    book.setdefault("skimmed", 0.0)               # committed pre-#95 lacks these
+    q = _quarter(as_of)
+    if _date(as_of).month not in SKIM_MONTHS or book.get("last_skim_q") == q:
+        return 0.0
+    book["last_skim_q"] = q                       # once per quarter, even if 0
+    skimmable = book["equity"] - book["contributed"]   # profit not yet banked
+    free_cash = max(0.0, book["cash"])            # can't skim tied-up money
+    s = round(min(free_cash, max(0.0, skimmable)), 2)
+    if s < SKIM_MIN:
+        return 0.0
+    book["cash"] = round(book["cash"] - s, 2)     # equity drops by exactly s
+    book["equity"] = round(book["equity"] - s, 2)
+    book["skimmed"] = round(book.get("skimmed", 0.0) + s, 2)
+    qpx = qqq.close_at(as_of) if qqq else None     # for D-95's later QQQ arm
+    book["skims"].append({"date": _iso(as_of), "usd": s, "quarter": q,
+                          "qqq": round(qpx, 4) if qpx else None})
+    rows.append({"date": _iso(as_of), "event": "SKIM", "symbol": "",
+                 "side": "", "reason_code": "SKIM",
+                 "notes": f"skim {s:+.2f} to BUY_BUDGET (cumulative "
+                          f"{book['skimmed']:.2f}); contributed and realized "
+                          "untouched"})
+    return s
+
+
 def live_step(book, paper, series, qqq, regime_label, as_of, *,
               margin_zero=False):
     """One weekly advance. Returns (order_sheet_text, journal_rows).
@@ -263,6 +324,9 @@ def live_step(book, paper, series, qqq, regime_label, as_of, *,
     check_kill(book, series, as_of, rows)
     book["equity"] = _equity(book, series, as_of)
     book["hwm"] = max(book.get("hwm", 0.0), book["equity"])
+    # #95: bank the quarter's profit AFTER the kill check (a skim can only
+    # move equity toward KILL-A, never away — done last, on the marked book)
+    maybe_skim(book, qqq, as_of, rows)
     return _sheet(book, series, regime_label, as_of), rows
 
 
@@ -302,9 +366,16 @@ def _sheet(book, series, regime_label, as_of):
     else:
         lines.append("  no orders this week — a quiet week is the system "
                      "working")
+    # #95: a fresh skim this week → the owner sweeps it to the DCA
+    if book.get("skims") and book["skims"][-1]["date"] == _iso(as_of):
+        sk = book["skims"][-1]
+        lines.append(f"  💧 SKIM ${sk['usd']:,.2f} → BUY_BUDGET this quarter "
+                     f"({sk['quarter']}): move that cash to the monthly DCA; "
+                     f"cumulative banked ${book.get('skimmed', 0.0):,.2f}")
     lines.append(f"status: equity ${eq:,.2f} · contributed "
                  f"${book['contributed']:,.2f} · KILL line ${kill_line:,.2f}"
-                 f" · realized {real:+,.2f} · gross "
+                 f" · realized {real:+,.2f} · skimmed "
+                 f"${book.get('skimmed', 0.0):,.2f} · gross "
                  f"{(gross / eq if eq else 0):.2f}× (cap {L:.2f} "
                  f"{regime_label}) · stops move only at re-ranks")
     return "\n".join(lines)

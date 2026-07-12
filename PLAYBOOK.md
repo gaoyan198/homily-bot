@@ -222,6 +222,12 @@ the stock half would make you break the rules, shift the split toward A
 until it wouldn't. The split you can hold through a bear beats the split
 that's optimal on paper.
 
+*Once a quarter the swing sleeve's flywheel skim (§9 / #95) adds to this
+month's investable on top of the formula above — it prints as "+ swing
+skim US$X" in the 🛒 BUY DAY block. Deploy it through the same §3 routine;
+it is proceeds from the experiment, never borrowed, and a losing quarter
+adds nothing.*
+
 ---
 
 ## 8 · Honest expectations (read once a year)
@@ -269,6 +275,21 @@ the S1 rotation (4-weekly re-ranks) · enforces the 12-week time stop ·
 marks the book every Friday · reports **realized P&L monthly** in the
 daily digest, per trade, with the reason (STOP / TP / TIME / ROTATE /
 REGIME / KILL) · keeps a hash-chained journal of every decision.
+
+**The flywheel — how proceeds actually reach the DCA (#95):** once a
+quarter (the first weekly run of Jan/Apr/Jul/Oct) the machine banks the
+sleeve's profit above your contributed capital as a **skim**: a 💧 line
+prints on the order sheet and again in that month's 🛒 BUY DAY block
+("+ swing skim US$X"). **You move that cash** from the swing account into
+the monthly DCA and deploy it with the normal §3 routine — the skim is
+extra money on top of `BUY_BUDGET`, not a change to how you split it.
+Only *realized* profit is ever skimmed (never principal, never a forced
+sale); a quarter that ends below your contributed capital skims **US$0**,
+and that is correct — a red quarter pays nothing (no borrowing to fake a
+steady payout). The skim is measured, not guessed: the monthly report
+shows cumulative banked skims and the sleeve's true score (equity + all
+skims vs contributed). **Skims never move the kill line** — banked money
+leaves the book, so the experiment must always survive on what remains.
 
 **The kill rules (pre-registered, mandatory, not a discussion):**
 - **KILL-A — the "too huge" number: equity ≤ 70% of contributed capital**

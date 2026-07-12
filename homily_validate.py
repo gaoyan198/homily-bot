@@ -1667,7 +1667,7 @@ assert "KILLED" in homily_swing.live_block(_kb51) and \
     "failure memo" in homily_swing.live_block(_kb51)
 _mb51 = homily_swing.monthly_block(_bk51, datetime.date(2026, 9, 1))
 assert "2026-08 realized report" in _mb51 and "-120.00" in _mb51 and \
-    "STOP" in _mb51 and "sweepable" in _mb51 and "modeled" in _mb51, _mb51
+    "STOP" in _mb51 and "flywheel" in _mb51 and "modeled" in _mb51, _mb51
 assert homily_swing.monthly_block({"armed": None},
                                   datetime.date(2026, 9, 1)) == "", \
     "unarmed book prints no monthly report"
@@ -1675,7 +1675,25 @@ _src51 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "homily_swing.py")).read()
 assert "urlopen" not in _src51 and "write_text" not in _src51, \
     "homily_swing stays read-only + fetch-free"
-print("[51] #93 live blocks: waiting/armed/killed + monthly realized ...... PASS")
+# #95 flywheel (homily read side): the monthly report shows banked skims +
+# the sleeve score (equity + skims vs contributed); the buyday helper routes
+# a skim into its OWN month only (no thrice-nag across the quarter).
+_bk95 = dict(_bk51, skimmed=600.0,
+             skims=[{"date": "2026-08-05", "usd": 600.0,
+                     "quarter": "2026-Q3", "qqq": 500.0}])
+_mb95 = homily_swing.monthly_block(_bk95, datetime.date(2026, 9, 1))
+assert "flywheel" in _mb95 and "banked $600.00" in _mb95 and \
+    "$600.00 this quarter" in _mb95 and "skims never soften" in _mb95, _mb95
+assert homily_buyday.swing_skim_this_month(
+    datetime.date(2026, 8, 3), _bk95) == 600.0                 # Aug sees Aug
+assert homily_buyday.swing_skim_this_month(
+    datetime.date(2026, 9, 7), _bk95) == 0.0                   # Sep does not
+_p95 = {"budget": 1500, "mode": "normal", "srs_covers_index": False,
+        "orders": [], "manual": [], "skipped": [], "spent": 0, "leftover": 1500}
+_r95 = homily_buyday.render(_p95, datetime.date(2026, 8, 3), 600.0)
+assert "swing skim $600" in _r95 and "routed in (#95)" in _r95, _r95
+assert "swing skim" not in homily_buyday.render(_p95, datetime.date(2026, 8, 3))
+print("[51] #93 live blocks: waiting/armed/killed + monthly + #95 flywheel .. PASS")
 
 # --- 52. #94 household scorecard: adjclose counterfactual + missing nag -----
 import homily_household as _hh

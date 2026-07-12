@@ -44,6 +44,7 @@ import datetime
 
 import homily_ledger
 import homily_positions
+import homily_swing
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DOCS = os.path.join(HERE, "docs")
@@ -172,12 +173,29 @@ def plan(budget, states, positions, regime_label, *, srs_covers_index=False,
             "srs_covers_index": srs_covers_index}
 
 
-def render(p, day):
+def swing_skim_this_month(day, book=None):
+    """#95 (D-95): USD skimmed from the swing sleeve THIS calendar month —
+    the quarter's flywheel skim lands at quarter-start (Jan/Apr/Jul/Oct), so
+    it shows in that month's BUY DAY block and not the two after it (no thrice
+    nag). Pure read of the committed live book; 0.0 when nothing to route."""
+    book = book if book is not None else homily_swing.load_live()
+    if not book:
+        return 0.0
+    ym = day.strftime("%Y-%m")
+    return round(sum(float(s.get("usd", 0.0)) for s in book.get("skims") or []
+                     if str(s.get("date", ""))[:7] == ym), 2)
+
+
+def render(p, day, skim_usd=0.0):
     """Plan -> the 🛒 HTML block the digest leads with. Telegram-HTML safe:
-    every interpolated name is escaped (#34 R4)."""
+    every interpolated name is escaped (#34 R4). `skim_usd` (#95) is the
+    swing sleeve's flywheel skim for this month — routed into the same §3
+    routine as extra deployable cash; the allocation math is unchanged (the
+    owner moves the swept cash), so this is an informational add."""
     e = lambda x: html.escape(str(x), quote=False)
     month = day.strftime("%B %Y")
-    lines = [f"🛒 <b>BUY DAY — {e(month)}</b> · budget ${p['budget']:,.0f}"]
+    lines = [f"🛒 <b>BUY DAY — {e(month)}</b> · budget ${p['budget']:,.0f}"
+             + (f" + swing skim ${skim_usd:,.0f}" if skim_usd else "")]
     if p["mode"] == "bear":
         lines.append("<i>🐻 regime: entire budget → Bucket A "
                      "(PLAYBOOK §4.6 — buy the index through the bear)</i>")
@@ -197,6 +215,11 @@ def render(p, day):
         lines.append(f"· {e(s)}")
     lines.append(f"deployed ~${p['spent']:,.0f} · leftover "
                  f"${p['leftover']:,.0f} rolls to next month")
+    if skim_usd:
+        lines.append(f"<i>💧 swing skim ${skim_usd:,.0f} routed in (#95): the "
+                     "sleeve's quarterly profit funds the DCA — move that cash "
+                     "from the swing account and deploy it with this month's "
+                     "budget per §3</i>")
     lines.append("<i>printed, never placed — §7 stands (PRD §9.2 T0/T2)</i>")
     return "\n".join(lines)
 
@@ -239,7 +262,7 @@ def buyday_block(states, positions, regime, day, *, yahoo=None,
              regime.label if regime is not None else "MIXED",
              srs_covers_index=srs, yahoo=yahoo)
     write_basket(p, day, docs=docs)
-    return render(p, day), p
+    return render(p, day, swing_skim_this_month(day)), p
 
 
 if __name__ == "__main__":

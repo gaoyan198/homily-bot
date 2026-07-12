@@ -137,7 +137,15 @@ def monthly_block(book, today, esc=lambda x: x):
                         for r in book.get("realized") or []), 2)
         eq = float(book.get("equity") or 0.0)
         contrib = float(book.get("contributed") or 0.0)
-        sweep = max(0.0, eq - contrib)
+        # #95 flywheel: the skim is now a real quarterly mechanic, not the old
+        # theoretical max(0, eq−contributed) suggestion. Report what was
+        # actually banked to the DCA + the sleeve's true score (equity + all
+        # skims vs contributed — skims count in SCORING, never in the kills).
+        skims = book.get("skims") or []
+        skimmed = round(sum(float(s.get("usd", 0.0)) for s in skims), 2)
+        fresh = round(sum(float(s.get("usd", 0.0)) for s in skims
+                          if str(s.get("date", ""))[:7] == prev), 2)
+        score = round(eq + skimmed, 2)
         lines = [f"♟️ <b>SWING LIVE — {esc(prev)} realized report (A5)</b>: "
                  f"{total:+,.2f} this month · {cum:+,.2f} cumulative"]
         for r in rows[:8]:
@@ -147,10 +155,14 @@ def monthly_block(book, today, esc=lambda x: x):
             lines.append("　no trades closed last month — open book holds "
                          "per rank; that is the system working")
         lines.append(
-            f"<i>sweepable → BUY_BUDGET: ${sweep:,.2f}"
-            + ("" if sweep else " (nothing above contributed capital)")
-            + " · fills are modeled (Monday opens / trigger prices) — "
-            "reconcile against IBKR statements, drift is honest noise</i>")
+            f"<i>flywheel → BUY_BUDGET (#95): banked ${skimmed:,.2f} "
+            "cumulative"
+            + (f" (${fresh:,.2f} this quarter — deploy it in the 🛒 block)"
+               if fresh else "")
+            + f" · sleeve score incl. skims ${score:,.2f} vs ${contrib:,.2f} "
+            "contributed (skims never soften the kill line) · fills are "
+            "modeled (Monday opens / trigger prices) — reconcile against "
+            "IBKR statements, drift is honest noise</i>")
         return "\n".join(lines)
     except Exception:
         return ""

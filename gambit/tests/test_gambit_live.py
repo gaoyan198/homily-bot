@@ -139,3 +139,85 @@ def test_order_sheet_reports_kill_line_and_gross():
     sheet, _ = advance(book, paper, s, "AAA", "2026-07-17")
     assert "KILL line $2,100.00" in sheet and "cap 1.30 BULL" in sheet
     assert "stops move only at re-ranks" in sheet
+
+
+# --- #95 flywheel skim (D-95): quarter-end profit banked to the DCA ---------
+
+def _profit_book(cash=3600.0, equity=3600.0, skimmed=0.0):
+    """An armed live book sitting on realized profit in CASH (no open
+    positions) — the clean case for exercising maybe_skim in isolation."""
+    b = gl.new_book()
+    b.update({"armed": "2026-08-01", "cash": cash, "equity": equity,
+              "hwm": equity, "skimmed": skimmed,
+              "realized": [{"date": "2026-08-14", "sym": "X",
+                            "reason": "TP", "pnl": 600.0}]})
+    return b
+
+
+def test_skim_banks_profit_at_quarter_end():
+    b = _profit_book()
+    rows = []
+    s = gl.maybe_skim(b, None, D("2026-10-03"), rows)   # Oct = quarter-end
+    assert s == 600.0 and b["skimmed"] == 600.0
+    assert b["cash"] == 3000.0 and b["equity"] == 3000.0   # equity −= skim
+    assert b["skims"] == [{"date": "2026-10-03", "usd": 600.0,
+                           "quarter": "2026-Q4", "qqq": None}]
+    assert any(r["event"] == "SKIM" for r in rows)
+
+
+def test_skim_is_kill_safe_contributed_and_realized_untouched():
+    """The pre-registered kills must not be softened by the sleeve's own
+    successes: a skim never touches `contributed` and never enters
+    `realized` (KILL-B's expectancy list). The kill CHECK is byte-identical
+    before and after the SKIM."""
+    b = _profit_book()
+    before_realized = [dict(r) for r in b["realized"]]
+    before_contrib = b["contributed"]
+    rows = []
+    gl.maybe_skim(b, None, D("2026-10-03"), rows)
+    assert b["realized"] == before_realized     # skim is NOT a trade
+    assert b["contributed"] == before_contrib   # skim is NOT principal
+    assert not any(r.get("reason_code") == "SKIM" for r in b["realized"])
+    # KILL-B expectancy reads only `realized` → identical result post-skim
+    ser = {}
+    gl.check_kill(b, ser, D("2026-10-03"), [])
+    assert not b["killed"]                       # +600 expectancy, no kill
+
+
+def test_no_skim_below_baseline_or_off_quarter():
+    # a drawdown (equity below contributed) skims nothing — G8: red pays $0
+    b = _profit_book(cash=200.0, equity=2500.0)
+    assert gl.maybe_skim(b, None, D("2026-10-03"), []) == 0.0
+    assert b["skimmed"] == 0.0
+    # a normal (non-quarter-end) month never skims, even flush with profit
+    b2 = _profit_book()
+    assert gl.maybe_skim(b2, None, D("2026-11-07"), []) == 0.0
+    assert b2["last_skim_q"] is None             # untouched off-quarter
+
+
+def test_skim_bounded_by_free_cash_not_paper_profit():
+    # profit exists (equity 3600 > baseline 3000) but only $250 is free cash
+    b = _profit_book(cash=250.0, equity=3600.0)
+    s = gl.maybe_skim(b, None, D("2026-10-03"), [])
+    assert s == 250.0 and b["cash"] == 0.0       # can't skim tied-up money
+
+
+def test_no_double_skim_same_quarter_and_ratchet():
+    b = _profit_book()
+    assert gl.maybe_skim(b, None, D("2026-10-03"), []) == 600.0
+    # same quarter, run again → nothing more
+    assert gl.maybe_skim(b, None, D("2026-10-10"), []) == 0.0
+    assert b["skimmed"] == 600.0
+    # next quarter, equity back at baseline (3000) → ratchet blocks re-skim
+    assert gl.maybe_skim(b, None, D("2027-01-02"), []) == 0.0
+    # next quarter WITH fresh profit above the ratcheted baseline → skims it
+    b["cash"] += 150.0
+    b["equity"] += 150.0
+    assert gl.maybe_skim(b, None, D("2027-04-03"), []) == 150.0
+    assert b["skimmed"] == 750.0
+
+
+def test_killed_book_never_skims():
+    b = _profit_book()
+    b["killed"] = {"date": "2026-09-10", "reason": "KILL-A: ..."}
+    assert gl.maybe_skim(b, None, D("2026-10-03"), []) == 0.0
