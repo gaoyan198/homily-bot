@@ -1,0 +1,15 @@
+{
+  "_v": 1,
+  "_comment": "Owner-maintained household flow log for the #94 household scorecard (homily_household.py). Nothing here is fetched from a broker — it is the record no API can see. FILL IN REAL VALUES: the scorecard nags every first Monday until each month since `inception` has a `flows` row, and prints no QQQ counterfactual until real flows exist. `opening_usd` = the WHOLE-household net worth on the `inception` date (the money already invested before the log began — REQUIRED for an honest money-weighted comparison: it is seeded into the QQQ counterfactual at inception too, so the book is never flattered by pre-existing dollars). `flows[].usd` = NET new money contributed to the WHOLE household that month (0 is valid — a paydown month with no net investment is an honest 0, not a missing row); tag `sleeve` (core/srs/espp/swing) for the per-sleeve read; withdrawals are negative. `balances` = current off-IBKR / non-priced balances in USD: srs_usd (SRS account, index-invested), espp_external_usd (ESPP shares held at the plan administrator, outside IBKR — Flex #32 never sees these), margin_loan_usd (the legacy core loan; goes to 0 at MARGIN_ZERO). `usdsgd` is a fallback only — the block prefers the live SGD=X fetch. Money-weighted, monthly granularity, since inception (§9.0 at household scale). Info-only forever.",
+  "inception": "2026-07",
+  "opening_usd": 0,
+  "usdsgd": 0,
+  "balances": {
+    "srs_usd": 0,
+    "espp_external_usd": 0,
+    "margin_loan_usd": 0
+  },
+  "flows": [
+    {"month": "2026-07", "usd": 0, "sleeve": "core", "note": "template — replace with the real net contribution for this month"}
+  ]
+}

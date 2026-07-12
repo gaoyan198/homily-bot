@@ -34,6 +34,7 @@ import homily_quality
 import homily_universe
 import homily_swing
 import homily_leverage
+import homily_household
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -296,7 +297,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev=""):
+                  lev="", household=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -353,6 +354,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     if bearready:
         # #30: first Monday of the month — the §4 rehearsal block
         lines += ["", bearready]
+    if household:
+        # #94: first Monday of the month — the whole-portfolio scorecard,
+        # right after the bear rehearsal it shares a cadence with
+        lines += ["", household]
     if promos:
         # #69/#24: month-start promotions check — the frozen rs12-top3
         # window read (published through 2026-10 by promise) + the rolling
@@ -531,6 +536,18 @@ def build_digest(flex_notes=None):
                                                          today)
     except Exception as e:
         print(f"[bearready] skipped: {e}")
+    # #94 household scorecard, first Monday of the month. Reads the same held
+    # prices the digest already shows; fetches only QQQ (counterfactual) +
+    # SGD=X (FX) inside its own shell. Non-fatal, info-only.
+    household = ""
+    try:
+        prices_all = {s.ticker: s.chips.last for s, _c, _y in sigs}
+        household = homily_household.household_block(
+            POSITIONS, prices_all, today,
+            regime_label=(regime.label if regime is not None else ""),
+            esc=esc)
+    except Exception as e:
+        print(f"[household] skipped: {e}")
     # #69/#24: month-start promotions block — the frozen rs12-top3 window
     # read (promised through the 2026-10-01 read) + the rolling demotion
     # check for promoted entries. Same first-run-of-month test as the
@@ -623,7 +640,7 @@ def build_digest(flex_notes=None):
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
-                           lev=lev)
+                           lev=lev, household=household)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
