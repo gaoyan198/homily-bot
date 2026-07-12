@@ -48,6 +48,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #91 leverage ladder — backtest PASSED at 1.30×, LEVERAGE.md signed, ⚖️ digest line | 2026-07-12 | pre-registered readout (BACKTEST_RESULTS §15) + validate [49]; rule-5 override recorded in §8.5; yearly re-run + shrink rule = LEVERAGE.md §5 |
 | #92 add-cap 10%→25% — PROMOTED (owner override; promotions.json "add-cap-25") | 2026-07-12 | D-67 prongs + demotion watch live every run (validate [50]); goldens re-pinned deliberately; next free R10 slot 2027-Q2 |
 | #93 swing sleeve LIVE-ARMED (Amendment A5, owner override of the P2 gate) | 2026-07-12 | A5 two-artifact; kill rules pre-registered (KILL-A −30% contributed / KILL-B 20-trade expectancy); arms on MARGIN_ZERO; validate [51] + 10 pytest cases; paper book = counterfactual |
+| #94 household scorecard (`homily_household.py` + `contributions.json`) | 2026-07-12 | validate [52]; first-Monday whole-book vs QQQ-DCA money-weighted (opening balance seeded, §8.5), USD+SGD, combined gross-L vs cap, missing-month nag; info-only, goldens untouched |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 

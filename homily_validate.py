@@ -1677,4 +1677,101 @@ assert "urlopen" not in _src51 and "write_text" not in _src51, \
     "homily_swing stays read-only + fetch-free"
 print("[51] #93 live blocks: waiting/armed/killed + monthly realized ...... PASS")
 
+# --- 52. #94 household scorecard: adjclose counterfactual + missing nag -----
+import homily_household as _hh
+# monthly_adj keeps the LAST adjusted close of each month, and the
+# counterfactual must run on ADJUSTED closes, not raw (R1 / #18): feed two
+# series that differ only in the adjusted column and the QQQ value must move.
+_d52 = [datetime.date(2026, 5, 29), datetime.date(2026, 6, 30),
+        datetime.date(2026, 7, 31)]
+_bars52 = [(d, 0, 0, 0, 100.0 + i, 0) for i, d in enumerate(_d52)]
+_adjA52 = [90.0, 95.0, 100.0]          # dividend-adjusted (what returns use)
+_adjB52 = [100.0, 100.0, 100.0]        # raw-equal control
+_mapA = _hh.monthly_adj(_bars52, _adjA52)
+_mapB = _hh.monthly_adj(_bars52, _adjB52)
+assert _mapA == {"2026-05": 90.0, "2026-06": 95.0, "2026-07": 100.0}, _mapA
+_flows52 = [{"month": "2026-05", "usd": 1000.0},
+            {"month": "2026-07", "usd": 1000.0}]
+_cfA = _hh.counterfactual(_flows52, _mapA)
+_cfB = _hh.counterfactual(_flows52, _mapB)
+# adjusted buys cheaper in May → more shares → higher value; raw-equal ≈ 2000
+assert abs(_cfB["value"] - 2000.0) < 1e-6, _cfB
+assert _cfA["value"] > _cfB["value"] + 1.0, "counterfactual must use adjclose"
+assert _cfA["deployed"] == 2000.0 and not _cfA["uncovered"]
+# a flow month older than the fetched QQQ range is reported, never dropped
+_cfU = _hh.counterfactual([{"month": "2020-01", "usd": 500.0}] + _flows52,
+                          _mapA)
+assert _cfU["uncovered"] == ["2020-01"] and _cfU["deployed"] == 2000.0, _cfU
+# missing-month nag: inception May, flows only May+July → June is missing
+assert _hh.months_between("2026-05", "2026-07") == \
+    ["2026-05", "2026-06", "2026-07"]
+# book composition: USD-only sum (R12), Bucket-A tracked, swing when armed
+_pos52 = {"NV": {"yahoo": "NV", "shares": 10.0, "cost": 1.0},
+          "IX": {"yahoo": "IX", "shares": 2.0, "cost": 1.0, "bucket": "A"},
+          "HK": {"yahoo": "HK", "shares": 100.0, "cost": 1.0,
+                 "currency": "HKD"}}
+_px52 = {"NV": 50.0, "IX": 100.0, "HK": 10.0}
+_live52 = {"armed": "2026-08-01", "equity": 3200.0, "cash": -800.0}
+_bal52 = {"srs_usd": 12000.0, "espp_external_usd": 3000.0,
+          "margin_loan_usd": 5000.0}
+_comp52 = _hh.book_value(_pos52, _px52, _live52, _bal52)
+assert _comp52["core_gross"] == 700.0 and _comp52["core_index"] == 200.0, \
+    _comp52                                   # HK excluded (R12), A counted
+assert _comp52["swing_mv"] == 4000.0 and _comp52["swing_loan"] == 800.0
+# net = 700 core + 12000 srs + 3000 espp + 4000 swing_mv − 5000 − 800
+assert abs(_comp52["net"] - 13900.0) < 1e-6, _comp52
+# combined IBKR gross leverage = (700+4000)/((700+4000)−(5000+800))... net<0
+assert _hh.combined_leverage(_comp52) is None      # loans exceed IBKR gross
+_comp52b = _hh.book_value(_pos52, _px52, _live52, {"margin_loan_usd": 0.0})
+_lev52 = _hh.combined_leverage(_comp52b)            # 4700 / (4700−800)
+assert abs(_lev52 - 4700.0 / 3900.0) < 1e-9, _lev52
+# render is deterministic, HTML-safe, prints the nag and the ladder cap
+_r52 = _hh.render(_comp52b, _cfA, 2000.0, _lev52, "BULL", 1.30,
+                  ["2026-06"], esc=lambda x: str(x))
+assert _r52 == _hh.render(_comp52b, _cfA, 2000.0, _lev52, "BULL", 1.30,
+                          ["2026-06"], esc=lambda x: str(x)), "deterministic"
+assert "HOUSEHOLD BOOK" in _r52 and "missing 1 month" in _r52 and \
+    "2026-06" in _r52 and "QQQ counterfactual" in _r52 and \
+    "ladder cap 1.30" in _r52, _r52
+# 4700/3900 = 1.205× < 1.30 BULL cap → must NOT flag over-cap
+assert "OVER LADDER CAP" not in _r52
+# a book over its cap DOES flag: 1.205× vs a MIXED 1.15 cap
+assert "OVER LADDER CAP" in _hh.render(
+    _comp52b, _cfA, 2000.0, _lev52, "MIXED", 1.15, [], esc=lambda x: str(x))
+# no flows logged → no counterfactual, honest note instead of a fake number
+assert "counterfactual unavailable" in _hh.render(
+    _comp52b, None, 0.0, _lev52, "BULL", 1.30, [], esc=lambda x: str(x))
+# household_block returns "" on a non-first-Monday and never fetches then
+assert _hh.household_block(_pos52, _px52,
+                           datetime.date(2026, 7, 15)) == ""
+# opening-balance honesty (the fix that turns a misleading +405% into a
+# truthful comparison): the shell must seed opening_usd into the QQQ
+# counterfactual at inception, so a book that merely rode QQQ prints ≈flat,
+# not a giant fake edge. Stub fetch + contributions to pin it deterministically.
+_tmp52 = os.path.join(tempfile.mkdtemp(), "c.json")
+open(_tmp52, "w").write(json.dumps(
+    {"_v": 1, "inception": "2026-06", "opening_usd": 10000.0,
+     "balances": {}, "flows": [{"month": "2026-06", "usd": 0}],
+     "usdsgd": 1.3}))
+_saved52 = _hh.CONTRIB_FILE
+_hh.CONTRIB_FILE = _tmp52
+try:
+    def _fx52(sym, rng="5y"):
+        d = [datetime.date(2026, 6, 30), datetime.date(2026, 7, 31)]
+        b = [(x, 0, 0, 0, 1, 0) for x in d]
+        return (b, [500.0, 600.0]) if sym == "QQQ" else (b, [1.3, 1.3])
+    # book that exactly rode QQQ +20% (10000 → 12000), no flows: must read
+    # ≈flat vs the counterfactual, NOT +20% over "0 contributed"
+    _blk = _hh.household_block(
+        {"Q": {"yahoo": "Q", "shares": 120.0, "cost": 1.0}},
+        {"Q": 100.0}, datetime.date(2026, 7, 6),
+        regime_label="BULL", fetch_series=_fx52, esc=lambda x: str(x))
+    assert "18,500" not in _blk and "on the same US$10,000 invested" in _blk, \
+        _blk                                   # opening counted in the basis
+    assert "ahead of by US$0" in _blk or "behind by US$0" in _blk, \
+        f"opening-seeded book that rode QQQ must read ≈flat: {_blk!r}"
+finally:
+    _hh.CONTRIB_FILE = _saved52
+print("[52] #94 household: adjclose counterfactual, leverage, missing nag .. PASS")
+
 print("\nAll structural assertions passed.")

@@ -561,7 +561,7 @@ armed, designs D-94…D-98, rows below, new proposals start #101):
 | 91 | ~~**Leverage policy — regime-gated ladder, sleeve-only**~~ — **shipped 2026-07-12** (owner directive; design D-91): `homily_leverage_backtest.py` ran with its rule frozen first — readout **PASSED at L=1.30** (zero margin-call breaches on every window incl. 1999→2026 at base AND stress financing, worst equity/position 0.68 vs boundary 0.25; beat unlevered QQQ 3/3 read windows net of 5.8%: 2.57/2.29/9.43 vs 2.27/2.14/7.30 — BACKTEST_RESULTS §15). **LEVERAGE.md SIGNED same session by owner override** (§8.5 rule-5 note; the policy's immediate live effects are constraints — shrink-only legacy margin, BEAR=margin-zero, core-book ban). Digest ⚖️ ladder line live (validate [49]); referee for all levered arms = regime-gated 1.30× QQQ | M+S | PASSED its pre-registered readout; LEVERAGE.md §5 carries the yearly re-run + mechanical shrink rule |
 | 92 | ~~**Concentration promotion — add-cap 10%→25% + dip-adds into winners**~~ — **PROMOTED 2026-07-12 by owner override** (design D-92; promotions.json "add-cap-25"): `CAP_PCT` 10→25 (one constant, D-27 interlock reaches the copilot), WARN 8→20, PLAYBOOK §3.4/§5.1 + digest/reader texts moved together, goldens re-pinned deliberately (text-only diff eyeballed); demotion watch LIVE and checked every run (`cap_demotion_line`, validate [50]) — a ≥15%-of-book name closing −50% from its post-promotion high reverts the cap to 10% mechanically; uncapped stays excluded (−95% shock 1.49) | S | D-67's prongs (already run) + demotion rule armed in the same commit; R10 arithmetic in §8.5 — next free slot 2027-Q2 |
 | 93 | ~~**Swing sleeve live-arming**~~ — **LIVE-ARMED 2026-07-12 by owner override (Amendment A5)**, the P2 paper gate OVERRIDDEN not passed (§8.5): `gambit_live.py` overlay mirrors the paper decisions under the LEVERAGE.md ladder with mandatory stops (−20%) / TPs (+40% half) / 12wk time stop; US$3,000 ring-fenced bankroll (≤10% net liq); KILL-A equity ≤70% of contributed · KILL-B expectancy ≤0 over 20 closed — liquidate + failure memo, mandatory; arms only once MARGIN_ZERO set (clean slate); owner places every order from the printed Monday sheet (G-S7 rail NOT built, LIVE_ORDERS off); paper S1-pure continues as the no-stops counterfactual; weekly order sheet + daily status + monthly realized report (validate [51], 10 live-overlay pytest cases) | M | A5 two-artifact + kill rules = the demotion rule; the paper gate keeps publishing but no longer blocks |
-| 94 | **Household book — whole-portfolio scorecard** (added 2026-07-12 late; design D-94) — the §9.0 question at OWNER level, which no artifact answers today: whole-book value (core cash sleeve + SRS + ESPP incl. external shares + swing sleeve equity − margin loan) vs the same-cash-flows QQQ DCA counterfactual, rolling 12/24/36m, printed USD **and SGD** (#53 absorbed), one attribution row per sleeve (core edge / swing P&L / ESPP discount / SRS beta), combined gross-L vs the LEVERAGE.md cap. Monthly first-Monday block + docs section; `contributions.json` records the flows no API sees (nag when a month is missing, never a guess). Info-only forever | M | fixture determinism; adjclose return math; missing-month nag asserted; never gates money |
+| 94 | ~~**Household book — whole-portfolio scorecard**~~ — **shipped 2026-07-12 late** (design D-94; gate: validate [52]): `homily_household.py` + owner-maintained `contributions.json` — first-Monday block, every sleeve (core + SRS + ESPP + swing − margin) vs the same net contributions DCA'd into QQQ (money-weighted, adjusted closes, **opening balance seeded at inception** so pre-existing dollars never flatter the book — §8.5), USD **and SGD** (#53 absorbed, live SGD=X), combined IBKR gross-L vs the ladder cap, missing-month nag. Info-only; render pure/deterministic; goldens untouched (new `household=""` kwarg defaults empty). Rolling 12/24/36m windows deferred — need a book-NAV history the repo doesn't yet commit (§8.5); since-inception money-weighted ships now | M | PASSED — validate [52]: adjclose counterfactual, opening-honesty guard, leverage over-cap flag, missing-month nag |
 | 95 | **Flywheel — swing-skim → DCA routing, measured** (D-95) — mechanizes the A5 owner line ("any proceeds … go towards funding the monthly dca"): quarter-end skim = min(free cash, equity − max(hwm, contributed)), HWM ratchet, SKIM journal rows; `+ skim` line in the next 🛒 BUY DAY block (routine itself unchanged); monthly flywheel table vs two counterfactuals (left-in-sleeve · same-day QQQ) — a null/negative answer prints too. Kill math untouched: skims never enter the KILL-A check (conservative by construction), they count only in scoring (equity+skims vs referee). Funding-flow accounting per §9.4, not a signal promotion — no R10 slot | M | fixture pytest: fires only above hwm∧contributed · ratchet correct · kill check byte-identical; PLAYBOOK §7/§9 + A5 reporting amended same commit; build before 2026-10-01 |
 | 96 | **A5 A/B reader — the stop-cost table** (D-96) — the pre-registered read A5 promised ("measured, monthly, in public"): per-episode attribution of every live exit the paper S1-pure book didn't take (STOP/TP/TIME followed forward on the paper leg), cumulative stops-P&L, sizing effect separated from exit effect; verdict row at the earlier of 26 live weeks / 20 closed live trades. REPORT-ONLY: stops stay mandatory while the book is levered; the read informs the next signed amendment, never changes live rules itself | S–M | deterministic two-journal fixture; module is read-only (zero journal writes, asserted) |
 | 97 | **Cross-book concentration lens** (D-97) — G5's named risk instrumented: #29 lens inputs grow to swing open positions + external ESPP V (correlation math untouched); combined-cluster digest line when it differs from core-only; order-sheet warning on a G5 max-2-overlap breach or >60% combined-cluster deepening. Info-only; the S1 rotation and §4.1 signal budget untouched — a warning is not an input | S–M | fixtures both sides: overlapping books fire, disjoint books stay silent; sheet text pinned |
@@ -588,6 +588,32 @@ and #62 (ledger append-only hash check).
 
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
+
+**2026-07-12 (integration era, execution) · #94 shipped; two divergences
+from D-94, both found by driving the block.** (1) **The counterfactual
+needed an OPENING BALANCE D-94 didn't specify.** D-94 said "same-cash-flows
+QQQ DCA" using the flows in `contributions.json` — but the book already
+held ~S$42.9k at the 2026-07 inception that the monthly flow log does not
+capture. Comparing full net worth against only the new flows printed a
+nonsense +405% edge on the first drive. Fix: `contributions.json` carries
+`opening_usd` (whole-book net worth at inception), seeded into the QQQ
+counterfactual at the inception month's adjusted close exactly like a flow;
+the basis becomes opening + Σflows. The same synthetic book that merely
+rode QQQ then reads ≈flat instead of a fake edge — pinned by the
+opening-honesty guard in validate [52]. This is the money-weighted
+comparison done right; recorded because a future refactor that drops the
+seeding would silently restore the lie. (2) **Rolling 12/24/36m windows
+deferred — the repo commits no book-NAV history.** A trailing-window
+money-weighted return needs the book value at each window start; the ledger
+holds per-name signal rows, not book NAV. Shipped the since-inception
+money-weighted number (which is the correct money-weighted figure anyway)
+and noted the windows accrue once a NAV series exists — a later follow-up,
+not this session. No workflow edit: `contributions.json` is a static
+owner-maintained config like `holdings.json`, not a nightly-regenerated
+artifact, so R8 doesn't apply. Two fetches, not D-94's "one FX series":
+QQQ (counterfactual) + SGD=X (FX), both first-Monday-only and non-fatal —
+the "one new fetch" wording assumed QQQ was already exposed to the block,
+which it wasn't.
 
 **2026-07-12 (execution, final) · #93 LIVE-ARMED by the largest override
 yet — recorded, not waived.** D-93's four preconditions said: paper gate
