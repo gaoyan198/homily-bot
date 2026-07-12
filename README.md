@@ -202,15 +202,19 @@ universe. Edit `UNIVERSE` in `daily_run.py` to change coverage.
 UTC) and on manual dispatch: digest → self-tests → commit refined
 champion/log back to the repo.
 
-`.github/workflows/gambit-weekly.yml` (#90) advances the swing sleeve's
-**paper** book every **Saturday 02:00 UTC** (after Friday's close): homily +
-gambit validates → `gambit/weekly_run.py` → commit journal/snapshot → weekly
-♟️ digest to Telegram. Honesty note: the daily digest's ♟️ SWING block and
-the weekly ♟️ digest report a **paper** book — S1-pure cleared its backtest
-gate on only 2/3 windows and was promoted to paper by owner override
-(gambit/AMENDMENT_A4.md, −40…−46% drawdowns accepted in writing); no real
-order exists until #93's gate (≥26 paper weeks, ≥20 closed trades,
-expectancy > 0, green vs QQQ) passes AND the owner signs live-enable.
+`.github/workflows/gambit-weekly.yml` (#90/#93) advances the swing
+sleeve every **Saturday 02:00 UTC**: homily + gambit validates →
+`gambit/weekly_run.py` (paper) → `gambit/live_run.py` (LIVE overlay) →
+commit journals/books → weekly ♟️ digest + ORDER SHEET to Telegram.
+Honesty note: the LIVE book (Amendment A5, 2026-07-12) was armed by owner
+override of the P2 paper gate — it runs on days, not 26 weeks, of paper
+history; its mandatory stops FAILED the Phase-1 backtest (S1-stopped 0/3)
+and are a bounded-loss control, not an edge; the paper S1-pure book runs
+beside it as the no-stops counterfactual. The bot places NO orders — the
+owner executes the printed sheet (LIVE_ORDERS stays off). Kill rules are
+mechanical: equity ≤70% of contributed, or expectancy ≤0 over 20 closed
+trades → liquidate, failure memo, done. Nothing trades until the legacy
+margin clears and `MARGIN_ZERO` is set.
 
 ## Setup (one-time)
 ```

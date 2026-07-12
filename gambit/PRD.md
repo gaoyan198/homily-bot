@@ -4,6 +4,12 @@
 > fitting for a game we intend to win against the suits.
 > **Name confirmed by owner (D-G5 resolved).**
 
+**Amendment A5 (2026-07-12): a LIVE, manually-executed overlay is armed by
+owner override — see `AMENDMENT_A5.md` and homily PLAYBOOK §9.** The paper
+book below continues UNCHANGED as its no-stops counterfactual. P3
+(automated orders) stays deferred sine die; `LIVE_ORDERS` stays `off` —
+the owner places every order from the printed sheet.
+
 **Status: P2 PAPER (S1-pure), entered 2026-07-11 by Amendment A4.**
 Phase 1 (G-S1…G-S4) built the harness and scored the §4 gate: no arm was
 promotable under the original stop directive (KILL_MEMO.md). The owner

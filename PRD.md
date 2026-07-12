@@ -538,7 +538,7 @@ D-90…D-93 (§8.5 records the directive), new proposals start #94):
 | 90 | ~~**GAMBIT merge — one repo, three books**~~ — **shipped 2026-07-12** (owner directive; design D-90): self-contained `gambit/` (docs stayed in-package, NOT `docs/gambit/` — §8.5 deviation: [K6] reads PRD.md ROOT-relative), byte-identical move (hashes verified), weekly CI job (`gambit-weekly.yml`, Sat 02:00 UTC, validate→run→commit→♟️ Telegram), ♟️ SWING (paper) block in the daily digest (validate [48], goldens untouched), first paper journal rows accrued (2026-07-10 Friday decision — the #93 26-week clock is LIVE), tombstone committed in the old repo | M | PASSED all four D-90 gates incl. same-bars byte-identical replay through both trees |
 | 91 | ~~**Leverage policy — regime-gated ladder, sleeve-only**~~ — **shipped 2026-07-12** (owner directive; design D-91): `homily_leverage_backtest.py` ran with its rule frozen first — readout **PASSED at L=1.30** (zero margin-call breaches on every window incl. 1999→2026 at base AND stress financing, worst equity/position 0.68 vs boundary 0.25; beat unlevered QQQ 3/3 read windows net of 5.8%: 2.57/2.29/9.43 vs 2.27/2.14/7.30 — BACKTEST_RESULTS §15). **LEVERAGE.md SIGNED same session by owner override** (§8.5 rule-5 note; the policy's immediate live effects are constraints — shrink-only legacy margin, BEAR=margin-zero, core-book ban). Digest ⚖️ ladder line live (validate [49]); referee for all levered arms = regime-gated 1.30× QQQ | M+S | PASSED its pre-registered readout; LEVERAGE.md §5 carries the yearly re-run + mechanical shrink rule |
 | 92 | ~~**Concentration promotion — add-cap 10%→25% + dip-adds into winners**~~ — **PROMOTED 2026-07-12 by owner override** (design D-92; promotions.json "add-cap-25"): `CAP_PCT` 10→25 (one constant, D-27 interlock reaches the copilot), WARN 8→20, PLAYBOOK §3.4/§5.1 + digest/reader texts moved together, goldens re-pinned deliberately (text-only diff eyeballed); demotion watch LIVE and checked every run (`cap_demotion_line`, validate [50]) — a ≥15%-of-book name closing −50% from its post-promotion high reverts the cap to 10% mechanically; uncapped stays excluded (−95% shock 1.49) | S | D-67's prongs (already run) + demotion rule armed in the same commit; R10 arithmetic in §8.5 — next free slot 2027-Q2 |
-| 93 | **Swing sleeve live-arming** (design D-93) — P2 paper gate green (≥26wk from 2026-07-11 AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ bar, no backtest credit) → LIVE_ENABLE two-artifact → G-S7 order rail (human approval per order) → leverage attaches per D-91 only if L2 holds on the paper ledger's own MAR; K1–K6 kill switches live from row 1 | M | the P2 ledger IS the gate; earliest ~2027-01-09 |
+| 93 | ~~**Swing sleeve live-arming**~~ — **LIVE-ARMED 2026-07-12 by owner override (Amendment A5)**, the P2 paper gate OVERRIDDEN not passed (§8.5): `gambit_live.py` overlay mirrors the paper decisions under the LEVERAGE.md ladder with mandatory stops (−20%) / TPs (+40% half) / 12wk time stop; US$3,000 ring-fenced bankroll (≤10% net liq); KILL-A equity ≤70% of contributed · KILL-B expectancy ≤0 over 20 closed — liquidate + failure memo, mandatory; arms only once MARGIN_ZERO set (clean slate); owner places every order from the printed Monday sheet (G-S7 rail NOT built, LIVE_ORDERS off); paper S1-pure continues as the no-stops counterfactual; weekly order sheet + daily status + monthly realized report (validate [51], 10 live-overlay pytest cases) | M | A5 two-artifact + kill rules = the demotion rule; the paper gate keeps publishing but no longer blocks |
 
 ### 8.4 Planning → execution handoff
 
@@ -559,6 +559,25 @@ and #62 (ledger append-only hash check).
 
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
+
+**2026-07-12 (execution, final) · #93 LIVE-ARMED by the largest override
+yet — recorded, not waived.** D-93's four preconditions said: paper gate
+green (26 weeks) → LIVE_ENABLE → order rail → L2 on paper MAR. The owner
+directed live-arming at two days of paper history; Amendment A5 (gambit/)
+is the two-artifact record, with the owner's verbatim directive and what
+it accepts: the stops it mandates FAILED the Phase-1 backtest
+(S1-stopped 0/3 — bounded-loss control, not edge), the paper gate keeps
+publishing but no longer blocks, fills are modeled. What was NOT
+overridden: execution stays human (order sheet, owner places; the G-S7
+rail was NOT built and LIVE_ORDERS stays off, so the automated-orders
+gate is untouched); the ladder binds sizing; the kill rules are
+pre-registered and mechanical (KILL-A −30% of contributed = US$900 on
+the initial US$3,000; KILL-B expectancy ≤0 over 20 closed; any margin
+call → LEVERAGE.md §5). Arming waits on MARGIN_ZERO — the owner's own
+clean-slate condition — so the first levered dollar moves only after the
+legacy loan clears. The paper S1-pure book runs on as the no-stops
+counterfactual: the A5 experiment is, deliberately, a measured A/B of
+the owner's variant against the gate's variant.
 
 **2026-07-12 (execution, latest) · #92 promoted; the R10 ledger now reads
 three-spent.** The add-cap raise was designed for the clean 2027-Q1 slot;

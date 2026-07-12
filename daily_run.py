@@ -565,12 +565,21 @@ def build_digest(flex_notes=None):
         gaps = [d for d in cov["missing"] if d >= cutoff]
     except Exception as e:
         print(f"[coverage] skipped: {e}")
-    # #90: SWING (paper) sleeve state — pure read of the committed gambit
-    # snapshot; non-fatal, never fetches, never writes sleeve state (R3).
+    # #90/#93: SWING sleeve state — paper block + LIVE status (A5) + the
+    # month-start realized report. Pure reads of committed gambit state;
+    # non-fatal, never fetches, never writes sleeve state (R3).
     swing = ""
     try:
         swing = homily_swing.swing_block(homily_swing.load_state(), today,
                                          esc=esc)
+        live = homily_swing.load_live()
+        lb = homily_swing.live_block(live, esc=esc)
+        if lb:
+            swing = f"{swing}\n{lb}" if swing else lb
+        if homily_buyday.is_buy_day(today, homily_ledger._read_rows()):
+            mb = homily_swing.monthly_block(live, today, esc=esc)
+            if mb:
+                swing = f"{swing}\n\n{mb}" if swing else mb
     except Exception as e:
         print(f"[swing] skipped: {e}")
     # #91: the leverage-ladder line (LEVERAGE.md §5) — pure render from the

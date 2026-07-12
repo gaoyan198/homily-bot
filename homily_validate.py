@@ -1582,7 +1582,10 @@ assert "wk 2/26" in _blk48 and "closed 0/20" in _blk48, \
     "P2 gate counters must print (weeks from inception, not clock)"
 assert "PAPER" in _blk48 and "LIVE_ORDERS=off" in _blk48 and \
     "no real orders" in _blk48, "the paper fence must be explicit"
-assert "#93" in _blk48, "the block must name the live-arming gate"
+# (updated with #93's promotion: the paper block now states its A5 role —
+# the no-stops counterfactual the live book is scored against)
+assert "counterfactual" in _blk48 and "A5" in _blk48, \
+    "the paper block must state its counterfactual role (A5)"
 assert homily_swing.swing_block(None, _d48) == "" and \
     homily_swing.swing_block({"inception": "not-a-date"}, _d48) == "", \
     "missing/corrupt sleeve state must render nothing, never raise"
@@ -1643,5 +1646,35 @@ assert homily_positions.cap_demotion_line(
 assert homily_positions.cap_demotion_line(_pos50, _px50, {}) == ""
 assert homily_positions.cap_demotion_line({}, {}, None) == ""
 print("[50] #92 add-cap 25%: interlock + registry + demotion watch fires .. PASS")
+
+# --- 51. #93/A5 live blocks: waiting → armed → killed, monthly realized ----
+assert homily_swing.KILL_FRAC == 0.70, "A5 kill fraction is pre-registered"
+_lw51 = homily_swing.live_block({"armed": None, "contributed": 3000.0})
+assert "waiting for the clean slate" in _lw51 and "MARGIN_ZERO" in _lw51
+_bk51 = {"armed": "2026-08-01", "contributed": 3000.0, "equity": 2800.0,
+         "hwm": 3100.0, "cash": -500.0, "killed": None,
+         "positions": {"MU": {}}, "pending": [],
+         "realized": [{"date": "2026-08-14", "sym": "STX", "reason": "STOP",
+                       "pnl": -120.0},
+                      {"date": "2026-09-02", "sym": "WDC", "reason": "TP",
+                       "pnl": 260.0}]}
+_lb51 = homily_swing.live_block(_bk51)
+assert "$2,800" in _lb51 and "kill line $2,100" in _lb51 and \
+    "HOLD per plan" in _lb51 and "+140" in _lb51, _lb51
+assert _lb51 == homily_swing.live_block(_bk51), "deterministic"
+_kb51 = dict(_bk51, killed={"date": "2026-09-10", "reason": "KILL-A: ..."})
+assert "KILLED" in homily_swing.live_block(_kb51) and \
+    "failure memo" in homily_swing.live_block(_kb51)
+_mb51 = homily_swing.monthly_block(_bk51, datetime.date(2026, 9, 1))
+assert "2026-08 realized report" in _mb51 and "-120.00" in _mb51 and \
+    "STOP" in _mb51 and "sweepable" in _mb51 and "modeled" in _mb51, _mb51
+assert homily_swing.monthly_block({"armed": None},
+                                  datetime.date(2026, 9, 1)) == "", \
+    "unarmed book prints no monthly report"
+_src51 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_swing.py")).read()
+assert "urlopen" not in _src51 and "write_text" not in _src51, \
+    "homily_swing stays read-only + fetch-free"
+print("[51] #93 live blocks: waiting/armed/killed + monthly realized ...... PASS")
 
 print("\nAll structural assertions passed.")
