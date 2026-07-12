@@ -44,6 +44,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #65 universe.json + shadow quarter | 2026-07-11 | validate [46]; adoption read ~2026-10 |
 | #83 Danny chart board (searchable, dual boards) | 2026-07-12 | validate [33] extended; §8.5 size-split note; goldens untouched |
 | #84 any-ticker chart CLI | 2026-07-12 | validate [47]; R3 pinned mechanically |
+| #90 GAMBIT merge — self-contained `gambit/`, weekly CI, ♟️ SWING block | 2026-07-12 | all four D-90 gates: both validates green (gambit 70 tests from new location, homily [48], zero golden re-pins) · journal chain verifies · same-bars replay byte-identical through both trees · tombstone in the old repo. Deviations in PRD §8.5 |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
@@ -70,10 +71,10 @@ joins the 2026-10-01 #24 harness read).
 contradiction is recorded in PRD §8.5). The mockup file is deleted as
 spec'd; `HOW_TO_READ.md` is the manual.
 
-**Next build session (owner-requested 2026-07-12): #90 GAMBIT merge**
-(D-90 — gate: both validates green, zero homily golden re-pins, journal
-hash chain verifies, one in-repo weekly run byte-identical to
-standalone, tombstone in the old repo). Then **#91's
+~~**Next build session (owner-requested 2026-07-12): #90 GAMBIT merge**~~ —
+**shipped 2026-07-12** (all four D-90 gates PASSED; §0 row; the paper
+book's first journal rows accrued 2026-07-10-decision during the gate
+run — the sleeve's 26-week #93 clock is live). Then **#91's
 `homily_leverage_backtest.py`** (M, D-91 — must run and pass its
 pre-registered readout BEFORE the LEVERAGE.md policy signs; no levered
 order exists before the owner signature).

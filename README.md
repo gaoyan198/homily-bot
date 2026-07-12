@@ -136,6 +136,8 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_clusters.py` | Concentration lens (#29): 90d-correlation clusters of the book, one digest line + a ⭐-deepens-cluster nudge; info-only |
 | `homily_bearready.py` | Bear-readiness rehearsal (#30): first-Monday digest block — bucket split, margin/SRS confirmations, the pre-computed PLAYBOOK §4 sell list; info-only |
 | `homily_buyday.py` | Buy-day copilot (#31): first run of the month resolves `BUY_BUDGET_USD` into printed IBKR-ready orders + a basket CSV (`docs/orders_YYYY-MM.csv`) — **info-only, never places an order** |
+| `homily_swing.py` | SWING (paper) digest block (#90): P2-gate counters from the merged sleeve's committed snapshot — read-only, fetch-free, never a trade signal |
+| `gambit/` | The merged 4–12wk swing sleeve (#90/D-90): its own engine, harness, 70-test validate, governance docs (KILL_MEMO, AMENDMENT_A4, LEVERAGE_MEMO) and hash-chained paper journal — self-contained, byte-identical to the retired standalone repo. **PAPER ONLY** (`LIVE_ORDERS=off`); weekly loop via `.github/workflows/gambit-weekly.yml` |
 | `daily_run.py` | Entrypoint: fetch → composite signals → refine → Telegram |
 | `PRD.md` | Danny-methodology spec + scope limits |
 | `docs/archive/` | Verbatim planning history moved out of the live docs (#76): resolved PRD addenda §5c–5j, shipped §8 item texts, shipped designs |
@@ -187,6 +189,16 @@ universe. Edit `UNIVERSE` in `daily_run.py` to change coverage.
 `.github/workflows/homily-daily.yml` runs **09:00 SGT Mon–Fri** (`0 1 * * 1-5`
 UTC) and on manual dispatch: digest → self-tests → commit refined
 champion/log back to the repo.
+
+`.github/workflows/gambit-weekly.yml` (#90) advances the swing sleeve's
+**paper** book every **Saturday 02:00 UTC** (after Friday's close): homily +
+gambit validates → `gambit/weekly_run.py` → commit journal/snapshot → weekly
+♟️ digest to Telegram. Honesty note: the daily digest's ♟️ SWING block and
+the weekly ♟️ digest report a **paper** book — S1-pure cleared its backtest
+gate on only 2/3 windows and was promoted to paper by owner override
+(gambit/AMENDMENT_A4.md, −40…−46% drawdowns accepted in writing); no real
+order exists until #93's gate (≥26 paper weeks, ≥20 closed trades,
+expectancy > 0, green vs QQQ) passes AND the owner signs live-enable.
 
 ## Setup (one-time)
 ```

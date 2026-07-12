@@ -1564,4 +1564,32 @@ assert ".record(" not in _src47 and "write_snapshot" not in _src47 and \
     "signals_log" not in _src47, "homily_chart must never write the ledger"
 print("[47] Chart CLI: ad-hoc card deterministic, banner on, R3 clean ..... PASS")
 
+# --- 48. SWING (paper) block (#90/D-90): deterministic, fenced, read-only --
+import homily_swing
+_st48 = {"inception": "2026-07-10", "as_of": "2026-07-10",
+         "cash": 20000.0, "capital": 20000.0, "positions": {},
+         "pending": [{"sym": "AAA", "side": "BUY", "reason": "ROTATE"}],
+         "hwm": 20000.0, "closed_trades": 0}
+_d48 = datetime.date(2026, 7, 24)
+_blk48 = homily_swing.swing_block(_st48, _d48)
+assert _blk48 == homily_swing.swing_block(_st48, _d48), \
+    "swing block must be deterministic"
+assert "wk 2/26" in _blk48 and "closed 0/20" in _blk48, \
+    "P2 gate counters must print (weeks from inception, not clock)"
+assert "PAPER" in _blk48 and "LIVE_ORDERS=off" in _blk48 and \
+    "no real orders" in _blk48, "the paper fence must be explicit"
+assert "#93" in _blk48, "the block must name the live-arming gate"
+assert homily_swing.swing_block(None, _d48) == "" and \
+    homily_swing.swing_block({"inception": "not-a-date"}, _d48) == "", \
+    "missing/corrupt sleeve state must render nothing, never raise"
+# R3, mechanically: the daily-side swing module must never write sleeve or
+# homily state — the weekly loop alone owns the journal/snapshot
+_src48 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_swing.py")).read()
+assert ".record(" not in _src48 and "append_rows" not in _src48 and \
+    "save_snapshot" not in _src48 and "signals_log" not in _src48 and \
+    "urlopen" not in _src48 and "write_text" not in _src48, \
+    "homily_swing is read-only: no ledger/journal/snapshot writes, no network"
+print("[48] SWING paper block: deterministic counters, fenced, read-only .. PASS")
+
 print("\nAll structural assertions passed.")

@@ -535,7 +535,7 @@ D-90…D-93 (§8.5 records the directive), new proposals start #94):
 | 87 | **Concentration regime conditioner** (the live rs12-top3's documented weak side; design D-87) — §4's honesty box: top-3 underperformed equal-all, below random's p10, in reversal windows (2019→2024 A: 2.35 vs 2.59). Study when concentration hurts: replay top-3 vs equal-split conditioned on regime label / breadth / trailing-3m QQQ sign. A conditioner that separates cleanly on BOTH universes makes a *conditional fallback to equal-split* a 2027-Q1 promotion candidate; anything less = null, close. Research twin of the live demotion rule | M | D-87's pre-registered rule; conditional fallback only via registry entry + demotion rule, 2027-Q1 earliest |
 | 88 | **Top-3 turnover stat** — rs12_rank prints daily but money moves monthly: measure within-month churn of the ledger's top-3 ⭐ set (column live since 2026-07-10). High churn ⇒ the buy-day's point-in-time snapshot is fragile and #87 gains priority. Ships at most an info-only footnote ("top-3 stable n/21 days") | S | none (pure ledger read); the footnote gates nothing |
 | 89 | **RS-horizon challenger — rs6 / blended rank** — the conviction score already reads RS6, but nobody has tested rank-by-rs6 or 0.5·rs6+0.5·rs12 as the concentration key. Ship an `rs6_rank` ledger column NOW (S — rides the next ledger-touching session; same time-sensitive pattern as #80's whale_rank: forward rows only accrue after it ships), then enter both variants as challengers in the #24 harness (now five-way: equal · rs12 · whale · rs6 · blend) at the 2026-10-01 read | S column + M study | same bar as #80: tie-or-beat rs12-top3 on all three construction-honest windows incl. the hype-2021 control; else closed. Column is pure measurement, no gate |
-| 90 | **GAMBIT merge — one repo, three books** (owner directive 2026-07-12; design D-90) — the 4–12wk swing sleeve moves here: `gambit/` package + `docs/gambit/` governance docs verbatim (KILL_MEMO, AMENDMENT_A4, LEVERAGE_MEMO travel with it — the merge changes where the sleeve runs, not what it has earned); P2 PAPER state, `LIVE_ORDERS=off`, journal hash chain + engine manifest preserved byte-identical; homily digest gains a fenced `SWING (paper)` section; gambit repo archived read-only with a tombstone | M | gambit_validate green from new location + homily validate green with zero golden re-pins + journal chain verifies + one in-repo weekly run byte-identical to standalone |
+| 90 | ~~**GAMBIT merge — one repo, three books**~~ — **shipped 2026-07-12** (owner directive; design D-90): self-contained `gambit/` (docs stayed in-package, NOT `docs/gambit/` — §8.5 deviation: [K6] reads PRD.md ROOT-relative), byte-identical move (hashes verified), weekly CI job (`gambit-weekly.yml`, Sat 02:00 UTC, validate→run→commit→♟️ Telegram), ♟️ SWING (paper) block in the daily digest (validate [48], goldens untouched), first paper journal rows accrued (2026-07-10 Friday decision — the #93 26-week clock is LIVE), tombstone committed in the old repo | M | PASSED all four D-90 gates incl. same-bars byte-identical replay through both trees |
 | 91 | **Leverage policy — regime-gated ladder, sleeve-only** (owner directive 2026-07-12; design D-91) — BULL ≤1.30× / MIXED ≤1.15× / BEAR = margin zero at 🐻 onset (constants derived from margin-call arithmetic vs our own measured paths; the core monthly book NEVER carries margin); margin dollars fund only 4–12wk journaled swing entries, p5-sized (≈1.6% notional at 2×); referee = regime-gated levered QQQ at the same L net of BM+1.5% financing; legacy 1.23× account margin grandfathered shrink-only; `homily_leverage_backtest.py` pins the constants BEFORE the policy signs (two-artifact: D-91 + owner signature in `LEVERAGE.md`) | M backtest + S policy | D-91's pre-registered readout: no measured path breaches its ladder step's call boundary AND regime-gated levered QQQ beats unlevered net of financing on ≥2/3 honest windows → owner signature |
 | 92 | **Concentration promotion — add-cap 10%→25% + dip-adds into winners** (owner directive 2026-07-12; design D-92) — the move D-67 already priced as formally adoptable (25% ties-or-beats 10% in 7/9 windows, shock-MaxDD within 5 pts; recorded cost: half the −95% shock payout, 1.70 vs 1.89 MOIC); the ⭐ gate stays the wreck container; uncapped stays excluded; PLAYBOOK §3.4 + bucket-C threshold + copilot constant move together | S | D-67 ran already — gate = the pre-registered demotion rule (a ≥15%-of-book name closing −50% from held HWM reverts the cap to 10% mechanically) armed in the promotion commit; clean R10 slot 2027-Q1, owner-override path recorded with its three-epoch attribution cost |
 | 93 | **Swing sleeve live-arming** (design D-93) — P2 paper gate green (≥26wk from 2026-07-11 AND ≥20 closed trades AND expectancy>0 AND green vs the QQQ bar, no backtest credit) → LIVE_ENABLE two-artifact → G-S7 order rail (human approval per order) → leverage attaches per D-91 only if L2 holds on the paper ledger's own MAR; K1–K6 kill switches live from row 1 | M | the P2 ledger IS the gate; earliest ~2027-01-09 |
@@ -559,6 +559,26 @@ and #62 (ledger append-only hash check).
 
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
+
+**2026-07-12 (execution) · #90 shipped same day; two deviations + one
+finding.** (1) D-90 said governance docs move to `docs/gambit/` — they
+stayed INSIDE `gambit/` instead: gambit's [K6] safety gate reads
+`PRD.md` ROOT-relative (relocating it would have silently disarmed the
+P3-deferral check), and the seven docs cross-reference each other by
+relative name. `gambit/` is fully self-contained; byte-identity is the
+rule that mattered and it held. (2) The paper book's first journal rows
+were created during the gate run (SCAN + 5 PROPOSE on the 2026-07-10
+Friday decision) — G-S6 scheduling was never built in the standalone
+repo, so the merge session started the clock; `gambit-weekly.yml`
+closes that gap permanently. Also recorded: gambit_validate and its
+tests use CWD-relative paths — every invocation must run from `gambit/`
+(the workflow pins `working-directory`). (3) Finding: two LIVE fetches
+minutes apart differed by 1e-7 in one name's RS (Yahoo adjclose
+jitter), re-chaining every later journal hash — the D-90 gate's
+"same bars snapshot" clause exists for exactly this; the replay harness
+(bars captured once, played through both trees) proved byte-identical.
+Do not panic at a future jitter diff; replay on captured bars before
+suspecting the code.
 
 **2026-07-12 (later still) · Owner max-return directive — leverage
 sanctioned, concentration encouraged, GAMBIT merges in (#90–93,

@@ -1,0 +1,74 @@
+name: gambit-weekly
+
+# #90 (D-90): the merged swing sleeve's paper loop. Decisions land on the
+# latest completed Friday; this job runs Saturday so that Friday has printed,
+# and the NEXT run settles Monday's T+1 opens — matching gambit_paper's
+# semantics exactly. Gate order (EXECUTION R5 / #16): validate (homily AND
+# gambit) -> run -> commit; a red suite means the book does not advance.
+# PAPER ONLY: LIVE_ORDERS stays off; no order rail exists until #93's gate.
+on:
+  schedule:
+    - cron: '0 2 * * 6'         # Saturday 02:00 UTC — after Friday's US close
+  workflow_dispatch: {}          # manual "Run workflow" button
+
+permissions:
+  contents: write               # commit journal + snapshot back
+
+concurrency:
+  group: gambit-weekly
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pytest   # gambit's suite runs under pytest (as its
+                                  # own repo's CI did); homily stays stdlib
+
+      - name: Homily self-test — the shared repo stays green
+        run: python homily_validate.py
+
+      # gambit_validate must run from gambit/ ([K6] reads PRD.md and the
+      # freeze manifest ROOT-relative; tests use cwd-relative paths)
+      - name: Gambit validate — [K6] + engine freeze + suite (gates the run)
+        working-directory: gambit
+        run: python gambit_validate.py
+
+      - name: Advance the paper book one week
+        working-directory: gambit
+        run: python weekly_run.py | tee "$RUNNER_TEMP/weekly_digest.txt"
+
+      - name: Send weekly ♟️ digest to Telegram (skipped if secrets unset)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          tok = os.getenv("TELEGRAM_BOT_TOKEN")
+          chat = os.getenv("TELEGRAM_CHAT_ID")
+          path = os.path.join(os.environ["RUNNER_TEMP"], "weekly_digest.txt")
+          text = open(path).read() if os.path.exists(path) else ""
+          if not (tok and chat and text.strip()):
+              print("telegram skipped (secrets unset or empty digest)")
+              raise SystemExit(0)
+          req = urllib.request.Request(
+              f"https://api.telegram.org/bot{tok}/sendMessage",
+              data=json.dumps({"chat_id": chat,
+                               "text": text[:4000]}).encode(),
+              headers={"Content-Type": "application/json"})
+          urllib.request.urlopen(req, timeout=30).read()
+          print("telegram sent")
+          PY
+
+      - name: Commit journal + snapshot (the track record IS the product)
+        run: |
+          git config user.name "homily-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add gambit/gambit_journal.csv gambit/snapshot.json 2>/dev/null || true
+          git commit -m "gambit weekly paper $(date -u +%F)" || echo "no state change"
+          git push || echo "nothing to push"
