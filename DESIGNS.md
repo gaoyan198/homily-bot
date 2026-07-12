@@ -521,6 +521,81 @@ validate fixtures · Effort M–L (search/full-board adds breadth, not
 depth — same card renderer) · one session; **#84 (any-ticker CLI) is its
 own follow-up session reusing the renderer** (spec in SPECS §2).
 
+### D-86 · Dip war-chest backtest (#86)
+
+**Owner instinct, 2026-07-12** (verbatim intent): Danny doesn't DCA — he
+holds ammunition and "FOMOs in" when whales offer a discount; monthly
+DCA leaves no money for dips. Three of our own measurements point the
+other way and are the NULL HYPOTHESIS this study must overturn, not
+ignore: per-name ⭐-waiting lost 1–13% of avg cost to immediate DCA
+(§5f); ~52–54% of ⚪-blocked days on the momentum basket ran +15% within
+60d (BACKTEST_RESULTS §13 — the cost of sitting out); whale-dip episodes
+carry a p5 of −31.7% (§12). The study exists to give the instinct one
+honest, pre-registered shot — and to end the debate either way.
+
+**Protocol.** Extend `homily_strategy_backtest.py`'s monthly loop with a
+reserve arm: each month the stock half splits — (1−f) deploys per the
+live protocol (rs12-top3 since 2026-07-12; model both pre/post rules),
+f accrues to a cash reserve. The reserve deploys, whole, at the FIRST
+qualifying event: a screened name's fresh ⭐ transition (not a
+continuing ⭐), a 🔵 fire, a ⚪+🎯+🐳 whale-dip (≤2% cap still binds), or
+🟡+🎯. Unspent reserve older than k months sweeps to the index (the §3.5
+lesson as a backstop, not a veto). Grid: f ∈ {25%, 50%}, k ∈ {2, 3, 6}.
+Point-in-time engines on prefixes, both universes, the §3 multiwindow
+harness (all ≥5y windows since 2015), idx-fallback baseline = the
+faithful committed protocol. 10 bps costs, same as THE test.
+
+**Pre-registered decision rule (frozen here, before any run):** a (f,k)
+cell is adoptable ONLY if, versus the idx-fallback baseline, it (a) wins
+MOIC on ≥2 of the 3 construction-honest windows (2020→2025, 2021→2026,
+2016→2026), (b) keeps MaxDD within +5 pts, and (c) is not behind BOTH
+indexes in any straddle window where the baseline isn't. Best-of-grid
+shopping is disallowed: if two cells pass, the SMALLER f wins; ties →
+smaller k. Anything less = NULL, recorded beside §5f with the grid
+table, and the war-chest idea closes (the owner reads the number, not a
+softened summary). Adoption, if earned, is a 2027-Q1+ registry
+promotion (R10) with a written demotion rule — it would change §3.3's
+split, the copilot, and PLAYBOOK §3, one session, one commit.
+
+**Relationship to #50:** #50 stages ONE position's add (shelf/−7%/−14%);
+#86 reserves BUDGET across months. Run #50 first if convenient — its
+tranche bookkeeping is reusable — but neither blocks the other.
+
+File: `homily_warchest_backtest.py` (new; reuses bt_data + the §3
+harness) · Effort M · one session, results → BACKTEST_RESULTS new §.
+
+### D-87 · Concentration regime conditioner (#87)
+
+**Why now:** rs12-top3 is LIVE (promoted 2026-07-12, owner override)
+and its documented weak side is reversals — §4's honesty box: on
+universe A's 2019→2024 window top-3 scored 2.35 vs equal-all's 2.59,
+below the p10 of 200 random draws. The demotion rule catches sustained
+live failure; this study asks the cheaper question first: is the
+failure state PREDICTABLE, and should concentration stand down in it?
+
+**Protocol.** Reuse `homily_selection_backtest.py`'s replay: same
+monthly candidate sets, same picks, but each month is tagged with three
+point-in-time conditioners — (a) regime label (BULL/MIXED/BEAR from the
+frozen 10m-SMA engine), (b) breadth (% of screened names above their
+200d SMA, the #26 canary), (c) trailing-3m QQQ total return sign. For
+each conditioner: MOIC of rs12-top3 vs equal-all *within* each state,
+both universes, all §3 windows. No new parameters are fitted — the
+conditioners are pre-existing, frozen engine outputs.
+
+**Pre-registered decision rule:** a conditioner earns a promotion
+candidacy ONLY if, on BOTH universes, top-3 beats equal-all in its
+favourable state AND loses in its hostile state (sign flip, not a
+gradient), and the implied conditional strategy (equal-split in hostile
+months, top-3 otherwise) beats always-top-3 by ≥ +0.05 MOIC on ≥2 of
+the 3 construction-honest windows without losing any of them. One
+conditioner passing = the candidate; two passing = the SIMPLER one
+(regime label > breadth > QQQ sign, in that order). None = NULL, close,
+and the live demotion rule remains the only guard. Any ship is a
+2027-Q1+ registry entry (R10) with its own demotion rule.
+
+File: extend `homily_selection_backtest.py` (flag-gated arm; committed
+run's numbers stay byte-identical) · Effort M · one session.
+
 ---
 
 ## Part II — extended idea bank (#46–60)
@@ -529,7 +604,11 @@ Unvetted. Each carries its gate; none touches money before its gate passes.
 Numbering continues PRD §8 (#61–84 taken — see PRD §8.3 index; #68–75
 assigned 2026-07-11 in PRD §8 phases; #77–82 = Danny latest-posts review,
 PRD §5k, full rows in the §8.3 table; #83 = Danny-style chart board,
-D-83 above; #84 = any-ticker chart CLI; new proposals start #85).
+D-83 above; #84 = any-ticker chart CLI; #85–89 added 2026-07-12 —
+#85 epoch split (S, rides #14), #86 dip war-chest (D-86), #87
+concentration conditioner (D-87), #88 top-3 turnover stat (S), #89
+rs6/blend rank challenger (column time-sensitive); new proposals
+start #90).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):
