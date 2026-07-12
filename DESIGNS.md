@@ -773,6 +773,211 @@ switches carry over live from journal row 1.
 Effort M · own session · earliest ~2027-01 · gate: the P2 ledger IS the
 gate.
 
+*(#93 was LIVE-ARMED early 2026-07-12 by owner override — Amendment A5;
+the preconditions above were overridden, not met. See PRD §8.5.)*
+
+### D-94 · Household book — the whole-portfolio north-star scorecard (#94)
+
+**Planned 2026-07-12 (late), integration era.** §9.0's metric is measured
+only on the cash sleeve (#14, correctly — that is where signal skill is
+isolatable). But the system now runs FOUR money surfaces — core cash
+sleeve, SRS (the index leg), ESPP (V at 15% discount, partly off-IBKR),
+and the levered swing sleeve with its paper counterfactual — and no
+artifact answers the owner's actual question: *is the whole machine
+compounding faster than the same cash flows DCA'd into QQQ?* With
+leverage live-armed this is also the ruin-risk readout: combined gross
+exposure across books is a number nobody computes today.
+
+**What.** `homily_household.py` — a monthly (first-Monday, beside
+bear-readiness) digest block + docs section:
+
+* whole-book value = IBKR book (holdings.json v2 incl. source tags) +
+  external ESPP shares + SRS balance + swing sleeve equity
+  (`gambit_live_book.json`) − margin loan; printed in USD **and SGD**
+  (#53 absorbed here — the `SGD=X` FX line lives in this block).
+* rolling 12m/24m/36m whole-book money-weighted return vs the
+  same-cash-flows QQQ DCA counterfactual (adjclose math, #18/#68).
+* one attribution row per sleeve — core edge (the #14 number once it
+  matures), swing realized+MTM, ESPP discount, SRS beta — so nobody
+  confuses which engine earned what.
+* combined gross leverage vs the LEVERAGE.md ladder cap (core margin +
+  swing margin over net liq) — the number the ⚖️ line approximates
+  today from one book's view.
+
+**Cash-flow honesty.** The counterfactual needs actual flow dates.
+BUY_BUDGET deployments are in the ledger (#13); swing
+contributions/skims are journal rows; SRS/ESPP are owner-scheduled — a
+small committed `contributions.json` (owner-maintained; the block prints
+a nag when a month has no row, never a guess) covers what no API sees.
+Monthly granularity, stated on the page — precision theater is worse
+than an honest coarse number.
+
+**Explicitly not:** a replacement for #14 (which isolates signal skill);
+a money gate (info-only forever); a new fetch surface beyond the one FX
+series.
+
+**Gate (info-only).** Fixture: synthetic 3-sleeve book + flow history →
+deterministic table; validate asserts adjclose is used for return math
+and that a missing contributions month prints the nag.
+
+File: `homily_household.py` + digest/docs wiring + `contributions.json` ·
+Effort M · buildable now (manual fields until #32 secrets, labelled).
+
+### D-95 · Flywheel — swing-skim → DCA routing, measured (#95)
+
+**Why.** The stated purpose of the live sleeve is income that
+accelerates the DCA (A5 owner line: *"any proceeds … will all go towards
+funding the monthly dca"*), and the monthly report already prints a
+"sweepable-to-DCA amount" — but nothing defines WHEN a sweep happens,
+HOW it enters the buy routine, or MEASURES the acceleration. An
+unmechanized transfer is the behaviour gap (#58) arriving in the newest
+sleeve: proceeds will sit, or move on mood.
+
+**Skim rule (pre-registered).** At each quarter-end monthly report
+(first report of Jan/Apr/Jul/Oct), if the live book is above BOTH its
+high-water mark AND contributed capital:
+
+    skim = min(free cash, equity − max(hwm, contributed))
+
+Realized cash only — never a forced sale, never principal; the HWM
+ratchets so the same profit cannot be skimmed twice; below HWM or
+contributed → skim 0, and that is correct behaviour (G8: red quarters
+pay nothing; no borrowing to fake stability).
+
+**Kill-math interplay (stated, not re-derived).** Skims append SKIM
+journal rows and accrue in a `skimmed` field; `contributed` is
+untouched. KILL-A stays `equity ≤ 70% of contributed` — a skim moves
+equity closer to the trigger in absolute dollars, which is accepted and
+conservative: banked money leaves the casino and the remaining book
+must survive on its own. Cumulative skims count in the experiment's
+SCORING (equity + skims vs contributed, vs the LEVERAGE.md §3 referee)
+and in #94's attribution — never in the kill check. Pre-registered kill
+rules do not get softened by their own successes.
+
+**Routing.** The skim prints as a `+ skim US$X (swing, Qn)` line in the
+next 🛒 BUY DAY block: BUY_BUDGET + skim deploys per the unchanged §3
+routine. The owner moves the cash — the same trust model as the order
+sheet (bot proposes, owner disposes).
+
+**Measurement (the point).** Monthly flywheel table: cumulative skims,
+what they bought (ledger rows), and two counterfactuals — (i) left
+compounding in the sleeve, (ii) same-day QQQ. That table is the honest
+answer to "does the swing sleeve accelerate the DCA" — and a
+null/negative answer prints too.
+
+**R10 note (pre-empting the debate).** This is funding-flow accounting
+(§9.4 territory — owner cash routing between his own sleeves), not a
+signal-behaviour promotion; no R10 slot is consumed. The first real
+skim is an owner action from a printed line.
+
+**Gate.** Fixture pytest: synthetic journals → skim fires only above
+hwm ∧ contributed; ratchet correct; kill check byte-identical before
+and after SKIM rows; PLAYBOOK §7/§9 + the A5 reporting section amended
+in the same commit.
+
+Files: `gambit/gambit_live.py` (skim calc + SKIM rows),
+`homily_buyday.py` (+skim line), PLAYBOOK, validate/pytest · Effort M ·
+build before 2026-10-01 (the first quarter-end the live book could
+conceivably clear its HWM).
+
+### D-96 · A5 A/B reader — the stop-cost table (#96)
+
+**Why.** A5's central design IS an A/B — the live overlay
+(stops/TP/time-stop, ladder-sized) mirrors the paper S1-pure book (no
+stops) on the same Friday decisions — and A5 promises the stops' cost
+is *"measured, monthly, in public."* No pre-registered read exists yet;
+without one the conclusion will be argued from vibes at exactly the
+moment (a stop-out that recovered / a crash the stops dodged) when
+vibes are worst.
+
+**What.** A monthly section riding the realized report: per-episode
+attribution — every live exit the paper book didn't take (STOP / TP /
+TIME) is followed forward on the paper leg to the current mark; prints
+the realized delta per episode + a cumulative "stops P&L" line + the
+sizing effect (ladder × US$3k vs paper's notional US$20k) separated
+from the exit effect, so leverage and stops don't get blamed for each
+other. The modeled-fill caveat carries verbatim.
+
+**Pre-registered read (frozen now).** At the earlier of 26 live weeks
+or 20 closed live trades, the reader prints its verdict row: stops
+cumulatively cost / saved US$X vs paper on the same decisions.
+**REPORT-ONLY:** the A5 stops stay mandatory while the book is levered
+(bounded loss is their job, not edge — KILL_MEMO stands); the read
+informs the next signed amendment and cannot change live rules itself.
+Both directions stated in advance: stops looking expensive in a
+trending tape is EXPECTED (S1-stopped 0/3); what could justify an
+amendment is the ladder/kill interplay, never one hot quarter.
+
+**Gate.** Deterministic fixture: two synthetic journals with known
+divergences → known attribution table; the module is read-only (zero
+writes to either journal, asserted in the fixture).
+
+File: `gambit/gambit_ab.py` (read-only over both journals) + report
+wiring · Effort S–M · buildable now; the verdict row is date-gated.
+
+### D-97 · Cross-book concentration lens (#97)
+
+**Why.** G5 named this risk the day GAMBIT was designed: both books
+draw from the same AI/semi cluster, so one −35% cluster gap now hits
+the core book AND a levered sleeve in the same week. #29's lens sees
+holdings.json only; the swing positions and the external ESPP V shares
+are invisible to the one instrument built to see concentration.
+
+**What.** Input-assembly extension only —
+`homily_clusters.concentration`'s correlation math is untouched:
+positions fed to the lens = holdings.json (incl. `source:"espp"`
+external shares, already counted for caps) + gambit live open positions
+tagged `book:"swing"`. The digest cluster line gains the combined view
+when it differs from core-only ("AI/semi 58% core → 64% with swing ⚠").
+Order-sheet side: the weekly sheet prints a warning when a proposed
+entry would (a) breach G5's max-2-overlap with core holdings or
+(b) deepen a >60% combined cluster — info-only, the owner decides; the
+S1 rotation itself is untouched (the §4.1 signal budget stands — a
+warning is not an input).
+
+**Gate.** Fixtures both sides: synthetic overlapping books → warning
+fires; disjoint books → silent; sheet text pinned. Info-only.
+
+Files: `homily_clusters.py` (input assembly), `daily_run.py` (line),
+`gambit/gambit_live.py` (sheet warning) · Effort S–M.
+
+### D-98 · Swing scale ladder — the bankroll is earned (#98)
+
+**Why.** A5 caps top-ups at ≤10% of net liq but sets no earn-condition,
+and at US$3k the sleeve's income is a rounding error (~US$40/mo at
++15%/yr) — so the pressure to top up after a hot month is structural.
+Impulse scaling after wins is exactly how G8's income-pressure failure
+arrives by the other door. Pre-register the steps now, in the bull,
+while nobody is excited.
+
+**The ladder (policy).** Contributed capital moves only in
+pre-registered steps: **US$3k → 6k → 12k**, each still ≤10% of net liq
+at the step date, LEVERAGE.md account caps always binding. One step up
+requires ALL of, evaluated on the live journal alone:
+
+* ≥20 closed live trades since the previous step;
+* expectancy > 0 over the trailing 20 closed;
+* equity + cumulative skims ahead of the LEVERAGE.md §3 referee
+  (regime-gated 1.30× QQQ, same dollars, same dates) over the trailing
+  26 weeks;
+* zero kill-line touches and zero margin events, ever;
+* a dated owner line appended to AMENDMENT_A5 (two-artifact pattern)
+  naming the step.
+
+A kill ends the experiment regardless of ladder position (A5: no
+restart without a new gated design). Steps DOWN are always free and
+need no conditions.
+
+**Gate.** Constrains only — no R10 slot. `gambit_validate` check: a
+CAPITAL top-up row in the live journal without a committed
+satisfied-preconditions record (`gambit_live.py --scale-check` output)
++ the A5 owner line fails CI — the K6 pattern: policy breaches are
+loud, not debated.
+
+Files: `gambit/PRD.md` §3.5 (policy text), `gambit/gambit_validate.py`,
+journal CAPITAL rows (already exist per A5 "top-ups recorded") ·
+Effort S.
+
 ---
 
 ## Part II — extended idea bank (#46–60)
@@ -787,7 +992,11 @@ concentration conditioner (D-87), #88 top-3 turnover stat (S), #89
 rs6/blend rank challenger (column time-sensitive); #90–93 added
 2026-07-12 — the owner max-return directive: #90 GAMBIT merge (D-90),
 #91 leverage policy (D-91), #92 add-cap promotion (D-92), #93 swing
-live-arming (D-93); new proposals start #94).
+live-arming (D-93); #94–100 added 2026-07-12 (late) — the integration
+era: #94 household scorecard (D-94), #95 flywheel skim (D-95), #96 A5
+A/B reader (D-96), #97 cross-book lens (D-97), #98 scale ladder (D-98),
+#99 ops-readiness block, #100 realized-cost reconcile — full rows in
+PRD §8.3; new proposals start #101).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):
@@ -820,9 +1029,10 @@ live-arming (D-93); new proposals start #94).
     **Gate:** THE-test rerun; adopt only if MOIC ties-or-beats AND MaxDD
     improves. (§5g found sizing didn't matter — expect a null; it's cheap
     to check honestly.)
-53. **SGD lens** (S) — monthly line: book return in SGD, USDSGD 12m trend
-    (`SGD=X`). The investor's liabilities are SGD; the book is USD.
-    Info-only. **Gate:** none.
+53. ~~**SGD lens**~~ (S) — **absorbed into #94 (D-94) 2026-07-12**: the
+    USD/SGD line ships inside the household block, not as its own digest
+    line (delete, don't accrete). Original intent: monthly book return in
+    SGD + USDSGD 12m trend (`SGD=X`); liabilities are SGD, the book USD.
 54. **Weekly diff report** (S; needs #13) — "what changed this week":
     state transitions, score moves ≥10, new/lost shelves, cluster drift.
     Pure ledger diff, feeds the Sunday edition (#33).
