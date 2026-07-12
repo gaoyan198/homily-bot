@@ -52,11 +52,18 @@ EMPTY" was true of the *queued/spec'd* items only — the Part-II idea bank
 was never empty. Buildable in any session, no date gate: the
 **nice-to-have shelf** — #73 digest line budget (S) · #54 weekly diff
 (S) · #57 中文 toggle (S) · #53 SGD lens (S) · #59 flash-crash note (S) ·
-#60 data-QA cross-check (S) · #58 behaviour-gap tracker (M) — and the
-**study shelf**: #51 ⚪ time-stop (M — first pick: BACKTEST_RESULTS'
-bottom line names it a lever; PLAYBOOK edited only after its gate) ·
+#60 data-QA cross-check (S) · #58 behaviour-gap tracker (M) · #88 top-3
+turnover stat (S, pure ledger read) — and the **study shelf**: #51 ⚪
+time-stop (M — first pick: BACKTEST_RESULTS' bottom line names it a
+lever; PLAYBOOK edited only after its gate) · #86 dip war-chest (M,
+D-86 — owner instinct, rule pre-registered) · #87 concentration
+conditioner (M, D-87 — the live top-3's reversal weakness) ·
 #47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
-money-touching result queues behind R10.
+money-touching result queues behind R10 (next slot 2027-Q1).
+**Time-sensitive rider:** #89's `rs6_rank` ledger column ships with the
+NEXT ledger-touching session (same pattern as #80's whale_rank —
+forward rows only accrue after it lands; the rs6/blend study itself
+joins the 2026-10-01 #24 harness read).
 
 ~~**Next build sessions (owner-requested 2026-07-12):** #83 + #84~~ —
 **both shipped 2026-07-12** (gates [33]/[47]; the committed-board size
@@ -69,13 +76,18 @@ Everything else remaining is DATE- or OWNER-gated:
    `python3 homily_flipscore.py`).
 2. **≥2026-08-22** · #21 switch decision — 30 rows of `homily_refine_j.csv`,
    own session, same +10% OOS margin; §13's λ caveat applies.
-3. **~2026-10** · #14 live scorecard (+#71 noise band, build together) —
-   3 ledger months; also the #65 shadow-quarter adoption read (D-65 rule)
-   and the first #64-split scorecard.
+3. **~2026-10** · #14 live scorecard (+#71 noise band, build together;
+   +#85 promotion-epoch split — Q3 carries TWO live changes, 🐳 07-06
+   and rs12-top3 07-12, so every read splits by epoch from
+   promotions.json or attributes nothing) — 3 ledger months; also the
+   #65 shadow-quarter adoption read (D-65 rule) and the first
+   #64-split scorecard.
 4. **2026-10-01** · #24 forward-check READ (no longer a promotion
    decision — promoted early 2026-07-12 by owner override, Q4's R10 slot
    SPENT; the month-start digest block publishes the frozen-window read
-   and runs the mandatory demotion check). QUEUED (each its own gated
+   and runs the mandatory demotion check). Same read hosts the selection
+   harness: #80 whale-top3 + #89 rs6/blend arms (each vs the live
+   rs12-top3, gates in their rows). QUEUED (each its own gated
    session, R10-spaced, next slot 2027-Q1):
    #79 distribution-tag ship (+mLHLL variant, scope guard verbatim) ·
    #67's whale-cap tightening to 1.6% (+ #31 copilot constant sync) ·
