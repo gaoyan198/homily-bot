@@ -1538,4 +1538,29 @@ assert all(s["ticker"] != "SHDW"
     "[46] FAIL: shadow names must stay out of the snapshot"
 print("[46] Mechanical universe: L0/L1/L2 rules, shadow rows fenced off ... PASS")
 
+# --- 47. Any-ticker chart CLI (#84): deterministic ad-hoc card, R3 clean ----
+import homily_chart
+_row47 = dict(_snap33["holdings"][0])
+_pg47 = homily_chart.chart_page(
+    [(_row47, _bmap33["AAA"], "ad-hoc — not screened, no ledger history")],
+    "2026-07-11")
+assert _pg47 == homily_chart.chart_page(
+    [(_row47, _bmap33["AAA"], "ad-hoc — not screened, no ledger history")],
+    "2026-07-11"), "chart_page must be deterministic"
+assert "ad-hoc" in _pg47 and "not screened" in _pg47, "honesty banner"
+assert 'class="card"' in _pg47 and homily_dashboard.BULL in _pg47 and \
+    "wk circle" in _pg47, "must reuse #83's card renderer, not re-draw"
+assert "<script" not in _pg47.lower(), "single-card page stays zero-JS"
+_leaks47 = [ln for ln in _pg47.split("\n")
+            if ("http" in ln or "src=" in ln or "url(" in ln)
+            and "http://www.w3.org/2000/svg" not in ln]
+assert not _leaks47, f"external references leaked: {_leaks47[:3]}"
+# R3, mechanically: the CLI module must contain no ledger/snapshot write —
+# an ad-hoc chart is context, never a tracked call
+_src47 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_chart.py")).read()
+assert ".record(" not in _src47 and "write_snapshot" not in _src47 and \
+    "signals_log" not in _src47, "homily_chart must never write the ledger"
+print("[47] Chart CLI: ad-hoc card deterministic, banner on, R3 clean ..... PASS")
+
 print("\nAll structural assertions passed.")
