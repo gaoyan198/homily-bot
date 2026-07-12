@@ -461,6 +461,26 @@ change. #93 is date-gated by the paper ledger itself (~2027-01). None of
 these touch homily goldens; the digest's SWING section and leverage line
 are additive.
 
+*Slotting for #94–100 (integration era, 2026-07-12 late):* the leverage
+era ARMED four money surfaces without any single instrument that reads
+them together, so this batch is measure/integrate/harden, not new
+signals — none consumes an R10 slot (they add no signal behaviour;
+#95/#98 are §9.4 funding-flow accounting, the rest are info-only or CI
+guards). Order by what the calendar forces: **#95 (flywheel skim) and
+#99 (ops-readiness) go first** — #95 must exist before 2026-10-01, the
+first quarter-end the live book could clear its HWM, and #99 is an
+S-effort R0 win that rides #73's line-budget session and keeps the
+owner's own blockers (MARGIN_ZERO, Flex secrets) visible. #94 (household
+scorecard) and #97 (cross-book lens) build naturally alongside the
+~2026-10 #14 scorecard session — same adjclose/counterfactual
+machinery, same monthly-block surface. #96 (A5 A/B reader) is buildable
+now but its verdict row is date-gated (26 live weeks / 20 closed); #98
+(scale ladder) is a pure-constraint CI guard, buildable anytime, and
+wants to land before the first top-up temptation. #100 waits on the #32
+Flex secrets like every reconcile. All homily-goldens-safe (info-only
+digest lines / gambit-side reports); each ships behind the same #49
+golden safety net.
+
 ### 8.2 Explicitly NOT in this plan
 
 **Amended 2026-07-12 (owner max-return directive):** leverage/margin
@@ -497,7 +517,9 @@ review below (§5k, owner-requested 2026-07-11), #83 = Danny-style chart
 board below (owner-requested 2026-07-12; design D-83), #84 = any-ticker
 chart CLI below (owner-requested 2026-07-12), #90–93 = owner max-return
 directive 2026-07-12 — leverage / merge / concentration, designs
-D-90…D-93 (§8.5 records the directive), new proposals start #94):
+D-90…D-93 (§8.5 records the directive), #94–100 = integration era
+2026-07-12 (late) — measure/integrate/harden what the leverage era
+armed, designs D-94…D-98, rows below, new proposals start #101):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -539,6 +561,13 @@ D-90…D-93 (§8.5 records the directive), new proposals start #94):
 | 91 | ~~**Leverage policy — regime-gated ladder, sleeve-only**~~ — **shipped 2026-07-12** (owner directive; design D-91): `homily_leverage_backtest.py` ran with its rule frozen first — readout **PASSED at L=1.30** (zero margin-call breaches on every window incl. 1999→2026 at base AND stress financing, worst equity/position 0.68 vs boundary 0.25; beat unlevered QQQ 3/3 read windows net of 5.8%: 2.57/2.29/9.43 vs 2.27/2.14/7.30 — BACKTEST_RESULTS §15). **LEVERAGE.md SIGNED same session by owner override** (§8.5 rule-5 note; the policy's immediate live effects are constraints — shrink-only legacy margin, BEAR=margin-zero, core-book ban). Digest ⚖️ ladder line live (validate [49]); referee for all levered arms = regime-gated 1.30× QQQ | M+S | PASSED its pre-registered readout; LEVERAGE.md §5 carries the yearly re-run + mechanical shrink rule |
 | 92 | ~~**Concentration promotion — add-cap 10%→25% + dip-adds into winners**~~ — **PROMOTED 2026-07-12 by owner override** (design D-92; promotions.json "add-cap-25"): `CAP_PCT` 10→25 (one constant, D-27 interlock reaches the copilot), WARN 8→20, PLAYBOOK §3.4/§5.1 + digest/reader texts moved together, goldens re-pinned deliberately (text-only diff eyeballed); demotion watch LIVE and checked every run (`cap_demotion_line`, validate [50]) — a ≥15%-of-book name closing −50% from its post-promotion high reverts the cap to 10% mechanically; uncapped stays excluded (−95% shock 1.49) | S | D-67's prongs (already run) + demotion rule armed in the same commit; R10 arithmetic in §8.5 — next free slot 2027-Q2 |
 | 93 | ~~**Swing sleeve live-arming**~~ — **LIVE-ARMED 2026-07-12 by owner override (Amendment A5)**, the P2 paper gate OVERRIDDEN not passed (§8.5): `gambit_live.py` overlay mirrors the paper decisions under the LEVERAGE.md ladder with mandatory stops (−20%) / TPs (+40% half) / 12wk time stop; US$3,000 ring-fenced bankroll (≤10% net liq); KILL-A equity ≤70% of contributed · KILL-B expectancy ≤0 over 20 closed — liquidate + failure memo, mandatory; arms only once MARGIN_ZERO set (clean slate); owner places every order from the printed Monday sheet (G-S7 rail NOT built, LIVE_ORDERS off); paper S1-pure continues as the no-stops counterfactual; weekly order sheet + daily status + monthly realized report (validate [51], 10 live-overlay pytest cases) | M | A5 two-artifact + kill rules = the demotion rule; the paper gate keeps publishing but no longer blocks |
+| 94 | **Household book — whole-portfolio scorecard** (added 2026-07-12 late; design D-94) — the §9.0 question at OWNER level, which no artifact answers today: whole-book value (core cash sleeve + SRS + ESPP incl. external shares + swing sleeve equity − margin loan) vs the same-cash-flows QQQ DCA counterfactual, rolling 12/24/36m, printed USD **and SGD** (#53 absorbed), one attribution row per sleeve (core edge / swing P&L / ESPP discount / SRS beta), combined gross-L vs the LEVERAGE.md cap. Monthly first-Monday block + docs section; `contributions.json` records the flows no API sees (nag when a month is missing, never a guess). Info-only forever | M | fixture determinism; adjclose return math; missing-month nag asserted; never gates money |
+| 95 | **Flywheel — swing-skim → DCA routing, measured** (D-95) — mechanizes the A5 owner line ("any proceeds … go towards funding the monthly dca"): quarter-end skim = min(free cash, equity − max(hwm, contributed)), HWM ratchet, SKIM journal rows; `+ skim` line in the next 🛒 BUY DAY block (routine itself unchanged); monthly flywheel table vs two counterfactuals (left-in-sleeve · same-day QQQ) — a null/negative answer prints too. Kill math untouched: skims never enter the KILL-A check (conservative by construction), they count only in scoring (equity+skims vs referee). Funding-flow accounting per §9.4, not a signal promotion — no R10 slot | M | fixture pytest: fires only above hwm∧contributed · ratchet correct · kill check byte-identical; PLAYBOOK §7/§9 + A5 reporting amended same commit; build before 2026-10-01 |
+| 96 | **A5 A/B reader — the stop-cost table** (D-96) — the pre-registered read A5 promised ("measured, monthly, in public"): per-episode attribution of every live exit the paper S1-pure book didn't take (STOP/TP/TIME followed forward on the paper leg), cumulative stops-P&L, sizing effect separated from exit effect; verdict row at the earlier of 26 live weeks / 20 closed live trades. REPORT-ONLY: stops stay mandatory while the book is levered; the read informs the next signed amendment, never changes live rules itself | S–M | deterministic two-journal fixture; module is read-only (zero journal writes, asserted) |
+| 97 | **Cross-book concentration lens** (D-97) — G5's named risk instrumented: #29 lens inputs grow to swing open positions + external ESPP V (correlation math untouched); combined-cluster digest line when it differs from core-only; order-sheet warning on a G5 max-2-overlap breach or >60% combined-cluster deepening. Info-only; the S1 rotation and §4.1 signal budget untouched — a warning is not an input | S–M | fixtures both sides: overlapping books fire, disjoint books stay silent; sheet text pinned |
+| 98 | **Swing scale ladder — the bankroll is earned** (D-98) — contributed capital moves only US$3k→6k→12k (each ≤10% net liq; LEVERAGE.md caps always bind); a step up requires ≥20 closed since last step · expectancy>0 trailing 20 · equity+skims ahead of the LEVERAGE.md §3 referee over 26wk · zero kill/margin events ever · dated A5 owner line. Steps down always free; a kill ends the experiment regardless. Pre-registered now, in the bull, before the first hot-month top-up temptation | S | CI check (K6 pattern): a CAPITAL top-up row without its committed `--scale-check` record + A5 line fails validate |
+| 99 | **Ops-readiness block** (S; ships after #73, inside its budget) — the owner's own queue is part of the behaviour gap: standing ⏳ blockers line while any of {IBKR_FLEX secrets · MARGIN_ZERO · BUY_BUDGET restore} is unset; KILL-A distance in the daily SWING LIVE line; ONE-shot #15-pattern alert when equity first crosses 80% of contributed (early warning, not a daily nag); margin-paydown progress ("S$X to clean slate", manual `MARGIN_BALANCE` variable until #32 automates it). Pure R0 | S | golden digest fixtures; #73's line-count check green |
+| 100 | **Realized-cost reconcile** (needs #32 secrets) — the models the referee runs on, reconciled against reality monthly: actual IBKR financing interest vs modeled BM+1.5%; actual fills vs modeled Monday opens (slippage distribution); the true rate feeds LEVERAGE.md §5's yearly re-run; trailing slippage above the 0.35% stress arm prints red in the swing report | S | parser fixture on a canned statement; non-fatal on fetch failure (report the gap, never block) |
 
 ### 8.4 Planning → execution handoff
 

@@ -70,6 +70,35 @@ NEXT ledger-touching session (same pattern as #80's whale_rank —
 forward rows only accrue after it lands; the rs6/blend study itself
 joins the 2026-10-01 #24 harness read).
 
+**Integration-era shelf (#94–100, added 2026-07-12 late; designs
+D-94…D-98).** The leverage era armed four money surfaces (core cash,
+SRS, ESPP, levered swing + paper counterfactual) with no instrument
+that reads them together. None consumes an R10 slot — measure/integrate/
+harden, not new signals. Buildable now, ordered by what the calendar
+forces:
+* **#95 flywheel skim (M, D-95) — build before 2026-10-01**, the first
+  quarter-end the live book could clear its HWM; mechanizes the A5
+  "proceeds fund the DCA" line with a pre-registered skim rule + a
+  measured flywheel table. Kill math stays byte-identical (skims never
+  soften KILL-A).
+* **#99 ops-readiness block (S) — rides #73's line-budget session**;
+  keeps the owner's own blockers (MARGIN_ZERO, Flex secrets,
+  BUY_BUDGET restore) and the KILL-A distance visible; one-shot 80%-of-
+  contributed alert (#15 pattern).
+* **#98 scale ladder (S, D-98) — pure-constraint CI guard, land before
+  the first top-up temptation**; US$3k→6k→12k earned by the live
+  journal, K6-pattern validate check.
+* **#94 household scorecard (M, D-94) + #97 cross-book lens (S–M, D-97)
+  — build alongside the ~2026-10 #14 session** (shared adjclose /
+  counterfactual / monthly-block machinery; #97 extends #29's lens
+  inputs, math untouched).
+* **#96 A5 A/B reader (S–M, D-96) — buildable now, verdict row
+  date-gated** (26 live weeks / 20 closed); read-only over both
+  journals.
+* **#100 realized-cost reconcile (S) — waits on #32 Flex secrets** like
+  every reconcile; feeds LEVERAGE.md §5's yearly re-run the true
+  financing rate + fill slippage.
+
 ~~**Next build sessions (owner-requested 2026-07-12):** #83 + #84~~ —
 **both shipped 2026-07-12** (gates [33]/[47]; the committed-board size
 contradiction is recorded in PRD §8.5). The mockup file is deleted as
@@ -355,6 +384,36 @@ Guardrails are IN the PRD (§9.2) and non-negotiable: AUTOTRADE variable,
 whitelist = that day's ⭐ + index ETF, buy-only LIMIT ≤ close×1.01 day
 orders, per-order/monthly caps, no margin, HK excluded, one attempt then
 report; first month report-only diffed against T2's basket.
+
+### #94–100 · Integration era (build per DESIGNS D-94…D-98 — spec-grade)
+Same pattern as #65/#66/#67: the DESIGNS sections are already build
+specs. Each is its own session, engines frozen (these are all read-side
+/ gambit-side / info-only), every gate restated before coding. Sharp
+edges to honour verbatim:
+* **#94 (D-94):** adjclose (#18) for ALL return math; `contributions.json`
+  is owner-maintained — a missing month prints the nag, never a guessed
+  flow (R3 spirit: don't manufacture history). Info-only forever.
+* **#95 (D-95):** the KILL-A check must stay byte-identical before and
+  after SKIM rows (assert it in the pytest) — skims leave the casino,
+  they never soften a pre-registered kill. HWM ratchets so a profit
+  can't be skimmed twice. Amend PLAYBOOK §7/§9 + the A5 reporting
+  section in the SAME commit.
+* **#96 (D-96):** read-only over both journals — the fixture asserts
+  ZERO writes; separate the sizing effect (ladder × US$3k vs paper's
+  US$20k notional) from the exit effect so leverage and stops aren't
+  blamed for each other; verdict row is REPORT-ONLY (cannot change live
+  rules).
+* **#97 (D-97):** `homily_clusters.concentration`'s correlation math is
+  UNTOUCHED (frozen-spirit) — this is input assembly only (add swing +
+  external-ESPP positions); a sheet warning is not a signal input (§4.1
+  budget stands).
+* **#98 (D-98):** constrains only; the validate check fails a CAPITAL
+  top-up row lacking its committed `--scale-check` record + A5 owner
+  line (K6 pattern — loud, not debated). No R10 slot.
+* **#99:** rides #73's line-budget session and must keep #73's
+  golden-file line count green (the block displaces, never adds).
+* **#100:** needs #32 Flex secrets; non-fatal on fetch failure (report
+  the gap, never block the send).
 
 ## 3 · In-flight work — RESOLVED 2026-07-11
 
