@@ -4,7 +4,9 @@
   "entries": [
     {
       "id": "rs12-top3",
-      "status": "gate-passed",
+      "status": "promoted",
+      "promoted": "2026-07-12",
+      "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12: promoted with NEITHER pre-registered condition met — the forward check had not matured (window runs to 2026-09-30) and earliest_promotion (2026-10-01, Q4's R10 slot) had not arrived. The owner directed the promotion and accepted the risk explicitly ('I can take the risk of promoting without live data'). The frozen forward-check window is UNCHANGED and its read publishes at every month-start digest check through and including 2026-10-01 regardless of this promotion; the rolling demotion rule below is armed from the promotion date and a FAIL demotes mechanically. R10 accounting: Q4-2026's promotion slot is SPENT by this early promotion (Q3's went to 🐳 WHALE-DIP, 2026-07-06); no further promoted signal-behaviour change before 2027-Q1.",
       "what": "concentrate the monthly stock-half into the top-3 ⭐ candidates by 12m relative strength (PRD §5j)",
       "gate_date": "2026-07-10",
       "gate_artifact": "homily_selection_backtest.py (rule pre-registered in docstring) + BACKTEST_RESULTS.md §4 + PRD §5j",

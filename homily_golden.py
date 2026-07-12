@@ -35,7 +35,7 @@ from homily_danny import danny_signal
 from homily_conviction import conviction
 from homily_regime import Regime
 from homily_corp import corp_action_bar
-from daily_run import render_digest, ORDER
+from daily_run import render_digest, digest_sort_key
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GOLDEN_DIR = os.path.join(HERE, "tests")
@@ -145,7 +145,7 @@ TODAY = datetime.date(2026, 7, 7)
 # --- scenarios ---------------------------------------------------------------
 def scenario_populated():
     held = [_up("AAA"), _dn("BBB"), _bottoming("CCC", young=True), _whale("WHL")]
-    held.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))  # as screen() does
+    held.sort(key=lambda x: digest_sort_key(x[0], x[1]))  # as screen() does
     disco = [_leader("LEAD"), _bottoming("GEM")]
     # AAA is weekly RED -> its fixture dip exercises the #78 dip-day suffix;
     # BBB is not RED, so its entry must render nothing (both branches pinned).
@@ -171,8 +171,8 @@ def scenario_corp():
     lead = _leader("LEAD")
     suspect = {"SPLT": corp_action_bar(split_bars()),
                "LEAD": datetime.date(2026, 6, 30)}
-    held = sorted([splt, _up("AAA")], key=lambda x: (ORDER[x[0].state],
-                                                     x[0].ticker))
+    held = sorted([splt, _up("AAA")],
+                  key=lambda x: digest_sort_key(x[0], x[1]))
     return render_digest(held, [lead], {}, BULL, REFINE, [], TODAY,
                          fund=_fund, suspect=suspect)
 

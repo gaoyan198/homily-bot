@@ -54,6 +54,14 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 ↑ close above it = bottoming confirmation, ↓ below = topping-process warning
 (note only, see honesty point 3), ◻ = still inside, unresolved.
 
+⭐ rows are ordered by 12-month relative strength and the top-3 carry an
+`RS#n` mark — the names the buy-day copilot splits the stock half across
+(#24, promoted **2026-07-12 by owner override, ahead of its live
+forward-check**; honesty: the measured lift was modest and one-window
+— BACKTEST_RESULTS §4 — so the pre-registered Jul–Sep check still
+publishes at every month-start through 2026-10-01, and a FAIL demotes
+back to equal-split-max-5 mechanically per `promotions.json`).
+
 Weekly-RED rows also print the historical base rate next to the run's age —
 `wk RED/4 (8w · med run 8w)` — the median completed weekly-RED spell across
 1,439 spells in both backtest universes (`homily_ribbon_backtest.py`, #82).
@@ -122,7 +130,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 | `homily_png.py` | Chart cards (#35): pure-stdlib PNG (price + add-zone/POC/res + chip histogram + weekly ribbon); top-3 actionable names sent as photos after the digest |
 | `homily_dashboard.py` | Danny chart board (#83, supersedes #36): searchable dark board of candle cards (engine-coloured candles, chip histogram + POC, VH zone, add-zone band, 52w ribbon) + ledger heatmap/alerts timeline/refine chart. Small board committed (`docs/dashboard.html`, held charts + actionable facts cards); FULL board (every screened name) sent nightly, never committed. One inline filter script — the recorded D-36 relaxation. Manual: `HOW_TO_READ.md` |
 | `homily_chart.py` | Any-ticker chart CLI (#84): `python3 homily_chart.py TICKER…` renders the same card for any Yahoo symbol — ad-hoc banner, nothing written to the ledger (R3) |
-| `homily_promotions.py` + `promotions.json` | Promotion lifecycle registry (#69): pre-registered gates, forward-checker, and mandatory demotion rules — the Oct-2026 rs12-top3 decision is this program's output |
+| `homily_promotions.py` + `promotions.json` | Promotion lifecycle registry (#69): pre-registered gates, forward-checker, and mandatory demotion rules. rs12-top3 was promoted EARLY 2026-07-12 by owner override (ahead of its live forward-check — basis recorded verbatim in the registry); the month-start digest block publishes the frozen Jul–Sep check through the 2026-10-01 read and enforces the rolling demotion rule |
 | `homily_weekly.py` | Sunday deep-dive (#33): fetch-free weekly summary from the week's ledger rows + the dashboard file |
 | `homily_flex.py` | IBKR Flex auto-sync (#32): shares/cost from a Flex query at run start; owner fields survive; never adds/deletes; unset secrets = manual fallback |
 | `homily_clusters.py` | Concentration lens (#29): 90d-correlation clusters of the book, one digest line + a ⭐-deepens-cluster nudge; info-only |
@@ -190,8 +198,9 @@ gh variable set SRS_COVERS_INDEX  -b'true'                    # optional: SRS is
 Without secrets the job still runs and prints the digest (no send). Without
 `BUY_BUDGET_USD` the buy-day copilot stays dark. Honesty note: the copilot
 *prints* orders and writes an importable basket CSV — it never places an
-order (PRD §7); allocation follows PLAYBOOK §3 (half index / half ⭐, 10%
-cap, non-USD names excluded from order lines per R12).
+order (PRD §7); allocation follows PLAYBOOK §3 (half index / the stock
+half split across the top-3 ⭐ by RS12 since #24's 2026-07-12 promotion,
+10% cap, non-USD names excluded from order lines per R12).
 
 ## Run locally
 ```

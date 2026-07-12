@@ -695,11 +695,12 @@ _st27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD"),
          _bs("BIG", 10, "F:3/3", 5), _bs("SML", 10, "F:1/3", 50),
          _bs("NEW", 30, "F:2/3", 1), _bs("0700", 50, "F:—", 99)]
 
-# ordering (PLAYBOOK §3.4): F:2+ first (BIG, NEW by RS12), then SML; the HK
-# name splits off as manual (R12), however strong its RS
+# ordering (PLAYBOOK §3.4 as promoted — #24, 2026-07-12): RS12 descending,
+# no F grouping (SML's F:1/3 no longer demotes it below the F:2+ names);
+# the HK name splits off as manual (R12), however strong its RS
 _usd27, _man27 = homily_buyday.star_candidates(_st27, _pos27, _yh27)
-assert [s["ticker"] for s in _usd27] == ["BIG", "NEW", "SML"], \
-    f"F:2+ before F:1, RS12 within group: {[s['ticker'] for s in _usd27]}"
+assert [s["ticker"] for s in _usd27] == ["SML", "BIG", "NEW"], \
+    f"RS12 descending (#24 promoted): {[s['ticker'] for s in _usd27]}"
 assert [s["ticker"] for s in _man27] == ["0700"], "non-USD ⭐ -> manual (R12)"
 
 # SRS covers the index (PRD §9.4): whole $1,000 to stars. Stock book =
@@ -749,7 +750,7 @@ with tempfile.TemporaryDirectory() as _tmp27:
 # no BUY_BUDGET_USD configured -> the copilot stays dark, digest unchanged
 os.environ.pop("BUY_BUDGET_USD", None)
 assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ("", None)
-print("[27] Buy-day copilot: detection, F/RS order, 10% cap, basket CSV ... PASS")
+print("[27] Buy-day copilot: detection, RS12-top3 order, 10% cap, basket CSV  PASS")
 
 # --- 28. Chart cards (#35): valid PNG, deterministic pixels, top-3 pick ----
 # The gate D-35 pre-committed: a deterministic pixel-hash on fixture bars.

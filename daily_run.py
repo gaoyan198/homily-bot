@@ -24,6 +24,7 @@ import homily_ledger
 import homily_alerts
 import homily_positions
 import homily_buyday
+import homily_promotions
 import homily_bearready
 import homily_png
 import homily_dashboard
@@ -93,6 +94,14 @@ ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"BOTTOMING":3,"CAUTION":4}
 VH_ARROW = {"BREAKOUT":"↑","BREAKDOWN":"↓","INSIDE":"◻"}
 
 
+def digest_sort_key(sig, conv):
+    """State groups in ORDER; ⭐ rows by RS12 descending inside their group
+    (#24 promoted 2026-07-12 — the top-3 the buy-day splits across), every
+    other state alphabetical as before."""
+    rs = -conv.rs12 if sig.state == "ACCUMULATE" else 0.0
+    return (ORDER[sig.state], rs, sig.ticker)
+
+
 def g(x):
     return f"{round(x, 2):g}"
 
@@ -120,7 +129,8 @@ def whale_dip(s):
             and s.chips.last <= s.add_zone[1])
 
 
-def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0):
+def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
+            rsrank=None):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
@@ -166,10 +176,16 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0):
     # faster, not slower, so age alone never escalates. Info-only.
     dp = (f" · dip d{dip} (med {DIP_MEDIAN_D}d · p90 {DIP_P90_D}d)"
           if dip and s.weekly.circle == "RED" else "")
+    # #24 promoted (2026-07-12): mark the top-3 ⭐ rows by cross-sectional
+    # RS12 rank — the same homily_ledger.rs12_ranks the forward check reads,
+    # and the names the buy-day splits across. Suppressed on a corp-suspect
+    # row: RS12 is computed from the same tape whose adjustment is in doubt.
+    rk = (f" · RS#{rsrank}" if rsrank and rsrank <= 3 and not corp
+          and s.state == "ACCUMULATE" else "")
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
             f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
             f"({wk_age}) · {'mUP' if s.monthly_up else 'mDN'} · "
-            f"d{s.candle[0]}{dp}{vh}{at}{wh}{yg}{bk}")
+            f"d{s.candle[0]}{rk}{dp}{vh}{at}{wh}{yg}{bk}")
 
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
@@ -221,7 +237,7 @@ def screen(book, errs, spy, spy_adj=None, suspect=None, bars_out=None):
             suspect[tk] = corp
         if bars_out is not None:
             bars_out[tk] = bars
-    out.sort(key=lambda x: (ORDER[x[0].state], x[0].ticker))
+    out.sort(key=lambda x: digest_sort_key(x[0], x[1]))
     return out
 
 
@@ -277,7 +293,7 @@ def fmt_rocket(s, c, held, *, fund=fund_tag, corp=None, qual=None):
 def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
-                  flex_notes=None, dips=None, qual=None):
+                  flex_notes=None, dips=None, qual=None, promos=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -330,6 +346,18 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     if bearready:
         # #30: first Monday of the month — the §4 rehearsal block
         lines += ["", bearready]
+    if promos:
+        # #69/#24: month-start promotions check — the frozen rs12-top3
+        # window read (published through 2026-10 by promise) + the rolling
+        # demotion check every promoted entry must keep passing
+        lines += ["", promos]
+
+    # #24 promoted: cross-sectional RS12 rank over today's ⭐ candidates,
+    # computed by the same homily_ledger.rs12_ranks the ledger pins for the
+    # forward check — the digest mark can never disagree with the CSV column
+    rsr = homily_ledger.rs12_ranks(
+        [{"ticker": s.ticker, "state": s.state, "rs12": c.rs12}
+         for s, c, _ in sigs + disco])
 
     lines.append("")
     cur = None
@@ -339,7 +367,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             lines.append(f"<b>{ICON[cur]} {esc(cur)}</b>")
         pv = homily_positions.position_view(s.ticker, pos, prices, book_value)
         lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker),
-                             pv, dip.get(s.ticker, 0)))
+                             pv, dip.get(s.ticker, 0),
+                             rsrank=rsr.get(s.ticker)))
         # #28: PLAYBOOK §5 trim rules as flags on held rows — info only
         if s.ticker in pos:
             for fl in homily_positions.trim_flags(
@@ -373,7 +402,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     lines += ["", f"<b>🔎 DISCOVERY — new-money setups ({len(disco)} names "
               "screened, not held)</b>"]
     if hits:
-        lines += [fmt_row(s, True, y, sus.get(s.ticker))
+        lines += [fmt_row(s, True, y, sus.get(s.ticker),
+                          rsrank=rsr.get(s.ticker))
                   + f" · {esc(fund(s.ticker))}"
                   + (f" · {esc(qual(s.ticker))}" if qual else "")
                   for s, y in hits]
@@ -416,6 +446,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               " timing input) · Q1/Q2/Q3 = sticky quality tier (quarterly"
               " EDGAR read + 3y RS, frozen between refreshes — business"
               " quality that does not move with the tape; info only)"
+              " · RS#n = today's ⭐ RS12 rank; the buy-day splits across the"
+              " top-3 (#24 promoted 2026-07-12 by owner override AHEAD of"
+              " its live forward-check — the check keeps publishing at each"
+              " month-start through 2026-10, demotion mandatory on FAIL)"
               " · † = not held</i>",
               "", "<b>Algo health (auto-refine, OOS-gated):</b>",
               f"champion <code>{esc(champ['params'])}</code> since "
@@ -486,6 +520,17 @@ def build_digest(flex_notes=None):
                                                          today)
     except Exception as e:
         print(f"[bearready] skipped: {e}")
+    # #69/#24: month-start promotions block — the frozen rs12-top3 window
+    # read (promised through the 2026-10-01 read) + the rolling demotion
+    # check for promoted entries. Same first-run-of-month test as the
+    # copilot, but independent of BUY_BUDGET_USD. Non-fatal.
+    promos = ""
+    try:
+        lrows = homily_ledger._read_rows()
+        if homily_buyday.is_buy_day(today, lrows):
+            promos = homily_promotions.month_start_block(lrows, today, esc=esc)
+    except Exception as e:
+        print(f"[promotions] skipped: {e}")
     # #70: surface recent runner misses (last ~2 weeks; the snapshot keeps
     # the full history so an old hole doesn't nag forever). Non-fatal.
     gaps = []
@@ -525,7 +570,7 @@ def build_digest(flex_notes=None):
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, flex_notes=flex_notes,
-                           dips=dips, qual=qual)
+                           dips=dips, qual=qual, promos=promos)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
