@@ -596,6 +596,183 @@ and the live demotion rule remains the only guard. Any ship is a
 File: extend `homily_selection_backtest.py` (flag-gated arm; committed
 run's numbers stay byte-identical) · Effort M · one session.
 
+### D-90 · GAMBIT merge — one repo, three books (#90)
+
+**Owner directive, 2026-07-12** (verbatim intent): one repo to update;
+the 4–12-week swing sleeve lives here; GAMBIT as a separate repo
+retires. What merges is the MACHINE and its live paper state — not a
+strategy claim: the Phase-1 kill (KILL_MEMO), the A4 reopen (S1-pure to
+P2 paper, −40…−46% drawdowns accepted in writing), `LIVE_ORDERS=off`
+and the P2 gate all carry over byte-for-byte. The merge changes WHERE
+the sleeve runs, not WHAT it has earned.
+
+**Layout.** `gambit/` package: engine + harness + tests keep their
+filenames (`gambit/gambit_arms.py` … `gambit/weekly_run.py`,
+`gambit/universe.json`, `gambit/tests/`); governance docs verbatim to
+`docs/gambit/` (PRD, DESIGNS, EXECUTION, BACKTEST_RESULTS, KILL_MEMO,
+LEVERAGE_MEMO, AMENDMENT_A4). `SIDECAR.csv` (if rows exist) rides to
+`gambit/SIDECAR.csv` — ring-fenced ledger, never in homily books. File
+CONTENTS stay byte-identical (only paths move), so the gambit engine
+manifest re-pins paths with unchanged content hashes and the journal
+hash chain verifies unbroken across the move.
+
+**Integration points (all additive):** CI gains the weekly paper job
+(`gambit_validate` gates it, same pattern as homily [16]); the homily
+digest gains a fenced `SWING (paper)` section appended from the weekly
+run — it states P2 PAPER + gate progress (`wk n/26 · trades n/20 ·
+expectancy`) so nobody mistakes paper for money; homily's ledger,
+snapshot and goldens are untouched (R2/R3 — swing rows never enter
+`homily_signals_log.csv`).
+
+**Gate (all four):** (1) `gambit_validate` green from the new location
+AND homily validate green with zero golden re-pins; (2) journal hash
+chain verifies across the move; (3) one weekly paper run from inside
+homily-bot reproduces the standalone run byte-identical on the same
+bars snapshot; (4) the gambit repo's final commit is a tombstone README
+pointing here — archived read-only, never deleted (history is the audit
+trail).
+
+Effort M · one session · goes FIRST among #90–93: everything else in
+the directive lands inside the merged repo.
+
+### D-91 · Leverage policy — regime-gated ladder, sleeve-only (#91)
+
+**Owner directive, 2026-07-12:** maximum-return posture; leverage is no
+longer excluded (§7/§8.2 amended this date). This design gives the
+directive the same treatment every other rule here gets: derive the
+constants from our own measured paths, pre-register the referee, and
+write the delever rule before a dollar moves. LEVERAGE_MEMO's
+arithmetic is not repealed — **leverage amplifies edge, it cannot
+create it** — so the policy binds leverage to the two places the
+evidence permits it: the regime signal, and a gate-passed sleeve.
+
+**The arithmetic the constants come from** (maintenance m = 0.25, gross
+leverage L, uniform drop d; margin call when (1−Ld)/(L(1−d)) < m, i.e.
+d\* = (1−mL)/(L(1−m)) — and concentrated books carry m > 0.25, which
+only tightens every row):
+
+| gross L | call at drop d\* | against our own measured paths |
+|---|---:|---|
+| 1.15× | −82.6% | — |
+| 1.30× | −69.2% | regime-gated worst path −29% → −38% levered equity DD; a COVID-speed −35% shock landing before the month-end signal → −45.5%. No call. |
+| 1.50× | −55.6% | the same −35% shock → −52.5% equity DD — one gap away from a call at concentrated maintenance |
+| 2.00× | −33.3% | called by QQQ's own measured −34%; called by every strategy path |
+| ≥1.25× constant on the core book | −73%…−33% | the core arms' multiwindow paths ran **−59…−76%** → wipeout territory. **The core monthly book never carries margin. Non-negotiable.** |
+
+The regime signal is month-end, so the ladder must survive a crash
+FASTER than the signal — hence the −35% stress row, and hence 1.30, not
+1.50.
+
+**The ladder (policy; owner signs before it is live):**
+
+* **BULL** (SPY and QQQ both above 10m SMA): account gross ≤ **1.30×**.
+* **MIXED** (one below): ≤ **1.15×** — no new margin, paydown drift.
+* **BEAR** (🐻 onset): **1.00× — margin to zero at onset.** Not new
+  machinery: PLAYBOOK §4's first step is already "margin first."
+  Re-lever only on the §4.7 thirds re-entry schedule.
+* Margin dollars fund ONLY swing-sleeve entries (4–12wk, journaled,
+  stop written before entry). Per levered position: sized so a p5
+  episode (−31.7%, BACKTEST_RESULTS §12) × L costs ≤0.5% of net liq —
+  at 2× position leverage ≈ 1.6% notional, the same dispersion math
+  that derived the whale-dip cap.
+* Financing modeled at IBKR BM+1.5% in every levered comparison, with a
+  stress cell at rate+2% (LEVERAGE_MEMO L3, inherited).
+
+**The referee (pre-registered):** any levered arm is scored against
+**regime-gated levered QQQ at the same L, same financing** — never
+against unlevered QQQ (that comparison is the self-deception the random
+band exists to prevent, in leverage form). Leverage that cannot beat
+the same leverage on the index belongs on the index.
+`homily_leverage_backtest.py` (new, M; reuses bt_data + the frozen
+regime engine) pins the arms: QQQ B&H · regime-gated QQQ · regime-gated
+QQQ at L ∈ {1.15, 1.30, 1.50} net of financing · the honest-control
+strategy at the same ladder (expected: confirms the core-book ban) ·
+S1-pure at sleeve scale. **Run before the policy signs.** Constants
+adopt only if (a) no measured path — including the max-history grinders
+— breaches d\* at its ladder step, and (b) regime-gated levered QQQ
+beats unlevered QQQ net of financing on ≥2 of 3 construction-honest
+windows. Results → BACKTEST_RESULTS new §; a failed readout shrinks the
+ladder, it does not widen the model.
+
+**Account reality (the transition):** the account already runs ~1.23×
+(S$42.9k net liq, −S$9.8k cash, 2026-07-10) — legacy margin, spent on
+the core book, which is exactly what this policy forbids going forward.
+Grandfathered **shrink-only**: no new core margin ever; contributions
+and the standing MARGIN_ZERO task pay it down; swing entries may use
+only the headroom between current gross and the ladder cap (~S$3.1k
+today, growing with every paydown month). Nothing is force-sold (§5
+stands).
+
+**What stays true under the directive:** live leverage attaches only to
+a sleeve arm that has passed its unlevered gate (L1 inherited —
+S1-pure's P2 paper gate reads earliest ~2027-01); until then the only
+live levered dollars are the SIDECAR's, on its frozen terms (scored
+2027-07). Two-artifact pattern: this design + a dated owner signature
+in a new `LEVERAGE.md` before the first levered order; the daily digest
+prints a leverage line (gross L vs ladder cap) from the day the policy
+signs.
+
+Effort: M (backtest) + S (policy doc + digest line) · gate: the
+pre-registered readout above, then the owner signature.
+
+### D-92 · Concentration promotion — add-cap 10% → 25% + dip-adds into winners (#92)
+
+**Owner directive, 2026-07-12:** concentration encouraged — "allow
+adds into winners on dips instead of the 10% hard rule." The evidence
+already priced this exact move (D-67 / BACKTEST_RESULTS §12):
+25%-redistribute ties-or-beats 10% in 7/9 windows with shock-MaxDD
+within 5 pts — **formally adoptable by the letter of D-67** — and the
+recorded cost is the shock table: at a −95% single-name gap, 25% keeps
+1.70 vs 10%'s 1.89 MOIC (half the insurance payout surrendered). The
+reason this is adoptable at all: the ⭐ gate, not the cap, contains
+wrecks (step-2a, confirmed — wrecks lose ⭐ long before they accumulate).
+**Uncapped stays excluded**: ruled out pre-registration (∞ excluded by
+rule) and its −95% shock number (1.49) is the memo the next bubble will
+wish we had kept.
+
+**What changes when promoted:** PLAYBOOK §3.4 add-cap 10% → 25% of the
+stock book (the bucket-C warning threshold in `homily_positions.py`
+moves with it); dip-adds route exactly as today — ⭐-at-shelf monthly ·
+🟡+🎯 aggressive add · ⚪+🎯+🐳 whale-dip ≤2% — the cap was the binding
+constraint on winners and 25% unbinds it for a book whose top names sit
+near 10% now. Copilot constant sync (#31), validate test, README
+honesty line, all in the same commit.
+
+**Pre-registered demotion rule (armed in the promotion commit,
+promotions.json):** if any single name ≥15% of the stock book closes
+−50% from its held high-water mark, the cap reverts to 10%
+mechanically and the episode is scored in BACKTEST_RESULTS — that is
+the exact wreck the 10% cap insured against. Names may GROW past 25% by
+appreciation and are never force-trimmed (§5 stands); the cap binds
+adds only.
+
+**Timing (R10):** Q3 carries 🐳 + rs12-top3; Q4's slot was spent by the
+early promotion — the clean slot is **2027-Q1**. The owner-override
+lever exists (the #24 pattern: two-artifact + promotions.json entry +
+the demotion rule above), at the recorded cost that October's
+attribution then reads THREE 2026 epochs and #85's split becomes
+mandatory. This design makes either path a one-session change; the
+directive's intent is on the record now either way.
+
+Effort S (promotion session) · gate: D-67 already ran — the gate is the
+demotion rule being armed in the same commit.
+
+### D-93 · Swing sleeve live-arming (#93)
+
+Preconditions, all four, none waivable silently: (1) **P2 paper gate
+green** — ≥26 weeks (≥2027-01-09) AND ≥20 closed trades AND expectancy
+> 0 AND green vs the QQQ bar, no backtest credit (gambit PRD §5.2,
+unchanged by the merge); (2) **LIVE_ENABLE two-artifact** (gambit PRD
+§3.4 pattern); (3) **order rail** = the G-S7 dark-order spec on the
+IBKR MCP rail, human approval per order — bot proposes, owner disposes;
+(4) **leverage attaches per D-91's ladder ONLY if L2 holds on the paper
+ledger's own numbers** — MAR above QQQ's with headroom surviving ×L
+drawdown scaling + financing at the then-current rate. K1–K6 kill
+switches carry over live from journal row 1.
+
+Effort M · own session · earliest ~2027-01 · gate: the P2 ledger IS the
+gate.
+
 ---
 
 ## Part II — extended idea bank (#46–60)
@@ -607,8 +784,10 @@ PRD §5k, full rows in the §8.3 table; #83 = Danny-style chart board,
 D-83 above; #84 = any-ticker chart CLI; #85–89 added 2026-07-12 —
 #85 epoch split (S, rides #14), #86 dip war-chest (D-86), #87
 concentration conditioner (D-87), #88 top-3 turnover stat (S), #89
-rs6/blend rank challenger (column time-sensitive); new proposals
-start #90).
+rs6/blend rank challenger (column time-sensitive); #90–93 added
+2026-07-12 — the owner max-return directive: #90 GAMBIT merge (D-90),
+#91 leverage policy (D-91), #92 add-cap promotion (D-92), #93 swing
+live-arming (D-93); new proposals start #94).
 
 46. **Turnover-adaptive chip decay** (M) — replace the fixed 60d half-life
     in `homily_chips.py` with decay scaled by relative volume (v / avg50v):
