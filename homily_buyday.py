@@ -14,9 +14,10 @@ CSV, `docs/orders_YYYY-MM.csv`, committed by the workflow (R8).
 Allocation (D-31, PLAYBOOK §3):
   budget → index leg (50%; 0% if `SRS_COVERS_INDEX` — PRD §9.4: the
   owner's SRS contributions ARE the index half; 100% on 🐻 per §4.6 or
-  when there is no ⭐ per §3.5) → star leg equal-split across today's ⭐
-  names (holdings + discovery, max 5; order: F:2+ first per §3.4, then
-  RS12 descending until #24's promotion settles ranking) → per name the
+  when there is no ⭐ per §3.5) → star leg split across the TOP-3 ⭐
+  names by RS12 (holdings + discovery — #24 promoted 2026-07-12, owner
+  override, promotions.json carries the basis + demotion rule; the
+  F:2+-first tie-break retired with equal-split-max-5) → per name the
   post-buy value is capped at 10% of the post-deploy stock book (#27's
   CAP_PCT), overflow redistributed to the remaining stars → round DOWN
   to whole shares → leftover printed, rolls to next month.
@@ -37,7 +38,6 @@ Engines stay frozen (EXECUTION.md §0): this module only reads the
 state_of() dicts the digest already computed, plus holdings.json prices.
 """
 import os
-import re
 import csv
 import html
 import datetime
@@ -49,7 +49,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DOCS = os.path.join(HERE, "docs")
 
 INDEX_TICKER = "CSPX"        # the Bucket A sleeve (PLAYBOOK §1)
-MAX_STARS = 5                # PLAYBOOK §3.4
+MAX_STARS = 3                # #24 promoted 2026-07-12: top-3 by RS12
+                             # (was 5, equal-split; a FAIL on the registry's
+                             # rolling demotion check restores max-5)
 INDEX_FRAC = 0.5             # PLAYBOOK §3.3: half to index, half to stars
 CAP_FRAC = homily_positions.CAP_PCT / 100.0   # one cap constant (D-27 interlock)
 
@@ -65,17 +67,14 @@ def is_buy_day(day, ledger_rows):
                    for r in ledger_rows)
 
 
-def _fpasses(ftag):
-    m = re.match(r"F:(\d)", ftag or "")
-    return int(m.group(1)) if m else -1
-
-
 def star_candidates(states, positions, yahoo):
     """Today's ⭐ set split into (usd, manual). `manual` = non-USD names the
     orders must exclude (R12): held names by their holdings.json currency,
     unheld discovery names by a suffixed Yahoo symbol (0700.HK, D05.SI —
     every USD name in the universe maps to a bare symbol). Sort order per
-    PLAYBOOK §3.4: F:2+ names first, RS12 descending within each group."""
+    PLAYBOOK §3.4 as promoted (#24, 2026-07-12): RS12 descending, ticker
+    tie-break — the same ranking homily_ledger.rs12_ranks pins for the
+    forward check."""
     usd, manual = [], []
     for s in states:
         if s["state"] != "ACCUMULATE":
@@ -86,8 +85,7 @@ def star_candidates(states, positions, yahoo):
         else:
             foreign = "." in yahoo.get(s["ticker"], s["ticker"])
         (manual if foreign else usd).append(s)
-    usd.sort(key=lambda s: (0 if _fpasses(s.get("ftag")) >= 2 else 1,
-                            -s.get("rs12", 0.0), s["ticker"]))
+    usd.sort(key=lambda s: (-s.get("rs12", 0.0), s["ticker"]))
     return usd, manual
 
 

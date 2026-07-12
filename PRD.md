@@ -132,7 +132,7 @@ note only and never veto adds.
 
 ## 5j. Addendum 2026-07-10 (later) — #24 executed: ⭐ selection gate PASSED
 
-**Archived verbatim → `docs/archive/PRD-addenda-5c-5j.md#5j`** (#76). #24 executed: rs12-top3 PASSED all pre-registered checks — THE promotion candidate, earliest 2026-10-01, gated on the #13 ledger forward-check (rs12_rank column live since 2026-07-10, validate [25]).
+**Archived verbatim → `docs/archive/PRD-addenda-5c-5j.md#5j`** (#76). #24 executed: rs12-top3 PASSED all pre-registered checks — THE promotion candidate, earliest 2026-10-01, gated on the #13 ledger forward-check (rs12_rank column live since 2026-07-10, validate [25]). **PROMOTED EARLY 2026-07-12 by owner override — see §8.5; forward-check reads continue to 2026-10-01, demotion rule armed.**
 
 ## 5k. Addendum 2026-07-11 — review of Danny's latest X posts → new plans #77–82
 
@@ -525,6 +525,22 @@ and #62 (ledger append-only hash check).
 
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
+
+**2026-07-12 (later) · #24 promoted EARLY by owner override — R10 and the
+forward-check condition both overridden, neither waived silently.** The
+§5j/§2·24 protocol said: promote only if (a) the Jul–Sep ledger
+forward-check passes and (b) Q4's R10 slot is free on 2026-10-01. The
+owner directed immediate promotion (Fable handoff; risk accepted
+verbatim in promotions.json) — so rs12-top3 went live 2026-07-12 with
+condition (a) unmet and (b) moot. What was NOT overridden: the frozen
+Jul–Sep window still gets its read — a #69 month-start digest block
+(wired in the same commit) publishes it every month through 2026-10-01,
+alongside the rolling demotion check, and a FAIL demotes to
+equal-split-max-5 mechanically. R10 arithmetic going forward: 2026-Q3
+now carries TWO live signal-behaviour changes (🐳 2026-07-06, rs12-top3
+2026-07-12) — Q3/Q4 ledger attribution must read them jointly, Q4's
+slot is spent, and the next promotion slot is 2027-Q1 (whale-top3's
+earliest date already says so).
 
 **2026-07-12 · #83 shipped; D-83's committed-board scope was wrong by 4×.**
 D-83 said the committed small board = "held + actionable" cards under

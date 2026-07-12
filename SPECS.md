@@ -21,7 +21,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #19 corp-action guard | 2026-07-10 | validate [24] + golden `corp` |
 | #12/#22 whale gate → WHALE-DIP tier | 2026-07-06 | homily_whale_backtest PASSED |
 | #63 bear decomposition → §4 kept as priced insurance | 2026-07-10 | D-63 pre-committed rule, branch 3 |
-| #24 rs12-top3 experiment (NOT promoted; see §2·24) | 2026-07-10 | selection backtest PASSED; promotion gated |
+| #24 rs12-top3 — PROMOTED EARLY 2026-07-12, owner override (§2·24) | 2026-07-10 / 12 | backtest PASSED; forward-check publishes at month-starts through 2026-10-01; demotion rule armed (promotions.json) |
 | #27 position-aware book math | 2026-07-10 | validate [26] |
 | #31 buy-day copilot + T2 basket CSV | 2026-07-10 | validate [27] |
 | #35 chart cards (stdlib PNG) | 2026-07-11 | validate [28] pixel-hash |
@@ -72,8 +72,11 @@ Everything else remaining is DATE- or OWNER-gated:
 3. **~2026-10** · #14 live scorecard (+#71 noise band, build together) —
    3 ledger months; also the #65 shadow-quarter adoption read (D-65 rule)
    and the first #64-split scorecard.
-4. **2026-10-01+** · #24 promotion decision per §2·24 — Q4's R10 slot,
-   first in line. QUEUED BEHIND IT (each its own gated session, R10-spaced):
+4. **2026-10-01** · #24 forward-check READ (no longer a promotion
+   decision — promoted early 2026-07-12 by owner override, Q4's R10 slot
+   SPENT; the month-start digest block publishes the frozen-window read
+   and runs the mandatory demotion check). QUEUED (each its own gated
+   session, R10-spaced, next slot 2027-Q1):
    #79 distribution-tag ship (+mLHLL variant, scope guard verbatim) ·
    #67's whale-cap tightening to 1.6% (+ #31 copilot constant sync) ·
    any #20 weight change · #25 real market cap (engine edit, §8.5) ·
@@ -207,13 +210,18 @@ date only; no retro-editing. *(Owner-requested 2026-07-11 after the
 META/SHOP/NVDA flips of 07-10 all confirmed next session — one good day
 is anecdote, this makes it measurement.)*
 
-### #24 · rs12-top3 promotion decision (due 2026-10-01+, design D-24 + PRD §5j)
-Pre-registered: promote ⭐ ordering/allocation to top-3-by-RS12 ONLY if
-(a) the ledger forward-check passes — Jul–Sep top-3-RS12 ⭐ rows
-outperform other ⭐ rows on forward returns (rs12_rank column, live since
-2026-07-10), and (b) Q4's R10 slot is free. If promoted: daily_run ⭐
-ordering + `homily_buyday.MAX_STARS`/ordering + PLAYBOOK §3.4 wording, one
-session, one commit. If the forward-check fails: record in §8.5, close.
+### #24 · rs12-top3 promotion decision (design D-24 + PRD §5j)
+**RESOLVED EARLY 2026-07-12 — OWNER OVERRIDE.** Promoted with NEITHER
+pre-registered condition met: (a) the ledger forward-check had not
+matured, (b) the 2026-10-01 date had not arrived. The owner directed it
+and accepted the risk (verbatim basis in promotions.json). Shipped
+exactly the pre-specified surface: daily_run ⭐ ordering (RS12 desc,
+top-3 marked `RS#n`) + `homily_buyday.MAX_STARS=3`/ordering + PLAYBOOK
+§3.4 — one session, one commit. NOT waived: the frozen Jul–Sep window
+read publishes at every month-start digest (new #69 block, wired this
+session) through the 2026-10-01 read, and the rolling demotion check is
+armed — a FAIL demotes to equal-split-max-5 mechanically. R10: Q4's slot
+is spent; next promotion slot 2027-Q1.
 
 ### #20 · Conviction-score backtest (L; design D-20)
 Point-in-time daily replay, both universes, calling live `conviction()`

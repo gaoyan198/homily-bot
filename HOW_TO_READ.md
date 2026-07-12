@@ -117,7 +117,7 @@ they gate nothing):
 
 | Chip | What it means | What you do (PLAYBOOK ref) |
 |---|---|---|
-| ⭐ ACCUMULATE | monthly UP + weekly RED + price at/near a major chip shelf | candidate for the monthly buy (§3); caps: 10%/name, max 5 names (§3.4) |
+| ⭐ ACCUMULATE | monthly UP + weekly RED + price at/near a major chip shelf | candidate for the monthly buy (§3); the buy-day splits across the top-3 by RS12 (`RS#n`, #24 promoted 2026-07-12); cap 10%/name (§3.4) |
 | 🟢 HOLD | uptrend intact but price extended above support | do nothing; wait for the pullback to the teal band |
 | 🟡 PULLBACK | weekly AMBER while monthly still UP | dip forming — watch the shelf; 🎯 on a 🟡 = optional aggressive add (§3 step 6) |
 | ⚪ CAUTION | weekly WHITE or monthly trend down | pause adds. **Not a sell** — selling has its own three rules (§5) and none of them is "the chart turned white" |
@@ -125,7 +125,7 @@ they gate nothing):
 | 🎯 at support | a non-⭐ name trading inside its add zone | context only. 🎯 alone on ⚪ tested WORSE than waiting — needs 🐳 |
 | 🐳 whale footprint | dip + ≥2 of: absorption print · OBV+A/D divergence · shelf replenished | ⚪+🎯+🐳 = the ONE permitted ⚪ add (WHALE-DIP, ≤2%/name, 10% sleeve cap, §3.6b) |
 | `close` / `add` / `POC` | last close; the teal band; the orange line | compare: below add = gift, inside = act on buy day, far above = wait |
-| `RS12` | 12-month **total** return minus SPY's (dividends counted, pts) | the selection ranker — the October rs12-top3 read concentrates buys in the top-3 if its forward-check passes |
+| `RS12` / `RS#n` | 12-month **total** return minus SPY's (dividends counted, pts); `RS#n` = today's ⭐ rank | the selection ranker — **live since 2026-07-12** (#24 promoted by owner override): the buy-day splits the stock half across the top-3; the forward-check keeps publishing at month-starts through 2026-10 and a FAIL demotes it |
 | `conv NN` | conviction score 0–100 | honesty (#20, BACKTEST §11): the score's *ranking* is real OOS; the 75/60 tier labels separate nothing. Compare names by score, ignore the label |
 | `F:n/3` | EDGAR checks: revenue growth >10% · NI>0 or OCF>0 · dilution <12% | info-only; `F:—` = non-US. Sharpens hold-through-⚪ judgment, never times entries |
 | `x% of book` / ⚠ cap note | position awareness | ⚠ means an add would breach the 10% cap — copilot already sized for it |

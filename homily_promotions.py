@@ -76,6 +76,53 @@ def forward_check(entry, rows):
     return out
 
 
+def _windowed(entry, lo, hi):
+    """Entry copy whose forward check runs over [lo, hi] instead of the
+    frozen window — the rolling demotion read. The registry file itself is
+    never touched (frozen criteria stay frozen)."""
+    fc = dict(entry["forward_check"], window=[lo, hi])
+    return dict(entry, forward_check=fc)
+
+
+def _fmt_check(r):
+    mt = f"{r['mean_top']:+.2f}%" if r["mean_top"] is not None else "—"
+    mo = f"{r['mean_other']:+.2f}%" if r["mean_other"] is not None else "—"
+    return (f"{r['status']} (top-3 n={r['n_top']} mean {mt} vs other "
+            f"n={r['n_other']} mean {mo})")
+
+
+def month_start_block(rows, day, esc=lambda x: x):
+    """The month-start digest block (wired 2026-07-12 as a condition of the
+    rs12-top3 early promotion). Two reads per entry, both mandatory-by-rule:
+
+      1. the FROZEN pre-registered window — so the 2026-10-01 rs12-top3
+         read is published on schedule whether or not the promotion already
+         happened (the owner's explicit instruction: show the live-data
+         test in October regardless);
+      2. for promoted entries, the rolling-6-month demotion check — a FAIL
+         is a mandatory demotion per the entry's demotion_rule, and the
+         digest says so in bold rather than leaving it to memory.
+
+    Pure read of the ledger rows + registry; Telegram-HTML via esc()."""
+    lines = ["📋 <b>PROMOTIONS — month-start forward check (#69)</b>"]
+    for e in load_registry():
+        fc = e["forward_check"]
+        frozen = forward_check(e, rows)
+        lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
+                     + (f" {esc(e['promoted'])}" if e.get("promoted") else "")
+                     + f" · frozen window {esc(fc['window'][0])}→"
+                     f"{esc(fc['window'][1])}: {esc(_fmt_check(frozen))}")
+        if e["status"] == "promoted":
+            lo = (day - datetime.timedelta(days=183)).isoformat()
+            rolling = forward_check(_windowed(e, lo, day.isoformat()), rows)
+            lines.append(f"　demotion check (rolling 6m): "
+                         f"{esc(_fmt_check(rolling))}"
+                         + (" — <b>FAIL = demote, mandatory (registry "
+                            "demotion_rule)</b>"
+                            if rolling["status"] == "FAIL" else ""))
+    return "\n".join(lines)
+
+
 def verify_registry(path=REGISTRY):
     """CI guard (validate check [31]): every entry must name its gate
     artifact, a demotion rule, and a frozen criterion — the standing rule

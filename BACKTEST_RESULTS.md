@@ -213,6 +213,15 @@ ledger (#13) accrues fresh out-of-sample rows: before promotion, check
 that ⭐ names ranked top-3-by-RS12 in the ledger actually outperformed the
 rest — a free forward test the promotion must also survive.
 
+**2026-07-12 update: PROMOTED EARLY by owner override** — ahead of both
+the ledger forward-check and the 2026-10-01 date (basis recorded verbatim
+in `promotions.json`; PRD §8.5). The pre-registered check was NOT waived:
+the #69 month-start digest block publishes the frozen Jul–Sep window read
+through the 2026-10-01 read, the rolling demotion check runs alongside
+it, and a FAIL demotes to equal-split-max-5 mechanically. The honesty box
+above stands unchanged — the measured lift is modest and one-window; the
+live rows now referee a change that is already spending money.
+
 ---
 
 ## 5 · #18 total-return correctness — the RS12 delta (run 2026-07-10)

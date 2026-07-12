@@ -59,16 +59,19 @@ fallback.*
 3. Half of it → Bucket A (index). **Your SRS contributions ARE this half**
    (provided the SRS cash is actually deployed into SPY/QQQ, not idle) —
    if SRS is funded and invested, your cash DCA may go fully to step 4.
-4. Other half → split **equally** across the ⭐ names (holdings + discovery,
-   max 5 names). Skip any name that would exceed 10% of your stock book.
-   Prefer F:2+ names when choosing among many.
-   *(The 10% cap is now priced, not gut — #67, BACKTEST_RESULTS §12: it
-   cost ~0.05 MOIC per $1 on the honest 2021→2026 control (essentially
-   free) and pays +0.26…+0.40 MOIC when the book's biggest name gaps
-   −80…−95% and never recovers. It exists for the gap-down the trend gate
-   can't see; wrecks lose ⭐ long before they reach 10%, so in practice it
-   binds on winners — that is the premium you're paying. The max-5 rule
-   measured ≈ null (§5g stands): keep it for simplicity, not for edge.)*
+4. Other half → split across the **top-3 ⭐ names by RS12** (holdings +
+   discovery; the digest marks them `RS#1–3`). Skip any name that would
+   exceed 10% of your stock book.
+   *(#24 promoted 2026-07-12 — by owner override, AHEAD of its live
+   forward-check; the check keeps publishing at each month-start through
+   2026-10 and a FAIL demotes this back to equal-split-max-5 mechanically
+   (promotions.json). The 10% cap is priced, not gut — #67,
+   BACKTEST_RESULTS §12: it cost ~0.05 MOIC per $1 on the honest
+   2021→2026 control (essentially free) and pays +0.26…+0.40 MOIC when
+   the book's biggest name gaps −80…−95% and never recovers. It exists
+   for the gap-down the trend gate can't see; wrecks lose ⭐ long before
+   they reach 10%, so in practice it binds on winners — that is the
+   premium you're paying.)*
 5. **If there are no ⭐ names: buy Bucket A with the full amount.** The
    backtest is clear — cash waiting for stars costs more than it saves.
 6. **Optional aggressive add (🎯 on a 🟡 row):** a still-bullish name whose
