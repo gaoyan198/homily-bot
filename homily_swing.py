@@ -108,14 +108,22 @@ def live_block(book, esc=lambda x: x):
         room = eq - kill
         state = ("HOLD per plan" if not pend
                  else f"{pend} order(s) on Monday's sheet")
-        return "\n".join([
+        lines = [
             f"♟️ <b>SWING LIVE (A5)</b> · equity ${eq:,.0f} of "
             f"${contrib:,.0f} contributed · realized {realized:+,.0f} · "
             f"{npos} open · {esc(state)}",
             f"<i>kill line ${kill:,.0f} (${room:,.0f} of room) — breach = "
             "liquidate + failure memo, mandatory; stops/TPs sit at IBKR, "
             "adjust only at re-ranks (PLAYBOOK §9)</i>",
-        ])
+        ]
+        # #99: the one-shot KILL-A proximity warning (gambit sets warned_80
+        # when equity first crosses below 80% of contributed)
+        if book.get("warned_80"):
+            lines.insert(1, "⚠️ <b>KILL-A PROXIMITY</b> — equity is within "
+                         "10 points of the kill line; the next leg down "
+                         "liquidates the sleeve (A5). Nothing to do but let "
+                         "the stops work — do not average down a levered book")
+        return "\n".join(lines)
     except Exception:
         return ""
 

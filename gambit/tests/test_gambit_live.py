@@ -286,3 +286,34 @@ def test_overlap_warning_silent_at_two_or_fewer_and_no_core():
     assert gl.overlap_warning(book, set()) == ""                   # core unknown
     assert gl.overlap_warning({"positions": {}, "pending": []},
                               {"NVDA"}) == ""
+
+
+# --- #99 one-shot KILL-A proximity warning ---------------------------------
+
+def test_kill_watch_fires_once_below_80pct_and_resets():
+    b = gl.new_book()
+    b.update({"armed": "2026-08-01", "contributed": 3000.0})
+    b["equity"] = 2350.0                    # 78% of contributed
+    rows = []
+    gl.kill_watch(b, D("2026-09-20"), rows)
+    assert b["warned_80"] == "2026-09-20"
+    assert any(r["reason_code"] == "KILL_WARN" for r in rows)
+    # already warned → no second journal row (one-shot)
+    rows2 = []
+    gl.kill_watch(b, D("2026-09-27"), rows2)
+    assert rows2 == [] and b["warned_80"] == "2026-09-20"
+    # recovery above 85% clears the flag (so a later dip can warn again)
+    b["equity"] = 2600.0                    # 86.7%
+    gl.kill_watch(b, D("2026-10-04"), [])
+    assert b["warned_80"] is None
+
+
+def test_kill_watch_silent_when_healthy_or_unarmed():
+    b = gl.new_book()
+    b.update({"armed": "2026-08-01", "contributed": 3000.0, "equity": 2900.0})
+    gl.kill_watch(b, D("2026-09-20"), [])
+    assert b["warned_80"] is None          # 96.7% → healthy
+    b2 = gl.new_book()                     # unarmed → never warns
+    b2["equity"] = 100.0
+    gl.kill_watch(b2, D("2026-09-20"), [])
+    assert b2["warned_80"] is None

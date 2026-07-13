@@ -62,7 +62,8 @@ def new_book(capital=BANKROLL):
             "last_processed": None, "killed": None,
             # #95 flywheel: cumulative profit banked to the DCA + the record
             # of each skim (never in `realized` — a skim is not a trade).
-            "skimmed": 0.0, "skims": [], "last_skim_q": None}
+            "skimmed": 0.0, "skims": [], "last_skim_q": None,
+            "warned_80": None}          # #99: one-shot KILL-A proximity flag
 
 
 def _iso(d):
@@ -285,6 +286,28 @@ def maybe_skim(book, qqq, as_of, rows):
     return s
 
 
+def kill_watch(book, as_of, rows):
+    """#99 / D-99 — ONE-shot early warning: when marked equity first crosses
+    below 80% of contributed (10 points above the KILL-A line at 70%), set a
+    dated `warned_80` flag and journal a KILL_WARN row, so the homily digest
+    surfaces it ONCE rather than nagging daily. Resets above 85% to avoid
+    flapping around the boundary. Never changes a kill rule — advisory only."""
+    if not book.get("armed") or book.get("killed"):
+        return
+    contrib = float(book.get("contributed") or 0.0)
+    if contrib <= 0:
+        return
+    frac = float(book.get("equity") or 0.0) / contrib
+    if frac <= 0.80 and not book.get("warned_80"):
+        book["warned_80"] = _iso(as_of)
+        rows.append({"date": _iso(as_of), "event": "REGIME", "symbol": "",
+                     "side": "", "reason_code": "KILL_WARN",
+                     "notes": f"equity {frac:.0%} of contributed — 10pts "
+                              "above the KILL-A line, early warning (#99)"})
+    elif frac >= 0.85 and book.get("warned_80"):
+        book["warned_80"] = None
+
+
 def overlap_warning(book, core_tickers):
     """#97 / D-97 (G5) — the order-sheet cross-book warning. Both books draw
     from the same AI/semi cluster, so a name held in BOTH gaps the core book
@@ -390,6 +413,7 @@ def live_step(book, paper, series, qqq, regime_label, as_of, *,
     # #95: bank the quarter's profit AFTER the kill check (a skim can only
     # move equity toward KILL-A, never away — done last, on the marked book)
     maybe_skim(book, qqq, as_of, rows)
+    kill_watch(book, as_of, rows)        # #99: one-shot 80%-of-contributed warn
     return _sheet(book, series, regime_label, as_of,
                   core_tickers=core_tickers), rows
 

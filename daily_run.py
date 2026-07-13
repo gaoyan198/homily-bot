@@ -35,6 +35,7 @@ import homily_universe
 import homily_swing
 import homily_leverage
 import homily_household
+import homily_ops
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -297,7 +298,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev="", household="", cross_book=None):
+                  lev="", household="", cross_book=None, ops=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -334,6 +335,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             lines.append(lev)
     else:
         lines.append("⚖️ regime check unavailable today")
+    # #99 ops-readiness: the owner's own unset switches, one standing line
+    if ops:
+        lines.append(ops)
     # #26 breadth canary: one line, only on a hostile tape, info-only
     if breadth_read and breadth_read["above200"] < 30:
         lines.append(f"⚠️ breadth: only {breadth_read['above200']:.0f}% of "
@@ -539,6 +543,13 @@ def build_digest(flex_notes=None):
                                                          today)
     except Exception as e:
         print(f"[bearready] skipped: {e}")
+    # #99 ops-readiness: the owner's unset switches, one standing line (env
+    # only, no fetch). Non-fatal, info-only.
+    ops = ""
+    try:
+        ops = homily_ops.ops_line(os.environ, esc=esc)
+    except Exception as e:
+        print(f"[ops] skipped: {e}")
     # #94 household scorecard, first Monday of the month. Reads the same held
     # prices the digest already shows; fetches only QQQ (counterfactual) +
     # SGD=X (FX) inside its own shell. Non-fatal, info-only.
@@ -667,7 +678,7 @@ def build_digest(flex_notes=None):
                            breadth_read=br, conc=conc, cross_book=cross_book,
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
-                           lev=lev, household=household)
+                           lev=lev, household=household, ops=ops)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

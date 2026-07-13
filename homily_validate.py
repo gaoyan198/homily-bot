@@ -1817,4 +1817,28 @@ finally:
     _hh.CONTRIB_FILE = _saved52
 print("[52] #94 household: adjclose counterfactual, leverage, missing nag .. PASS")
 
+# --- 53. #99 ops-readiness: blockers line + one-shot KILL-A proximity -------
+import homily_ops as _ops
+# a fully unset board lists all blockers, with margin balance when given
+_env53 = {"MARGIN_BALANCE": "9,800"}
+_bl53 = _ops.blockers(_env53)
+assert len(_bl53) == 3, _bl53           # margin + flex + budget
+_ln53 = _ops.ops_line(_env53, esc=lambda x: x)
+assert "SETUP" in _ln53 and "S$9,800 to clean slate" in _ln53 and \
+    "IBKR Flex secrets unset" in _ln53 and "BUY_BUDGET_USD is 0" in _ln53, _ln53
+# a clean board is silent (no green-checkmark nag)
+_clean53 = {"MARGIN_ZERO": "true", "IBKR_FLEX_TOKEN": "t",
+            "IBKR_FLEX_QUERY": "q", "BUY_BUDGET_USD": "1550"}
+assert _ops.blockers(_clean53) == [] and _ops.ops_line(_clean53) == ""
+# MARGIN_ZERO set but budget still 0 → only the budget blocker
+_part53 = {"MARGIN_ZERO": "on", "IBKR_FLEX_TOKEN": "t",
+           "IBKR_FLEX_QUERY": "q"}
+assert len(_ops.blockers(_part53)) == 1 and \
+    "BUY_BUDGET" in _ops.ops_line(_part53)
+# #99 one-shot KILL-A proximity warning surfaces in the live block
+_w53 = homily_swing.live_block(dict(_bk51, warned_80="2026-09-20"))
+assert "KILL-A PROXIMITY" in _w53 and "do not average down" in _w53, _w53
+assert "KILL-A PROXIMITY" not in homily_swing.live_block(_bk51)  # not flagged
+print("[53] #99 ops-readiness: blockers line + KILL-A proximity warning ... PASS")
+
 print("\nAll structural assertions passed.")
