@@ -120,6 +120,20 @@ def live_block(book, esc=lambda x: x):
         return ""
 
 
+def _ab_block(today, esc):
+    """#96: lazily import the gambit-side A/B reader (it lives in gambit/,
+    reads the two journals). Read-only + non-fatal — a missing module or an
+    empty live journal just yields no section."""
+    try:
+        import sys
+        if str(_GAMBIT) not in sys.path:
+            sys.path.insert(0, str(_GAMBIT))
+        import gambit_ab
+        return gambit_ab.ab_block(today, esc=esc)
+    except Exception:
+        return ""
+
+
 def monthly_block(book, today, esc=lambda x: x):
     """First-run-of-month realized report (A5): last month's closed trades
     with reasons, cumulative realized, and the sweep suggestion — proceeds
@@ -163,6 +177,11 @@ def monthly_block(book, today, esc=lambda x: x):
             "contributed (skims never soften the kill line) · fills are "
             "modeled (Monday opens / trigger prices) — reconcile against "
             "IBKR statements, drift is honest noise</i>")
+        # #96: the A5 A/B stop-cost section rides the monthly realized report
+        # (read-only over both journals; "" until a stop-episode closes)
+        ab = _ab_block(today, esc)
+        if ab:
+            lines.append(ab)
         return "\n".join(lines)
     except Exception:
         return ""

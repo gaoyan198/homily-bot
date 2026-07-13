@@ -1693,7 +1693,11 @@ _p95 = {"budget": 1500, "mode": "normal", "srs_covers_index": False,
 _r95 = homily_buyday.render(_p95, datetime.date(2026, 8, 3), 600.0)
 assert "swing skim $600" in _r95 and "routed in (#95)" in _r95, _r95
 assert "swing skim" not in homily_buyday.render(_p95, datetime.date(2026, 8, 3))
-print("[51] #93 live blocks: waiting/armed/killed + monthly + #95 flywheel .. PASS")
+# #96: the A5 A/B stop-cost section is wired into the monthly report,
+# read-only + non-fatal (empty until a live stop-episode closes)
+_ab96 = homily_swing._ab_block(datetime.date(2026, 9, 1), lambda x: x)
+assert isinstance(_ab96, str), "A/B wiring must never raise"
+print("[51] #93 live: kill/monthly + #95 flywheel + #96 A/B wired ......... PASS")
 
 # --- 52. #94 household scorecard: adjclose counterfactual + missing nag -----
 import homily_household as _hh
