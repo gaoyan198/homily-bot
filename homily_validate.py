@@ -1718,7 +1718,11 @@ assert "swing skim" not in homily_buyday.render(_p95, datetime.date(2026, 8, 3))
 # read-only + non-fatal (empty until a live stop-episode closes)
 _ab96 = homily_swing._ab_block(datetime.date(2026, 9, 1), lambda x: x)
 assert isinstance(_ab96, str), "A/B wiring must never raise"
-print("[51] #93 live: kill/monthly + #95 flywheel + #96 A/B wired ......... PASS")
+# #100: the cost-reconcile section is wired the same way, read-only +
+# non-fatal (empty until a committed ibkr_statement.json exists)
+_rec100 = homily_swing._reconcile_block(lambda x: x)
+assert isinstance(_rec100, str), "reconcile wiring must never raise"
+print("[51] #93 live: kill/monthly + #95/#96 + #100 reconcile wired ...... PASS")
 
 # --- 52. #94 household scorecard: adjclose counterfactual + missing nag -----
 import homily_household as _hh

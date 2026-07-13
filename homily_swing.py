@@ -142,6 +142,20 @@ def _ab_block(today, esc):
         return ""
 
 
+def _reconcile_block(esc):
+    """#100: lazily import the gambit-side cost reconcile (reads a committed
+    IBKR statement + the live journal). Read-only + non-fatal — no statement
+    yet just yields no section."""
+    try:
+        import sys
+        if str(_GAMBIT) not in sys.path:
+            sys.path.insert(0, str(_GAMBIT))
+        import gambit_reconcile
+        return gambit_reconcile.reconcile_block(esc=esc)
+    except Exception:
+        return ""
+
+
 def monthly_block(book, today, esc=lambda x: x):
     """First-run-of-month realized report (A5): last month's closed trades
     with reasons, cumulative realized, and the sweep suggestion — proceeds
@@ -190,6 +204,11 @@ def monthly_block(book, today, esc=lambda x: x):
         ab = _ab_block(today, esc)
         if ab:
             lines.append(ab)
+        # #100: the realized-cost reconcile (model vs the IBKR statement);
+        # "" until a committed ibkr_statement.json exists
+        rec = _reconcile_block(esc)
+        if rec:
+            lines.append(rec)
         return "\n".join(lines)
     except Exception:
         return ""
