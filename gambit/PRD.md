@@ -199,6 +199,41 @@ immediate future.** Consequences:
 * **Margin remains rejected** (risk G7) — applies to the paper book too:
   the simulator refuses entries that would take sleeve cash below zero.
 
+### 3.5 The scale ladder — the bankroll is earned (#98 / D-98, 2026-07-12 late)
+
+A5 caps top-ups at ≤10% of net liq but set no *earn* condition, and at
+US$3k the sleeve's income is a rounding error (~US$40/mo at +15%/yr) — so
+the pressure to top up after a hot month is structural. That impulse is
+exactly how G8's income-pressure failure arrives by the other door.
+Pre-registered here, in the bull, while nobody is excited:
+
+**Contributed capital moves only in fixed steps: US$3,000 → 6,000 →
+12,000**, each still ≤10% of net liq at the step date, and the LEVERAGE.md
+account caps always bind on top. One step UP requires ALL of, evaluated on
+the live journal alone:
+
+* ≥20 closed live trades since the previous step;
+* expectancy > 0 over the trailing 20 closed;
+* equity + cumulative skims ahead of the LEVERAGE.md §3 referee
+  (regime-gated 1.30× QQQ, same dollars, same dates) over the trailing
+  26 weeks;
+* zero kill-line touches and zero margin events, ever;
+* a dated owner line appended to `AMENDMENT_A5.md` naming the step
+  (two-artifact, the LIVE_ENABLE/K6 pattern).
+
+The owner runs `python3 gambit_live.py --scale-check` (mechanical
+preconditions from the book); the referee/26-week and ≤10%-net-liq
+conditions are read off the monthly report / A/B and attested in the A5
+line. Steps DOWN are always free and need no conditions; a **kill ends the
+experiment regardless of ladder position** (A5: no restart without a new
+gated design). Nothing above US$12k is adoptable without a fresh amendment.
+
+**Enforcement (CI, K6 pattern):** `gambit_validate.check_scale` fails the
+build if `contributed` leaves the ladder (any amount other than a step) or
+reaches a step without its dated A5 owner line — policy breaches are loud,
+not debated. This is a pure constraint: it adds no signal behaviour and
+consumes no R10 slot.
+
 ---
 
 ## 4. Strategy hypothesis space (to be settled by Phase-1 backtests)

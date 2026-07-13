@@ -52,6 +52,7 @@ FIN = 0.058                          # LEVERAGE.md financing, on negative cash
 N = 5
 SKIM_MONTHS = {1, 4, 7, 10}          # D-95: quarter-ends (first run of each)
 SKIM_MIN = 1.0                       # don't bother the owner with cents
+SCALE_STEPS = (3000.0, 6000.0, 12000.0)   # #98/D-98: the earned bankroll ladder
 
 
 def new_book(capital=BANKROLL):
@@ -284,6 +285,46 @@ def maybe_skim(book, qqq, as_of, rows):
     return s
 
 
+def scale_check(book):
+    """#98 / D-98 — is the NEXT bankroll step earned? Evaluates the MECHANICAL
+    preconditions from the live book alone; the owner runs `gambit_live.py
+    --scale-check`, reads the result, and only then appends the dated
+    AMENDMENT_A5 line that actually authorizes the top-up (two-artifact, the
+    K6 pattern). The CI guard (gambit_validate.check_scale) enforces that
+    authorization exists — this function only advises.
+
+    The ladder is US$3k → 6k → 12k, each still ≤10% of net liq at the step
+    date. Mechanical preconditions checked here: contributed sits exactly on
+    a ladder step, ≥20 closed live trades exist, expectancy > 0 over the
+    trailing 20 closed, and the book has never been killed. The two
+    conditions that need data this module doesn't hold — equity + cumulative
+    skims ahead of the LEVERAGE.md §3 referee (regime-gated 1.30× QQQ) over
+    26 weeks, and the ≤10%-of-net-liq cap — live in the monthly report / A/B
+    and are OWNER-ATTESTED in the A5 line (same stance K6 takes on the live
+    referee). Steps DOWN are always free; a kill ends the experiment."""
+    contrib = float(book.get("contributed") or 0.0)
+    realized = book.get("realized") or []
+    nxt = next((s for s in SCALE_STEPS if s > contrib), None)
+    last20 = realized[-KILL_EXPECTANCY_N:]
+    exp = (sum(r.get("pnl", 0.0) for r in last20) / len(last20)
+           if last20 else 0.0)
+    conds = {
+        "on-ladder": contrib in SCALE_STEPS,
+        "closed>=20 (since inception)": len(realized) >= KILL_EXPECTANCY_N,
+        "expectancy>0 (trailing 20)": len(last20) >= KILL_EXPECTANCY_N
+        and exp > 0,
+        "never killed": not book.get("killed"),
+    }
+    return {"contributed": contrib, "next_step": nxt,
+            "conditions": conds,
+            "earned_mechanical": nxt is not None and all(conds.values()),
+            "owner_attested_separately": [
+                "equity+skims ahead of the LEVERAGE.md §3 referee (26wk)",
+                "the top-up keeps contributed ≤ 10% of net liq"],
+            "note": "advice only — the top-up is authorized by a dated "
+                    "AMENDMENT_A5 owner line naming the step (CI-enforced)"}
+
+
 def live_step(book, paper, series, qqq, regime_label, as_of, *,
               margin_zero=False):
     """One weekly advance. Returns (order_sheet_text, journal_rows).
@@ -379,3 +420,20 @@ def _sheet(book, series, regime_label, as_of):
                  f"{(gross / eq if eq else 0):.2f}× (cap {L:.2f} "
                  f"{regime_label}) · stops move only at re-ranks")
     return "\n".join(lines)
+
+
+if __name__ == "__main__":       # pragma: no cover — owner-run advisor
+    import argparse
+    import json
+    from pathlib import Path
+
+    ap = argparse.ArgumentParser(description="GAMBIT live overlay tools")
+    ap.add_argument("--scale-check", action="store_true",
+                    help="#98: is the next bankroll ladder step earned?")
+    args = ap.parse_args()
+    if args.scale_check:
+        bp = Path(__file__).resolve().parent / "gambit_live_book.json"
+        bk = json.loads(bp.read_text()) if bp.exists() else new_book()
+        print(json.dumps(scale_check(bk), indent=2))
+    else:
+        ap.print_help()

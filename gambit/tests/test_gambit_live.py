@@ -1,5 +1,6 @@
 """#93 / Amendment A5 — the live overlay's pre-registered behaviours."""
 import datetime
+import json
 
 import gambit_backtest as bt
 import gambit_live as gl
@@ -221,3 +222,49 @@ def test_killed_book_never_skims():
     b = _profit_book()
     b["killed"] = {"date": "2026-09-10", "reason": "KILL-A: ..."}
     assert gl.maybe_skim(b, None, D("2026-10-03"), []) == 0.0
+
+
+# --- #98 scale ladder (D-98): the bankroll is earned -----------------------
+
+def test_scale_check_not_earned_at_base():
+    b = gl.new_book()                              # contributed 3000, 0 trades
+    sc = gl.scale_check(b)
+    assert sc["next_step"] == 6000.0 and not sc["earned_mechanical"]
+    assert sc["conditions"]["on-ladder"] is True
+    assert sc["conditions"]["closed>=20 (since inception)"] is False
+
+
+def test_scale_check_earned_when_conditions_met():
+    b = gl.new_book()
+    b["realized"] = [{"date": "2026-08-01", "sym": "X", "reason": "TP",
+                      "pnl": 5.0}] * 20            # 20 closed, expectancy +5
+    sc = gl.scale_check(b)
+    assert sc["earned_mechanical"] and sc["next_step"] == 6000.0
+    b["killed"] = {"date": "x", "reason": "KILL-A"}   # a kill blocks it
+    assert not gl.scale_check(b)["earned_mechanical"]
+
+
+def test_check_scale_passes_at_base_and_no_book(tmp_path):
+    import gambit_validate as gv
+    assert gv.check_scale(root=tmp_path) == []     # no book → nothing to guard
+    (tmp_path / "gambit_live_book.json").write_text(
+        json.dumps(gl.new_book()))                 # base 3000, no A5 needed
+    assert gv.check_scale(root=tmp_path) == []
+
+
+def test_check_scale_fails_off_ladder_and_unsigned_step(tmp_path):
+    import gambit_validate as gv
+    bp = tmp_path / "gambit_live_book.json"
+    # off-ladder amount → fail
+    bp.write_text(json.dumps(dict(gl.new_book(), contributed=5000.0)))
+    fails = gv.check_scale(root=tmp_path)
+    assert any("OFF the pre-registered ladder" in f for f in fails)
+    # on a step (6000) but no dated A5 owner line → fail
+    bp.write_text(json.dumps(dict(gl.new_book(), contributed=6000.0)))
+    assert any("without a dated AMENDMENT_A5" in f
+               for f in gv.check_scale(root=tmp_path))
+    # add a dated owner line naming the step → passes
+    (tmp_path / "AMENDMENT_A5.md").write_text(
+        "2026-11-02 — owner: scale the sleeve to US$6,000 (6k), "
+        "preconditions met per --scale-check.")
+    assert gv.check_scale(root=tmp_path) == []
