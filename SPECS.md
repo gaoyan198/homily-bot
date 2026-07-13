@@ -52,6 +52,7 @@ frozen (EXECUTION §0), every gate restated before coding.
 | #95 flywheel skim (`gambit_live.maybe_skim` + homily buyday/swing wiring) | 2026-07-12 | gambit pytest (6 new live cases, 86 total green) + homily validate [51]; quarter-end skim, kill-safe (contributed/realized untouched), baseline=contributed (§8.5), PLAYBOOK §7/§9 + A5 amended; goldens untouched |
 | #96 A5 A/B reader (`gambit/gambit_ab.py`, wired into `homily_swing.monthly_block`) | 2026-07-12 | gambit pytest `test_gambit_ab.py` (9 cases) + homily validate [51]; read-only stop-cost attribution vs the paper leg, verdict gated 26wk/20-closed, report-only; goldens untouched |
 | #98 swing scale ladder (`gambit_live.SCALE_STEPS`/`scale_check` + `gambit_validate.check_scale`) | 2026-07-12 | gambit pytest 4 cases + `gambit_validate` [SCALE]; K6-pattern CI guard — off-ladder or unsigned-step fails; `--scale-check` advisor; policy in gambit PRD §3.5; pure constraint, no R10 slot |
+| #97 cross-book lens (`homily_clusters.combined_view` + `gambit_live.overlap_warning`) | 2026-07-12 | homily validate [36] + gambit pytest 2 cases; swing+ESPP folded into #29 (correlation math untouched), combined line only when it deepens the top cluster; sheet warning on >2 shared names; info-only, goldens untouched |
 
 ## 1 · Remaining queue (updated 2026-07-12)
 

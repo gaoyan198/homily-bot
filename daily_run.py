@@ -297,7 +297,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev="", household=""):
+                  lev="", household="", cross_book=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -346,6 +346,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         stars = [s.ticker for s, _c, _y in sigs
                  if s.state == "ACCUMULATE" and s.ticker in pos]
         lines += [ln for ln in homily_clusters.render(conc, stars, esc)]
+        # #97: the cross-book view (swing + ESPP), only when it says something
+        if cross_book:
+            lines += list(cross_book)
 
     if buyday:
         # #31: on the first trading day of the month the copilot's 🛒 order
@@ -611,11 +614,34 @@ def build_digest(flex_notes=None):
         print(f"[leverage] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched
     # bars; both non-fatal, both info-only.
-    br, conc = None, None
+    br, conc, cross_book = None, None, None
     try:
         br = breadth(sigs + disco, all_bars)
         prices_held = {s.ticker: s.chips.last for s, _c, _y in sigs}
         conc = homily_clusters.concentration(all_bars, POSITIONS, prices_held)
+        # #97 (G5): fold the swing sleeve's open positions + external ESPP
+        # into the lens — exposures holdings.json can't see. Value = deployed
+        # basis (swing) / external balance (ESPP); sector from holdings where
+        # the name overlaps, else "other". Correlation math untouched.
+        extra = []
+        live = homily_swing.load_live()
+        for sym, p in ((live or {}).get("positions") or {}).items():
+            extra.append({"ticker": sym, "book": "swing",
+                          "value": float(p.get("basis") or 0.0),
+                          "sector": POSITIONS.get(sym, {}).get("sector",
+                                                               "other")})
+        try:
+            _cb = homily_household.load_contributions().get("balances", {})
+            espp = float(_cb.get("espp_external_usd") or 0.0)
+        except Exception:
+            espp = 0.0
+        if espp > 0:
+            extra.append({"ticker": "V", "book": "espp", "value": espp,
+                          "sector": POSITIONS.get("V", {}).get("sector",
+                                                               "payments")})
+        if conc and extra:
+            cross_book = homily_clusters.combined_render(
+                homily_clusters.combined_view(conc, extra), esc)
     except Exception as e:
         print(f"[lens] skipped: {e}")
     # #78: dip-day counter for held/watch rows in an intact weekly RED.
@@ -638,7 +664,8 @@ def build_digest(flex_notes=None):
                            daily_refine(bars_map=all_bars), errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
-                           breadth_read=br, conc=conc, flex_notes=flex_notes,
+                           breadth_read=br, conc=conc, cross_book=cross_book,
+                           flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household)
     # #15 state-change alerts: diff today's states against yesterday's ledger

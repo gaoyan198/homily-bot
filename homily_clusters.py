@@ -111,6 +111,79 @@ def concentration(all_bars, positions, prices):
     return {"clusters": out, "book": book}
 
 
+def combined_view(conc, extra):
+    """#97 / D-97 — the cross-book view (G5's named risk instrumented).
+
+    `conc` is the CORE concentration() output; `extra` is a list of
+    {"ticker","sector","value","book"} for the swing sleeve's open positions
+    and the external ESPP shares — the exposures #29's holdings-only lens
+    cannot see. The correlation math (`corr`/`components`) is UNTOUCHED: the
+    extras join by ticker membership or by their declared sector label (they
+    usually lack 90d bars in a homily run), never by a new correlation. This
+    is input assembly, not a new signal.
+
+    -> {"rows":[{label, core_pct, comb_pct, tickers, added, overlap}...] desc
+    by combined %, "combined_book", "overlap_names"} or None when there is
+    nothing extra to fold in."""
+    if not conc or not extra:
+        return None
+    core_book = conc["book"]
+    extra_val = sum(e["value"] for e in extra if e.get("value"))
+    if core_book <= 0 or extra_val <= 0:
+        return None
+    combined_book = core_book + extra_val
+    clusters = [dict(c, cval=c["pct"] / 100.0 * core_book)
+                for c in conc["clusters"]]
+    added = [0.0] * len(clusters)
+    overlap = [[] for _ in clusters]
+    for e in extra:
+        v = e.get("value") or 0.0
+        for i, c in enumerate(clusters):
+            if e["ticker"] in c["tickers"] or e.get("sector") == c["label"]:
+                added[i] += v
+                if e["ticker"] in c["tickers"]:
+                    overlap[i].append(e["ticker"])
+                break
+    rows = []
+    for i, c in enumerate(clusters):
+        rows.append({
+            "label": c["label"],
+            "core_pct": 100.0 * c["cval"] / core_book,
+            "comb_pct": 100.0 * (c["cval"] + added[i]) / combined_book,
+            "tickers": c["tickers"], "added": added[i],
+            "overlap": overlap[i]})
+    rows.sort(key=lambda r: (-r["comb_pct"], r["label"]))
+    return {"rows": rows, "combined_book": combined_book,
+            "overlap_names": sorted({t for o in overlap for t in o})}
+
+
+def combined_render(cv, esc):
+    """-> digest lines for the cross-book view, or [] when the swing sleeve
+    and ESPP don't change the core picture (silent by default — a line only
+    when it says something new). Info-only."""
+    if not cv or not cv["rows"]:
+        return []
+    top = cv["rows"][0]
+    # speak only when swing/ESPP actually DEEPENED the dominant cluster — a
+    # disjoint add that merely dilutes the denominator is not news (the core
+    # lens already reported it). `added <= 0` → silent.
+    if top["added"] <= 0 or (top["comb_pct"] - top["core_pct"] < 1.0
+                             and top["comb_pct"] <= WARN_PCT):
+        return []
+    lines = [f"🔗 across both books: {esc(top['label'])} "
+             f"{top['core_pct']:.0f}% core → {top['comb_pct']:.0f}% with "
+             f"swing+ESPP (of ${cv['combined_book']:,.0f})"]
+    if top["comb_pct"] > WARN_PCT and len(top["tickers"]) > 1:
+        lines.append(f"⚠️ combined {esc(top['label'])} exposure "
+                     f"{top['comb_pct']:.0f}% > {WARN_PCT:.0f}% across both "
+                     "books (G5) — a swing entry here doubles the core bet; "
+                     "info only, the rotation is unchanged")
+    if cv["overlap_names"]:
+        lines.append(f"　same name in both books: "
+                     f"{esc(' '.join(cv['overlap_names']))} (G5 max-2 watch)")
+    return lines
+
+
 def render(conc, stars, esc):
     """-> list of digest lines: the cluster line + (maybe) the ⭐ nudge.
     `stars` = today's ⭐ tickers among held names."""

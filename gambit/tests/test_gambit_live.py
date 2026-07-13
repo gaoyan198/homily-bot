@@ -268,3 +268,21 @@ def test_check_scale_fails_off_ladder_and_unsigned_step(tmp_path):
         "2026-11-02 — owner: scale the sleeve to US$6,000 (6k), "
         "preconditions met per --scale-check.")
     assert gv.check_scale(root=tmp_path) == []
+
+
+# --- #97 cross-book overlap warning (D-97 / G5) ----------------------------
+
+def test_overlap_warning_fires_above_two_shared_names():
+    book = {"positions": {"NVDA": {}, "MU": {}},
+            "pending": [{"side": "BUY", "sym": "AMD", "reason": "ROTATE"}]}
+    core = {"NVDA", "MU", "AMD", "TSM", "AAPL"}     # 3 shared incl. the buy
+    w = gl.overlap_warning(book, core)
+    assert "CROSS-BOOK" in w and "AMD" in w and "NVDA" in w and "MU" in w
+
+
+def test_overlap_warning_silent_at_two_or_fewer_and_no_core():
+    book = {"positions": {"NVDA": {}, "MU": {}}, "pending": []}
+    assert gl.overlap_warning(book, {"NVDA", "MU", "TSM"}) == ""   # exactly 2
+    assert gl.overlap_warning(book, set()) == ""                   # core unknown
+    assert gl.overlap_warning({"positions": {}, "pending": []},
+                              {"NVDA"}) == ""

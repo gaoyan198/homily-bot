@@ -285,6 +285,27 @@ def maybe_skim(book, qqq, as_of, rows):
     return s
 
 
+def overlap_warning(book, core_tickers):
+    """#97 / D-97 (G5) — the order-sheet cross-book warning. Both books draw
+    from the same AI/semi cluster, so a name held in BOTH gaps the core book
+    AND this levered sleeve in the same week. Warns when the swing book —
+    including this week's pending BUYs — would hold more than 2 names the
+    core book also holds. Info-only: the owner decides, the S1 rotation and
+    the §4.1 signal budget are untouched (a warning is not an input). "" when
+    quiet or when the core book isn't known."""
+    if not core_tickers:
+        return ""
+    core = {str(t).upper() for t in core_tickers}
+    held = set(book.get("positions", {}))
+    buys = {p["sym"] for p in book.get("pending", []) if p["side"] == "BUY"}
+    overlap = sorted(t for t in (held | buys) if str(t).upper() in core)
+    if len(overlap) > 2:
+        return ("  ⚠️ CROSS-BOOK (G5): swing overlaps the core book on "
+                + ", ".join(overlap) + " (>2) — a shared name gaps both books "
+                "at once; the owner decides, the rotation is unchanged")
+    return ""
+
+
 def scale_check(book):
     """#98 / D-98 — is the NEXT bankroll step earned? Evaluates the MECHANICAL
     preconditions from the live book alone; the owner runs `gambit_live.py
@@ -326,7 +347,7 @@ def scale_check(book):
 
 
 def live_step(book, paper, series, qqq, regime_label, as_of, *,
-              margin_zero=False):
+              margin_zero=False, core_tickers=None):
     """One weekly advance. Returns (order_sheet_text, journal_rows).
     Mutates `book` in place. Idempotent per Friday like the paper step."""
     rows = []
@@ -352,7 +373,8 @@ def live_step(book, paper, series, qqq, regime_label, as_of, *,
                          "symbol": prop["sym"], "side": "BUY",
                          "reason_code": prop["reason"],
                          "regime": regime_label})
-        return _sheet(book, series, regime_label, as_of), rows
+        return _sheet(book, series, regime_label, as_of,
+                      core_tickers=core_tickers), rows
 
     # weekly financing on borrowed cash (booked before anything trades)
     days = max(0, (as_of - _date(book["last_processed"])).days)
@@ -368,10 +390,11 @@ def live_step(book, paper, series, qqq, regime_label, as_of, *,
     # #95: bank the quarter's profit AFTER the kill check (a skim can only
     # move equity toward KILL-A, never away — done last, on the marked book)
     maybe_skim(book, qqq, as_of, rows)
-    return _sheet(book, series, regime_label, as_of), rows
+    return _sheet(book, series, regime_label, as_of,
+                  core_tickers=core_tickers), rows
 
 
-def _sheet(book, series, regime_label, as_of):
+def _sheet(book, series, regime_label, as_of, core_tickers=None):
     """The owner's Monday order sheet + status (the 5-minute artifact)."""
     L = LADDER.get(regime_label, 1.0)
     eq = _equity(book, series, as_of)
@@ -407,6 +430,10 @@ def _sheet(book, series, regime_label, as_of):
     else:
         lines.append("  no orders this week — a quiet week is the system "
                      "working")
+    # #97 (G5): warn when the two books would share more than 2 names
+    ow = overlap_warning(book, core_tickers)
+    if ow:
+        lines.append(ow)
     # #95: a fresh skim this week → the owner sweeps it to the DCA
     if book.get("skims") and book["skims"][-1]["date"] == _iso(as_of):
         sk = book["skims"][-1]

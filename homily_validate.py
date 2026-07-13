@@ -1174,7 +1174,28 @@ assert len(homily_clusters.render(_conc36, ["C"], lambda x: x)) == 1, \
 assert homily_clusters.corr({}, {}) is None
 _short36 = {d: 0.01 for d in range(30)}
 assert homily_clusters.corr(_short36, _short36) is None
-print("[36] Clusters: ρ≥0.6 blocks recovered, value weights, ⭐ nudge ..... PASS")
+# #97 cross-book: the core book is A+B semis 70% / C+D soft 25% / E 5% on a
+# $100 book (shares 1). Fold in a swing position deepening the semis cluster
+# (ticker A overlap + a same-sector name) → semis rises, warning fires.
+_extra97 = [{"ticker": "A", "book": "swing", "value": 40.0, "sector": "semis"},
+            {"ticker": "Z", "book": "swing", "value": 20.0, "sector": "semis"}]
+_cv97 = homily_clusters.combined_view(_conc36, _extra97)
+_top97 = _cv97["rows"][0]
+assert _top97["label"] == "semis" and _top97["comb_pct"] > _top97["core_pct"], \
+    "swing semis exposure must deepen the semis cluster"
+assert _cv97["overlap_names"] == ["A"], "A is held in both books (G5 watch)"
+_cr97 = homily_clusters.combined_render(_cv97, lambda x: x)
+assert any("core →" in ln and "semis" in ln for ln in _cr97)
+assert any("across both books (G5)" in ln for ln in _cr97), \
+    "combined >60% must raise the G5 warning"
+# disjoint / empty extra → silent (no line invented)
+assert homily_clusters.combined_view(_conc36, []) is None
+assert homily_clusters.combined_render(None, lambda x: x) == []
+_dis97 = [{"ticker": "Q", "book": "swing", "value": 1.0, "sector": "biotech"}]
+assert homily_clusters.combined_render(
+    homily_clusters.combined_view(_conc36, _dis97), lambda x: x) == [], \
+    "a tiny disjoint add that changes nothing stays silent"
+print("[36] Clusters: ρ≥0.6 blocks + #97 cross-book view + G5 warning ..... PASS")
 
 # --- 37. Sunday deep-dive (#33): fetch-free weekly summary ------------------
 import homily_weekly

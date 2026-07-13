@@ -66,9 +66,18 @@ def main():
     regime_label = homily_regime.market_regime().label
     margin_zero = os.getenv("MARGIN_ZERO", "").lower() in ("1", "true",
                                                            "yes", "on")
+    # #97 (G5): the core book's tickers, so the sheet can warn on cross-book
+    # overlap. Read-only; a missing/other-format holdings file just disables
+    # the warning (core_tickers stays empty).
+    try:
+        import homily_positions
+        core_tickers = set(homily_positions.load_positions())
+    except Exception:
+        core_tickers = set()
     sheet, rows = gambit_live.live_step(book, paper, series, qqq,
                                         regime_label, as_of,
-                                        margin_zero=margin_zero)
+                                        margin_zero=margin_zero,
+                                        core_tickers=core_tickers)
     if rows:
         gj.append_rows(JOURNAL, rows)
     gj.save_snapshot(BOOK, book)
