@@ -50,6 +50,7 @@ COLUMNS = [
     "rs12_rank",
     "origin",
     "whale_rank",
+    "candle",
 ]
 
 
@@ -90,6 +91,11 @@ def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None, origin=None):
         "wk_score": s.weekly.score,
         "wk_weeks": s.weekly.weeks_in_regime,
         "monthly_up": bool(s.monthly_up),
+        # #101: the DAILY candle (RED/YELLOW/NEUTRAL) the digest already renders
+        # (dY + the #78 pullback clock) but never persisted — wk_circle above is
+        # the WEEKLY circle, a different signal. END-appended CSV column; forward
+        # rows only, so a daily-candle event study can replay from the log.
+        "candle": s.candle,
         "vh_status": (s.vol_hole.status if s.vol_hole else None),
         "whale": bool(s.whale.whale),
         "absorption": bool(s.whale.absorption),

@@ -955,7 +955,8 @@ _w31 = [_wst("HOT", "ACCUMULATE", True, True, True, 0.1),
 _wr31 = homily_ledger.whale_ranks(_w31)
 assert _wr31 == {"HOT": 1, "TIE": 2, "TIE2": 3, "MID": 4, "HOLD": None}, \
     f"intensity desc, RS12 tiebreak, non-candidates blank: {_wr31}"
-assert homily_ledger.COLUMNS[-1] == "whale_rank", "END-appended (#80)"
+assert homily_ledger.COLUMNS.index("whale_rank") \
+    > homily_ledger.COLUMNS.index("origin"), "END-appended (#80)"
 
 # forward-checker on a synthetic ledger: top-3 name compounds +1%/row,
 # other name flat -> PASS; swap the ranks -> FAIL; tiny window -> INSUFFICIENT
@@ -1844,5 +1845,41 @@ _w53 = homily_swing.live_block(dict(_bk51, warned_80="2026-09-20"))
 assert "KILL-A PROXIMITY" in _w53 and "do not average down" in _w53, _w53
 assert "KILL-A PROXIMITY" not in homily_swing.live_block(_bk51)  # not flagged
 print("[53] #99 ops-readiness: blockers line + KILL-A proximity warning ... PASS")
+
+# --- 54. #101 daily-candle column in the ledger: END-appended, forward-only --
+# daily_candle() (RED/YELLOW/NEUTRAL) is the one engine output the digest
+# renders (dY + the #78 pullback clock) yet never persisted — wk_circle is the
+# WEEKLY circle, a different signal. Pure measurement: the column feeds a later
+# daily-candle event study and gates nothing. The append changed the guard-#62
+# hash serialisation; the checkpoint was regenerated DELIBERATELY in this commit
+# (same pattern as origin [29] / whale_rank [31]).
+assert homily_ledger.COLUMNS[-1] == "candle", "candle END-appended (#101)"
+assert homily_ledger.COLUMNS.index("candle") \
+    > homily_ledger.COLUMNS.index("whale_rank"), "after the earlier columns"
+_sig54, _conv54, _ = _up("CDL")
+assert _sig54.candle in ("RED", "YELLOW", "NEUTRAL"), _sig54.candle
+_st54 = homily_ledger.state_of(_sig54, _conv54, True, fund=_fund)
+assert _st54["candle"] == _sig54.candle, \
+    "the DAILY candle must land in the state dict verbatim"
+_d54 = datetime.date(2026, 7, 14)
+assert homily_ledger.csv_row(_st54, _d54)["candle"] == _sig54.candle, \
+    "candle must flatten into the CSV row"
+# round-trip through the real append/verify path; history still verifies with
+# the new column covered from day one (mirrors [29])
+with tempfile.TemporaryDirectory() as _tmp54:
+    _lg54 = os.path.join(_tmp54, "ledger.csv")
+    _hf54 = os.path.join(_tmp54, "hash.json")
+    homily_ledger.append_rows([homily_ledger.csv_row(_st54, _d54)], _d54,
+                              ledger=_lg54, hashfile=_hf54)
+    _d54b = datetime.date(2026, 7, 15)
+    homily_ledger.append_rows([homily_ledger.csv_row(_st54, _d54b)], _d54b,
+                              ledger=_lg54, hashfile=_hf54)
+    assert [r["candle"] for r in homily_ledger._read_rows(_lg54)] \
+        == [_sig54.candle, _sig54.candle], "candle persists through round-trip"
+    homily_ledger.verify_history(ledger=_lg54, hashfile=_hf54)
+# the committed checkpoint itself verifies with candle in COLUMNS (regen was
+# deliberate, this commit) — a live guard on the real ledger, not just fixtures
+homily_ledger.verify_history()
+print("[54] #101 daily-candle: END-appended column, forward-only, R3 clean .. PASS")
 
 print("\nAll structural assertions passed.")
