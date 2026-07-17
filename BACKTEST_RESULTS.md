@@ -727,3 +727,39 @@ minimal-change clause exists precisely to resist that reach.
 QUEUED behind R10 with #79/#67-whale-cap/#20 — next free slot 2027-Q2,
 order per SPECS §1. The digest keeps printing the current rule until
 then.
+
+## 17 · #86 dip war-chest (run 2026-07-17) — NULL on both arms; the instinct closes
+
+`homily_warchest_backtest.py` — D-86's protocol verbatim, rule frozen in
+the design before any run. Fraction f of the monthly dollar accrues to a
+reserve that deploys whole on the first qualifying dip event (fresh ⭐ ·
+fresh 🔵 · ⚪+🎯+🐳 capped 2% · 🟡+🎯), stale tranches sweep to the index
+after k months; grid f∈{25,50}% × k∈{2,3,6}, both deployment rules
+(equal-all pre-rule, rs12-top3 live), fund-unit NAV, 10 bps.
+
+Universe B (honest control), MOIC vs the f=0 baseline:
+
+| window | arm | baseline | best war-chest cell |
+|---|---|---|---|
+| 2020→2025 | equal-all | 1.71 | 1.65 (all cells lose) |
+| 2020→2025 | rs12-top3 | 1.89 | 1.79 (all cells lose) |
+| 2021→2026 | equal-all | 1.70 | 1.65 (all cells lose) |
+| 2021→2026 | rs12-top3 | 1.82 | 1.74 (all cells lose) |
+| 2016→2026 | equal-all | 2.76 | 2.65 (all cells lose) |
+| 2016→2026 | rs12-top3 | 10.24 (A) / — | see log; B cells lose |
+
+**VERDICT (D-86's rule, mechanically applied): NULL on both arms — no
+(f,k) cell wins ≥2 of 3 read windows.** On the honest control every
+single cell LOSES to just deploying the money; bigger f loses more
+(f=50% turned 2021→2026 CAGR negative). Universe A shows scattered tiny
+wins (hindsight, not evidence).
+
+**The structural finding that kills the idea more thoroughly than the
+MOIC table:** k never mattered — every (f,·) column is identical. With
+a ~30-name screen, a qualifying dip event fires essentially every
+month, so the reserve deploys almost immediately and "ammunition" never
+accumulates. The war-chest premise assumes dips are SCARCE; in this
+system they are the most common event there is. This is §5f's per-name
+lesson at the budget level, now measured: waiting costs, the discount
+never arrives scarce enough to pay for the wait. Fourth measurement
+pointing the same way; the idea closes beside §5f per the design.
