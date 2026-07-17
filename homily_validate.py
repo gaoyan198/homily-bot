@@ -2014,4 +2014,48 @@ assert _ln57 in _w57 and \
     "the footer line must add itself and change NOTHING else"
 print("[57] #88 top-3 turnover: month-scoped, buy-day ref, additive footer .. PASS")
 
+# --- 58. #73 digest line budget: the header zone is CAPPED by CI ------------
+# The wall-of-text happened by additive-only growth; the budget makes the
+# standing rule mechanical: a new digest feature must displace a line or
+# live on the dashboard (#36). Zone under budget = everything above the
+# first state-group heading (title, regime, ladder, ops, breadth, lens,
+# cross-book — the lines every single digest carries). Cadenced blocks
+# (buy-day/bear-rehearsal/household/promotions) are exempt: they earn their
+# rows a few days a month. Checked on the committed goldens AND on a
+# synthetic fully-loaded header so a line invisible to the fixtures (#99's
+# ops line, #91's ladder) still counts.
+_BUDGET73 = 12
+_GROUPS73 = ("⭐", "🟢", "🟡", "🔵", "⚪")
+
+
+def _header_zone(text):
+    out = []
+    for ln in text.split("\n"):
+        if ln.startswith("<b>") and any(ic in ln for ic in _GROUPS73):
+            break
+        if ln.strip():
+            out.append(ln)
+    return out
+
+
+for _n73 in ("populated", "empty", "corp"):
+    _t73 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "tests", f"digest_{_n73}.golden.txt")).read()
+    _hz73 = _header_zone(_t73)
+    assert len(_hz73) <= _BUDGET73, \
+        (f"[58] golden '{_n73}' header zone {len(_hz73)} lines > budget "
+         f"{_BUDGET73}: {_hz73}")
+    assert "<blockquote expandable>" in _t73, "legend must stay collapsed"
+# fully-loaded standing header: BULL + ladder + ops + hostile breadth
+_ops58 = _ops.ops_line({"MARGIN_BALANCE": "9,800"}, esc=lambda x: x)
+_lev58 = homily_leverage.leverage_line("BULL", False, esc=lambda x: x)
+_full58 = daily_run.render_digest(
+    [_up("AAA")], [], {}, _B55, _R55, [], _T55, fund=_f55,
+    lev=_lev58, ops=_ops58,
+    breadth_read={"above200": 20.0, "red": 10.0, "n": 60})
+_hz58 = _header_zone(_full58)
+assert 0 < len(_hz58) <= _BUDGET73, \
+    f"[58] fully-loaded header {len(_hz58)} lines > budget: {_hz58}"
+print("[58] #73 line budget: header zone capped at 12, goldens + full load .. PASS")
+
 print("\nAll structural assertions passed.")
