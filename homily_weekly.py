@@ -33,6 +33,57 @@ def week_rows(rows, week_end):
     return [r for r in rows if lo <= r["date"] <= hi]
 
 
+def _last_state_by_ticker(rows):
+    """ticker -> its latest row within `rows` (the week's closing word)."""
+    out = {}
+    for r in sorted(rows, key=lambda r: r["date"]):
+        out[r["ticker"]] = r
+    return out
+
+
+def week_diff(rows, week_end):
+    """#54: what CHANGED since last week — this week's closing row vs last
+    week's, per ticker, across everything screened (not just held). Pure
+    ledger read; '' when either week is empty (holiday/bootstrap weeks).
+    Reported: state transitions, 🚀-gate flips, the top-3 ⭐ set move, and
+    names that entered/left the screen."""
+    this_wk = _last_state_by_ticker(week_rows(rows, week_end))
+    prev_wk = _last_state_by_ticker(week_rows(
+        rows, week_end - datetime.timedelta(days=7)))
+    if not this_wk or not prev_wk:
+        return ""
+    changes, gate_flips = [], []
+    for tk in sorted(set(this_wk) & set(prev_wk)):
+        a, b = prev_wk[tk], this_wk[tk]
+        if a["state"] != b["state"]:
+            changes.append(f"{tk} {ICON.get(a['state'], '·')}→"
+                           f"{ICON.get(b['state'], '·')}")
+        if a.get("gates_ok") != b.get("gates_ok"):
+            gate_flips.append(
+                f"{tk} 🚀{'✓' if b.get('gates_ok') == '1' else '✗'}")
+    top3 = lambda wk: sorted(tk for tk, r in wk.items()
+                             if (r.get("rs12_rank") or "").isdigit()
+                             and int(r["rs12_rank"]) <= 3)
+    t0, t1 = top3(prev_wk), top3(this_wk)
+    arrived = sorted(set(this_wk) - set(prev_wk))
+    gone = sorted(set(prev_wk) - set(this_wk))
+    out = []
+    if changes:
+        out.append("state: " + " · ".join(E(c) for c in changes))
+    if gate_flips:
+        out.append("gates: " + " · ".join(E(g) for g in gate_flips))
+    if t1 != t0:
+        out.append(f"top-3 ⭐: {E(' '.join(t0) or '—')} → "
+                   f"{E(' '.join(t1) or '—')}")
+    if arrived:
+        out.append("new to screen: " + E(", ".join(arrived)))
+    if gone:
+        out.append("left screen: " + E(", ".join(gone)))
+    if not out:
+        return ""
+    return "\n".join(["🔁 <b>WHAT CHANGED vs last week</b>"] + out)
+
+
 def weekly_summary(rows, snap, week_end):
     """Pure: this week's ledger rows + the latest snapshot -> the Sunday
     message ('' when the week has no rows — a full-holiday week)."""

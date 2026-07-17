@@ -942,6 +942,14 @@ def sunday_deepdive():
     if not summary:
         print("[weekly] no rows this week — nothing to send")
         return
+    # #54: the week-over-week diff rides the same message — pure ledger
+    # read, '' on bootstrap/holiday weeks, never blocks the summary
+    try:
+        diff = homily_weekly.week_diff(rows, today)
+        if diff:
+            summary = f"{summary}\n\n{diff}"
+    except Exception as e:
+        print(f"[week-diff] skipped: {e}")
     # #83: the committed board already carries Friday's candle charts (built
     # WITH bars by Friday's run); regenerating here without bars would strip
     # them. Only build a fresh one if the file is missing entirely.
