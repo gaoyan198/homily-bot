@@ -78,6 +78,16 @@ Danny's "3–7 trading days" matches the median (4d) but not the spread
 p90 — the same study showed trend failures resolve *faster* than healthy
 pullbacks, so dip age alone never escalates anything.
 
+When a **held** name shows ≥2 concurrent short-term bearish tells (daily
+candle YELLOW, weekly circle AMBER/WHITE, close below a topping-process
+volatility hole), a ⚠️🐻 block consolidates them with dates (#102). Honesty
+note: this block is Danny's pre-correction reading surface, **not** a
+predictive signal of ours — the same repo *measured* VH breakdowns running
+above-baseline forward and long dips resolving faster, and those nulls are
+printed inside the block itself. It changes no DCA, buy-day, or copilot
+output (validate [55] asserts the render is byte-identical without it);
+its only job is context at the moment of a manual or margin decision.
+
 Rocket and discovery rows also carry `Q1/Q2/Q3` — a sticky quality tier
 (quarterly EDGAR read + 3y RS, frozen between refreshes,
 `homily_quality.py`, #66). It is a LABEL and nothing more: its gate

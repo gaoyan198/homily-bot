@@ -36,6 +36,7 @@ import homily_swing
 import homily_leverage
 import homily_household
 import homily_ops
+import homily_bearish
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -298,7 +299,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev="", household="", cross_book=None, ops=""):
+                  lev="", household="", cross_book=None, ops="", bear=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -395,6 +396,13 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                 lines.append(f"　⚠️ <b>{esc(fl)}</b>")
         if s.ticker in proxy:
             lines.append(proxy[s.ticker])
+
+    # #102: the consolidated bearish tells over held names — preformatted by
+    # homily_bearish.block(), printed right under the rows it summarises.
+    # Info-only by design AND by evidence (the nulls are in the block text);
+    # nothing downstream reads it.
+    if bear:
+        lines += ["", bear]
 
     # multi-bagger watch: stringent 5-gate screen across EVERYTHING
     rockets = sorted([(s, c) for s, c, _ in sigs + disco if c.gates_ok],
@@ -664,6 +672,14 @@ def build_digest(flex_notes=None):
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
         print(f"[dips] skipped: {e}")
+    # #102: short-term bearish tells on held names — pure read of the sigs +
+    # bars this run already fetched; prints only on >=2 concurrent tells.
+    # Non-fatal, info-only, feeds nothing downstream.
+    bear = ""
+    try:
+        bear = homily_bearish.block(sigs, all_bars, set(HOLDINGS), esc=esc)
+    except Exception as e:
+        print(f"[bearish] skipped: {e}")
     # #66: sticky quality tier, quarterly-cached EDGAR read + 3y RS from the
     # bars already fetched. Info-only label; quality_tag never raises.
     spy_cl = [b[4] for b in spy_bars]
@@ -678,7 +694,7 @@ def build_digest(flex_notes=None):
                            breadth_read=br, conc=conc, cross_book=cross_book,
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
-                           lev=lev, household=household, ops=ops)
+                           lev=lev, household=household, ops=ops, bear=bear)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

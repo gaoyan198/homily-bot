@@ -170,6 +170,7 @@ itself — receipts in `BACKTEST_RESULTS.md`):
 | VH breakdown warning | null — printed as context only |
 | 🐳 accumulation | gate PASSED → the one ⚪ exception (§5h) |
 | dip/run counters, % in profit, Q/F labels | info-only, gate nothing |
+| ⚠️🐻 bearish-tells block (digest, #102) | confluence of the tells above on a held name — pure context for manual/margin decisions; its components measured null-or-context individually, and it gates nothing |
 | conviction tier labels | null (§11) — read the number, not the label |
 
 ## 8 · Looking up any stock
