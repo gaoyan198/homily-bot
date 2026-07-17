@@ -48,6 +48,11 @@ class Conviction:
     rs12: float          # 12m excess return vs SPY, points
     dvol: float          # avg 20d dollar volume
     parts: dict          # component -> points, for the digest/page
+    rs6: float = 0.0     # 6m excess return vs SPY, points — #89: exposed
+                         # (END-appended, default keeps old constructors
+                         # valid) so the ledger can pin an rs6_rank; the
+                         # score already consumed it via "rel strength",
+                         # nothing else changes
 
 
 def _ret(closes, n):
@@ -100,7 +105,7 @@ def conviction(sig, bars, spy_closes, *, adj=None, spy_adj=None):
     tier = ("CONVICTION" if score >= 75 else
             "STARTER" if score >= 60 else "fails")
     return Conviction(score, tier if not failed else "fails",
-                      not failed, failed, rs12, dvol, p)
+                      not failed, failed, rs12, dvol, p, rs6)
 
 
 if __name__ == "__main__":
