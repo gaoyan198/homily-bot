@@ -1882,4 +1882,67 @@ with tempfile.TemporaryDirectory() as _tmp54:
 homily_ledger.verify_history()
 print("[54] #101 daily-candle: END-appended column, forward-only, R3 clean .. PASS")
 
+# --- 55. #102 bearish-tells block: >=2 dated tells, held-only, additive ------
+# The tells Danny reads pre-correction, consolidated info-only over HELD
+# names. Three gate clauses under test: (a) the block renders ONLY when a
+# held name shows >= TELLS_MIN concurrent tells; (b) the digest with the
+# block is the digest without it plus the block, byte-for-byte — nothing
+# else moves, so the buy-day/copilot text cannot be affected; (c) tells
+# carry dates read from the same bars the run fetched.
+import dataclasses
+import homily_bearish
+from homily_golden import (_up as _up55, _bars as _bars55, _sig as _mk55,
+                           BULL as _B55, REFINE as _R55, TODAY as _T55,
+                           _fund as _f55)
+from homily_danny import daily_candle as _dc55
+# a long downtrend whose last 15 days ACCELERATE: the weekly circle is WHITE
+# and the daily candle YELLOW (a plain geometric decay converges to hist>0 =
+# NEUTRAL — the acceleration is what re-arms the daily tell)
+_dnpx55 = [100 * 0.997 ** i for i in range(885)]
+_dnpx55 += [_dnpx55[-1] * 0.985 ** (k + 1) for k in range(15)]
+_dnbars55 = _bars55(_dnpx55, [1e6] * 900)
+_sig55 = danny_signal("BBB", _dnbars55)
+_t55 = homily_bearish.tells(_sig55, _dnbars55)
+assert len(_t55) >= 2 and any(x.startswith("candle YELLOW") for x in _t55) \
+    and any(x.startswith("wk ") for x in _t55), _t55
+# YELLOW dating is self-consistent on a fresh flip (flat -> 15 down days):
+# the prefix ending the day BEFORE the dated start was not YELLOW
+_flip55 = _bars55([100.0] * 200 + [100 - 1.5 * (k + 1) for k in range(15)],
+                  [1e6] * 215)
+_ys55 = homily_bearish.yellow_since(_flip55)
+_yi55 = [b[0] for b in _flip55].index(_ys55)
+assert _yi55 >= 200 and _dc55([b[4] for b in _flip55[:_yi55]]) != "YELLOW"
+# VH↓ topping tell: uptrend -> volatility hole -> close below its lower
+# boundary; the tell is dated to the FIRST close below (bar 810 here)
+_uppx55 = [100 * 1.003 ** i for i in range(800)]
+_tb55 = _vbars([(p, p * 0.03) for p in _uppx55]
+               + [(_uppx55[-1], _uppx55[-1] * 0.002)] * 10
+               + [(_uppx55[-1] * 0.95, _uppx55[-1] * 0.01)] * 3)
+_ts55 = danny_signal("TOP", _tb55)
+assert _ts55.vol_hole and _ts55.vol_hole.status == "BREAKDOWN" \
+    and _ts55.vol_hole.trend_before == "UP"
+_tt55 = homily_bearish.tells(_ts55, _tb55)
+assert any(x.startswith("VH↓ topping ") for x in _tt55), _tt55
+assert homily_bearish.breakdown_since(_tb55, _ts55.vol_hole.lower) \
+    == _tb55[810][0], "VH↓ dates to the first close below the boundary"
+# (a) held-only + confluence: AAA (0 tells) never prints; BBB prints only
+# when held; a single tell (candle stripped) stays silent
+_held55 = sorted([_up55("AAA"), _mk55("BBB", _dnbars55)],
+                 key=lambda x: daily_run.digest_sort_key(x[0], x[1]))
+_bk55 = homily_bearish.block(_held55, {"BBB": _dnbars55}, {"AAA", "BBB"})
+assert "BBB" in _bk55 and "AAA" not in _bk55 and "since" in _bk55, _bk55
+assert "gates nothing" in _bk55, "the honesty text ships inside the block"
+assert homily_bearish.block(_held55, {"BBB": _dnbars55}, {"AAA"}) == ""
+_one55 = dataclasses.replace(_sig55, candle="NEUTRAL")
+assert len(homily_bearish.tells(_one55, _dnbars55)) == 1
+assert homily_bearish.block([(_one55, None, False)], {}, {"BBB"}) == ""
+# (b) additive-only: with-block == without-block + the block, byte-level
+_wo55 = daily_run.render_digest(_held55, [], {}, _B55, _R55, [], _T55,
+                                fund=_f55)
+_w55 = daily_run.render_digest(_held55, [], {}, _B55, _R55, [], _T55,
+                               fund=_f55, bear=_bk55)
+assert _bk55 in _w55 and _w55.replace("\n\n" + _bk55, "", 1) == _wo55, \
+    "the block must add lines and change NOTHING else"
+print("[55] #102 bearish-tells: >=2 dated tells, held-only, additive-only ... PASS")
+
 print("\nAll structural assertions passed.")
