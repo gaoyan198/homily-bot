@@ -242,5 +242,212 @@ def main():
           " docstring — the verdict lines apply it mechanically.")
 
 
+
+# --- #87 · concentration regime conditioner (D-87) — flag-gated arm ---------
+# Appended to homily_selection_backtest.py behind `--conditioner`; the
+# committed run's numbers stay byte-identical (nothing above this line
+# changes, no existing path takes a new parameter).
+#
+# Conditioners are PRE-EXISTING frozen outputs, thresholds pre-registered
+# here before the run (no fitting):
+#   regime  — 3-way 10m-SMA label on SPY+QQQ completed months (the frozen
+#             homily_regime rule on prefix bars); hostile = NOT BULL.
+#   breadth — % of eligible names above their 200d SMA at the month's
+#             first day; hostile = < 30 (the #26 canary's own line).
+#   qqq3m   — trailing 63-trading-day QQQ raw-close return; hostile = < 0.
+#
+# D-87 rule (verbatim): a conditioner earns promotion candidacy ONLY if on
+# BOTH universes top-3 beats equal-all in its favourable state AND loses
+# in its hostile state (sign flip), and the implied conditional strategy
+# (equal-split hostile months, top-3 otherwise) beats always-top-3 by
+# ≥ +0.05 MOIC on ≥2 of the 3 construction-honest windows without losing
+# any. Two passing → the SIMPLER (regime > breadth > qqq3m). None = NULL.
+
+from homily_data import monthly_closes as _mcloses
+
+
+def _label_at(spy, qqq, d):
+    """BULL/BEAR/MIXED at month-first d from completed-month 10m SMAs —
+    the regime_series() arithmetic, kept 3-way."""
+    above = []
+    for bars in (spy, qqq):
+        mos = _mcloses([b for b in bars if b[0] < d.replace(day=1)])
+        if len(mos) < 11:
+            return None
+        above.append(mos[-1] > sum(mos[-10:]) / 10)
+    return "BULL" if all(above) else "BEAR" if not any(above) else "MIXED"
+
+
+def _breadth_at(names, data, d, min_bars=260):
+    vals = []
+    for n in names:
+        closes = [b[4] for b in data[n] if b[0] <= d]
+        if len(closes) < min_bars:
+            continue
+        vals.append(closes[-1] > sum(closes[-200:]) / 200)
+    return 100.0 * sum(vals) / len(vals) if vals else None
+
+
+def _qqq3m_at(qqq, d):
+    closes = [b[4] for b in qqq if b[0] <= d]
+    return (closes[-1] / closes[-64] - 1) if len(closes) > 64 else None
+
+
+def month_tags(names, data, spy, qqq, months):
+    """month -> {"regime": bool_hostile, "breadth": ..., "qqq3m": ...}."""
+    tags = {}
+    for d in months:
+        lb = _label_at(spy, qqq, d)
+        br = _breadth_at(names, data, d)
+        q3 = _qqq3m_at(qqq, d)
+        tags[d] = {
+            "regime": (lb is not None and lb != "BULL"),
+            "breadth": (br is not None and br < 30.0),
+            "qqq3m": (q3 is not None and q3 < 0.0),
+        }
+    return tags
+
+
+def run_selected_monthly(cache, data, spy, win, index_bars, picker_of_month):
+    """run_selected's accounting with a month-aware picker; returns
+    (MOIC, CAGR, MaxDD, [(month, unit_ret)]) so per-state slices can be
+    compounded without a second replay."""
+    months = [spy[i][0] for i in month_first_idx(spy)][1:]
+    months = [m for m in months if win[0] <= m <= win[1]]
+    cash = paid = core = 0.0
+    hold = {}
+    nav, unit_val, units = [], 1.0, 0.0
+    rets = []
+    for d in months:
+        ipx = (close_on(index_bars, d) or 0) if index_bars else 0
+        val = (cash + core * ipx
+               + sum(sh * (close_on(data[n], d) or 0)
+                     for n, sh in hold.items()))
+        new_unit = val / units if units > 0 else 1.0
+        if nav:
+            rets.append((d, new_unit / nav[-1] - 1))
+        unit_val = new_unit
+        nav.append(unit_val)
+        cash += 1.0
+        paid += 1.0
+        units += 1.0 / unit_val
+        picks = picker_of_month(d, cache[d])
+        if picks and cash > 0:
+            per = cash * (1 - COST) / len(picks)
+            for n in picks:
+                px = close_on(data[n], d)
+                if px:
+                    hold[n] = hold.get(n, 0) + per / px
+            cash = 0.0
+        elif index_bars and ipx > 0 and cash > 0:
+            core += cash * (1 - COST) / ipx
+            cash = 0.0
+    d_end = win[1]
+    eipx = (close_on(index_bars, d_end) or 0) if index_bars else 0
+    final = (cash + core * eipx
+             + sum(sh * (close_on(data[n], d_end) or 0)
+                   for n, sh in hold.items()))
+    unit_val = final / units
+    nav.append(unit_val)
+    yrs = len(months) / 12
+    cagr = (nav[-1] / nav[0]) ** (1 / yrs) - 1
+    mdd = min(nav[j] / max(nav[:j + 1]) - 1 for j in range(1, len(nav)))
+    return final / paid, cagr, mdd, rets
+
+
+def _compound(rets, months_in_state):
+    x = 1.0
+    for d, r in rets:
+        if d in months_in_state:
+            x *= 1 + r
+    return x
+
+
+def conditioner_main():
+    spy = fetch_daily("SPY", rng="max")
+    qqq = fetch_daily("QQQ", rng="max")
+    all_months = [spy[i][0] for i in month_first_idx(spy)][1:]
+    span = [m for m in all_months
+            if WINDOWS[0][0] <= m <= WINDOWS[-1][1]]
+    read = sorted(B_READ)
+    flip_ok = {c: True for c in ("regime", "breadth", "qqq3m")}
+    cond_wins = {c: 0 for c in flip_ok}
+    cond_loses = {c: 0 for c in flip_ok}
+
+    for tag, names in (("B", UNIV_B), ("A", UNIV_A)):
+        data, dead = {}, []
+        for n in names:
+            try:
+                data[n] = fetch_daily(n, rng="max")
+            except Exception:
+                dead.append(n)
+        live = [n for n in names if n in data]
+        print(f"\n{'='*74}\n#87 conditioner — universe {tag}"
+              + (f"  (dead: {', '.join(dead)})" if dead else "") + f"\n{'='*74}",
+              flush=True)
+        cache = build_month_cache(live, data, spy, span)
+        tags = month_tags(live, data, spy, qqq, span)
+
+        # sign-flip test over the full span, per conditioner
+        top3 = lambda d, rows: pick_rs(3)(rows)
+        equal = lambda d, rows: pick_all(rows)
+        full = (span[0], span[-1])
+        _, _, _, r3 = run_selected_monthly(cache, data, spy, full, spy, top3)
+        _, _, _, re = run_selected_monthly(cache, data, spy, full, spy, equal)
+        print(f"\n  sign-flip test (full span {full[0]} → {full[1]}):")
+        for c in flip_ok:
+            host = {d for d in span if tags[d][c]}
+            fav = {d for d in span if not tags[d][c]}
+            t3h, t3f = _compound(r3, host), _compound(r3, fav)
+            eqh, eqf = _compound(re, host), _compound(re, fav)
+            flips = t3f > eqf and t3h < eqh
+            flip_ok[c] = flip_ok[c] and flips
+            print(f"    {c:<8} hostile {len(host):>3}mo: top3 {t3h:5.2f} vs"
+                  f" equal {eqh:5.2f} | favourable {len(fav):>3}mo:"
+                  f" top3 {t3f:5.2f} vs equal {eqf:5.2f}"
+                  f"  {'FLIP' if flips else 'no flip'}")
+
+        # conditional strategy vs always-top-3 on the read windows
+        print(f"\n  conditional (equal in hostile) vs always-top3,"
+              f" read windows:")
+        for w0, w1 in read:
+            m3, _, _, _ = run_selected_monthly(cache, data, spy, (w0, w1),
+                                               spy, top3)
+            for c in cond_wins:
+                pk = (lambda cc: lambda d, rows:
+                      pick_all(rows) if tags[d][cc] else pick_rs(3)(rows))(c)
+                mc, _, _, _ = run_selected_monthly(cache, data, spy, (w0, w1),
+                                                   spy, pk)
+                mark = ""
+                if tag == "B":
+                    if mc >= m3 + 0.05:
+                        cond_wins[c] += 1
+                        mark = " (+)"
+                    elif mc < m3:
+                        cond_loses[c] += 1
+                        mark = " (−)"
+                print(f"    [{w0.year}→{w1.year}] {c:<8}"
+                      f" cond {mc:5.2f} vs top3 {m3:5.2f}{mark}", flush=True)
+
+    print(f"\n{'='*74}\nD-87 PRE-REGISTERED VERDICT\n{'='*74}")
+    passing = [c for c in ("regime", "breadth", "qqq3m")
+               if flip_ok[c] and cond_wins[c] >= 2 and cond_loses[c] == 0]
+    if passing:
+        print(f"  PASS: {passing[0]} (simpler-first order) — promotion"
+              " candidacy 2027-Q1+ via registry + demotion rule; nothing"
+              " ships this session")
+    else:
+        print("  NULL — no conditioner cleared both clauses on both"
+              " universes; the live demotion rule remains the only guard;"
+              " item closes")
+
+
+# in __main__: `--conditioner` branches here before the committed main()
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--conditioner" in sys.argv:
+        conditioner_main()          # #87, flag-gated
+    else:
+        main()
