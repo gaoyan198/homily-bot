@@ -70,7 +70,7 @@ immediate deployment; dips are never scarce in a 30-name screen, §17) ·
 §18) · ~~#59~~ (flash-crash pre-script) · ~~#60~~ (data-QA warnings) ·
 ~~#54~~ (Sunday what-changed diff). Earlier same day: ~~#102~~ (bearish
 tells, validate [55]).
-**Still on the shelf, each its own session:** #57 中文 toggle (S in
+**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
 #47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
