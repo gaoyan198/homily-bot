@@ -2125,4 +2125,35 @@ assert "⚠️ data-QA: SPY: tape may be stale" in _w60 and \
     _w60.replace("\n⚠️ data-QA: SPY: tape may be stale", "", 1) == _wo60
 print("[60] #60 data-QA: freshness gap math, stooq parse, tol, additive .... PASS")
 
+# --- 61. #54 weekly what-changed diff: pure ledger read, closing-row diff ----
+import homily_weekly as _hw61
+_r61 = lambda d, tk, st, gates="1", rk="": {
+    "date": d, "ticker": tk, "state": st, "gates_ok": gates, "rs12_rank": rk}
+_rows61 = [
+    # last week (w/e Sun 07-12): AAA ⭐ rank1, BBB ⚪, CCC present
+    _r61("2026-07-06", "AAA", "ACCUMULATE", rk="1"),
+    _r61("2026-07-10", "AAA", "ACCUMULATE", rk="1"),
+    _r61("2026-07-10", "BBB", "CAUTION", gates="0"),
+    _r61("2026-07-10", "CCC", "HOLD"),
+    # this week (w/e Sun 07-19): AAA → HOLD + lost rank, BBB gates flip on,
+    # DDD arrives, CCC gone
+    _r61("2026-07-17", "AAA", "HOLD", rk=""),
+    _r61("2026-07-17", "BBB", "CAUTION", gates="1", rk="1"),
+    _r61("2026-07-17", "DDD", "ACCUMULATE", rk="2"),
+]
+_sun61 = datetime.date(2026, 7, 19)
+_d61 = _hw61.week_diff(_rows61, _sun61)
+assert "AAA ⭐→🟢" in _d61 and "BBB 🚀✓" in _d61, _d61
+assert "top-3 ⭐: AAA → BBB DDD" in _d61, _d61
+assert "new to screen: DDD" in _d61 and "left screen: CCC" in _d61, _d61
+# quiet week (identical closing rows) says nothing; bootstrap week is ""
+_same61 = [_r61("2026-07-10", "AAA", "HOLD"), _r61("2026-07-17", "AAA", "HOLD")]
+assert _hw61.week_diff(_same61, _sun61) == ""
+assert _hw61.week_diff(_rows61[-3:], _sun61) == "", "no prior week -> ''"
+# the diff must not disturb the summary itself (it is appended by the
+# sunday shell, not injected into weekly_summary)
+assert "WHAT CHANGED" not in _hw61.weekly_summary(
+    _rows61, {"holdings": []}, _sun61)
+print("[61] #54 weekly diff: transitions, gate flips, top-3 move, arrivals .. PASS")
+
 print("\nAll structural assertions passed.")

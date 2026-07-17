@@ -539,7 +539,7 @@ armed, designs D-94…D-98, rows below, new proposals start #101):
 | 51 | ~~⚪ time-stop study~~ — **run 2026-07-17, PASSED** (BACKTEST_RESULTS §16): w=2 (~8 weeks) beats the declared 12w on both honest-control windows at no DD cost (B·5y 1.99 vs 1.80, B·10y 2.73 vs 2.55); w=1 passes too but fails minimal-change. §5.2 edit = registry promotion + demotion rule, QUEUED behind R10 (2027-Q2 queue with #79 · whale-cap 1.6% · #20). NOTHING shipped today per Part III rule 5 | M | the study itself; PLAYBOOK edited only after — study PASSED, edit queued |
 | 52 | Inverse-vol sizing within stars | S–M | THE-test rerun; expect a null per §5g |
 | 53 | SGD lens (book return in SGD, USDSGD trend) | S | info-only |
-| 54 | Weekly "what changed" ledger diff | S | needs #13 |
+| 54 | ~~Weekly "what changed" ledger diff~~ — **shipped 2026-07-17** (gate: validate [61]): `homily_weekly.week_diff` — this week's closing row vs last week's per ticker (whole screen, not just held): state transitions, 🚀-gate flips, the top-3 ⭐ set move, screen arrivals/departures; appended to the Sunday message by the fetch-free deep-dive shell, '' on bootstrap/holiday/quiet weeks | S | PASSED — transitions/flips/top-3/arrivals + quiet-week silence |
 | 55 | Breadth cross-check (RSP vs regime; "narrow tape" note) | S | 20y event check or drop |
 | 56 | AI analyst memo (weekly cloud-agent process-QA PR) | M | 4-week trial; keep only if it catches a real issue |
 | 57 | 中文 digest toggle (筹码/主力 native terms) | S | none (presentation) |
