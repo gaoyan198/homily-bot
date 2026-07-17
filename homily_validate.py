@@ -2058,4 +2058,22 @@ assert 0 < len(_hz58) <= _BUDGET73, \
     f"[58] fully-loaded header {len(_hz58)} lines > budget: {_hz58}"
 print("[58] #73 line budget: header zone capped at 12, goldens + full load .. PASS")
 
+# --- 59. #59 flash-crash pre-script: fires at -7%/5d, additive, info-only ----
+_calm59 = [100.0] * 10
+_crash59 = [100.0] * 5 + [100, 99, 96, 94, 92.9]     # -7.1% over 5 sessions
+assert daily_run.crash_line(_calm59) == ""
+assert daily_run.crash_line([100.0] * 3) == ""        # too little history
+_ln59 = daily_run.crash_line(_crash59)
+assert "FLASH-CRASH" in _ln59 and "-7.1%" in _ln59 and "gates nothing" in _ln59
+_edge59 = [100.0] * 5 + [100, 98, 97, 95, 93.0001]    # just above the line
+assert daily_run.crash_line(_edge59) == ""
+# additive-only in the header zone, and the zone stays inside #73's budget
+_wo59 = daily_run.render_digest([_up("AAA")], [], {}, _B55, _R55, [], _T55,
+                                fund=_f55)
+_w59 = daily_run.render_digest([_up("AAA")], [], {}, _B55, _R55, [], _T55,
+                               fund=_f55, crash=_ln59)
+assert _ln59 in _w59 and _w59.replace("\n" + _ln59, "", 1) == _wo59
+assert len(_header_zone(_w59)) <= _BUDGET73, "pre-script must fit the budget"
+print("[59] #59 flash-crash pre-script: -7%/5d trigger, additive, budgeted .. PASS")
+
 print("\nAll structural assertions passed.")

@@ -544,7 +544,7 @@ armed, designs D-94…D-98, rows below, new proposals start #101):
 | 56 | AI analyst memo (weekly cloud-agent process-QA PR) | M | 4-week trial; keep only if it catches a real issue |
 | 57 | 中文 digest toggle (筹码/主力 native terms) | S | none (presentation) |
 | 58 | Behaviour-gap tracker (perfect-PLAYBOOK shadow book vs real) | M | none (measurement) — prices the discipline gap |
-| 59 | Flash-crash pre-script (SPY 5d < −7% psychology note) | S | none (info-only) |
+| 59 | ~~Flash-crash pre-script~~ — **shipped 2026-07-17** (gate: validate [59]; goldens untouched — defaulting kwarg): `crash_line()` fires at SPY ≤ −7% over 5 sessions, prints the calm-day self's instructions (regime banner = only sell authority · DCA on schedule · no margin adds §2 · no off-zone averaging down) in the header zone, inside #73's budget. Info-only | S | PASSED — trigger/edge/too-short cases + additive render + budget fit |
 | 60 | Data-QA cross-check (freshness/Stooq-agreement asserts) | S | validate tests; feeds #17 |
 | 63 | ~~Bear-regime rethink~~ — **RESOLVED 2026-07-10** (§5i; design → `docs/archive/DESIGNS-shipped.md#d-63`) | M | done per D-63's pre-committed rule |
 | 65 | **Mechanical universe construction** — **built + shadow quarter ARMED 2026-07-11** (validate [46]): `universe.json` committed (124 names, L0→L1→L2 per D-65; bulk sources auth-gated → per-name fetches, quarterly `--shard k/N` over CI nights); daily run logs the ~80 non-hand-list names as `shadow-screen` ledger rows, fenced out of ranks/snapshot/digest. Adoption read ~2026-10 | L | one shadow quarter: keeps ≥90% of hand-list ⭐/🔵/🚀 names AND surfaces ≥1 setup the hand list missed; #14 splits scorecard by origin either way |

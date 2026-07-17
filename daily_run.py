@@ -195,6 +195,26 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
 
 MIN_HISTORY = 250   # daily bars below this -> engines aren't warmed up
 
+CRASH_5D = -0.07    # #59: SPY 5-session return at/below this = flash-crash
+
+
+def crash_line(spy_closes):
+    """#59 pre-script, or "". Written on a calm day for a crashed one: the
+    only sell authority is the month-end regime banner; a -7% week is not
+    it. Pure function of the closes the run already fetched."""
+    if len(spy_closes) < 6:
+        return ""
+    r5 = spy_closes[-1] / spy_closes[-6] - 1
+    if r5 > CRASH_5D:
+        return ""
+    return (f"🧯 <b>FLASH-CRASH PRE-SCRIPT</b> — SPY {r5 * 100:+.1f}% in 5 "
+            "sessions. You wrote this on a calm day: the ONLY sell signal "
+            "is the month-end regime banner above — a fast week is not it "
+            "(2020: −30% and back inside a quarter). DCA continues on "
+            "schedule; no margin adds (LEVERAGE.md §2); no averaging down "
+            "outside the printed ⭐ zones; reread PLAYBOOK §4, then close "
+            "the app. Info only — this line gates nothing.")
+
 
 MAX_WORKERS = 4     # #17 / R11: bounded fan-out — a rate-limit ban on the
                     # runner IP would kill EVERY digest, worse than slow.
@@ -300,7 +320,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
                   lev="", household="", cross_book=None, ops="", bear="",
-                  turnover=""):
+                  turnover="", crash=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -340,6 +360,12 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     # #99 ops-readiness: the owner's own unset switches, one standing line
     if ops:
         lines.append(ops)
+    # #59: the flash-crash pre-script — pre-written so the crash-day self
+    # reads the calm-day self's instructions, not the tape. Info-only; the
+    # regime banner above stays the only sell authority. Counts in #73's
+    # header budget (fires a few weeks a decade).
+    if crash:
+        lines.append(crash)
     # #26 breadth canary: one line, only on a hostile tape, info-only
     if breadth_read and breadth_read["above200"] < 30:
         lines.append(f"⚠️ breadth: only {breadth_read['above200']:.0f}% of "
@@ -710,7 +736,7 @@ def build_digest(flex_notes=None):
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household, ops=ops, bear=bear,
-                           turnover=turnover)
+                           turnover=turnover, crash=crash_line(spy))
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
