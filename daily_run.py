@@ -11,6 +11,7 @@ Env: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID (if unset -> prints digest, no send).
 """
 import os, re, html, datetime, urllib.request, urllib.parse, urllib.error
 from concurrent.futures import ThreadPoolExecutor
+import homily_data
 from homily_data import fetch_series
 from homily_danny import danny_signal
 from homily_conviction import conviction
@@ -320,7 +321,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
                   lev="", household="", cross_book=None, ops="", bear="",
-                  turnover="", crash=""):
+                  turnover="", crash="", dataqa=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -469,6 +470,10 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         lines.append(f"📒 book sync: {esc(note)}")
     if errs:
         lines.append(f"⚠️ fetch failed: {esc(', '.join(errs))}")
+    # #60: data-QA notes (stale tape / source disagreement) — housekeeping
+    # zone with the other infra warnings; warning only, never a halt (R4)
+    for note in (dataqa or []):
+        lines.append(f"⚠️ data-QA: {esc(note)}")
     if gaps:
         # #70: a weekday with no ledger rows = the runner never started —
         # say so, or the live record grows silent holes
@@ -701,6 +706,23 @@ def build_digest(flex_notes=None):
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
         print(f"[dips] skipped: {e}")
+    # #60: data-QA on the benchmark tape everything keys off — freshness of
+    # the SPY series this very run fetched + a Stooq second opinion on the
+    # last common close. Non-fatal end to end; a dead Stooq costs nothing.
+    dataqa = []
+    try:
+        fn = homily_data.freshness_note(spy_bars, today)
+        if fn:
+            dataqa.append(fn)
+        try:
+            an = homily_data.agreement_note(spy_bars,
+                                            homily_data.stooq_daily("SPY"))
+            if an:
+                dataqa.append(an)
+        except Exception:
+            pass                      # second source is strictly optional
+    except Exception as e:
+        print(f"[data-qa] skipped: {e}")
     # #88: top-3 turnover — how fragile the buy-day's point-in-time ⭐ set is
     # within the month. One footer line, needs ≥2 ledger runs; info-only.
     turnover = ""
@@ -736,7 +758,8 @@ def build_digest(flex_notes=None):
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household, ops=ops, bear=bear,
-                           turnover=turnover, crash=crash_line(spy))
+                           turnover=turnover, crash=crash_line(spy),
+                           dataqa=dataqa)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
