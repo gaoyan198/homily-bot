@@ -115,3 +115,66 @@ if __name__ == "__main__":
     print(f"NVDA: {len(bars)} daily bars, "
           f"{len(weekly_closes(bars))} weekly, {len(monthly_closes(bars))} monthly")
     print("last bar:", bars[-1])
+
+
+# --- #60 · data-QA cross-checks (feeds #17's hardening) ----------------------
+# Two cheap honesty probes on the tape the whole system runs on. Pure
+# functions + one optional second-source fetch; every consumer treats a
+# note as a WARNING line, never a halt (R4: the digest always sends).
+def freshness_note(bars, today, symbol="SPY", max_weekdays=3):
+    """A tape whose last bar is older than `max_weekdays` weekdays is stale
+    (holiday + weekend fits inside 3) — the digest would be advising on old
+    prices without saying so. -> note string or ""."""
+    if not bars:
+        return f"{symbol}: no bars at all"
+    last, gap, d = bars[-1][0], 0, bars[-1][0]
+    while d < today:
+        d += datetime.timedelta(days=1)
+        if d.weekday() < 5:
+            gap += 1
+    if gap > max_weekdays:
+        return (f"{symbol}: last bar {last.isoformat()} is {gap} weekdays old "
+                "— tape may be stale, levels/signals are as-of that date")
+    return ""
+
+
+def stooq_daily(symbol, *, opener=urllib.request.urlopen):
+    """Second-source daily closes from Stooq (CSV, key-free) -> [(date,
+    close)]. US symbols only ('SPY' -> 'spy.us'). Raises on any problem —
+    callers treat this whole probe as optional."""
+    url = f"https://stooq.com/q/d/l/?s={symbol.lower()}.us&i=d"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with opener(req, timeout=20) as r:
+        text = r.read().decode()
+    out = []
+    for ln in text.strip().split("\n")[1:]:
+        parts = ln.split(",")
+        if len(parts) < 5 or not parts[4]:
+            continue
+        try:                          # anti-bot/challenge pages parse as
+            out.append((datetime.date.fromisoformat(parts[0]),
+                        float(parts[4])))
+        except ValueError:            # garbage -> zero rows -> clean raise
+            continue
+    if not out:
+        raise ValueError(f"stooq: no usable rows for {symbol}")
+    return out
+
+
+def agreement_note(bars, second, symbol="SPY", tol=0.01):
+    """Compare the most recent COMMON date's close across sources; relative
+    disagreement > tol earns a note (a silently mis-adjusted primary tape
+    poisons every level downstream — #19's lesson, checked daily on the
+    benchmark). -> note string or ""."""
+    ours = {b[0]: b[4] for b in bars}
+    theirs = dict(second)
+    common = sorted(set(ours) & set(theirs))
+    if not common:
+        return f"{symbol}: no common dates with the second source"
+    d = common[-1]
+    a, b = ours[d], theirs[d]
+    if abs(a - b) / b > tol:
+        return (f"{symbol} {d.isoformat()}: Yahoo {a:g} vs Stooq {b:g} "
+                f"({(a / b - 1) * 100:+.1f}%) — sources disagree, treat "
+                "levels with suspicion")
+    return ""

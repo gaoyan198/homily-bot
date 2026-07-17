@@ -2076,4 +2076,53 @@ assert _ln59 in _w59 and _w59.replace("\n" + _ln59, "", 1) == _wo59
 assert len(_header_zone(_w59)) <= _BUDGET73, "pre-script must fit the budget"
 print("[59] #59 flash-crash pre-script: -7%/5d trigger, additive, budgeted .. PASS")
 
+# --- 60. #60 data-QA: freshness + second-source agreement, warning-only ------
+import io as _io60
+import homily_data as _hd60
+_mkb60 = lambda d, c: (d, c, c, c, c, 1e6)
+_fri60 = datetime.date(2026, 7, 10)                    # a Friday
+# fresh through a weekend (Mon today, Fri last bar = 1 weekday gap)
+assert _hd60.freshness_note([_mkb60(_fri60, 100.0)],
+                            datetime.date(2026, 7, 13)) == ""
+# stale: Fri bar seen the NEXT Friday = 5 weekday gap
+_n60 = _hd60.freshness_note([_mkb60(_fri60, 100.0)],
+                            datetime.date(2026, 7, 17))
+assert "stale" in _n60 and "2026-07-10" in _n60
+assert "no bars" in _hd60.freshness_note([], datetime.date(2026, 7, 17))
+# stooq CSV parser via a canned opener (no network in validate, ever)
+_csv60 = b"Date,Open,High,Low,Close,Volume\n2026-07-16,1,1,1,628.5,9\n" \
+         b"2026-07-17,1,1,1,630.25,9\n"
+
+
+class _Resp60:
+    def __init__(self, b):
+        self._b = b
+    def read(self):
+        return self._b
+    def __enter__(self):
+        return self
+    def __exit__(self, *a):
+        return False
+
+
+_st60 = _hd60.stooq_daily("SPY", opener=lambda req, timeout: _Resp60(_csv60))
+assert _st60 == [(datetime.date(2026, 7, 16), 628.5),
+                 (datetime.date(2026, 7, 17), 630.25)], _st60
+# agreement on the last COMMON date; 1% tolerance; disagreement notes
+_ours60 = [_mkb60(datetime.date(2026, 7, 16), 628.9),
+           _mkb60(datetime.date(2026, 7, 17), 630.0)]
+assert _hd60.agreement_note(_ours60, _st60) == ""
+_bad60 = [_mkb60(datetime.date(2026, 7, 17), 700.0)]
+assert "disagree" in _hd60.agreement_note(_bad60, _st60)
+assert "no common" in _hd60.agreement_note(
+    [_mkb60(datetime.date(2026, 1, 2), 1.0)], _st60)
+# render: notes land in the housekeeping zone, additive-only
+_wo60 = daily_run.render_digest([_up("AAA")], [], {}, _B55, _R55, [], _T55,
+                                fund=_f55)
+_w60 = daily_run.render_digest([_up("AAA")], [], {}, _B55, _R55, [], _T55,
+                               fund=_f55, dataqa=["SPY: tape may be stale"])
+assert "⚠️ data-QA: SPY: tape may be stale" in _w60 and \
+    _w60.replace("\n⚠️ data-QA: SPY: tape may be stale", "", 1) == _wo60
+print("[60] #60 data-QA: freshness gap math, stooq parse, tol, additive .... PASS")
+
 print("\nAll structural assertions passed.")
