@@ -173,6 +173,30 @@ def rs6_ranks(states):
     return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
 
 
+def top3_turnover(rows, today):
+    """#88: within-month churn of the ledger's top-3 ⭐ set. rs12_rank prints
+    daily but money moves monthly — if the set the buy-day split across is
+    gone by mid-month, the point-in-time snapshot is fragile and #87 (the
+    concentration conditioner) gains priority. Reference = the month's FIRST
+    run's set (the buy-day per D-31). Pure read; feeds one info-only footer
+    line, gates nothing. -> {"stable","days","ref","first"} or None."""
+    month = today.isoformat()[:7]
+    by_date = {}
+    for r in rows:
+        if r["date"][:7] != month:
+            continue
+        rk = r.get("rs12_rank") or ""
+        if rk.isdigit() and int(rk) <= 3:
+            by_date.setdefault(r["date"], set()).add(r["ticker"])
+    if not by_date:
+        return None
+    dates = sorted(by_date)
+    ref = by_date[dates[0]]
+    stable = sum(1 for d in dates if by_date[d] == ref)
+    return {"stable": stable, "days": len(dates), "ref": sorted(ref),
+            "first": dates[0]}
+
+
 def _csv_cell(v):
     if v is None:
         return ""

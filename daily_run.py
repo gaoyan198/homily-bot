@@ -299,7 +299,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev="", household="", cross_book=None, ops="", bear=""):
+                  lev="", household="", cross_book=None, ops="", bear="",
+                  turnover=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -487,6 +488,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               f"{esc(champ['since'])}",
               f"OOS Calmar champ {champ_oos:.2f} / challenger {oos_chal:.2f}"
               f"{'  → ADOPTED' if adopted else ''}",
+              # #88: the buy-day set's within-month stability — info only
+              *([f"<i>{esc(turnover)}</i>"] if turnover else []),
               "📖 <i>2-min guide + bear playbook: PLAYBOOK.md in the repo</i>",
               "<i>Reminder: approximation of Danny/Homily behaviour, not their"
               " proprietary formulas. 5y backtest: waiting for ⭐ zones got a "
@@ -672,6 +675,18 @@ def build_digest(flex_notes=None):
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
         print(f"[dips] skipped: {e}")
+    # #88: top-3 turnover — how fragile the buy-day's point-in-time ⭐ set is
+    # within the month. One footer line, needs ≥2 ledger runs; info-only.
+    turnover = ""
+    try:
+        t88 = homily_ledger.top3_turnover(homily_ledger._read_rows(), today)
+        if t88 and t88["days"] >= 2:
+            turnover = (f"top-3 ⭐ set stable {t88['stable']}/{t88['days']} "
+                        f"runs this month vs the buy-day set "
+                        f"({' · '.join(t88['ref'])}) — high churn = fragile "
+                        "snapshot, #87's question (info only, gates nothing)")
+    except Exception as e:
+        print(f"[turnover] skipped: {e}")
     # #102: short-term bearish tells on held names — pure read of the sigs +
     # bars this run already fetched; prints only on >=2 concurrent tells.
     # Non-fatal, info-only, feeds nothing downstream.
@@ -694,7 +709,8 @@ def build_digest(flex_notes=None):
                            breadth_read=br, conc=conc, cross_book=cross_book,
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
-                           lev=lev, household=household, ops=ops, bear=bear)
+                           lev=lev, household=household, ops=ops, bear=bear,
+                           turnover=turnover)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""

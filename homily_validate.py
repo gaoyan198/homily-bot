@@ -1985,4 +1985,33 @@ with tempfile.TemporaryDirectory() as _tmp56:
 homily_ledger.verify_history()
 print("[56] #89 rs6_rank: engine field additive, rank column forward-only ... PASS")
 
+# --- 57. #88 top-3 turnover: month-scoped ledger read, info-only footer ------
+# rs12_rank prints daily but money moves monthly; the stat counts how many
+# runs this month still show the buy-day's exact top-3 set. Pure read.
+_mk57 = lambda d, tk, rk: {"date": d, "ticker": tk, "rs12_rank": rk}
+_rows57 = ([_mk57("2026-07-01", t, str(i + 1)) for i, t in enumerate("ABC")]
+           + [_mk57("2026-07-02", t, str(i + 1)) for i, t in enumerate("ABC")]
+           + [_mk57("2026-07-03", t, str(i + 1)) for i, t in enumerate("ABD")]
+           + [_mk57("2026-07-03", "Z", "")]          # blank rank ignored
+           + [_mk57("2026-06-30", t, str(i + 1)) for i, t in enumerate("XYZ")])
+_t57 = homily_ledger.top3_turnover(_rows57, datetime.date(2026, 7, 17))
+assert _t57 == {"stable": 2, "days": 3, "ref": ["A", "B", "C"],
+                "first": "2026-07-01"}, _t57
+assert homily_ledger.top3_turnover([], datetime.date(2026, 7, 17)) is None
+assert homily_ledger.top3_turnover(_rows57,
+                                   datetime.date(2026, 8, 1)) is None, \
+    "month-scoped: August sees no July rows"
+# footer line is additive-only: with-line == without-line + the line
+from homily_golden import _up as _u57, BULL as _B57, REFINE as _R57, \
+    TODAY as _T57, _fund as _f57
+_ln57 = "top-3 ⭐ set stable 2/3 runs this month vs the buy-day set (A · B · C)"
+_wo57 = daily_run.render_digest([_u57("AAA")], [], {}, _B57, _R57, [], _T57,
+                                fund=_f57)
+_w57 = daily_run.render_digest([_u57("AAA")], [], {}, _B57, _R57, [], _T57,
+                               fund=_f57, turnover=_ln57)
+assert _ln57 in _w57 and \
+    _w57.replace(f"\n<i>{_ln57}</i>", "", 1) == _wo57, \
+    "the footer line must add itself and change NOTHING else"
+print("[57] #88 top-3 turnover: month-scoped, buy-day ref, additive footer .. PASS")
+
 print("\nAll structural assertions passed.")
