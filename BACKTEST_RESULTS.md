@@ -763,3 +763,29 @@ system they are the most common event there is. This is §5f's per-name
 lesson at the budget level, now measured: waiting costs, the discount
 never arrives scarce enough to pay for the wait. Fourth measurement
 pointing the same way; the idea closes beside §5f per the design.
+
+## 18 · #87 concentration regime conditioner (run 2026-07-17) — NULL; demotion rule stays the only guard
+
+`homily_selection_backtest.py --conditioner` (flag-gated; the committed
+run's paths untouched). Three pre-existing conditioners, thresholds
+pre-registered (regime ≠ BULL · breadth < 30 (#26's own line) · trailing
+3m QQQ < 0); implied strategy = equal-split in hostile months, rs12-top3
+otherwise.
+
+Sign-flip test (full 2015→2026 span): ALL three conditioners flip on
+both universes — top-3 only earns its concentration in favourable
+states (B favourable: 32.8 vs 31.8 compounded; hostile: both arms ~0.2,
+i.e. everything loses together). That is the descriptive confirmation
+of §4's honesty box.
+
+But the tradable version fails: the conditional arm LOSES to
+always-top-3 on ALL THREE universe-B read windows for ALL three
+conditioners (e.g. 2021→2026: regime 1.80 / breadth 1.80 / qqq3m 1.77
+vs 1.82) — in hostile months the arms fall together, so standing down
+to equal-split saves nothing and costs the re-entry. Universe A shows
+±0.02–0.05 noise (hindsight). **VERDICT (D-87's rule): NULL — no
+conditioner clears "≥ +0.05 MOIC on ≥2 of 3 without losing any". The
+item closes; the live rs12-top3 demotion rule (promotions.json,
+month-start check) remains the only guard on concentration's weak
+side.** The right lever for reversal pain stays #24's October
+forward-check, not a regime switch.
