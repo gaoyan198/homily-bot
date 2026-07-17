@@ -58,24 +58,25 @@ frozen (EXECUTION §0), every gate restated before coding.
 
 ## 1 · Remaining queue (updated 2026-07-12)
 
-**Correction 2026-07-12:** the 07-11 claim "the buildable backlog is
-EMPTY" was true of the *queued/spec'd* items only — the Part-II idea bank
-was never empty. Buildable in any session, no date gate: the
-**nice-to-have shelf** — #73 digest line budget (S) · #54 weekly diff
-(S) · #57 中文 toggle (S) · #53 SGD lens (S) · #59 flash-crash note (S) ·
-#60 data-QA cross-check (S) · #58 behaviour-gap tracker (M) · #88 top-3
-turnover stat (S, pure ledger read) — and the **study shelf**: #51 ⚪
-time-stop (M — first pick: BACKTEST_RESULTS' bottom line names it a
-lever; PLAYBOOK edited only after its gate) · #86 dip war-chest (M,
-D-86 — owner instinct, rule pre-registered) · #87 concentration
-conditioner (M, D-87 — the live top-3's reversal weakness) ·
-#47/#48/#50/#52. Studies are buildable anytime; only *shipping* a
-money-touching result queues behind R10 (next slot 2027-Q2 — Q3 🐳,
-Q4 rs12-top3 early, 2027-Q1 add-cap-25 early).
-**Time-sensitive rider:** #89's `rs6_rank` ledger column ships with the
-NEXT ledger-touching session (same pattern as #80's whale_rank —
-forward rows only accrue after it lands; the rs6/blend study itself
-joins the 2026-10-01 #24 harness read).
+**Shelf sweep 2026-07-17** (owner: "execute the rest of the pipeline") —
+one branch per item, gates restated first, validate [56]–[61] added:
+~~#89 column~~ (Phase-C, rs6 exposed + `rs6_rank`, forward rows from
+07-20) · ~~#88~~ (turnover footer; July already churns daily) · ~~#73~~
+(header zone CI-capped at 12) · ~~#51~~ (**PASSED** — w=2/8wk beats the
+declared 12w on both honest windows; §5.2 edit QUEUED behind R10,
+BACKTEST_RESULTS §16) · ~~#86~~ (**NULL**, closed — every cell loses to
+immediate deployment; dips are never scarce in a 30-name screen, §17) ·
+~~#87~~ (**NULL**, closed — sign-flip real but the fallback untradable,
+§18) · ~~#59~~ (flash-crash pre-script) · ~~#60~~ (data-QA warnings) ·
+~~#54~~ (Sunday what-changed diff). Earlier same day: ~~#102~~ (bearish
+tells, validate [55]).
+**Still on the shelf, each its own session:** #57 中文 toggle (S in
+name, but it touches every digest string → golden regen; do it alone) ·
+#58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
+#47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
+anytime; only *shipping* a money-touching result queues behind R10
+(queue now: #79 tag · whale-cap 1.6% · #20 weights · #51's 8wk edit —
+next slot 2027-Q2).
 
 **Integration-era shelf (#94–100, added 2026-07-12 late; designs
 D-94…D-98).** The leverage era armed four money surfaces (core cash,
