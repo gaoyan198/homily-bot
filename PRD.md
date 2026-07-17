@@ -536,7 +536,7 @@ armed, designs D-94…D-98, rows below, new proposals start #101):
 | 48 | Ancient-shelf overlay (240d half-life profile) | S–M | bounce event-study vs recent shelves |
 | 49 | Golden-file digest tests — **build first on execution days** | S | none (test infra) |
 | 50 | Staged-add tranches (shelf / −7% / −14%) | M | avg-cost + MOIC vs single-add and DCA, both universes |
-| 51 | ⚪ time-stop study (calibrate PLAYBOOK §5.2's 12w rule) | M | the study itself; PLAYBOOK edited only after |
+| 51 | ~~⚪ time-stop study~~ — **run 2026-07-17, PASSED** (BACKTEST_RESULTS §16): w=2 (~8 weeks) beats the declared 12w on both honest-control windows at no DD cost (B·5y 1.99 vs 1.80, B·10y 2.73 vs 2.55); w=1 passes too but fails minimal-change. §5.2 edit = registry promotion + demotion rule, QUEUED behind R10 (2027-Q2 queue with #79 · whale-cap 1.6% · #20). NOTHING shipped today per Part III rule 5 | M | the study itself; PLAYBOOK edited only after — study PASSED, edit queued |
 | 52 | Inverse-vol sizing within stars | S–M | THE-test rerun; expect a null per §5g |
 | 53 | SGD lens (book return in SGD, USDSGD trend) | S | info-only |
 | 54 | Weekly "what changed" ledger diff | S | needs #13 |

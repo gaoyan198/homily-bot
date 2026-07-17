@@ -693,3 +693,37 @@ calls on any measured path incl. 1999→2026). LEVERAGE.md governs it. The
 bar for every strategy arm accordingly RISES: beat levered QQQ at the same
 L, not just QQQ. The strategy engine's verdict above is unchanged; what
 changed is that "outperform QQQ" no longer requires the engine to do it.
+
+## 16 · #51 ⚪ time-stop calibration (run 2026-07-17) — PASSED; w=2 (8 weeks) queued
+
+`homily_timestop_backtest.py` — D-63's mode (f) with `caution_months`
+parametrized (default replays the committed tables byte-identically).
+$1/month, 10 bps, idx-fallback SPY, point-in-time signals on prefixes.
+Same caveat as every mode-(f) number: the F:0–1 gate isn't modelled
+(fundamentals not point-in-time) — cells are the aggressive bound, the
+cross-w comparison is like-for-like.
+
+| w (mo ≈ wk) | B·5y MOIC | B·10y MOIC | A·5y | A·10y | B·10y MaxDD |
+|---|---|---|---|---|---|
+| 1 (~4wk) | **2.15** | **3.07** | 2.62 | 3.86 | −58% |
+| 2 (~8wk) | 1.99 | 2.73 | 2.36 | 4.29 | −63% |
+| **3 (~12wk, incumbent)** | 1.80 | 2.55 | 2.36 | 4.22 | −65% |
+| 4 (~16wk) | 1.88 | 2.25 | 2.39 | 5.09 | −68% |
+| 6 (~24wk) | 1.76 | 2.20 | 2.43 | 4.79 | −68% |
+
+Pre-registered rule (frozen in the file's docstring before the run):
+challenger must win MOIC on BOTH universe-B windows, not lose both A
+windows, MaxDD within +5 pts; minimal change wins among passers.
+**w=1 and w=2 both pass; w=2 is the minimal-change winner.** Reading:
+the declared 12 weeks is too patient — a broken name's first two ⚪
+months carry most of the salvage value; cutting to 8 weeks adds ~0.2
+MOIC on the wreck-salted control at slightly BETTER drawdown, and even
+the hindsight universe doesn't punish it (A·10y 4.29 vs 4.22). w=1 is
+stronger still on B but trades 60–90% more and loses A·10y — the rule's
+minimal-change clause exists precisely to resist that reach.
+
+**Ship status: NOTHING changed today** (Part III rule 5). PLAYBOOK
+§5.2's "12+ weeks" edit is a registry promotion with a demotion rule,
+QUEUED behind R10 with #79/#67-whale-cap/#20 — next free slot 2027-Q2,
+order per SPECS §1. The digest keeps printing the current rule until
+then.
