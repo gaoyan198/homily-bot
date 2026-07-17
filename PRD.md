@@ -379,14 +379,22 @@ at the step that truly needs it.
 38. **F4 — interactive commands** (parked) — `/why NVDA`, `/size 2500`
     answered by the same Worker reading `docs/snapshot.json` via the GitHub
     API. Parked until F3 proves its keep; explicitly NOT a trading surface.
-73. **Digest line budget** (S) (added 2026-07-11) — a hard cap on
-    actionable digest lines (~12 above the fold; overflow prints tickers
-    only), enforced by a validate check counting lines in the #49 golden
-    digests. Standing rule adopted with it: a new digest feature must
-    displace an existing line or live on the dashboard (36) — additive-
-    only growth is how the wall-of-text happened, and a budget the CI
-    enforces is worth ten style intentions. **Gate:** golden-file line
-    count in validate.
+73. ~~**Digest line budget**~~ — **shipped 2026-07-17** (gate: validate
+    [58]): the standing HEADER zone (title → first state group: regime,
+    ladder, ops, breadth, lens, cross-book — the lines every digest
+    carries) is CI-capped at 12 non-empty lines, checked on all three
+    committed goldens AND a synthetic fully-loaded header (BULL + ladder
+    + #99 ops + hostile-breadth — the interlock §8.5 asked for).
+    Cadenced blocks (buy-day/rehearsal/household/promotions) are exempt:
+    they earn their rows a few days a month. Standing rule now
+    mechanical: a new digest feature must displace a line or live on the
+    dashboard (#36). Deliberately NOT built (recorded per §8.5): the
+    "overflow prints tickers only" fallback — a render change with no
+    live trigger while the budget holds; build it the day the check
+    trips. Original text: a hard cap on actionable digest lines (~12
+    above the fold), enforced by a validate check counting lines in the
+    #49 golden digests. **Gate:** golden-file line count in validate —
+    PASSED.
 
 ### Phase G — research queue (one per quarter, July re-test cadence)
 
