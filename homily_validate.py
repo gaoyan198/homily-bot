@@ -1853,7 +1853,8 @@ print("[53] #99 ops-readiness: blockers line + KILL-A proximity warning ... PASS
 # daily-candle event study and gates nothing. The append changed the guard-#62
 # hash serialisation; the checkpoint was regenerated DELIBERATELY in this commit
 # (same pattern as origin [29] / whale_rank [31]).
-assert homily_ledger.COLUMNS[-1] == "candle", "candle END-appended (#101)"
+# (was COLUMNS[-1] until #89 END-appended rs6_rank after it — the ordering
+# assert is the durable form, "last" belongs to whichever column is newest)
 assert homily_ledger.COLUMNS.index("candle") \
     > homily_ledger.COLUMNS.index("whale_rank"), "after the earlier columns"
 _sig54, _conv54, _ = _up("CDL")
@@ -1944,5 +1945,44 @@ _w55 = daily_run.render_digest(_held55, [], {}, _B55, _R55, [], _T55,
 assert _bk55 in _w55 and _w55.replace("\n\n" + _bk55, "", 1) == _wo55, \
     "the block must add lines and change NOTHING else"
 print("[55] #102 bearish-tells: >=2 dated tells, held-only, additive-only ... PASS")
+
+# --- 56. #89 rs6 exposed + rs6_rank column: Phase-C additive, forward-only ---
+# The one engine edit is an END-appended dataclass field (default 0.0 keeps
+# any positional constructor valid); the score consumed rs6 all along via
+# "rel strength", so behaviour is provably unchanged — goldens [16] pin the
+# digest and the freeze manifest was regenerated DELIBERATELY this commit
+# (guard #61, same for the #62 checkpoint serialisation).
+assert homily_ledger.COLUMNS[-1] == "rs6_rank", "rs6_rank END-appended (#89)"
+_sig56, _conv56, _ = _up("RS6")
+assert isinstance(_conv56.rs6, float), "rs6 must ride the Conviction"
+_st56 = homily_ledger.state_of(_sig56, _conv56, True, fund=_fund)
+assert _st56["rs6"] == round(_conv56.rs6, 2), "rs6 lands in the state dict"
+# rank semantics mirror rs12_ranks: ⭐ set ranked by rs6 desc, 🔵 fallback,
+# non-candidates blank; ties break by ticker so the rank is deterministic
+_sts56 = [{"ticker": "A", "state": "ACCUMULATE", "rs6": 5.0},
+          {"ticker": "B", "state": "ACCUMULATE", "rs6": 9.0},
+          {"ticker": "C", "state": "HOLD", "rs6": 99.0}]
+assert homily_ledger.rs6_ranks(_sts56) == {"A": 2, "B": 1, "C": None}
+_sts56b = [{"ticker": "D", "state": "BOTTOMING", "rs6": 1.0},
+           {"ticker": "E", "state": "CAUTION", "rs6": 8.0}]
+assert homily_ledger.rs6_ranks(_sts56b) == {"D": 1, "E": None}, "🔵 fallback"
+# round-trip through the real append/verify path (mirrors [54]/[31])
+_st56["rs6_rank"] = 1
+_d56 = datetime.date(2026, 7, 17)
+assert homily_ledger.csv_row(_st56, _d56)["rs6_rank"] == "1"
+with tempfile.TemporaryDirectory() as _tmp56:
+    _lg56 = os.path.join(_tmp56, "ledger.csv")
+    _hf56 = os.path.join(_tmp56, "hash.json")
+    homily_ledger.append_rows([homily_ledger.csv_row(_st56, _d56)], _d56,
+                              ledger=_lg56, hashfile=_hf56)
+    _d56b = datetime.date(2026, 7, 18)
+    homily_ledger.append_rows([homily_ledger.csv_row(_st56, _d56b)], _d56b,
+                              ledger=_lg56, hashfile=_hf56)
+    assert [r["rs6_rank"] for r in homily_ledger._read_rows(_lg56)] == ["1", "1"]
+    homily_ledger.verify_history(ledger=_lg56, hashfile=_hf56)
+# the committed checkpoint verifies with rs6_rank in COLUMNS (regen was
+# deliberate, this commit) — live guard on the real ledger
+homily_ledger.verify_history()
+print("[56] #89 rs6_rank: engine field additive, rank column forward-only ... PASS")
 
 print("\nAll structural assertions passed.")

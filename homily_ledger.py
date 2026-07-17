@@ -51,6 +51,7 @@ COLUMNS = [
     "origin",
     "whale_rank",
     "candle",
+    "rs6_rank",
 ]
 
 
@@ -111,6 +112,9 @@ def state_of(sig, conv, held, *, fund=fund_tag, pos_view=None, origin=None):
         "support": [[round(p, 4), round(w, 4)] for p, w in ch.support],
         "resistance": [[round(p, 4), round(w, 4)] for p, w in ch.resistance],
         "rs12": round(c.rs12, 2),
+        # #89: rs6 exposed by the same Phase-C commit that unfroze it on
+        # Conviction — feeds rs6_ranks() below; snapshot extra like rs12
+        "rs6": round(getattr(c, "rs6", 0.0), 2),
         "dvol": round(c.dvol, 2),
         "conv_parts": dict(c.parts),
         "bucket": (pos_view["bucket"] if pos_view else None),
@@ -151,6 +155,20 @@ def whale_ranks(states):
                     key=lambda s: (-(int(s["absorption"]) + int(s["divergence"])
                                      + int(s["shelf_stable"])),
                                    -s["rs12"], s["ticker"]))
+    ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
+    return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
+
+
+def rs6_ranks(states):
+    """#89: cross-sectional RS6 rank over the SAME candidate set as
+    rs12_ranks (⭐ else 🔵) — the rs6 / 0.5·rs6+0.5·rs12 challengers join
+    the 2026-10-01 #24 harness read, and their forward rows only mean
+    something if the rank the digest COULD have acted on is pinned at
+    print time (the same time-sensitive pattern as #80's whale_rank).
+    Pure measurement — nothing consumes it live; blank for non-candidates."""
+    accum = [s for s in states if s["state"] == "ACCUMULATE"]
+    cands = accum or [s for s in states if s["state"] == "BOTTOMING"]
+    ranked = sorted(cands, key=lambda s: (-s.get("rs6", 0.0), s["ticker"]))
     ranks = {s["ticker"]: i + 1 for i, s in enumerate(ranked)}
     return {st["ticker"]: ranks.get(st["ticker"]) for st in states}
 
@@ -364,9 +382,11 @@ def record(sigs, disco, regime, day, holdings_set, *, fund=fund_tag,
     all_states = held_states + disco_states
     ranks = rs12_ranks(all_states)
     wranks = whale_ranks(all_states)
+    r6ranks = rs6_ranks(all_states)
     for st in all_states:
         st["rs12_rank"] = ranks[st["ticker"]]
         st["whale_rank"] = wranks[st["ticker"]]
+        st["rs6_rank"] = r6ranks[st["ticker"]]
     shadow_states = [state_of(s, c, False, fund=fund, origin="shadow-screen")
                      for s, c in (shadow or [])]
     rows = [csv_row(st, day) for st in all_states + shadow_states]
