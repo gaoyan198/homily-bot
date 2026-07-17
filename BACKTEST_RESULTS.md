@@ -789,3 +789,33 @@ item closes; the live rs12-top3 demotion rule (promotions.json,
 month-start check) remains the only guard on concentration's weak
 side.** The right lever for reversal pain stays #24's October
 forward-check, not a regime switch.
+
+## 19 · #104 POC-cross event study (run 2026-07-18) — NULL both directions; POC stays a printed level
+
+`homily_poc_backtest.py` (PRD §5l — Danny's "close above POC bullish /
+close below = pullback-or-downtrend-start"). Point-in-time: day i's
+reference is the PRIOR day's POC (`build_profile(bars[:i])`, no same-day
+look-ahead), event = state-flip of close-vs-POC, fwd 20/60d vs the
+unconditional baseline over the same eligible days, 5y daily, both
+universes, down-crosses also cut by the live digest state on the event
+day.
+
+First finding, descriptive: our decayed-POC is crossed **~8×/year per
+name** (2,534↓ / 2,565↑ across 64 names × 5y) — in this approximation it
+sits too close to price to be a level of consequence.
+
+Second finding, the verdict: no information either side. Combined
+down-cross +3.2%/20d vs +3.3% baseline and +9.2%/60d vs +9.9%; up-cross
++3.4%/20d vs +3.3%, +9.3%/60d vs +9.9% — and no sign consistency where
+it matters (universe A down-cross 20d sits AT baseline, 4.3% vs 4.3%).
+Danny's "pullback" framing (POC loss inside an intact trend) fares no
+better: the uptrend cut runs ABOVE baseline at 20d in universe A (+4.6%
+vs +4.3%) and collapses only in universe B's 60d (+0.3% vs +4.1%) — the
+two universes disagree, which is exactly what the pre-committed rule
+exists to catch. **VERDICT (rule in the script header, #79 precedent):
+NULL both directions — POC↓ never joins #102's tells, POC↑ earns no row
+note, the item closes.** The POC remains what it always was here: a
+printed context level. Honest caveat, recorded: our fixed 60d-half-life
+volume-at-price POC is a transparent stand-in for Danny's undisclosed
+turnover-decayed chip engine — this null is about OUR approximation, not
+a disproof of his read on his own tool.
