@@ -70,7 +70,7 @@ immediate deployment; dips are never scarce in a 30-name screen, §17) ·
 §18) · ~~#59~~ (flash-crash pre-script) · ~~#60~~ (data-QA warnings) ·
 ~~#54~~ (Sunday what-changed diff). Earlier same day: ~~#102~~ (bearish
 tells, validate [55]).
-**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #57 中文 toggle (S in
+**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · **#104–108 historical-Danny sweep (PRD §5l, owner-requested 2026-07-17)** — all studies/presentation, no R10 slot consumed: #104 POC-cross study (S, tell ships only via #102's machinery) · #105 breakout-add anatomy (M, pass-bar pre-registered in its row — the one item that could later want money, which would need its own R10 slot) · #106 provisional-bar check (S, display-only if material) · #107 accumulation-duration stat (S) · #108 triple-red stat (S, rides #82's harness) · #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
 #47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
