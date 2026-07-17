@@ -134,7 +134,7 @@ def _deploy(picks, cash, hold, core, data, d, ipx, index_bars):
 
 
 def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
-             win=None, bucketb=None):
+             win=None, bucketb=None, caution_months=None):
     """Point-in-time backtest under one `bear_mode`. Returns
     (MOIC, TWR-CAGR, MaxDD, cash_months, trades). `win=(start,end)` isolates
     an episode: months outside the range are skipped but full bar history
@@ -142,8 +142,12 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
     `bucketb` (#67 Step 3): §1's earned-core proxy — at a 🐻 onset, names
     whose weight ≥ this fraction of the book are EXEMPT from the satellite
     sale (modes faithful/sell_index only; None keeps D-63's no-bucket
-    pessimistic bound, which is what the committed tables used)."""
+    pessimistic bound, which is what the committed tables used).
+    `caution_months` (#51): the ⚪ time-stop in completed months for mode
+    (f) — None keeps the committed CAUTION_MONTHS=3 (≈ §5.2's 12 weeks),
+    so every existing table replays byte-identically."""
     assert mode in MODES, mode
+    cm = CAUTION_MONTHS if caution_months is None else caution_months
     is_bear = regime_series(spy, qqq)
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
     if win:
@@ -268,7 +272,7 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
                     continue
                 if st == "CAUTION":
                     caution[n] = caution.get(n, 0) + 1
-                    if caution[n] >= CAUTION_MONTHS and hold[n] > 0:
+                    if caution[n] >= cm and hold[n] > 0:
                         px = close_on(data[n], d)
                         if px:
                             half = hold[n] * 0.5
