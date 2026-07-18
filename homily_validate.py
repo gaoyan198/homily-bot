@@ -2156,4 +2156,43 @@ assert "WHAT CHANGED" not in _hw61.weekly_summary(
     _rows61, {"holdings": []}, _sun61)
 print("[61] #54 weekly diff: transitions, gate flips, top-3 move, arrivals .. PASS")
 
+# --- 62. #106 provisional-bar mark: point-in-time only, display-only ---------
+# Gate clauses: (a) marks() fires m only inside the month's first 10
+# sessions counted from the name's own bars, w only on a Mon-Thu print;
+# (b) the suffix renders ONLY when the prov kwarg carries it — default-off
+# keeps every golden byte-identical; (c) the mark changes presentation
+# only: the same DannySignal in, nothing downstream reads it.
+import homily_provisional as _hp62
+_mkb62 = lambda d: (d, 100.0, 100.5, 99.5, 100.0, 1e6)
+_jul62 = [datetime.date(2026, 6, 29), datetime.date(2026, 6, 30),
+          datetime.date(2026, 7, 1), datetime.date(2026, 7, 2),
+          datetime.date(2026, 7, 3), datetime.date(2026, 7, 6),
+          datetime.date(2026, 7, 7), datetime.date(2026, 7, 8),
+          datetime.date(2026, 7, 9), datetime.date(2026, 7, 10),
+          datetime.date(2026, 7, 13), datetime.date(2026, 7, 14),
+          datetime.date(2026, 7, 15), datetime.date(2026, 7, 16),
+          datetime.date(2026, 7, 17)]
+_bs62 = [_mkb62(d) for d in _jul62]
+assert _hp62.marks(_bs62[:3]) == "mw"     # Wed Jul 1, session 1
+assert _hp62.marks(_bs62[:5]) == "m"      # Fri Jul 3, session 3
+assert _hp62.marks(_bs62[:13]) == "w"     # Wed Jul 15, session 11
+assert _hp62.marks(_bs62) == ""           # Fri Jul 17, session 13
+assert _hp62.marks([]) == ""
+# render: default-off leaves the row untouched; prov adds ONLY the dots
+_s62, _c62, _ = _up62 = _up("PRV")
+_row62 = daily_run.fmt_row(_s62)
+assert "…" not in _row62
+_rowp62 = daily_run.fmt_row(_s62, prov="mw")
+assert "mUP…" in _rowp62 and f"wk {_s62.weekly.circle}…/" in _rowp62
+assert _rowp62.replace("…", "") == _row62, "prov must add only the dots"
+# digest-level: absent/empty prov is byte-identical to the pre-#106 render
+_wo62 = daily_run.render_digest([_up62], [], {}, _B55, _R55, [], _T55,
+                                fund=_f55)
+assert _wo62 == daily_run.render_digest([_up62], [], {}, _B55, _R55, [],
+                                        _T55, fund=_f55, prov={})
+_w62 = daily_run.render_digest([_up62], [], {}, _B55, _R55, [], _T55,
+                               fund=_f55, prov={"PRV": "mw"})
+assert _w62.replace("…", "") == _wo62, "mark is presentation-only"
+print("[62] #106 provisional-bar mark: session/weekday rule, default-off .... PASS")
+
 print("\nAll structural assertions passed.")
