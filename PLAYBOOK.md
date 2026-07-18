@@ -94,6 +94,15 @@ fallback.*
    plain dip-buying; it's the footprint that carries the edge.
 7. Close the app. Do not look at prices until next month.
 
+*Patience calibration (#107, measured 2026-07-18): an ⭐ window is a
+**moment**, not a campaign — the median completed ⭐ spell lasts 2 weeks
+(p90 5w; 1,295 spells, both universes), while Danny's own accumulation
+campaigns run 3 months to a year. His campaign length is built from
+repeated visits to the zone, which is exactly what this monthly routine
+does — so a closed ⭐ window is never a missed bus, and stretching one
+add across many extra tranches inside a single window has no measured
+basis: the window will usually be gone before the tranches are.*
+
 ---
 
 ## 4 · 🐻 BEAR PLAYBOOK — prescriptive steps

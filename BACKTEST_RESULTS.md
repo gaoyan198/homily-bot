@@ -849,3 +849,29 @@ session/weekday rule, default-off, and that stripping `…` reproduces the
 unmarked digest byte-for-byte. R1 untouched: the engines keep using
 every bar; only the *presentation* stops calling a provisional read
 settled. Known miss, accepted: a Friday-holiday week escapes `w…`.
+
+## 21 · #107 accumulation-window durations (run 2026-07-18) — ⭐ is a moment, not a campaign
+
+`homily_accum_backtest.py` (PRD §5l — Danny Jul 2024: "my accumulation
+period usually lasts 3 months to 1 year", i.e. 13–52 weeks). Weekly-grid
+replay (D-20 precedent), live `danny_signal` on prefixes, completed
+spells only (#82's right-censoring rule), 5y, both universes. The
+committed ledger (live since 2026-07-08) has no completed spell yet —
+replay only, noted.
+
+| spell type | n | p25 | median | p75 | p90 |
+|---|---:|---:|---:|---:|---:|
+| ⭐ ACCUMULATE (A) | 977 | 1w | 2w | 3w | 6w |
+| ⭐ ACCUMULATE (B) | 318 | 1w | 2w | 3w | 4w |
+| ⭐ ACCUMULATE (combined) | 1,295 | 1w | **2w** | 3w | 5w |
+| 🐳 footprint (combined) | 1,043 | 1w | **1w** | 2w | 3w |
+
+**Reading (pure measurement, gates nothing):** our windows are an order
+of magnitude shorter than Danny's band — his 3mo–1yr "accumulation
+period" is a *campaign* assembled from many short zone-visits, ours is
+the zone-visit itself. The monthly buy routine (repeated visits) is what
+builds campaign-length exposure, so the #50 within-window tranche idea
+has no measured room to operate: the median window closes before a
+multi-tranche clock would tick twice. One patience-calibration paragraph
+added to PLAYBOOK §3 (info-only). Caveat: the weekly grid quantizes —
+sub-week spells register as 1w — but the gap to 13w is unambiguous.
