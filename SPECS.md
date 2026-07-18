@@ -70,7 +70,20 @@ immediate deployment; dips are never scarce in a 30-name screen, §17) ·
 §18) · ~~#59~~ (flash-crash pre-script) · ~~#60~~ (data-QA warnings) ·
 ~~#54~~ (Sunday what-changed diff). Earlier same day: ~~#102~~ (bearish
 tells, validate [55]).
-**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · **#104–108 historical-Danny sweep (PRD §5l, owner-requested 2026-07-17)** — all studies/presentation, no R10 slot consumed: #104 POC-cross study (S, tell ships only via #102's machinery) · #105 breakout-add anatomy (M, pass-bar pre-registered in its row — the one item that could later want money, which would need its own R10 slot) · #106 provisional-bar check (S, display-only if material) · #107 accumulation-duration stat (S) · #108 triple-red stat (S, rides #82's harness) · #57 中文 toggle (S in
+**Danny-sweep 2026-07-18** (owner: "continue all the plans and executions")
+— one branch per item, pre-registered verdicts honoured, validate [62]
+added: ~~#104~~ (**NULL** both directions — POC crosses ~8×/yr/name carry
+nothing, §19) · ~~#105~~ (**gate PASSED** — whale-confirmed shelf-break
+beats DCA at 60d on both universes with shallower control DD, §23; the
+`⤴` info-tag ship stays QUEUED for its own gated session, money flow
+untouched) · ~~#106~~ (**MATERIAL** 7.5% — `m…`/`w…` provisional marks
+shipped, validate [62], §20) · ~~#107~~ (measured — ⭐ median 2w vs his
+13–52w campaign prior; PLAYBOOK §3 paragraph, §21) · ~~#108~~ (**NULL** —
+triple-red runs BELOW baseline everywhere, §22). Same-day second sweep →
+**#109–111 queued (PRD §5m)**: #109 whale-level thresholds study (M) ·
+#110 retail-crowding warning study (M, #79 harness) · #111 below-IPO
+quality tag study (M, needs `ipo_ref.json`).
+**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #109–111 (§5m, above) · `⤴` breakout tag ship (#105's pass, own gate + validate case) · #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
 #47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
