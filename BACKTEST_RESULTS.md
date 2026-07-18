@@ -819,3 +819,33 @@ printed context level. Honest caveat, recorded: our fixed 60d-half-life
 volume-at-price POC is a transparent stand-in for Danny's undisclosed
 turnover-decayed chip engine — this null is about OUR approximation, not
 a disproof of his read on his own tool.
+
+## 20 · #106 provisional-bar check (run 2026-07-18) — MATERIAL at 7.5%; the `…` mark ships
+
+`homily_provisional_backtest.py` (PRD §5l — Danny's "to be finalized").
+5y daily replay, both universes, 54,072 day-name observations, comparing
+each day's LIVE read (in-progress bar included, exactly what the digest
+printed) against the verdict the same period produced at its final bar.
+State impact computed exactly without `danny_signal` calls: the label
+changes iff class(mu, circle) changes — `near_support`/`bottoming` are
+daily-frequency and identical across the counterfactual (proof in the
+script docstring, mirroring the frozen branch order).
+
+| | A current | B hype-2021 | combined |
+|---|---:|---:|---:|
+| `monthly_up` differs from settled month | 9.54% | 10.41% | **9.87%** |
+| …of which in the month's first 10 sessions | 67% | 64% | 66% |
+| weekly circle differs from settled week | 4.40% | 3.88% | 4.20% |
+| digest STATE class would differ | 7.71% | 7.13% | **7.49%** |
+
+**VERDICT (pre-committed 2% bar): MATERIAL — the display-only mark
+ships** (same session): `homily_provisional.marks()` → a `…` on the
+row's `mUP`/`mDN` token inside the month's first 10 sessions (counted
+from the name's own bars — HK/US calendars differ) and on the `wk`
+circle token for Mon–Thu prints. Wired through defaulting kwargs
+(`fmt_row(prov="")`, `render_digest(prov=None)`) — goldens and the state
+machine byte-identical with the mark off; validate [62] asserts the
+session/weekday rule, default-off, and that stripping `…` reproduces the
+unmarked digest byte-for-byte. R1 untouched: the engines keep using
+every bar; only the *presentation* stops calling a provisional read
+settled. Known miss, accepted: a Friday-holiday week escapes `w…`.

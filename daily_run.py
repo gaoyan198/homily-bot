@@ -31,6 +31,7 @@ import homily_png
 import homily_dashboard
 import homily_clusters
 import homily_flex
+import homily_provisional
 import homily_quality
 import homily_universe
 import homily_swing
@@ -136,7 +137,7 @@ def whale_dip(s):
 
 
 def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
-            rsrank=None):
+            rsrank=None, prov=""):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
@@ -188,9 +189,14 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
     # row: RS12 is computed from the same tape whose adjustment is in doubt.
     rk = (f" · RS#{rsrank}" if rsrank and rsrank <= 3 and not corp
           and s.state == "ACCUMULATE" else "")
+    # #106: a `…` on the wk/monthly tokens = that engine's deciding bar is
+    # still forming (Danny's "to be finalized"). Display-only; measured
+    # flip-rates in HOW_TO_READ. Off (prov="") in goldens by default.
+    mp = "…" if "m" in prov else ""
+    wp = "…" if "w" in prov else ""
     return (f"{ICON[s.state]} <code>{esc(f'{s.ticker:<5}')}</code>{tag} "
-            f"{g(c.last)} — {levels} · wk {s.weekly.circle}/{s.weekly.score} "
-            f"({wk_age}) · {'mUP' if s.monthly_up else 'mDN'} · "
+            f"{g(c.last)} — {levels} · wk {s.weekly.circle}{wp}/{s.weekly.score} "
+            f"({wk_age}) · {'mUP' if s.monthly_up else 'mDN'}{mp} · "
             f"d{s.candle[0]}{rk}{dp}{vh}{at}{wh}{yg}{bk}")
 
 
@@ -321,7 +327,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
                   lev="", household="", cross_book=None, ops="", bear="",
-                  turnover="", crash="", dataqa=None):
+                  turnover="", crash="", dataqa=None, prov=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -416,7 +422,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         pv = homily_positions.position_view(s.ticker, pos, prices, book_value)
         lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker),
                              pv, dip.get(s.ticker, 0),
-                             rsrank=rsr.get(s.ticker)))
+                             rsrank=rsr.get(s.ticker),
+                             prov=(prov or {}).get(s.ticker, "")))
         # #28: PLAYBOOK §5 trim rules as flags on held rows — info only
         if s.ticker in pos:
             for fl in homily_positions.trim_flags(
@@ -458,7 +465,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               "screened, not held)</b>"]
     if hits:
         lines += [fmt_row(s, True, y, sus.get(s.ticker),
-                          rsrank=rsr.get(s.ticker))
+                          rsrank=rsr.get(s.ticker),
+                          prov=(prov or {}).get(s.ticker, ""))
                   + f" · {esc(fund(s.ticker))}"
                   + (f" · {esc(qual(s.ticker))}" if qual else "")
                   for s, y in hits]
@@ -743,6 +751,14 @@ def build_digest(flex_notes=None):
         bear = homily_bearish.block(sigs, all_bars, set(HOLDINGS), esc=esc)
     except Exception as e:
         print(f"[bearish] skipped: {e}")
+    # #106: which rows' trend engines read an unfinished bar today — per
+    # name because HK/US session calendars differ. Display-only.
+    prov = {}
+    try:
+        prov = {tk: homily_provisional.marks(bs)
+                for tk, bs in all_bars.items()}
+    except Exception as e:
+        print(f"[provisional] skipped: {e}")
     # #66: sticky quality tier, quarterly-cached EDGAR read + 3y RS from the
     # bars already fetched. Info-only label; quality_tag never raises.
     spy_cl = [b[4] for b in spy_bars]
@@ -759,7 +775,7 @@ def build_digest(flex_notes=None):
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household, ops=ops, bear=bear,
                            turnover=turnover, crash=crash_line(spy),
-                           dataqa=dataqa)
+                           dataqa=dataqa, prov=prov)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
