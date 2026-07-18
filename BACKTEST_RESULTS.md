@@ -875,3 +875,25 @@ has no measured room to operate: the median window closes before a
 multi-tranche clock would tick twice. One patience-calibration paragraph
 added to PLAYBOOK §3 (info-only). Caveat: the weekly grid quantizes —
 sub-week spells register as 1w — but the gap to 13w is unambiguous.
+
+## 22 · #108 triple-red continuation (run 2026-07-18) — NULL, and mildly the wrong sign
+
+`homily_triplered_backtest.py` (PRD §5l — IBRX Feb 2026 "Triple Red
+(Bullish) candles remain in force"). Event = a daily-RED run (live
+`daily_candle` semantics, one-pass R6 prefix equality, spot-checked
+against the real prefix call) first reaching 3; fwd 5/10/20d vs the
+unconditional baseline; 2,852 events, both universes.
+
+| univ | 5d ev/base | 10d ev/base | 20d ev/base |
+|---|---:|---:|---:|
+| A current | +0.14% / +0.67% | +0.89% / +1.33% | +2.21% / +2.65% |
+| B hype-2021 | −1.27% / −0.10% | −0.38% / −0.34% | −1.15% / −0.81% |
+| combined | −0.39% / +0.38% | +0.40% / +0.69% | +0.93% / +1.33% |
+
+**VERDICT (pre-committed): NULL — the `3R` suffix never ships; closed.**
+Not only does the event fail to beat baseline anywhere, it sits BELOW
+baseline at every horizon on both universes: the third consecutive red
+close is a slightly *worse*-than-average day to add (buying a 3-day
+burst is mild chasing). Consistent with #82's ribbon-conditioning null:
+run-length continuation claims keep failing to survive measurement on
+our furniture. Recorded so nobody re-derives it.
