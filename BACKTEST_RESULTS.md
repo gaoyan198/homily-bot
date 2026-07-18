@@ -897,3 +897,38 @@ close is a slightly *worse*-than-average day to add (buying a 3-day
 burst is mild chasing). Consistent with #82's ribbon-conditioning null:
 run-length continuation claims keep failing to survive measurement on
 our furniture. Recorded so nobody re-derives it.
+
+## 23 · #105 breakout-add anatomy (run 2026-07-18) — PASSED; ⤴ tag queued for its own gated session
+
+`homily_breakout_backtest.py` (PRD §5l — Danny's NVDA Jun-2025 buy-signal
+post: close above the longest momentum bars, valid only with an updated
+whale read). Event = first close above the prior-day profile's nearest
+major overhead shelf (`resistance[0]`, top-8 strongest de-duplicated
+peaks — the shelf a live rule could actually have watched) with 🐳
+within 10 sessions (live `whale_read`, same-day convention). Comparators:
+DCA baseline + first cut-day of each ⭐ spell (weekly grid). 1,407
+breakout events, 5y, both universes.
+
+| arm (univ) | 20d | 60d | 120d | med DD | p10 DD |
+|---|---:|---:|---:|---:|---:|
+| BREAKOUT+🐳 (A) | +4.0% | **+14.6%** | +27.7% | −11.5% | −33.2% |
+| ⭐-dip entry (A) | +4.2% | +13.4% | +26.1% | −12.4% | −34.9% |
+| DCA baseline (A) | +4.3% | +13.4% | +27.9% | — | — |
+| BREAKOUT+🐳 (B) | +0.2% | **+5.6%** | +6.7% | −20.4% | −42.9% |
+| ⭐-dip entry (B) | +0.1% | +0.9% | +3.7% | −22.7% | −49.7% |
+| DCA baseline (B) | +1.5% | +4.1% | +6.2% | — | — |
+
+**VERDICT (pre-committed three-leg bar): PASS** — beats DCA at 60d on
+both universes and the control's median worst-forward-DD is *shallower*
+than the ⭐-dip's. The finding worth keeping: in the wreck universe the
+whale-confirmed breakout beat our dip entry by ~5pt/60d with less
+drawdown — confirmation-on-strength filtered the 2021 wrecks better
+than dip-buying did. Honest limits, attached to any future ship: no
+edge at 20d in the control (−1.3pt — the entry is early by a month), at
+baseline by 120d in universe A (the edge is a 60d phenomenon), and the
+event needs 🐳 within 10 sessions — the shelf-break alone was NOT
+tested separately here. **Ship path (pre-registered): info-only `⤴` row
+tag, its own session + gate + validate case; discretionary ≤2%
+WHALE-DIP framing at most; budget, copilot and engines untouched — and
+any money-flow change would additionally need an R10 slot (next free
+2027-Q2).**
