@@ -236,6 +236,14 @@ study; none touches money flow without a later R10 slot. All three
 follow the house rule: point-in-time, hype-2021 control, pre-registered
 verdicts, null → closed honestly.
 
+**Outcomes (all three executed 2026-07-19, plus the two earned ships):**
+`⤴` breakout tag SHIPPED (#105's pass, validate [63]) · #109 NULL — flow
+proxies cannot reach his stock-scale 50/75 marks (§24) · #110 NULL — the
+retail-heat conjunction is a near-empty set, 33 tags in ~12k rally cuts
+(§25) · #111 gate **PASSED** incl. the control side; `IPO↓` discovery
+tag SHIPPED (validate [64], §26) with the survivorship caveat attached.
+Zero engine edits, zero golden re-pins, zero R10 slots consumed.
+
 Ranked; each item should ship with its own honest validation before the
 digest starts trusting it. *(2026-07-06: #1–12 are absorbed into the §8
 roadmap phases — kept here for numbering continuity, referenced as #n.)*

@@ -83,7 +83,15 @@ triple-red runs BELOW baseline everywhere, §22). Same-day second sweep →
 **#109–111 queued (PRD §5m)**: #109 whale-level thresholds study (M) ·
 #110 retail-crowding warning study (M, #79 harness) · #111 below-IPO
 quality tag study (M, needs `ipo_ref.json`).
-**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #109–111 (§5m, above) · `⤴` breakout tag ship (#105's pass, own gate + validate case) · #57 中文 toggle (S in
+**§5m sweep executed 2026-07-19** (owner: "continue executing") — branch
+per item, validate [63]/[64] added: `⤴` breakout tag **SHIPPED** (#105's
+pass; homily_breakout.py, corp-suspect skip, HOW_TO_READ limits) ·
+~~#109~~ (**NULL** — flow proxies top out at 55, his 50/75 marks live on
+a stock scale, §24) · ~~#110~~ (**NULL** — near-empty set, 33 tags in
+~12k rally cuts, §25) · ~~#111~~ (**gate PASSED** incl. control side —
+`IPO↓` discovery tag **SHIPPED** with ipo_ref.json CI sanity + loud
+survivorship caveat, §26).
+**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
 #47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
