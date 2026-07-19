@@ -1004,3 +1004,27 @@ the B-side and it still passed — but a delisted-inclusive universe
 Sourcing-axis semantics only: the `IPO↓` tag marks a discovery row as
 "the market prices this below its first sale" — context for the owner's
 judgment next to `F:n/3`, never an auto-add, never a buy signal.
+
+## 27 · #103 fan-distribution card (built 2026-07-19) — the fan ships; 48 cells, 31 usable
+
+`homily_fandist_backtest.py` → `fandist.json` → `homily_fandist` →
+board cards (validate [65]). Weekly-grid prefix replay, both universes
+pooled, keyed by the pre-registered confluence (state · 🐳 · 🎯 · VH)
+through ONE shared function — 48 cells, 31 with n≥30 at 60d. Sample of
+what the card now says (60d, nearest-rank percentiles):
+
+| confluence | n | p10 | med | p75 |
+|---|---:|---:|---:|---:|
+| ⭐ ·|·|BREAKOUT | 1,597 | −20.6% | +6.2% | +20.5% |
+| 🟢 ·|·|BREAKOUT | 1,361 | −24.6% | +5.6% | +24.6% |
+| ⚪ W|T|BREAKDOWN (the WHALE-DIP shape) | 691 | −19.7% | +8.2% | +27.4% |
+| 🔵 ·|T|BREAKOUT | 410 | −29.0% | +1.6% | +20.1% |
+
+The design point the numbers make by themselves: every confluence we
+print — including the best ones — carries a double-digit-negative p10
+at 60d. That p10 sits NEXT TO the median on the card (HOW_TO_READ §7's
+no-targets law), which is the whole answer to "tell me the most likely
+path": there isn't one, there is a fan, and 1-in-10 of the names that
+looked exactly like today's chart were down ~20–30% two months later.
+Info-only; gates nothing; no digest change (board cards only, no
+byte-pinned board golden existed so nothing was re-pinned — recorded).

@@ -130,6 +130,7 @@ they gate nothing):
 | `RS12` / `RS#n` | 12-month **total** return minus SPY's (dividends counted, pts); `RS#n` = today's ⭐ rank | the selection ranker — **live since 2026-07-12** (#24 promoted by owner override): the buy-day splits the stock half across the top-3; the forward-check keeps publishing at month-starts through 2026-10 and a FAIL demotes it |
 | `conv NN` | conviction score 0–100 | honesty (#20, BACKTEST §11): the score's *ranking* is real OOS; the 75/60 tier labels separate nothing. Compare names by score, ignore the label |
 | `F:n/3` | EDGAR checks: revenue growth >10% · NI>0 or OCF>0 · dilution <12% | info-only; `F:—` = non-US. Sharpens hold-through-⚪ judgment, never times entries |
+| `fan20/60/120` (board cards) | the measured forward **distribution** for this exact confluence (state + 🐳 + 🎯 + VH, `fandist.json`, both universes pooled, point-in-time) — median with p25/p75 and **p10 printed beside it** | #103: a fan, never a path — §7 stays law (no targets, no arrows). n always shown; n<30 says "insufficient history". The read: before an add (the DRAM-margin case is why this exists), look at the p10 — that outcome happened to 1-in-10 of the names that looked exactly like this. Info-only, gates nothing |
 | `x% of book` / ⚠ cap note | position awareness | ⚠ means an add would breach the 25% add-cap (#92) — copilot already sized for it |
 
 ## 6 · How it combines — three worked examples (cards as of 2026-07-10)
