@@ -977,3 +977,30 @@ is not this conjunction; loosening the definition post-hoc would be
 tuning on the outcome, so it stays closed unless a future post pins a
 sharper observable. His bearish anatomy remains covered by the piece
 that DID pass: #79 whale-distribution (+mLHLL), still queued behind R10.
+
+## 26 · #111 below-IPO sourcing (run 2026-07-19) — PASSED with a loud survivorship caveat; IPO↓ tag ships
+
+`homily_ipo_backtest.py` + `ipo_ref.json` (PRD §5m — his Apr-2025
+below-IPO value thread; OSCR from that list became his 2026 winner).
+Monthly grid, max history, 39 hand-collected split-adjusted refs, first
+post-listing year skipped, price condition alone (no point-in-time
+fundamentals — recorded).
+
+| pool | 6m below/base | 12m below/base | n below |
+|---|---:|---:|---:|
+| A-side | +36.7% / +24.7% | +104.2% (81% win) / +65.0% | 274 |
+| B-side (control) | +15.6% / +12.1% | +41.9% (59% win) / +31.7% | 390 |
+| combined | +24.3% / +16.5% | +68.6% / +43.2% | 664 |
+
+**VERDICT (pre-committed): PASS — beats baseline at both horizons
+combined AND on the control side alone.** The win rates say it is broad,
+not one lucky name (81%/59% at 12m). **The caveat that must ride every
+use: survivorship is concentrated exactly here.** The universe contains
+only names still listed in 2026; "buy quality names under their IPO
+price" is precisely the strategy whose losers (delisted wrecks) vanish
+from such a universe. The wrecks we DO hold (PTON, BYND, LCID) are in
+the B-side and it still passed — but a delisted-inclusive universe
+(backlog #10's standing wish) would cut these numbers materially.
+Sourcing-axis semantics only: the `IPO↓` tag marks a discovery row as
+"the market prices this below its first sale" — context for the owner's
+judgment next to `F:n/3`, never an auto-add, never a buy signal.
