@@ -2234,4 +2234,23 @@ assert "⤴break+🐳" in _rowb63
 assert _rowb63.replace(" · ⤴break+🐳", "") == _row63, "tag must add only itself"
 print("[63] #105 ⤴ breakout tag: fires/no-cross/no-whale/short, default-off . PASS")
 
+# --- 64. #111 IPO↓ tag: data-file sanity + kwarg-gated render ---------------
+# Gate clauses: (a) every ipo_ref.json entry is sane (positive ref, known
+# listing type, YYYY-MM date) — a corrupt hand-collected row must fail CI,
+# not silently mistag; (b) the suffix renders only via the ipo kwarg —
+# default-off keeps goldens byte-identical; (c) the tag adds only itself.
+import re as _re64
+from homily_ipo_backtest import REFS as _refs64
+assert len(_refs64) >= 30 and "_note" not in _refs64
+for _tk64, _m64 in _refs64.items():
+    assert _m64["ref"] > 0 and _m64["type"] in ("ipo", "direct", "spac"), _tk64
+    assert _re64.fullmatch(r"20[0-2]\d-[01]\d", _m64["listed"]), _tk64
+_s64, _, _ = _up("IPO")
+_row64 = daily_run.fmt_row(_s64)
+assert "IPO↓" not in _row64
+_rowi64 = daily_run.fmt_row(_s64, ipo=True)
+assert "· IPO↓" in _rowi64
+assert _rowi64.replace(" · IPO↓", "") == _row64, "tag must add only itself"
+print("[64] #111 IPO↓ tag: ref-file sanity, kwarg-gated, default-off ....... PASS")
+
 print("\nAll structural assertions passed.")

@@ -20,6 +20,7 @@ from homily_regime import market_regime
 from homily_refine import daily_refine
 from homily_corp import corp_action_bar, suspended_note
 from homily_ribbon_backtest import RED_MEDIAN_RUN_W
+from homily_ipo_backtest import REFS as IPO_REFS
 from homily_pullback_backtest import dip_age, DIP_MEDIAN_D, DIP_P90_D
 import homily_ledger
 import homily_alerts
@@ -138,7 +139,7 @@ def whale_dip(s):
 
 
 def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
-            rsrank=None, prov="", brk=False):
+            rsrank=None, prov="", brk=False, ipo=False):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
@@ -177,6 +178,11 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
         # 60d-edge event, fires on the event day only. Info-only.
         if brk:
             wh += " · ⤴break+🐳"
+        # #111 (§26): discovery-sourcing context — priced below the
+        # first-sale reference (ipo_ref.json). The survivorship caveat
+        # lives with the study; info-only, read next to F:n/3.
+        if ipo:
+            wh += " · IPO↓"
     # #82: RED rows carry the historical base rate (median completed RED run,
     # 1,439 spells, both universes — homily_ribbon_backtest.py) so "8w" reads
     # against how much accumulate-window typically remains. Info-only.
@@ -474,7 +480,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         lines += [fmt_row(s, True, y, sus.get(s.ticker),
                           rsrank=rsr.get(s.ticker),
                           prov=(prov or {}).get(s.ticker, ""),
-                          brk=(brkmap or {}).get(s.ticker, False))
+                          brk=(brkmap or {}).get(s.ticker, False),
+                          ipo=(s.ticker in IPO_REFS
+                               and s.chips.last < IPO_REFS[s.ticker]["ref"]))
                   + f" · {esc(fund(s.ticker))}"
                   + (f" · {esc(qual(s.ticker))}" if qual else "")
                   for s, y in hits]
