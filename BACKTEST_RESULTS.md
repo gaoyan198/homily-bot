@@ -931,4 +931,27 @@ tested separately here. **Ship path (pre-registered): info-only `⤴` row
 tag, its own session + gate + validate case; discretionary ≤2%
 WHALE-DIP framing at most; budget, copilot and engines untouched — and
 any money-flow change would additionally need an R10 slot (next free
-2027-Q2).**
+2027-Q2).** *Shipped 2026-07-19 — `homily_breakout.py`, validate [63],
+HOW_TO_READ row with the limits attached.*
+
+## 24 · #109 whale-level thresholds (run 2026-07-19) — NULL; his 0–100 scale is not reachable from OHLCV
+
+`homily_whalelevel_backtest.py` (PRD §5m — "whales need 50% to run, 75%
+to surge"; WULF 94% vs MARA 9%). Pre-registered proxy, fixed before the
+run: LEVEL = 100 × (accumulation-day share + OBV-rise share)/2 over
+trailing 60 sessions; 12,091 weekly-grid obs, fwd 60/120d, quintiles +
+his absolute marks.
+
+Two findings. First, the **scale never gets there**: the proxy's max is
+55 across both universes and 5 years — zero observations ≥75, 66 ≥50.
+Any day-share-shaped proxy is mean-reverting around ~35; Danny's 9%-vs-94%
+spreads must measure a *stock* quantity (share of float/chips held by
+large accounts), not a *flow* day-count — unknowable from public OHLCV.
+The 50/75 kink is therefore untestable here, recorded as such (the 66
+obs ≥50 ran +20.6%/60d — suggestive, far too few to lean on). Second,
+the tradable cut fails the pre-committed rule: Q5>Q1 holds at 60d in
+universe A (+15.0% vs +8.3%, a real gradient) but flips in the control
+at 60d (+1.3% vs +2.1%) and ties at 120d in A (23.6 = 23.6).
+**VERDICT: NULL — no `wh:n%` column; closed.** The rank semantics (#80's
+`whale_rank`, cross-sectional, shipped) remain the only whale-comparison
+surface, which the MARA/WULF post itself supports.
