@@ -32,6 +32,7 @@ import homily_dashboard
 import homily_clusters
 import homily_flex
 import homily_provisional
+import homily_breakout
 import homily_quality
 import homily_universe
 import homily_swing
@@ -137,7 +138,7 @@ def whale_dip(s):
 
 
 def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
-            rsrank=None, prov=""):
+            rsrank=None, prov="", brk=False):
     c = s.chips
     tag = "†" if watch else ""  # NB: not "*" — unpaired * breaks TG Markdown
     h = s.vol_hole
@@ -171,6 +172,11 @@ def fmt_row(s, watch=False, young=False, corp=None, pos=None, dip=0,
                                           ("flow", s.whale.divergence),
                                           ("shelf", s.whale.shelf_stable)) if on)
             wh = (f" · 🐳{ev}" + (" ≤2% WHALE-DIP add" if whale_dip(s) else ""))
+        # #105 (§23): today is the first close above the nearest major
+        # overhead shelf with 🐳 in the last 10 sessions — the tested
+        # 60d-edge event, fires on the event day only. Info-only.
+        if brk:
+            wh += " · ⤴break+🐳"
     # #82: RED rows carry the historical base rate (median completed RED run,
     # 1,439 spells, both universes — homily_ribbon_backtest.py) so "8w" reads
     # against how much accumulate-window typically remains. Info-only.
@@ -327,7 +333,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
                   lev="", household="", cross_book=None, ops="", bear="",
-                  turnover="", crash="", dataqa=None, prov=None):
+                  turnover="", crash="", dataqa=None, prov=None, brkmap=None):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -423,7 +429,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
         lines.append(fmt_row(s, s.ticker in WATCH, young, sus.get(s.ticker),
                              pv, dip.get(s.ticker, 0),
                              rsrank=rsr.get(s.ticker),
-                             prov=(prov or {}).get(s.ticker, "")))
+                             prov=(prov or {}).get(s.ticker, ""),
+                             brk=(brkmap or {}).get(s.ticker, False)))
         # #28: PLAYBOOK §5 trim rules as flags on held rows — info only
         if s.ticker in pos:
             for fl in homily_positions.trim_flags(
@@ -466,7 +473,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     if hits:
         lines += [fmt_row(s, True, y, sus.get(s.ticker),
                           rsrank=rsr.get(s.ticker),
-                          prov=(prov or {}).get(s.ticker, ""))
+                          prov=(prov or {}).get(s.ticker, ""),
+                          brk=(brkmap or {}).get(s.ticker, False))
                   + f" · {esc(fund(s.ticker))}"
                   + (f" · {esc(qual(s.ticker))}" if qual else "")
                   for s, y in hits]
@@ -759,6 +767,16 @@ def build_digest(flex_notes=None):
                 for tk, bs in all_bars.items()}
     except Exception as e:
         print(f"[provisional] skipped: {e}")
+    # #105 (§23): whale-confirmed shelf-break event day — the tested
+    # 60d-edge entry, tagged ⤴ on the row. Corp-suspect names skip (their
+    # chip histogram, hence the shelf reference, is poisoned — same rule
+    # as the levels themselves). Info-only.
+    brkmap = {}
+    try:
+        brkmap = {tk: homily_breakout.breakout_today(bs)
+                  for tk, bs in all_bars.items() if tk not in suspect}
+    except Exception as e:
+        print(f"[breakout] skipped: {e}")
     # #66: sticky quality tier, quarterly-cached EDGAR read + 3y RS from the
     # bars already fetched. Info-only label; quality_tag never raises.
     spy_cl = [b[4] for b in spy_bars]
@@ -775,7 +793,7 @@ def build_digest(flex_notes=None):
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household, ops=ops, bear=bear,
                            turnover=turnover, crash=crash_line(spy),
-                           dataqa=dataqa, prov=prov)
+                           dataqa=dataqa, prov=prov, brkmap=brkmap)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
