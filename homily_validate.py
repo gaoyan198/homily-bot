@@ -2253,4 +2253,52 @@ assert "· IPO↓" in _rowi64
 assert _rowi64.replace(" · IPO↓", "") == _row64, "tag must add only itself"
 print("[64] #111 IPO↓ tag: ref-file sanity, kwarg-gated, default-off ....... PASS")
 
+# --- 65. #103 fan card: shared key, no targets, min-n floor, reproducible ---
+# Gate clauses from the PRD row: (a) ONE key function serves study and
+# board — the two adapters must agree on identical primitives; (b) the
+# card never contains a target/arrow/single-path string; (c) cells under
+# MIN_N print "insufficient history", never a number; (d) the emitted
+# JSON is byte-reproducible from the same observations.
+import homily_fandist as _hf65
+import homily_fandist_backtest as _hfb65
+_k65 = _hf65.conf_key("PULLBACK", True, True, "INSIDE")
+assert _k65 == "PULLBACK|W|T|INSIDE"
+assert _hf65.conf_key("HOLD", False, False, None) == "HOLD|·|·|—"
+# adapter agreement: a snapshot row and a sig with the same primitives
+_row65 = {"state": "CAUTION", "whale": True, "zone_lo": 90.0,
+          "zone_hi": 101.0, "close": 100.0, "vh_status": "BREAKDOWN"}
+assert _hf65.row_key(_row65) == _hf65.conf_key("CAUTION", True, True,
+                                               "BREAKDOWN")
+_s65, _, _ = _up("FAN")
+assert _hf65.sig_key(_s65) == _hf65.conf_key(
+    _s65.state, bool(_s65.whale.whale),
+    _s65.state != "ACCUMULATE" and _s65.add_zone is not None
+    and _s65.chips.last <= _s65.add_zone[1],
+    _s65.vol_hole.status if _s65.vol_hole else None)
+# render rules on a synthetic table: floor + no-path language
+_fan65 = {_k65: {"20": [12, -0.1, -0.05, 0.02, 0.08],
+                 "60": [45, -0.18, -0.04, 0.09, 0.21],
+                 "120": [45, -0.25, -0.02, 0.15, 0.33]}}
+_meta65 = {"built": "2026-07-19", "protocol": "fixture"}
+_ch65 = _hf65.fan_chips(_k65, fan=_fan65, meta=_meta65)
+assert any("insufficient history (n=12)" in t for t in _ch65)
+assert any("fan60 med +9%" in t and "p10 -18%" in t for t in _ch65)
+assert any("not a forecast" in t and "2026-07-19" in t for t in _ch65)
+for _t65 in _ch65:
+    for _bad65 in ("→", "➡", "⇒", "target", "TP", "measured move"):
+        assert _bad65 not in _t65, f"path language leaked: {_t65}"
+assert _hf65.fan_chips("NOSUCH|·|·|—", fan=_fan65, meta=_meta65) \
+    == ["fan: no history for this confluence"]
+assert _hf65.fan_chips(_k65, fan={}, meta={}) == [], "no table -> no chips"
+# byte-reproducibility of the emitted index on fixture observations
+_obs65 = {_k65: {"20": [0.05, -0.02, 0.11], "60": [0.2, 0.1],
+                 "120": [0.4]}}
+_t1_65 = _hfb65.emit_json(_hfb65.build_table(_obs65), "2026-07-19", "fx")
+_t2_65 = _hfb65.emit_json(_hfb65.build_table(
+    {_k65: {"20": [0.05, -0.02, 0.11], "60": [0.2, 0.1], "120": [0.4]}}),
+    "2026-07-19", "fx")
+assert _t1_65 == _t2_65, "index emit must be byte-reproducible"
+assert json.loads(_t1_65)[_k65]["20"] == [3, -0.02, 0.05, 0.05, 0.11]
+print("[65] #103 fan card: shared key, no-path language, floor, bytes ..... PASS")
+
 print("\nAll structural assertions passed.")

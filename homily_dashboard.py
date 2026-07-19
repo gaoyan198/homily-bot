@@ -49,6 +49,7 @@ import homily_alerts
 from homily_danny import daily_candle
 from homily_vol import find_hole
 from homily_png import _display_bins, _ribbon_circles
+import homily_fandist
 from homily_pullback_backtest import dip_age, DIP_MEDIAN_D, DIP_P90_D
 from homily_ribbon_backtest import RED_MEDIAN_RUN_W
 
@@ -281,6 +282,11 @@ def _card_html(s, bars, banner=None, charted=True):
         chips.append(_chip(f'{E(s["book_pct"])}% of book'))
     if s.get("cap_note"):
         chips.append(_chip(f'⚠️ {E(s["cap_note"])}', BEAR))
+    # #103: the measured forward FAN for this exact confluence — median
+    # with p25/p75 and p10 side by side, n always shown, min-n floor and
+    # construction-date caveat inside homily_fandist. Never a target.
+    chips += [_chip(E(t)) for t in
+              homily_fandist.fan_chips(homily_fandist.row_key(s))]
     note = ("held" if s.get("held") else "🔎 discovery")
     if not charted:
         # committed-board size budget (D-83 / PRD §8.5 2026-07-12): the

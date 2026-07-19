@@ -91,7 +91,11 @@ a stock scale, §24) · ~~#110~~ (**NULL** — near-empty set, 33 tags in
 ~12k rally cuts, §25) · ~~#111~~ (**gate PASSED** incl. control side —
 `IPO↓` discovery tag **SHIPPED** with ipo_ref.json CI sanity + loud
 survivorship caveat, §26).
-**Still on the shelf, each its own session:** #103 forward-distribution card (S–M, owner-requested 2026-07-17 — fan-not-path, key pre-registered in its row) · #57 中文 toggle (S in
+**#103 SHIPPED 2026-07-19** — fan-distribution card on the board cards
+(`homily_fandist.py` + `fandist.json` index, validate [65], §27): 48
+pre-registered confluence cells, p10 beside the median, min-n floor;
+info-only.
+**Still on the shelf, each its own session:** #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
 #47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
