@@ -2195,4 +2195,43 @@ _w62 = daily_run.render_digest([_up62], [], {}, _B55, _R55, [], _T55,
 assert _w62.replace("…", "") == _wo62, "mark is presentation-only"
 print("[62] #106 provisional-bar mark: session/weekday rule, default-off .... PASS")
 
+# --- 63. #105 ⤴ breakout tag: fires on the whale-confirmed break only -------
+# Synthetic 320-bar tape: 270 bars build the overhead shelf at 100, a dip
+# bases at 90, bar 310 prints the absorption day (3x volume, probes the
+# floor, closes high -> 🐳), the rally closes back under the shelf, and the
+# final bar closes 101.5 over it — the §23 event, point-in-time.
+import homily_breakout as _hb63
+
+
+def _bars63(absorb=True):
+    d0 = datetime.date(2025, 1, 1)
+    day = lambda i: d0 + datetime.timedelta(days=i)
+    bs = [(day(i), 100, 100.5, 99.5, 100.0, 1_000_000) for i in range(270)]
+    for i in range(270, 286):
+        px = 100 - (i - 269) * 0.625
+        bs.append((day(i), px + 0.3, px + 0.5, px - 0.5, px, 200_000))
+    bs += [(day(i), 90, 90.3, 89.8, 90.0, 200_000) for i in range(286, 310)]
+    bs.append((day(310), 89.5, 92.0, 89.0, 91.5,
+               3_000_000 if absorb else 200_000))
+    for i, c in zip(range(311, 319),
+                    (91.5, 93, 94.5, 96, 97, 98, 98.5, 99.0)):
+        bs.append((day(i), c - 0.5, c + 0.3, c - 0.8, c, 400_000))
+    bs.append((day(319), 100, 102, 99.5, 101.5, 500_000))
+    return bs
+
+
+_b63 = _bars63()
+assert _hb63.breakout_today(_b63), "whale-confirmed shelf-break must fire"
+assert not _hb63.breakout_today(_b63[:-1]), "no cross yet -> no tag"
+assert not _hb63.breakout_today(_bars63(absorb=False)), "no 🐳 -> no tag"
+assert not _hb63.breakout_today(_b63[:100]), "short history -> no tag"
+# render: kwarg-gated suffix — default OFF (goldens byte-identical)
+_s63, _, _ = _up("BRK")
+_row63 = daily_run.fmt_row(_s63)
+assert "⤴" not in _row63
+_rowb63 = daily_run.fmt_row(_s63, brk=True)
+assert "⤴break+🐳" in _rowb63
+assert _rowb63.replace(" · ⤴break+🐳", "") == _row63, "tag must add only itself"
+print("[63] #105 ⤴ breakout tag: fires/no-cross/no-whale/short, default-off . PASS")
+
 print("\nAll structural assertions passed.")

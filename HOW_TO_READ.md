@@ -124,6 +124,7 @@ they gate nothing):
 | 🔵 BOTTOMING | trend broken but upside VH breakout fired | early-bottom candidate, discretionary |
 | 🎯 at support | a non-⭐ name trading inside its add zone | context only. 🎯 alone on ⚪ tested WORSE than waiting — needs 🐳 |
 | 🐳 whale footprint | dip + ≥2 of: absorption print · OBV+A/D divergence · shelf replenished | ⚪+🎯+🐳 = the ONE permitted ⚪ add (WHALE-DIP, ≤2%/name, 10% sleeve cap, §3.6b) |
+| ⤴break+🐳 | TODAY printed the first close above the nearest major overhead shelf, with 🐳 in the last 10 sessions | the tested momentum entry (#105, BACKTEST §23): +1.2–1.5pt over DCA at **60d** on both universes, shallower control drawdown than the ⭐-dip. Honesty: no 20d edge (runs a month early), no 120d edge in univ A, and the break WITHOUT 🐳 was never tested. Info-only, discretionary ≤2% WHALE-DIP spirit; fires on the event day only |
 | `close` / `add` / `POC` | last close; the teal band; the orange line | compare: below add = gift, inside = act on buy day, far above = wait |
 | `RS12` / `RS#n` | 12-month **total** return minus SPY's (dividends counted, pts); `RS#n` = today's ⭐ rank | the selection ranker — **live since 2026-07-12** (#24 promoted by owner override): the buy-day splits the stock half across the top-3; the forward-check keeps publishing at month-starts through 2026-10 and a FAIL demotes it |
 | `conv NN` | conviction score 0–100 | honesty (#20, BACKTEST §11): the score's *ranking* is real OOS; the 75/60 tier labels separate nothing. Compare names by score, ignore the label |
