@@ -955,3 +955,25 @@ at 60d (+1.3% vs +2.1%) and ties at 120d in A (23.6 = 23.6).
 **VERDICT: NULL — no `wh:n%` column; closed.** The rank semantics (#80's
 `whale_rank`, cross-sectional, shipped) remain the only whale-comparison
 surface, which the MARA/WULF post itself supports.
+
+## 25 · #110 retail-crowding warning (run 2026-07-19) — NULL: the tag is a near-empty set
+
+`homily_retail_backtest.py` (PRD §5m — CELH Aug 2024: heavy retail
+accumulation + no whale bar = bearish). Pre-registered tag: rally (≥5%
+off the 60d low) + heat (20d avg volume ≥1.3× 50d) + churn (OBV flat
+over 21 sessions) + both rally-compatible whale footprints absent (the
+third, flow divergence, is dip-gated and cannot fire in a rally —
+recorded up front).
+
+The result is a base-rate finding, not a return finding: **33 tagged
+observations** out of ~12,000 rally cuts across 64 names × 5y — on
+liquid US names, sustained heat with zero net flow and zero whale
+footprints during a rally essentially does not occur; some footprint is
+almost always present. At n=33 the returns are noise (60d +6.8% vs both
+baselines ~+9.6% — under; 120d +20.3% vs +19.4/+19.8 — over) and the
+pre-committed #79-verbatim rule fails. **VERDICT: NULL — no #102 tell,
+closed.** Danny's green-bars read, whatever it measures on his terminal,
+is not this conjunction; loosening the definition post-hoc would be
+tuning on the outcome, so it stays closed unless a future post pins a
+sharper observable. His bearish anatomy remains covered by the piece
+that DID pass: #79 whale-distribution (+mLHLL), still queued behind R10.
