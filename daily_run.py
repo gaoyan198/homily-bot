@@ -48,8 +48,8 @@ import homily_bearish
 # stays the flat ticker->yahoo map every screen()/membership check expects.
 POSITIONS = homily_positions.load_positions()
 HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
-# Danny-core names not (yet) held — charted anyway, week after week
-WATCH = {"ASML":"ASML"}
+# Owner-requested names not (yet) held — charted anyway, week after week
+WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE"}
 
 # Too-new listings whose real signal lives in their constituents: screen the
 # members and print a proxy line under the holding's row (DRAM = Roundhill
