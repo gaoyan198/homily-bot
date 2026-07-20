@@ -49,7 +49,7 @@ import homily_bearish
 POSITIONS = homily_positions.load_positions()
 HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
 # Owner-requested names not (yet) held — charted anyway, week after week
-WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE"}
+WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ"}
 
 # Too-new listings whose real signal lives in their constituents: screen the
 # members and print a proxy line under the holding's row (DRAM = Roundhill
