@@ -55,6 +55,7 @@ from homily_ribbon_backtest import RED_MEDIAN_RUN_W
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DASHBOARD = os.path.join(HERE, "docs", "dashboard.html")
+TAKES = os.path.join(HERE, "docs", "danny_take.json")
 BOARD_FULL = os.path.join(tempfile.gettempdir(), "homily_board_full.html")
 REFINE_LOG = os.path.join(HERE, "homily_refine_log.csv")
 
@@ -258,7 +259,21 @@ def _chip(txt, col=None):
     return f'<span class="chip"{st}>{txt}</span>'
 
 
-def _card_html(s, bars, banner=None, charted=True):
+def _load_takes(snap, path=TAKES):
+    """#112 Danny-voice takes: strictly fail-open. Missing file, bad
+    JSON, or a board_date that isn't this snapshot's date -> {} and the
+    board renders exactly as it would without the feature."""
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        if data.get("board_date") != snap.get("date"):
+            return {}
+        return data.get("takes") or {}
+    except Exception:
+        return {}
+
+
+def _card_html(s, bars, banner=None, charted=True, take=None):
     col, label = STATE.get(s["state"], ("#8b93a3", s["state"]))
     chips = [_chip(f'close <b>{E(s["close"])}</b>')]
     if s.get("zone_lo") is not None:
@@ -300,12 +315,17 @@ def _card_html(s, bars, banner=None, charted=True):
         chart = ('<p class="nochart">chart unavailable — no bars in this '
                  'run (levels above are from the morning snapshot)</p>')
     ban = f'<p class="banner">{E(banner)}</p>' if banner else ""
+    # #112: commentary is a labelled luxury layer — absent take, absent
+    # markup, byte-identical card (the golden clause of the gate).
+    tk_block = (f'<p class="take">🗣 <b>danny-style take</b> '
+                f'<span class="ai">AI-written approximation — not Danny, '
+                f'not advice</span><br>{E(take)}</p>') if take else ""
     return (f'<section class="card" id="{E(s["ticker"])}" '
             f'data-tk="{E(s["ticker"])}">'
             f'<header><span class="tk">{E(s["ticker"])}</span>'
             f'<span class="pill" style="color:{col};border-color:{col}">'
             f'{label}</span><span class="note">{note}</span></header>{ban}'
-            f'<div class="chips">{"".join(chips)}</div>'
+            f'<div class="chips">{"".join(chips)}</div>{tk_block}'
             f'<div class="chartwrap">{chart}</div></section>')
 
 
@@ -324,8 +344,10 @@ def _cards_and_index(snap, bars_map, full):
     rows.sort(key=lambda s: (not s.get("held"),
                              ORDER.get(s["state"], 9), s["ticker"]))
     bm = bars_map or {}
+    takes = _load_takes(snap)
     cards = "".join(_card_html(s, bm.get(s["ticker"]),
-                               charted=full or bool(s.get("held")))
+                               charted=full or bool(s.get("held")),
+                               take=takes.get(s["ticker"]))
                     for s in rows)
     icon = {k: v[1].split()[0] for k, v in STATE.items()}
     idx = "".join(
@@ -479,6 +501,9 @@ h2{{margin:22px 0 6px;font-size:15px}}
 .idx{{flex:0 0 auto}}
 }}
 .nohit{{display:none;color:{MUTED};font-size:13px;padding:14px 0}}
+.take{{font-size:12.5px;line-height:1.6;color:{INK};margin:2px 0 10px;
+  padding:6px 10px;border-left:2px solid {EDGE}}}
+.take .ai{{color:{MUTED};font-size:11px}}
 .card{{background:{PANEL};border:1px solid {EDGE};border-radius:8px;
   padding:12px 12px 6px;margin:0 0 16px}}
 .card header{{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}}

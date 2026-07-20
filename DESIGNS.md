@@ -980,6 +980,74 @@ Effort S.
 
 ---
 
+### D-112 · Danny-voice takes — LLM-narrated reads on index legs + core (#112)
+
+**Why.** The board's states are mechanical and the owner reads them raw.
+The ask: a narrated "what would Danny say" paragraph on a select few
+cards — the index legs (QQQ, CSPX) and the core holdings — in Danny's
+documented voice. The engine already computes every fact (state, chips,
+VH, whale, candle run); the missing layer is prose. The LLM narrates;
+it never computes.
+
+**Scope.** `TAKE_TICKERS` = {QQQ, CSPX} ∪ holdings.json positions
+(~13 names today). Nothing screen-wide — takes are a luxury layer on
+the names the owner actually watches.
+
+**Mechanism.**
+1. Input is `docs/snapshot.json` only — the fields the nightly run
+   already commits. No new market fetch, no recomputation.
+2. Prompt = `danny_voice.md` (style card distilled from PRD §2/§3 and
+   the §5k quote table: "never simply follow red or yellow candles",
+   "the pullback usually takes 3 to 7 trading days", the VH as "the
+   most crucial part", multi-timeframe hierarchy monthly→weekly→daily,
+   adds-never-exits) + the ticker's snapshot JSON verbatim.
+3. **Grounding rule (non-negotiable).** Every number in a take must
+   appear in that ticker's snapshot fields. The writer script
+   post-checks each emitted numeral against the source JSON; any
+   unmatched number drops that take. The model ranks and narrates —
+   it never predicts returns (PRD §2 honesty constraints carry over
+   verbatim).
+4. Output `docs/danny_take.json` `{generated_utc, board_date,
+   takes: {TK: ≤600 chars}}`. `homily_dashboard.py` renders a
+   "🗣 danny-style take (AI-written)" block on matching cards **only
+   when board_date == snapshot date** (staleness guard). Fail-open:
+   file missing/stale → the board renders exactly as today.
+5. **Runtime + auth (the owner's actual question).** Three viable
+   wirings; the deterministic engine stays stdlib under all of them:
+   * **(a) Scheduled Claude Code cloud agent (recommended)** — a
+     routine on the owner's Claude subscription fires after the 09:0x
+     SGT board commit, pulls the repo, runs the writer, pushes
+     `danny_take.json`. No GH secrets, no API bill; draws on plan
+     quota. Set up via `/schedule` from any Claude Code session.
+   * **(b) In-workflow via subscription token** — a step in
+     `homily-daily.yml` running headless `claude -p`, authorized by a
+     long-lived token from `claude setup-token` stored as
+     `CLAUDE_CODE_OAUTH_TOKEN`. One pipeline, but parks an
+     owner-scoped token in GH secrets and adds a non-stdlib step to
+     the sacred workflow.
+   * **(c) API key** — same step as (b) with `ANTHROPIC_API_KEY`;
+     pay-per-token (cents/day at this size), billed separately from
+     the subscription.
+   So: a Claude subscription is *sufficient* (via a or b) but not
+   *required* (c exists). What is required under every option is that
+   a failed/skipped LLM run never blocks the board.
+
+**Honesty constraints.** Block labelled "AI-written, Danny-style
+approximation — not Danny, not advice". Takes never enter the Telegram
+digest signal lines (commentary ≠ signal). Info-only **forever** — no
+promotion path; there is nothing to promote.
+
+**Gate.** `homily_validate.py` gains three stdlib tests, zero network:
+(1) golden render — cards identical with takes absent; (2) staleness —
+mismatched `board_date` hides the block; (3) grounding — a fixture take
+with a fabricated number is rejected by the post-check.
+
+Files: `danny_voice.md`, `homily_take_writer.py` (run by the agent/CI
+step, never by `daily_run.py`), `homily_dashboard.py` render block,
+`docs/danny_take.json` · Effort M · validate: the three tests above.
+
+---
+
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.

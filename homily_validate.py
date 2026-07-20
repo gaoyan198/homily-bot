@@ -2301,4 +2301,56 @@ assert _t1_65 == _t2_65, "index emit must be byte-reproducible"
 assert json.loads(_t1_65)[_k65]["20"] == [3, -0.02, 0.05, 0.05, 0.11]
 print("[65] #103 fan card: shared key, no-path language, floor, bytes ..... PASS")
 
+# --- 66. #112 danny takes: golden render, staleness guard, grounding -------
+# Gate clauses from D-112: (a) with no take the card is byte-identical to
+# the pre-#112 board — the feature absent leaves no trace; (b) a take file
+# whose board_date is not this snapshot's date is ignored wholesale;
+# (c) the writer's post-check rejects any numeral not present in the
+# ticker's snapshot fields (method constants 3/7/10/30 excepted); and the
+# Telegram digest never learns the feature exists.
+import tempfile as _tf66
+from homily_take_writer import ground_check as _gc66, MAX_CHARS as _mx66
+from homily_dashboard import _load_takes as _lt66, _card_html as _ch66
+_row66 = {"ticker": "TK66", "state": "HOLD", "held": True, "close": 695.33,
+          "zone_lo": 647.43, "zone_hi": 680.46, "poc": 605.82,
+          "pct_in_profit": 63.6, "wk_circle": "RED", "wk_weeks": 15,
+          "monthly_up": True, "candle": "YELLOW", "vh_status": "BREAKDOWN",
+          "whale": False, "conv_score": 50, "ftag": "F:2/2", "rs12": 68.5,
+          "support": [[660.64, 0.19]], "resistance": [[718.35, 0.8]]}
+# (a) golden: take=None (and omitted) renders the exact pre-feature card
+_c66 = _ch66(_row66, None)
+assert _c66 == _ch66(_row66, None, take=None)
+assert "danny-style take" not in _c66 and "take" not in _c66.split(
+    'class="chips"')[0], "absent take must leave no markup"
+_c66t = _ch66(_row66, None, take="POC 605.82 is the crowd's cost.")
+assert "danny-style take" in _c66t and "AI-written approximation" in _c66t
+assert "not Danny, not advice" in _c66t, "honesty label is not optional"
+# (b) staleness: wrong board_date -> {}, right date -> takes, junk -> {}
+with _tf66.NamedTemporaryFile("w", suffix=".json", delete=False) as _f66:
+    json.dump({"board_date": "1999-01-01", "takes": {"TK66": "x"}}, _f66)
+assert _lt66({"date": "2026-07-20"}, path=_f66.name) == {}
+with open(_f66.name, "w") as _g66:
+    json.dump({"board_date": "2026-07-20", "takes": {"TK66": "x"}}, _g66)
+assert _lt66({"date": "2026-07-20"}, path=_f66.name) == {"TK66": "x"}
+with open(_f66.name, "w") as _g66:
+    _g66.write("not json")
+assert _lt66({"date": "2026-07-20"}, path=_f66.name) == {}
+assert _lt66({"date": "2026-07-20"}, path="/nonexistent66.json") == {}
+os.unlink(_f66.name)
+# (c) grounding: snapshot numbers (at stated precision) + the 3/7/10/30
+# method constants pass; a fabricated level is named and rejected
+assert _gc66("Adds live at 660.6, POC 605.82, close 695.33; the pullback "
+             "usually takes 3 to 7 trading days.", _row66) == []
+assert _gc66("15 weeks of red ribbon; 64% of chips in profit.",
+             _row66) == []
+assert _gc66("six-month strength down 5.19", dict(_row66, rs6=-5.19)) \
+    == [], "magnitude of a negative field is grounded"
+assert _gc66("Target 999.99 then 1200.", _row66) == ["999.99", "1200"]
+assert _gc66("wait for 615", _row66) == ["615"], "near-miss is still a miss"
+assert _mx66 == 600
+# the digest is signal-only: daily_run must never import the writer
+assert "homily_take" not in open(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "daily_run.py")).read()
+print("[66] #112 danny takes: golden render, staleness, grounding ......... PASS")
+
 print("\nAll structural assertions passed.")
