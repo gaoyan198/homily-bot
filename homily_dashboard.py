@@ -472,6 +472,12 @@ h2{{margin:22px 0 6px;font-size:15px}}
 .idxrow{{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}}
 .idx{{border:1px solid;border-radius:999px;padding:1px 10px;font-size:12px;
   color:{INK};text-decoration:none}}
+@media (max-width:640px){{
+.idxrow{{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding-bottom:2px}}
+.idxrow::-webkit-scrollbar{{display:none}}
+.idx{{flex:0 0 auto}}
+}}
 .nohit{{display:none;color:{MUTED};font-size:13px;padding:14px 0}}
 .card{{background:{PANEL};border:1px solid {EDGE};border-radius:8px;
   padding:12px 12px 6px;margin:0 0 16px}}
