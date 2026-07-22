@@ -388,7 +388,10 @@ that before improving anything, or improvements are unmeasurable.
     B ρ +0.99, top decile positive) → no footer relabel; the TIER CUTS
     (75/60) separate nothing (CONVICTION ≈ STARTER ≈ fails on 2×/5×/wreck
     rates) and the gates passed 144 wreck-episodes on B. Weight changes
-    queue behind R10.
+    queue behind R10 — and still do after the 2026-07-22 re-cut: a weight
+    change is a SELECTION promotion, which keeps the one-per-quarter
+    budget. Only survival/exit recalibrations were freed (EXECUTION.md
+    R10 carries the split and the reasoning).
 21. **Re-point the daily refine loop** — **diagnostic PASSED + parallel run
     LIVE 2026-07-11** (BACKTEST_RESULTS §13, validate [44]): ⭐-day folds
     pooled 479/1012/736 (no RED fallback); λ rankings stable at 0.25/0.5,

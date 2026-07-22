@@ -95,9 +95,43 @@ spec lists. An "obvious little fix" in a frozen engine file = stop, note it
 in PRD §8.5, finish the session's item. Improvements to the algorithm go
 through Phase C gates, never ride along.
 
-**R10 · Degrees-of-freedom budget.** Max ONE promoted signal-behaviour
-change per quarter (PRD §8.0). If two gates pass in the same quarter, the
-second waits. An algorithm that changes weekly has no track record.
+**R10 · Degrees-of-freedom budget.** *(RE-CUT 2026-07-22 by owner
+directive — "ignore R10, ship everything that you think will improve our
+odds, and backtest them rigorously." Not abolished: re-cut by CHANGE TYPE,
+because the calendar version had failed in a specific, evidenced way.)*
+
+The rule now splits in two:
+
+* **SELECTION promotions — max ONE per quarter, unchanged.** Anything that
+  changes WHICH names the money goes to, or how they are ranked, ordered
+  or weighted: new signals, new tiers, ranking swaps, timing modifiers,
+  weight edits. This is where tuning-to-noise actually bites, the quarter
+  spacing is the defence, and #14's attribution depends on it. If two
+  selection gates pass in the same quarter, the second waits.
+* **SURVIVAL / EXIT recalibrations — ship when they pass their gate.** A
+  parameter on an EXISTING exit, stop, cap or review clock, where the
+  gate was pre-registered before the run, the study reports both honest
+  windows, and the registry entry carries a demotion rule with a real
+  checker. These are measurable, reversible and individually attributable;
+  a stop-loss clock is not a degree of freedom in the same sense as a new
+  alpha signal, and the calendar was never protecting anything by holding
+  them.
+
+**Why the re-cut, recorded so it is not quietly undone.** The calendar
+version was not rate-limiting changes — it was rate-limiting *honest* ones.
+Both promotions that actually shipped under it (rs12-top3 #24 and add-cap
+#92) went through by owner OVERRIDE, while four gate-PASSED items sat
+queued to 2027-Q2 — among them #51, a validated improvement to the §5.2
+exit, which is rank 1 in the league table and the only arm measured to ADD
+return. The result was zero rate-limiting in practice plus a backlog of
+validated work: the worst of both. A rule routinely overridden by the
+person it governs is not a constraint, it is friction.
+
+**What did NOT change.** Every ship still needs its pre-registered gate,
+both honest windows, a demotion rule frozen BEFORE promotion, and a
+validate check. The re-cut removes a waiting period, not a single piece of
+evidence. Part III rule 5 (a study session never ships its own result)
+stands: the study runs, then a separate decision ships it.
 
 **R11 · Rate-limit bans (#17).** Threaded fetch: cap concurrency ~4, add
 jitter, keep the sequential path as fallback. A 429-banned runner IP kills
