@@ -47,6 +47,20 @@ CAP_DEMOTION_WATCH_PCT = 15.0   # D-92: names this big are on the wreck watch
 CAP_DEMOTION_DRAWDOWN = 0.50    # halved from held high-water since promotion
 CAP_PROMOTED = "2026-07-12"     # HWM epoch start for the demotion watch
 
+CAUTION_WEEKS = 8   # PLAYBOOK §5.2 Rule 2: completed weeks in ⚪ CAUTION
+                    # before the "sell half" review fires. PROMOTED 12→8 on
+                    # 2026-07-22 (#51, promotions.json "timestop-8wk"):
+                    # homily_timestop_backtest.py's pre-registered grid put
+                    # w=2 (~8wk) ahead of the declared w=3 on BOTH honest-
+                    # control windows at equal-or-better drawdown, twice
+                    # (2026-07-17 and a 2026-07-22 re-run on rolled data).
+                    # NOT a return-maximiser: w=1 (~4wk) scored higher still
+                    # on the honest control but lost the A·10y window and
+                    # doubles turnover — the frozen rule's minimal-change
+                    # clause picked w=2 BEFORE the QQQ column was looked at,
+                    # and that ordering is the whole point. Demotion rule
+                    # armed in promotions.json; revert to 12 is mandatory.
+
 
 def load_positions(path=HOLDINGS_FILE):
     """holdings.json (_v:2) -> {ticker: {"yahoo","shares","cost","bucket"?,
@@ -102,14 +116,17 @@ def position_view(ticker, positions, prices, book_value):
 def trim_flags(pos_view, state, wk_weeks, ftag):
     """#28: PLAYBOOK §5 as executable flags, wording mirrored from §5 —
     info only, there is still no SELL state (PRD §1 survives).
-      Rule 1 (§5.1): a position BOUGHT (not grown) above 10% of the stock
-        book → trim back to 10%. Bucket B (earned core) gets the §5 pass,
+      Rule 1 (§5.1): a position BOUGHT (not grown) above CAP_PCT of the
+        stock book → trim back to it. Bucket B (earned core) gets the pass,
         so only bucket C fires; #27's cap note handles the adds side, this
         flag is the trim side.
-      Rule 2 (§5.2): ⚪ CAUTION 12+ weeks AND fundamentals failing (F:0–1)
+      Rule 2 (§5.2): ⚪ CAUTION 8+ weeks AND fundamentals failing (F:0–1)
         → sell half, review the remainder in one quarter. The weekly
         WHITE-circle run length stands in for "weeks in CAUTION" (the
         state is gated on that circle). F:— is unknown, not failing.
+        Threshold moved 12→8 weeks with the #51 calibration promotion
+        (2026-07-22, promotions.json "timestop-8wk"); it reverts to 12 if
+        that entry's demotion rule fires.
       Rule 3 (need the money / margin exists) is a human rule — no flag.
     """
     flags = []
@@ -120,7 +137,7 @@ def trim_flags(pos_view, state, wk_weeks, ftag):
                      f"trim back to {CAP_PCT:.0f}%, proceeds to ⭐/index "
                      "(§5.1)")
     m = re.match(r"F:(\d)", ftag or "")
-    if state == "CAUTION" and wk_weeks >= 12 and m and int(m.group(1)) <= 1:
+    if state == "CAUTION" and wk_weeks >= CAUTION_WEEKS and m and int(m.group(1)) <= 1:
         flags.append(f"RULE 2 REVIEW: ⚪ {wk_weeks}w + {ftag} — sell half, "
                      "review the remainder in one quarter (§5.2)")
     return flags

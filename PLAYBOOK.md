@@ -175,7 +175,7 @@ premium on the insurance, not a malfunction.
    gets a pass — see Bucket B — but its adds stop at CAUTION. Threshold
    moved 10→25 with the #92 cap promotion, 2026-07-12; it reverts with
    the cap if the demotion rule fires.)*
-2. **Broken business, not just broken chart:** in ⚪ CAUTION for 12+ weeks
+2. **Broken business, not just broken chart:** in ⚪ CAUTION for 8+ weeks
    **and** fundamentals failing (profit check failed / F:0–1) → sell half,
    set a note to review the remainder in one quarter. A broken chart with a
    healthy business (F:2+) is a drawdown; a broken chart with a broken
@@ -184,7 +184,15 @@ premium on the insurance, not a malfunction.
    even its F-gate — beat holding-everything by ~3 pts/yr over 10y, because
    it's what gets you out of the PTON/ZM class. It is a return protector on
    broken names, NOT crash insurance: it kept the full −79% grinder
-   drawdown. §4 is the insurance; this is the trash-taker.)*
+   drawdown. §4 is the insurance; this is the trash-taker.)* *(Threshold
+   moved 12→8 weeks on 2026-07-22 by the #51 calibration — `homily_
+   timestop_backtest.py`'s pre-registered grid, run 2026-07-17 and
+   re-run 2026-07-22 on rolled data, put ~8wk ahead of the declared ~12wk
+   on both honest-control windows at equal-or-better drawdown. Read the
+   honest limit with it: on the 10y control the whole engine still LOSES
+   to QQQ-DCA (2.69 vs 2.86 MOIC at −62% vs −34% drawdown) — this change
+   narrows that gap, it does not close it. promotions.json
+   "timestop-8wk" carries the demotion rule; it reverts to 12.)*
 3. **You need the money, or margin exists** *(margin on the CORE book,
    that is — LEVERAGE.md (2026-07-12) governs the regime-gated swing
    ladder separately; the core monthly book still never carries margin)*.

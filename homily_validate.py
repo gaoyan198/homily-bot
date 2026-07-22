@@ -1130,10 +1130,19 @@ _r2 = homily_positions.trim_flags(None, "CAUTION", 13, "F:1/3")
 assert _r2 and "RULE 2 REVIEW" in _r2[0] and "sell half" in _r2[0], _r2
 assert homily_positions.trim_flags(None, "CAUTION", 13, "F:—") == [], \
     "F:— is unknown, not failing — no Rule 2 (#28)"
-assert homily_positions.trim_flags(None, "CAUTION", 11, "F:0/3") == [], \
-    "12-week floor is §5.2 verbatim"
 assert homily_positions.trim_flags(None, "HOLD", 30, "F:0/3") == [], \
     "Rule 2 is a ⚪ rule only"
+# #51 promotion (2026-07-22): the floor moved 12 -> 8 weeks. Both sides of
+# the new boundary are pinned so a silent drift back is a red suite, and
+# the constant is asserted directly — the flag and PLAYBOOK §5.2 must not
+# be able to disagree.
+assert homily_positions.CAUTION_WEEKS == 8, \
+    "§5.2 time-stop is 8 weeks since the #51 promotion (promotions.json)"
+_r2b = homily_positions.trim_flags(None, "CAUTION", 8, "F:0/3")
+assert _r2b and "RULE 2 REVIEW" in _r2b[0], \
+    "8 weeks is now ON — the #51 promotion's whole content"
+assert homily_positions.trim_flags(None, "CAUTION", 7, "F:0/3") == [], \
+    "7 weeks stays silent — the floor moved to 8, it did not vanish"
 print("[35] Trim flags: §5.1/§5.2 wording, B exempt, F:— exempt, ⚪-only .. PASS")
 
 # --- 36. Concentration lens (#29): planted blocks recovered exactly --------
