@@ -1082,3 +1082,62 @@ path": there isn't one, there is a fan, and 1-in-10 of the names that
 looked exactly like today's chart were down ~20–30% two months later.
 Info-only; gates nothing; no digest change (board cards only, no
 byte-pinned board golden existed so nothing was re-pinned — recorded).
+
+## 28 · #67b whale-dip cap — can it be RAISED? (run 2026-07-22) — NULL; the cap is not a return knob
+
+Owner-directed 2026-07-22: #67 Step 4 derived a *tightening* to 1.6%; the
+owner declined that direction and asked the opposite — 🐳 WHALE-DIP is the
+only entry trigger that beat DCA, so is the cap mis-set on the LOW side?
+`homily_whalecap_backtest.py`, rule frozen in the docstring before the run
+(largest-passer wins, deliberately the opposite tie-break to #51's).
+
+**B · 5y, 417 episodes, 3.5%/mo allowance, 200 resamples of within-month
+funding order:**
+
+| cap | MOIC p50 | p5 | p95 | MaxDD p50 | funded | skipped |
+|---|---|---|---|---|---|---|
+| 1.0% | 1.052 | **1.026** | 1.083 | −5.3% | **134** | 283 |
+| 1.6% | 1.053 | 1.017 | 1.089 | −6.0% | 91 | 326 |
+| **2.0% (incumbent)** | 1.054 | **0.994** | 1.113 | −4.4% | **46** | 371 |
+| 2.5% | 1.054 | 0.994 | 1.113 | −5.5% | 46 | 371 |
+| 3.0% | 1.054 | 0.994 | 1.113 | −6.6% | 46 | 371 |
+| 4.0% | — | — | — | — | **0** | infeasible |
+
+**RULE: NULL.** No cap above 2.0% clears the clauses; the cap STAYS 2%.
+
+**Read the identical rows — they are the finding.** 2.0 / 2.5 / 3.0% post
+the SAME MOIC, p5, p95, funded and skipped counts. With a 3.5%/mo
+allowance, every cap in ~[1.75%, 3.5%] funds exactly ONE leg per month, so
+the cap changes only the SIZE of an identical set of bets. 4.0% exceeds the
+monthly allowance outright and funds nothing. Within that band the knob
+does not select differently — it just levers.
+
+**A THIRD design flaw, recorded rather than buried** (v1 ignored the
+budget; v2 was confounded by funding order; this is v3). MOIC is a RATIO —
+scale-invariant — so a pure size increase cannot move it, and clause (a)
+was therefore *unsatisfiable by construction* for any c in the one-leg band.
+The NULL is structurally guaranteed there, not empirically earned, and must
+not be quoted as "we measured that raising the cap doesn't pay." The honest
+statement is narrower: **within the budget-feasible range the cap has no
+measurable effect on return per dollar committed, and raising it scales
+drawdown while leaving the return multiple unchanged** (MaxDD −4.4% → −5.5%
+→ −6.6% across 2.0/2.5/3.0% on identical legs). A study that wanted to price
+the *leverage* choice would have to measure absolute book contribution, not
+MOIC, and would then be answering a risk-appetite question rather than an
+empirical one.
+
+**What the table does support, against the direction it was commissioned
+in.** Finer caps deploy the allowance more completely (134 legs at 1.0% vs
+46 at 2.0%) at a statistically indistinguishable median (1.052 vs 1.054,
+heavily overlapping bands) and with a materially tighter downside:
+**p5 1.026 at 1.0% vs 0.994 at 2.0%** — the fine-grained sleeve's bad case
+is still profitable, the coarse one's is not. That is the diversification
+benefit, and it points back toward #67 Step 4's 1.6%, i.e. the tightening
+the owner declined. NOT shipped: the owner ruled on that direction and this
+run is not a mandate to overturn it — it returns to them as a fresh
+decision. Caveat on the allowance: 3.5%/mo is BUY_BUDGET_USD 1550 over the
+~US$44k book of 2026-07-22, and whale-dips actually COMPETE with ⭐ adds for
+that budget, so the true whale-dip allowance is smaller and every constraint
+above is looser than reality.
+
+**Nothing shipped from this study.** PLAYBOOK §3.6b keeps ≤2%.
