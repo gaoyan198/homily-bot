@@ -25,6 +25,7 @@ window has enough measured rows, then PASS/FAIL per the frozen criterion.
 Engines frozen (§0): pure read of the ledger CSV and the registry.
 """
 import os
+import re
 import json
 import datetime
 
@@ -37,6 +38,60 @@ REGISTRY = os.path.join(HERE, "promotions.json")
 def load_registry(path=REGISTRY):
     with open(path) as f:
         return json.load(f)["entries"]
+
+
+EARLY_LO, EARLY_HI, LATE = 8, 11, 12    # #51 bands, in weekly ⚪ circles
+TIMESTOP_MIN_EPISODES = 8               # below this the read is INSUFFICIENT
+
+
+def timestop_watch(rows, lo=None, hi=None):
+    """#51 custom demotion checker (promotions.json "timestop-8wk").
+
+    The promotion moved §5.2's sell-half review from 12 weeks in ⚪ to 8.
+    The live question that would UNDO it: did exiting earlier destroy
+    value? Measured per episode, purely from committed ledger rows —
+
+      * EARLY flag  = first row for a ticker with state CAUTION,
+        wk_weeks in [8, 11] and F:0–1 (the band the promotion newly made
+        actionable). Close there = the price the owner could sell half at.
+      * LATE flag   = the same ticker's next CAUTION row at wk_weeks >= 12
+        — what the OLD rule would have waited for.
+      * delta       = late/early − 1. Positive means the price ROSE while
+        waiting, i.e. the old 12-week rule sold higher and the early exit
+        cost money; negative means the early exit sold higher and won.
+
+    -> {"n", "mean_delta", "status"}. FAIL (= mandatory demotion to 12,
+    per the entry's frozen demotion_rule) when the mean delta is positive
+    over at least TIMESTOP_MIN_EPISODES paired episodes. Unpaired early
+    flags (name left ⚪ before week 12) are skipped, not counted as wins —
+    they have no counterfactual price and guessing one would flatter the
+    change we just shipped."""
+    seen_early, deltas = {}, []
+    for r in sorted(rows, key=lambda r: (r["ticker"], r["date"])):
+        if lo and not (lo <= r["date"] <= hi):
+            continue
+        if r.get("state") != "CAUTION" or not r.get("close"):
+            continue
+        m = re.match(r"F:(\d)", r.get("ftag") or "")
+        try:
+            wk = int(r.get("wk_weeks") or 0)
+            px = float(r["close"])
+        except ValueError:
+            continue
+        tk = r["ticker"]
+        if tk not in seen_early:
+            if EARLY_LO <= wk <= EARLY_HI and m and int(m.group(1)) <= 1 \
+                    and px > 0:
+                seen_early[tk] = px
+        elif wk >= LATE:
+            deltas.append(px / seen_early.pop(tk) - 1)
+    out = {"n": len(deltas),
+           "mean_delta": (sum(deltas) / len(deltas)) if deltas else None}
+    if len(deltas) < TIMESTOP_MIN_EPISODES:
+        out["status"] = "INSUFFICIENT"
+    else:
+        out["status"] = "FAIL" if out["mean_delta"] > 0 else "PASS"
+    return out
 
 
 def forward_check(entry, rows):

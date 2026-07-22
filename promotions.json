@@ -1,59 +1,81 @@
 {
-  "_v": 1,
-  "_comment": "#69 promotion lifecycle registry. One entry per gate-passed candidate or pre-registered challenger. Standing rule (PRD #69, adopted 2026-07-11): NOTHING is promoted without a demotion rule written in its entry BEFORE promotion — a promoted signal that stops working leaves by rule, not by debate. homily_promotions.py executes the forward checks against the #13 ledger; homily_validate.py asserts every entry names its gate artifact and demotion rule. Edit this file only by appending entries or filling a decision — never rewrite a frozen criterion after data starts accruing.",
-  "entries": [
-    {
-      "id": "rs12-top3",
-      "status": "promoted",
-      "promoted": "2026-07-12",
-      "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12: promoted with NEITHER pre-registered condition met — the forward check had not matured (window runs to 2026-09-30) and earliest_promotion (2026-10-01, Q4's R10 slot) had not arrived. The owner directed the promotion and accepted the risk explicitly ('I can take the risk of promoting without live data'). The frozen forward-check window is UNCHANGED and its read publishes at every month-start digest check through and including 2026-10-01 regardless of this promotion; the rolling demotion rule below is armed from the promotion date and a FAIL demotes mechanically. R10 accounting: Q4-2026's promotion slot is SPENT by this early promotion (Q3's went to 🐳 WHALE-DIP, 2026-07-06); no further promoted signal-behaviour change before 2027-Q1.",
-      "what": "concentrate the monthly stock-half into the top-3 ⭐ candidates by 12m relative strength (PRD §5j)",
-      "gate_date": "2026-07-10",
-      "gate_artifact": "homily_selection_backtest.py (rule pre-registered in docstring) + BACKTEST_RESULTS.md §4 + PRD §5j",
-      "earliest_promotion": "2026-10-01",
-      "forward_check": {
-        "rank_column": "rs12_rank",
-        "window": ["2026-07-10", "2026-09-30"],
-        "horizon_rows": 21,
-        "min_measured_rows": 30,
-        "criterion": "mean forward-21-ledger-row raw-close return of ⭐ rows with rank<=3 must EXCEED the mean of ⭐ rows with rank>3 over the window; fewer than min_measured_rows on either side = INSUFFICIENT, decision deferred, no promotion"
-      },
-      "if_promoted": "digest orders ⭐ rows by RS12 with top-3 marked; PLAYBOOK §3.4 becomes split-across-top-3; homily_buyday allocates top-3 (MAX_STARS/ordering); one session, one commit",
-      "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion"
-    },
-    {
-      "id": "add-cap-25",
-      "status": "promoted",
-      "promoted": "2026-07-12",
-      "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12 (#92/D-92): promoted ahead of the clean 2027-Q1 R10 slot on the owner's directive ('concentration is also ok and should be encouraged, allow me to add into winners on dips instead of keeping the 10% hard rule' + 'execute them NOW, dont stop until you're done'). The gate itself ran earlier and independently: D-67/BACKTEST_RESULTS §12 priced 25% as formally adoptable (ties-or-beats 10% in 7/9 redistribute windows, shock-MaxDD within 5 pts) at a recorded cost (−95% single-name shock payout 1.70 vs 1.89 MOIC — half the insurance surrendered deliberately). Uncapped stays excluded (its −95% cell is 1.49; excluded by pre-registered rule). R10 arithmetic: 2026-Q3 🐳 · 2026-Q4 rs12-top3 (spent early) · 2027-Q1 this entry (spent early) — the next free promotion slot is 2027-Q2, and October's #14/#85 reads must split THREE 2026 epochs.",
-      "what": "per-name ADD cap on the stock book raised 10% → 25% (homily_positions.CAP_PCT, D-27 interlock reaches the buy-day copilot); PLAYBOOK §3.4/§5.1 and digest texts moved with it; dip-adds into winners route through the existing surfaces (⭐-at-shelf · 🟡+🎯 · ⚪+🎯+🐳 ≤2%)",
-      "gate_date": "2026-07-11",
-      "gate_artifact": "homily_cap_backtest.py (D-67 pre-committed prongs) + BACKTEST_RESULTS §12 + DESIGNS D-92",
-      "earliest_promotion": "2027-01-01",
-      "forward_check": {
-        "type": "custom",
-        "checker": "homily_positions.cap_demotion_line — every daily run (validate [50]), not month-start only",
-        "criterion": "any single held name >=15% of the USD stock book whose last close sits <=50% of its highest close since 2026-07-12 prints the 🚨 demotion banner; the banner repeats daily until acted on"
-      },
-      "if_promoted": "already live: CAP_PCT=25.0 + WARN_PCT=20.0, copilot cap via CAP_FRAC interlock, PLAYBOOK/digest texts, goldens re-pinned deliberately in the same commit",
-      "demotion_rule": "revert CAP_PCT to 10.0 (and WARN_PCT to 8.0) in the next session after the custom forward_check fires — mandatory, not a discussion; ALSO revert if a yearly #40 re-run of homily_cap_backtest.py shows 25% losing its D-67 prongs (stops tying-or-beating 10% on redistribute windows or shock-MaxDD spread exceeds 5 pts)"
-    },
-    {
-      "id": "whale-top3",
-      "status": "registered-challenger",
-      "what": "select between ⭐ candidates by whale-accumulation intensity instead of RS12 (PRD §5k / #80, MARA-vs-WULF pattern)",
-      "gate_date": null,
-      "gate_artifact": "NOT YET RUN — pre-registered 2026-07-11 (PRD §8.3 #80): enters the #24 three-way harness at the 2026-10-01 read (whale-top3 vs rs12-top3 vs equal-all) and must tie-or-beat rs12-top3 on all three honest windows incl. the hype-2021 control, else CLOSED",
-      "earliest_promotion": "2027-01-01",
-      "forward_check": {
-        "rank_column": "whale_rank",
-        "window": ["2026-07-13", "2026-09-30"],
-        "horizon_rows": 21,
-        "min_measured_rows": 30,
-        "criterion": "informational until the backtest gate runs: mean forward-21-row return of ⭐ rows with whale_rank<=3 vs rank>3 over the window (whale_rank column live from 2026-07-13)"
-      },
-      "if_promoted": "selection/ordering by whale_rank instead of rs12_rank, same surfaces as rs12-top3",
-      "demotion_rule": "same rolling-6-month underperformance rule as rs12-top3, frozen here before any gate runs"
-    }
-  ]
+ "_v": 1,
+ "_comment": "#69 promotion lifecycle registry. One entry per gate-passed candidate or pre-registered challenger. Standing rule (PRD #69, adopted 2026-07-11): NOTHING is promoted without a demotion rule written in its entry BEFORE promotion — a promoted signal that stops working leaves by rule, not by debate. homily_promotions.py executes the forward checks against the #13 ledger; homily_validate.py asserts every entry names its gate artifact and demotion rule. Edit this file only by appending entries or filling a decision — never rewrite a frozen criterion after data starts accruing.",
+ "entries": [
+  {
+   "id": "rs12-top3",
+   "status": "promoted",
+   "promoted": "2026-07-12",
+   "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12: promoted with NEITHER pre-registered condition met — the forward check had not matured (window runs to 2026-09-30) and earliest_promotion (2026-10-01, Q4's R10 slot) had not arrived. The owner directed the promotion and accepted the risk explicitly ('I can take the risk of promoting without live data'). The frozen forward-check window is UNCHANGED and its read publishes at every month-start digest check through and including 2026-10-01 regardless of this promotion; the rolling demotion rule below is armed from the promotion date and a FAIL demotes mechanically. R10 accounting: Q4-2026's promotion slot is SPENT by this early promotion (Q3's went to 🐳 WHALE-DIP, 2026-07-06); no further promoted signal-behaviour change before 2027-Q1.",
+   "what": "concentrate the monthly stock-half into the top-3 ⭐ candidates by 12m relative strength (PRD §5j)",
+   "gate_date": "2026-07-10",
+   "gate_artifact": "homily_selection_backtest.py (rule pre-registered in docstring) + BACKTEST_RESULTS.md §4 + PRD §5j",
+   "earliest_promotion": "2026-10-01",
+   "forward_check": {
+    "rank_column": "rs12_rank",
+    "window": [
+     "2026-07-10",
+     "2026-09-30"
+    ],
+    "horizon_rows": 21,
+    "min_measured_rows": 30,
+    "criterion": "mean forward-21-ledger-row raw-close return of ⭐ rows with rank<=3 must EXCEED the mean of ⭐ rows with rank>3 over the window; fewer than min_measured_rows on either side = INSUFFICIENT, decision deferred, no promotion"
+   },
+   "if_promoted": "digest orders ⭐ rows by RS12 with top-3 marked; PLAYBOOK §3.4 becomes split-across-top-3; homily_buyday allocates top-3 (MAX_STARS/ordering); one session, one commit",
+   "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion"
+  },
+  {
+   "id": "add-cap-25",
+   "status": "promoted",
+   "promoted": "2026-07-12",
+   "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12 (#92/D-92): promoted ahead of the clean 2027-Q1 R10 slot on the owner's directive ('concentration is also ok and should be encouraged, allow me to add into winners on dips instead of keeping the 10% hard rule' + 'execute them NOW, dont stop until you're done'). The gate itself ran earlier and independently: D-67/BACKTEST_RESULTS §12 priced 25% as formally adoptable (ties-or-beats 10% in 7/9 redistribute windows, shock-MaxDD within 5 pts) at a recorded cost (−95% single-name shock payout 1.70 vs 1.89 MOIC — half the insurance surrendered deliberately). Uncapped stays excluded (its −95% cell is 1.49; excluded by pre-registered rule). R10 arithmetic: 2026-Q3 🐳 · 2026-Q4 rs12-top3 (spent early) · 2027-Q1 this entry (spent early) — the next free promotion slot is 2027-Q2, and October's #14/#85 reads must split THREE 2026 epochs.",
+   "what": "per-name ADD cap on the stock book raised 10% → 25% (homily_positions.CAP_PCT, D-27 interlock reaches the buy-day copilot); PLAYBOOK §3.4/§5.1 and digest texts moved with it; dip-adds into winners route through the existing surfaces (⭐-at-shelf · 🟡+🎯 · ⚪+🎯+🐳 ≤2%)",
+   "gate_date": "2026-07-11",
+   "gate_artifact": "homily_cap_backtest.py (D-67 pre-committed prongs) + BACKTEST_RESULTS §12 + DESIGNS D-92",
+   "earliest_promotion": "2027-01-01",
+   "forward_check": {
+    "type": "custom",
+    "checker": "homily_positions.cap_demotion_line — every daily run (validate [50]), not month-start only",
+    "criterion": "any single held name >=15% of the USD stock book whose last close sits <=50% of its highest close since 2026-07-12 prints the 🚨 demotion banner; the banner repeats daily until acted on"
+   },
+   "if_promoted": "already live: CAP_PCT=25.0 + WARN_PCT=20.0, copilot cap via CAP_FRAC interlock, PLAYBOOK/digest texts, goldens re-pinned deliberately in the same commit",
+   "demotion_rule": "revert CAP_PCT to 10.0 (and WARN_PCT to 8.0) in the next session after the custom forward_check fires — mandatory, not a discussion; ALSO revert if a yearly #40 re-run of homily_cap_backtest.py shows 25% losing its D-67 prongs (stops tying-or-beating 10% on redistribute windows or shock-MaxDD spread exceeds 5 pts)"
+  },
+  {
+   "id": "whale-top3",
+   "status": "registered-challenger",
+   "what": "select between ⭐ candidates by whale-accumulation intensity instead of RS12 (PRD §5k / #80, MARA-vs-WULF pattern)",
+   "gate_date": null,
+   "gate_artifact": "NOT YET RUN — pre-registered 2026-07-11 (PRD §8.3 #80): enters the #24 three-way harness at the 2026-10-01 read (whale-top3 vs rs12-top3 vs equal-all) and must tie-or-beat rs12-top3 on all three honest windows incl. the hype-2021 control, else CLOSED",
+   "earliest_promotion": "2027-01-01",
+   "forward_check": {
+    "rank_column": "whale_rank",
+    "window": [
+     "2026-07-13",
+     "2026-09-30"
+    ],
+    "horizon_rows": 21,
+    "min_measured_rows": 30,
+    "criterion": "informational until the backtest gate runs: mean forward-21-row return of ⭐ rows with whale_rank<=3 vs rank>3 over the window (whale_rank column live from 2026-07-13)"
+   },
+   "if_promoted": "selection/ordering by whale_rank instead of rs12_rank, same surfaces as rs12-top3",
+   "demotion_rule": "same rolling-6-month underperformance rule as rs12-top3, frozen here before any gate runs"
+  },
+  {
+   "id": "timestop-8wk",
+   "status": "promoted",
+   "what": "PLAYBOOK §5.2 Rule 2 time-stop: weeks in ⚪ CAUTION (with F:0–1) before the sell-half review fires, 12 -> 8 (#51; homily_positions.CAUTION_WEEKS)",
+   "gate_date": "2026-07-17",
+   "gate_artifact": "homily_timestop_backtest.py — decision rule frozen in the module docstring BEFORE the first run: a challenger w must (a) win MOIC on BOTH universe-B honest windows vs the incumbent w=3, (b) not lose both universe-A windows, (c) keep MaxDD within +5 pts everywhere; minimal change wins among passers. Run 2026-07-17: PASS, passing [1,2], w=2 the minimal-change winner. Independently RE-RUN 2026-07-22 on rolled data (window 2021-07-22/2016-07-22 -> 2026-07-21): same verdict, passing [1,2], w=2. B·5y 1.95 vs 1.77 incumbent; B·10y 2.69 vs 2.51; A·5y 2.36 vs 2.35; A·10y 4.34 vs 4.27; B·10y MaxDD -62% vs -64% (better).",
+   "earliest_promotion": "2026-07-22",
+   "promotion_basis": "OWNER DIRECTIVE 2026-07-22: 'ignore R10, ship everything that you think will improve our odds, and backtest them rigorously.' R10's calendar spacing (next free slot 2027-Q2) was waived deliberately — see the same-day R10 re-cut, which splits survival/exit recalibrations (measurable, reversible, attributable) from selection promotions (where tuning-to-noise bites) rather than abolishing the rule. NORTH-STAR HONESTY, recorded because it cuts against the ship: this promotion does NOT make the engine beat QQQ. On the 10y honest control QQQ-DCA scores 2.86 MOIC at -34% MaxDD; the engine scores 2.51 at w=3 and 2.69 at w=2, at -64%/-62%. The change narrows a losing gap. It ships because it beats the INCUMBENT on the frozen rule, which is what it was tested for. w=1 (~4wk) was the only setting that cleared QQQ on that window (3.01) and was NOT taken: it loses A·10y (4.00 vs 4.27), takes -57% drawdown and 83% more turnover, and the frozen minimal-change clause had already selected w=2 before the QQQ column was examined. Choosing w=1 after seeing that column would be post-hoc selection toward the north star — the exact failure this registry exists to prevent.",
+   "forward_check": {
+    "type": "custom",
+    "checker": "homily_promotions.timestop_watch — paired-episode read over committed ledger rows; published at every month-start alongside the other entries, not a one-shot",
+    "criterion": "FROZEN 2026-07-22. For each ticker, EARLY flag = first CAUTION row at wk_weeks in [8,11] with F:0-1 (the band this promotion newly made actionable); LATE flag = that ticker's next CAUTION row at wk_weeks>=12 (what the old rule waited for); delta = late/early - 1. Mean delta > 0 over >= 8 paired episodes means the price rose while waiting, i.e. the earlier exit destroyed value -> FAIL -> mandatory revert of CAUTION_WEEKS to 12. Unpaired early flags are skipped, never scored as wins."
+   },
+   "if_promoted": "homily_positions.CAUTION_WEEKS = 8; PLAYBOOK §5.2 Rule 2 text, homily_positions.trim_flags docstring, HOW_IT_WORKS F:n/3 row all read '8+ weeks'. homily_bear_backtest.CAUTION_MONTHS stays 3 — it is the BACKTEST replay constant and every committed table depends on it replaying byte-identically.",
+   "demotion_rule": "FROZEN BEFORE PROMOTION. Revert CAUTION_WEEKS to 12 (and all four text surfaces) if EITHER: (a) at the 2027-01-22 forward read, names flagged in the newly-eligible 8..11-week band underperformed, on mean forward return from flag date, what waiting to 12 weeks would have returned — i.e. the earlier exit destroyed value on live rows; or (b) any re-run of homily_timestop_backtest.py on a later window fails to keep w=2 in the passing set under the SAME frozen three-clause rule. Reversion is mandatory and mechanical, not a discussion."
+  }
+ ]
 }

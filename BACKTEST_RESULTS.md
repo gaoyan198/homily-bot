@@ -722,11 +722,65 @@ the hindsight universe doesn't punish it (A·10y 4.29 vs 4.22). w=1 is
 stronger still on B but trades 60–90% more and loses A·10y — the rule's
 minimal-change clause exists precisely to resist that reach.
 
-**Ship status: NOTHING changed today** (Part III rule 5). PLAYBOOK
+~~**Ship status: NOTHING changed today** (Part III rule 5). PLAYBOOK
 §5.2's "12+ weeks" edit is a registry promotion with a demotion rule,
 QUEUED behind R10 with #79/#67-whale-cap/#20 — next free slot 2027-Q2,
-order per SPECS §1. The digest keeps printing the current rule until
-then.
+order per SPECS §1.~~ **SHIPPED 2026-07-22** — see §16b.
+
+## 16b · #51 re-run + the QQQ bar the first run never published (2026-07-22)
+
+Owner directive: "ignore R10, ship everything that you think will improve
+our odds, and backtest them rigorously." Before shipping, the study was
+re-run on rolled data (`python3 homily_timestop_backtest.py`, windows now
+2021-07-22 / 2016-07-22 → 2026-07-21) and the **DCA QQQ row — which
+`grid_table` has printed on every run since 2026-07-17 and which the §16
+table above silently omitted — is published here.** §16 answered "which
+w wins"; it never asked whether the winner clears the north star.
+
+| window | DCA SPY | **DCA QQQ** | w=1 (~4wk) | **w=2 (~8wk)** | w=3 incumbent | w=4 | w=6 |
+|---|---|---|---|---|---|---|---|
+| **B · 5y** (honest) | 1.50 | **1.73** | 2.10 | **1.95** | 1.77 | 1.83 | 1.71 |
+| **B · 10y** (honest) | 2.09 | **2.86** | 3.01 | **2.69** | 2.51 | 2.22 | 2.16 |
+| A · 5y (hindsight) | 1.50 | 1.73 | 2.66 | 2.36 | 2.35 | 2.36 | 2.39 |
+| A · 10y (hindsight) | 2.09 | 2.86 | 4.00 | 4.34 | 4.27 | 5.16 | 4.82 |
+
+MaxDD, B·10y: QQQ −34% · w=1 −57% · **w=2 −62%** · w=3 −64% · w=6 −68%.
+MaxDD, B·5y: QQQ −34% · w=2 −25% · w=3 −24%.
+
+**Gate: PASS, reproduced.** Passing set [1, 2]; w=2 the minimal-change
+winner — identical verdict to 2026-07-17 on independently rolled data.
+w=2 beats the incumbent on both honest windows (1.95 vs 1.77; 2.69 vs
+2.51) at better B·10y drawdown (−62% vs −64%).
+
+**The north-star reading, recorded because it cuts against the ship:**
+on the 5y honest control the engine beats QQQ-DCA at markedly better
+drawdown (1.95 vs 1.73, −25% vs −34%). **On the 10y honest control it
+LOSES to QQQ at every w except w=1** — incumbent 2.51 and promoted w=2
+2.69 both trail 2.86, at roughly twice the drawdown. This promotion
+NARROWS a losing gap; it does not close it. PRD §5i's verdict ("beats
+SPY mostly, does not reliably beat QQQ, 2–3× index drawdown") survives
+this study intact and should not be quoted as overturned.
+
+**Why w=1 was NOT taken, though it is the only setting that clears QQQ
+on B·10y (3.01 vs 2.86).** It loses A·10y (4.00 vs 4.27), takes −57%
+drawdown, and trades 83% more (1484 vs 812 fills). The frozen rule's
+minimal-change clause selected w=2 on 2026-07-17, *before* anyone looked
+at a QQQ column. Re-picking w=1 now, having seen that column, would be
+choosing a parameter because it flatters the north star — the precise
+post-hoc selection this file's pre-registration discipline exists to
+prevent. The clause was written to resist exactly this temptation and it
+was honored. Recorded so a future session does not "fix" it.
+
+**Shipped:** `homily_positions.CAUTION_WEEKS = 8` (the live flag), PLAYBOOK
+§5.2 Rule 2, `trim_flags` docstring, HOW_IT_WORKS F:n/3 row. NOT touched:
+`homily_bear_backtest.CAUTION_MONTHS = 3` — that is the BACKTEST replay
+constant every committed table in this file depends on, and gambit's
+`TIME_STOP_DAYS = 84`, which is the swing sleeve's separate A5 rule.
+Registry entry `timestop-8wk` carries a frozen demotion rule with a real
+checker (`homily_promotions.timestop_watch`, paired-episode read over
+committed ledger rows: mean delta > 0 across ≥8 episodes = the earlier
+exit destroyed value = mandatory revert to 12). Gate: validate [35],
+which now pins both sides of the 8-week boundary and the constant itself.
 
 ## 17 · #86 dip war-chest (run 2026-07-17) — NULL on both arms; the instinct closes
 
