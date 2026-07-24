@@ -43,6 +43,7 @@ both fetched by the IO shell, never inside the pure render.
 import datetime
 import html
 import json
+import math
 import os
 from pathlib import Path
 
@@ -189,15 +190,20 @@ def combined_leverage(comp):
     return gross / net
 
 
-# --- #124 · PLAYBOOK §8.1 owner target line -------------------------------
-# S$2M household net worth before the owner turns 40 in 2032, set
-# 2026-07-24 and assigned BY THE OWNER to the savings lever ("it's a
-# savings problem not a investing problem"). This line is progress
-# instrumentation only — §8.1 is explicit that the target changes no
-# investing rule, ever, and nothing here feeds sizing, budget or signals.
+# --- #124 · PLAYBOOK §8.1 owner target line (re-cut 2026-07-24) ------------
+# S$2M household by ~47, S$600k checkpoint at the 40th birthday (2032-07).
+# History, kept so the re-cut is remembered as honesty and not drift: the
+# target was first set as S$2M-by-2032, whose needed-DCA read S$18–21k/mo —
+# beyond top-10% SG income, and the owner rightly called the monthly print
+# demoralizing. A line that demands the impossible corrodes the routine
+# (R0 damage), so the deadline became the OUTPUT: the line projects when
+# S$2M arrives at the owner's ACTUAL logged pace, and the only demanded
+# number is the checkpoint's — which is reachable. §8.1 is explicit that
+# the target changes no investing rule, ever; nothing here feeds sizing.
 TARGET_SGD = 2_000_000.0
-TARGET_MONTH = "2032-07"      # refine to the exact birthday month if stated
-TARGET_REF_RATES = (0.08, 0.12)   # sober reference CAGRs, monthly compounding
+CHECKPOINT_SGD = 600_000.0
+CHECKPOINT_MONTH = "2032-07"       # the 40th birthday; refine if stated
+TARGET_REF_RATES = (0.08, 0.12)    # sober reference CAGRs, monthly compounding
 
 
 def required_monthly(target, book, months, annual_rate):
@@ -218,36 +224,80 @@ def required_monthly(target, book, months, annual_rate):
     return gap * i / (growth - 1.0)
 
 
+def months_to_target(target, book, monthly, annual_rate):
+    """Closed-form months until `book` + level `monthly` contributions
+    reach `target` at `annual_rate` (monthly compounding): the deadline as
+    the OUTPUT. 0 when already there; None when the inputs can never
+    arrive (no contributions and no growth, or nothing positive at all).
+    Derivation: FV = (B + C/i)(1+i)^n − C/i  →  n = ln((T+C/i)/(B+C/i)) /
+    ln(1+i); zero-rate degenerates to (T−B)/C."""
+    if book >= target:
+        return 0
+    if annual_rate == 0.0:
+        if monthly <= 0:
+            return None
+        return math.ceil((target - book) / monthly)
+    i = annual_rate / 12.0
+    base = book + monthly / i
+    if base <= 0:
+        return None
+    ratio = (target + monthly / i) / base
+    if ratio <= 1.0:
+        return 0
+    return math.ceil(math.log(ratio) / math.log(1.0 + i))
+
+
+def _add_months(day, n):
+    y, m = day.year, day.month + n
+    return y + (m - 1) // 12
+
+
 def target_line(net_usd, usdsgd, today, flows=None):
-    """§8.1 target progress + needed-DCA line (#124), in SGD (the target's
-    own currency). '' when FX is unavailable (a USD approximation would
-    misstate an SGD promise) or once the target month has passed (the §8.1
-    retrospective is an owner conversation, not a digest line). The
-    "vs logged" tail compares against the trailing average of the last ≤6
-    logged flow months — the owner's actual savings rate, the one variable
-    the target is assigned to."""
+    """§8.1 target line (#124, re-cut): arrival-date projection at the
+    owner's actual logged savings pace + the CHECKPOINT's needed DCA (the
+    reachable number — the S$2M needed-DCA that read S$18–21k/mo is
+    deliberately never printed again). SGD only ('' without FX — an SGD
+    promise is never approximated in USD). With no logged pace the line
+    still prints progress and asks for the flows instead of guessing."""
     if not usdsgd:
         return ""
-    months = len(months_between(today.strftime("%Y-%m"), TARGET_MONTH)) - 1
-    if months <= 0:
-        return ""
     book = net_usd * usdsgd
-    needs = []
-    for r in TARGET_REF_RATES:
-        c = required_monthly(TARGET_SGD, book, months, r)
-        needs.append("on track" if c == 0.0
-                     else f"S${c:,.0f}/mo @{r:.0%}")
-    now = ""
+    head = f"🎯 §8.1 S$2.0M by ~47: book S${book:,.0f} ({book / TARGET_SGD:.1%})"
+    if book >= TARGET_SGD:
+        return head + " — target reached; §8.1 retrospective is due"
     logged = [float(f.get("usd", 0.0)) for f in (flows or [])
               if f.get("month")]
-    if logged:
-        avg = sum(logged[-6:]) / len(logged[-6:]) * usdsgd
-        if avg > 0:
-            now = f" (vs ~S${avg:,.0f}/mo logged)"
-    return (f"🎯 §8.1 target S$2.0M by {TARGET_MONTH}: book "
-            f"S${book:,.0f} ({book / TARGET_SGD:.1%}) · needed DCA ≈ "
-            + " · ".join(needs) + now
-            + " — savings lever; changes no investing rule")
+    avg = (sum(logged[-6:]) / len(logged[-6:]) * usdsgd) if logged else 0.0
+    parts = [head]
+    if avg > 0:
+        arr = []
+        for r in TARGET_REF_RATES:
+            n = months_to_target(TARGET_SGD, book, avg, r)
+            if n is not None:
+                arr.append(f"{_add_months(today, n)} @{r:.0%}")
+        pull = months_to_target(TARGET_SGD, book, avg + 1000.0,
+                                TARGET_REF_RATES[0])
+        base_n = months_to_target(TARGET_SGD, book, avg, TARGET_REF_RATES[0])
+        parts.append(f"at ~S${avg:,.0f}/mo → S$2M ≈ "
+                     + " / ".join(arr))
+        if pull is not None and base_n is not None and base_n > pull:
+            yrs = (base_n - pull) / 12.0
+            parts.append(f"+S$1k/mo pulls it ≈ {yrs:.1f}y closer")
+    else:
+        parts.append("log your monthly flows (contributions.json) to "
+                     "project the arrival date")
+    # the checkpoint: the one number the line ASKS for, because it is real
+    ck_months = len(months_between(today.strftime("%Y-%m"),
+                                   CHECKPOINT_MONTH)) - 1
+    if ck_months > 0:
+        need = required_monthly(CHECKPOINT_SGD, book, ck_months,
+                                TARGET_REF_RATES[0])
+        if need == 0.0:
+            parts.append("40-checkpoint S$600k: on pace")
+        elif need is not None:
+            parts.append(f"40-checkpoint S$600k (2032-07) needs ≈ "
+                         f"S${need:,.0f}/mo @{TARGET_REF_RATES[0]:.0%}")
+    return " · ".join(parts) + " — savings lever; changes no investing rule"
 
 
 def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,

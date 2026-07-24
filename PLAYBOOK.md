@@ -263,44 +263,51 @@ adds nothing.*
   strategy re-test re-runs every July, and the improvement backlog lives in
   PRD.md §6. Expect evolution, not miracles.
 
-### 8.1 · Owner target (set 2026-07-24) — S$2,000,000 before turning 40 (2032)
+### 8.1 · Owner target (set + re-dated 2026-07-24) — S$2M by ~47; S$600k checkpoint at 40
 
-**The number:** S$2M household net worth — the #94 household-scorecard
-figure (core + SRS + ESPP + swing − margin, in SGD) — before the owner's
-40th birthday in 2032. *(This line is ROADMAP #119's dated trigger.)*
+**The number:** S$2M household net worth — the #94 scorecard figure
+(core + SRS + ESPP + swing − margin, SGD) — around age 47 (~2039–2042
+at growable savings and sober 8–12% reference rates). **The checkpoint:
+S$600k by the 40th birthday (2032-07)** — from today's base that asks
+≈S$5.5–6k/mo, a real number that a better-paying job actually reaches.
+*(This line is ROADMAP #119's dated trigger; the study unparks at
+≥S$1M or 2030-07.)*
 
-**The arithmetic, priced the day it was set** (so nobody re-derives it
-softer later): from ~S$50k and ~S$3.5k/mo, hitting S$2M by 2032 requires
-**~60%/yr compounded for six straight years** — beyond every documented
-public-market track record. Even at a heroic sustained 20%/yr the gap
-needs ~S$15.5k/mo saved; at a normal-good 12%/yr, ~S$19.5k/mo. The
-owner's own conclusion, recorded verbatim in spirit: *it's a savings
-problem, not an investing problem — the real lever is a better-paying
-job, held for a long time.*
+**How the target got its date — kept verbatim so the re-dating is
+remembered as honesty, not retreat.** The target was first set as
+S$2M-by-2032 (before 40). Priced the same day: that deadline required
+~60%/yr, or ~S$18–21k/mo saved — beyond top-10% SG income, beyond any
+salaried path. The owner's response, in order: *"it's a savings problem
+not a investing problem"* — and then, seeing the monthly number, *"18-20k
+is too demoralizing, i dont even earn that much."* Both readings are
+correct, and the second one is a system defect, not a personal one: a
+line that demands the impossible every month corrodes the routine, and
+the routine is the edge (R0). So the deadline became the OUTPUT: the
+#124 digest line projects when S$2M arrives at the owner's *actual*
+logged savings pace, and the only number it ever asks for is the
+checkpoint's — which is reachable.
 
-**So the target is assigned to the savings lever, and ONLY that lever:**
+**The target is assigned to the savings lever, and ONLY that lever:**
 
-- The tracked variable is **monthly contributions** (contributions.json /
-  the #94 block), not the book's return. Raising S$3.5k/mo toward
-  S$6–8k/mo as income grows moves the 2032 number more than anything in
-  the alpha program.
+- The tracked variable is **monthly contributions** (contributions.json
+  → the #94 block). Every +S$1k/mo pulls the S$2M arrival ~1.5–2 years
+  closer — the line prints that pull so progress is always visible as
+  something the owner can DO.
 - **This target changes no investing rule. Ever.** It never justifies
   core margin (§6), cap breaches, off-zone adds, or sizing beyond the
-  ladder — the 2026-07-16 episode is the named failure mode of chasing a
-  number, and it was chasing far less than this. A target that needs 60%
-  makes discipline feel like failure; that feeling is the signal to
-  reread this section, not to trade.
-- **Checkpoint, not summit:** ~S$600–700k by the 40th birthday (growing
-  contributions + strong-but-real returns) keeps S$2M on track for
-  ~age 46–48 with no rule ever bent. The multibagger right tail (§8
-  bullet 1 notwithstanding, it exists) can pull that forward; it is
-  never load-bearing.
-- The monthly #94 household block is the referee; progress is read
-  there, in SGD, against the same QQQ counterfactual as everything else —
-  including the #124 needed-DCA line (what monthly saving reaches S$2M at
-  8%/12% reference rates, vs what you actually logged). When those two
-  numbers converge, the target is being earned; nothing about the gap is
-  ever the book's problem to close.
+  ladder — the 2026-07-16 episode is the named failure mode of chasing
+  a number, and it was chasing far less than this. The day the book
+  feels too slow for the target, reread this section; do not trade it.
+- **What 40 looks like when this works:** ~S$600k — top few percent for
+  that age in SG — with S$2M arriving mid-40s on the same quiet path.
+  The multibagger right tail can pull it forward; it is never
+  load-bearing. Anyone who reaches S$2M-by-40 from this base does it
+  through an equity event (career, business), not a portfolio — if that
+  ambition is live, it lives outside this book, and this book's job is
+  to compound what the career throws off without ever blowing it up.
+- The monthly #94 household block is the referee: progress, arrival
+  projection, checkpoint ask, and the QQQ counterfactual, all in SGD,
+  all in one place (#124).
 
 ---
 
