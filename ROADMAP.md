@@ -67,7 +67,78 @@ SETUP line) · BUY_BUDGET_USD restored after the paydown.
 
 ---
 
-## 2. Horizon 2 — 2028–2031: the era of the binding read
+## 2. The alpha program — where the algorithm actually improves
+
+*(Added 2026-07-24, same day as the file, on the owner's challenge: "no
+improvement in the algorithm at all?" The first draft had the referee
+and the survival plan and no research program — the same gap the owner
+called out on 2026-07-22 before the R10 re-cut, and it was a fair hit
+both times. This section is the fix. No honesty constraint is relaxed
+by it: studies are free, promotions pay the R10 selection price, nulls
+close honestly.)*
+
+**The shot budget.** Under R10-as-re-cut the pipeline's throughput is
+fixed and knowable, so plan with it instead of around it: **SELECTION**
+changes (which names get money; how they're ranked, ordered, weighted)
+ship at most one per quarter → ~4/yr, **≈20 shots by R-2029's read,
+≈40 by R-2036's**. **SURVIVAL/EXIT** recalibrations ship whenever they
+pass a pre-registered gate — unthrottled. Studies are never budgeted,
+only promotions are: run as many honest experiments as sessions allow.
+
+**Where the shots aim** — by §8.0's *measured* lever ranking, not by
+what is fun to build:
+
+1. **Selection (R2) — most shots go here.** The backtested edge, where
+   it exists at all, is cross-sectional (§5f). Every selection idea
+   funnels through one door: the #120 bake-off.
+2. **Drawdown repair (R3) — the measured failure.** §16b's gap is not
+   CAGR, it is carrying −62% against QQQ's −34%. This is
+   survival/exit-lane work — the lane the re-cut deliberately
+   unthrottled — and the plan expects the most tractable wins here,
+   because #51 already proved the pattern: the §5.2 clock is the only
+   arm ever measured to ADD return.
+3. **Timing (R4) — smallest measured lever.** At most one modifier per
+   quarter through #23's confluence harness. Never more; every timing
+   study so far that promised more (#77, #86, #104, #108, #110) died
+   honestly in its control.
+
+**The pipeline by horizon.**
+
+* *In flight, 2026–27 (already dated in §1):* the five-way rank read
+  2026-10-01 (equal · rs12 · whale #80 · rs6 · blend #89) · #20 weight
+  change · #79's distribution-tag ship · #23/#74/#81 confluence
+  modifiers · #25 real market cap · #21 refine re-point. A full year of
+  algorithm work is already scheduled — Horizon 1 was never the gap.
+* *2028–2031 (standing machinery, #120–122):* the **annual selection
+  bake-off** (#120) turns #24's one-off harness into the permanent July
+  fixture every new ranking idea must enter and win — an F:n/m ranker,
+  the #66 Q label, whale level, whatever Danny teaches next. The
+  **drawdown-repair series** (#121) works the R3 gap study by study.
+  **Universe capacity** (#122) widens the pool selection picks from
+  once #65 earns adoption — top-3-of-200 has more room than
+  top-3-of-124, if and only if ranking quality survives, which is the
+  gate. Blocked-but-standing, never dropped: #41 supervised Homily fit
+  (needs owner-exported labels) and #45 delisted-inclusive data (needs
+  a free source; it is the biggest single data upgrade available and
+  unlocks honest live universe construction).
+* *2031–2036 (#123):* **ledger-fitted selection** — by ~2031 the live
+  ledger is 5+ years of point-in-time rows that cannot be
+  survivorship-biased or hindsight-constructed: the one training set
+  this repo can trust outright. Walk-forward fit of the ranking weights
+  on our own live record, features restricted to existing ledger
+  columns, fitted weights printable in one digest footer line (§8.2's
+  ML exclusion stands — nothing unprintable ever gates money). It
+  enters #120 like every other challenger and wins or dies there.
+
+**What the program does not promise.** Shot quality and shot volume are
+guaranteed; the edge is not. If forty honest shots and ten live years
+cannot put the scorecard above the band, R-2036 reads that as the
+answer — the program is how we make sure the answer, either way, was
+earned rather than defaulted.
+
+---
+
+## 3. Horizon 2 — 2028–2031: the era of the binding read
 
 By mid-2029 the ledger holds ~3 years of live rows and the #71 band is
 narrow enough to read a realistic edge. This is the system's first
@@ -105,7 +176,7 @@ deletion — the engines keep running info-only, so re-promotion has a
 live shadow record to cite, the #65 pattern).
 
 **Survival workstreams for the era** (this is the actual 5-year risk
-list — each is a numbered item in §4 with its own gate):
+list — each is a numbered item in §5 with its own gate):
 
 * **Data durability** — Yahoo is the single largest existential
   dependency. #113 bars vault + #114 fetch failover, both proven by
@@ -129,7 +200,7 @@ list — each is a numbered item in §4 with its own gate):
 
 ---
 
-## 3. Horizon 3 — 2031–2036: the endowment test
+## 4. Horizon 3 — 2031–2036: the endowment test
 
 At ten years the founding question — *does selection + never-sell,
 executed with discipline, beat QQQ DCA on the same cash flows?* — has a
@@ -175,12 +246,14 @@ the cheapest layer to regenerate; the record and the rules are not.
 
 ---
 
-## 4. New numbered items #113–#119
+## 5. New numbered items #113–#123
 
 PRD §8.3 numbering continues here (#101–#112 spent; next free after
-this block: #120). Same law as every §8.3 row: pre-registered gate,
-info-only until promoted, null → closed honestly. None of these is a
-signal; none consumes an R10 selection slot.
+this block: #124). Same law as every §8.3 row: pre-registered gate,
+info-only until promoted, null → closed honestly. #113–119 are
+infrastructure — none is a signal, none consumes an R10 selection slot.
+#120–123 are the §2 alpha program: their STUDIES are free, their
+PROMOTIONS pay the normal R10 selection price like everything else.
 
 | # | Item | Effort | Gate |
 |---|---|---|---|
@@ -188,22 +261,26 @@ signal; none consumes an R10 selection slot.
 | 114 | **Fetch failover chain.** Promote #60's Stooq cross-check from warn-only to an ordered fallback (Yahoo → alternate) used ONLY on hard fetch failure — never silent source mixing; the digest prints the source the day it isn't Yahoo, and #60's agreement check runs on every failover day | M | canned-outage test: primary dead → run completes on fallback with the source line printed; disagreement > tol still warns, never halts (R4) |
 | 115 | **Cold-start runbook + yearly succession drill.** `COLD_START.md`: from a fresh clone + secrets list to a verified daily run and one monthly buy-day sheet, no memory assumed. Drilled every July by a session with no prior context of this repo (new model preferred — that's the real test) | S build · S/yr | the drill itself; every failure patches the DOCS in the same session, never the drill-runner's memory |
 | 116 | **Complexity budget — the July prune.** Rides #40: every module/harness must hold one of {live consumer · dated pending read · archive}. Closed-null harnesses move to `docs/archive/` with their BACKTEST_RESULTS pointer; the #73 digest line budget stays capped; net top-level module count may not grow year-over-year without a §8.5 note saying why | S/yr | docs-only gate: validate green, goldens untouched, every archived piece reachable via pointer |
-| 117 | **R-2029 verdict freeze.** Turn §2's three-fork rule into a checked artifact before it can matter: the band method pinned to the committed #71 implementation (hash), the fork thresholds and the demote-to-discipline mechanics written into a validate case that fails if the wording drifts from this file | S | validate case pins ROADMAP §2 wording + #71 method hash; any later edit to either requires a deliberate re-pin with a §8.5 note |
+| 117 | **R-2029 verdict freeze.** Turn §3's three-fork rule into a checked artifact before it can matter: the band method pinned to the committed #71 implementation (hash), the fork thresholds and the demote-to-discipline mechanics written into a validate case that fails if the wording drifts from this file | S | validate case pins ROADMAP §3 wording + #71 method hash; any later edit to either requires a deliberate re-pin with a §8.5 note |
 | 118 | **Platform-migration drills.** Prove the two most likely platform deaths are ops: (a) delivery — digest to a second channel (email or file-drop) behind the same send interface; (b) scheduling — the daily run from a plain cron/launchd on any box. One drill each, adapters kept as dormant code paths | S–M | each drill = one real end-to-end delivery/run via the alternate path, logged in §8.5; no standing infra, no new secrets kept live |
 | 119 | **Glide-path study (PARKED — dated trigger only).** When the owner names a target date/amount: study de-risking paths (contribution redirect vs allocation shift) on the honest windows, same control discipline as everything else. Until that trigger this row may not be worked on | L (later) | trigger = an owner line in PLAYBOOK naming date/amount; study gate pre-registered at unpark time; sells stay human (§9.1) regardless of outcome |
+| 120 | **Annual selection bake-off — the standing harness (from 2028-07).** Generalize `homily_selection_backtest.py`'s K-way comparison into a permanent July fixture: every accrued challenger rank (rs12 · rs6 · blend · whale_rank #80 · an F:n/m ranker · the #66 Q label · whatever columns exist by then) re-run on all three construction-honest windows PLUS the live ledger's accrued forward rows. Every new selection idea enters here and wins or dies here; at most ONE promotion per run (the R10 selection budget is the harness's output limit, not its input limit) | M build · S/yr | challenger must tie-or-beat the incumbent on all three honest windows incl. hype-2021 AND on the accrued live rows (#71's band arbitrates the live side); else the incumbent stands |
+| 121 | **Drawdown-repair series (survival/exit lane — unthrottled).** §16b's measured failure worked as a program, one pre-registered study per session on an EXISTING exit/stop/cap/clock — candidate queue: trailing shelf-loss exit · regime-scaled CAUTION clock · bear-onset satellite tightening · staged-add shapes (#50) — target metric frozen per study: honest-window MaxDD reduced at non-inferior MOIC, both universes. #51 is the proven pattern (the §5.2 clock is the only arm measured to ADD return) | M each | per-study rule frozen before the run; PASS ships with registry entry + real demotion checker (the #51 pattern); NULL closed — no re-tuning toward the target metric |
+| 122 | **Universe capacity growth (blocked on #65 adoption).** Selection alpha scales with the pool it picks from: after #65's shadow quarter earns adoption, widen the L2 cut stepwise (124 → ~200) and re-run #120 at each step — top-3-of-200 beats top-3-of-124 only if ranking quality survives the dilution, which is the gate, not the hope | S–M per step | each widening re-runs the #120 bake-off; top-3 quality on the wider pool ≥ the narrower pool's on all honest windows, else the step reverts |
+| 123 | **Ledger-fitted selection (date-gated ≥2029-07).** By then the live ledger is ≥3y of point-in-time rows that cannot be survivorship-biased or hindsight-constructed — the one training set this repo can trust. Walk-forward fit of ranking weights on our own live rows ONLY; features restricted to existing ledger columns; the fitted weights must print in one digest footer line (§8.2's ML exclusion stands — nothing unprintable ever gates money). Enters #120 as a challenger; never ships directly | L | ≥3 live ledger years before the first fit; must beat the incumbent on a held-out live year AND pass #120's full bar; refit yearly, never intra-year; else closed |
 
 ---
 
-## 5. Standing cadence — the plan is that the cadence survives
+## 6. Standing cadence — the plan is that the cadence survives
 
 | Cadence | What |
 |---|---|
 | Monthly | buy-day routine + reconcile (#72) · household block (#94) |
 | Quarterly | R10 selection slot (max one) · universe hygiene (#44) · swing skim (#95) · rehearsal machinery green |
-| Yearly (July) | #40 re-test + live-vs-sim reconcile · LEVERAGE.md §5 re-run · #116 prune · #115 cold-start drill · re-read THIS file |
+| Yearly (July) | #40 re-test + live-vs-sim reconcile · **#120 selection bake-off (from 2028)** · LEVERAGE.md §5 re-run · #116 prune · #115 cold-start drill · re-read THIS file |
 | 2027-12 | R-2027 read (§1) |
-| 2029-07, then yearly | R-2029 three-fork read (§2) |
-| 2036-07 | R-2036 binding read (§3) |
+| 2029-07, then yearly | R-2029 three-fork read (§3) |
+| 2036-07 | R-2036 binding read (§4) |
 
 Ten years from now the deliverable is not a cleverer signal. It is an
 unbroken ledger, a scorecard someone can believe, and a system a

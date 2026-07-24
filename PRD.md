@@ -611,9 +611,9 @@ chart CLI below (owner-requested 2026-07-12), #90–93 = owner max-return
 directive 2026-07-12 — leverage / merge / concentration, designs
 D-90…D-93 (§8.5 records the directive), #94–100 = integration era
 2026-07-12 (late) — measure/integrate/harden what the leverage era
-armed, designs D-94…D-98, rows below, new proposals start #101; **#113–119 are claimed
-by `ROADMAP.md` §4** (long-horizon items, added 2026-07-24) — next free
-number #120):
+armed, designs D-94…D-98, rows below, new proposals start #101; **#113–123 are claimed
+by `ROADMAP.md` §5** (long-horizon items #113–119 + alpha-program items
+#120–123, added 2026-07-24) — next free number #124):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -1024,7 +1024,7 @@ shows zero unexplained deviations.
 | File | Role, one line |
 |---|---|
 | `PRD.md` | what & why — spec, backlog, scope decisions |
-| `ROADMAP.md` | the multi-year arc — verdict calendar (R-2027 / R-2029 / R-2036), survival workstreams, items #113–119; re-read every July — added 2026-07-24 |
+| `ROADMAP.md` | the multi-year arc — verdict calendar (R-2027 / R-2029 / R-2036), the §2 alpha program (shot budget + #120 bake-off), survival workstreams, items #113–123; re-read every July — added 2026-07-24 |
 | `SPECS.md` | how — build specs per item (session 0 writes it) |
 | `DESIGNS.md` | deep design decisions — folds into SPECS.md once specs exist; delete, don't accrete |
 | `EXECUTION.md` | session order, engine freeze, risk register |
@@ -1102,5 +1102,13 @@ endowment test: **R-2036** is binding and benchmark-final; platform
 deaths are pre-planned as ops (#118); the glide-path question stays
 parked behind an owner-dated trigger (#119); the durable assets are
 the ledger, the scorecard, and docs a stranger could operate from.
-New items #113–119 live in ROADMAP.md §4 under the same gate law as
-§8.3; none is a signal, none consumes an R10 selection slot.
+New items #113–123 live in ROADMAP.md §5 under the same gate law as
+§8.3: #113–119 are infrastructure (no R10 slots); **#120–123 are the
+ROADMAP §2 alpha program** — the algorithm-improvement pipeline stated
+as a shot budget (~4 selection promotions/yr under R10-as-re-cut, ≈20
+by 2029, ≈40 by 2036; survival/exit lane unthrottled): the annual #120
+selection bake-off every ranking idea must win, the #121
+drawdown-repair series aimed at §16b's −62%-vs-−34% gap, #122 universe
+capacity behind #65's adoption, and #123 ledger-fitted selection once
+≥3y of live rows exist (~2029; weights must stay digest-printable,
+§8.2 stands). Studies are free; promotions pay the normal R10 price.
