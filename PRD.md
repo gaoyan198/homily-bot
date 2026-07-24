@@ -611,7 +611,9 @@ chart CLI below (owner-requested 2026-07-12), #90–93 = owner max-return
 directive 2026-07-12 — leverage / merge / concentration, designs
 D-90…D-93 (§8.5 records the directive), #94–100 = integration era
 2026-07-12 (late) — measure/integrate/harden what the leverage era
-armed, designs D-94…D-98, rows below, new proposals start #101):
+armed, designs D-94…D-98, rows below, new proposals start #101; **#113–119 are claimed
+by `ROADMAP.md` §4** (long-horizon items, added 2026-07-24) — next free
+number #120):
 
 | # | Idea | Effort | Gate |
 |---|---|---|---|
@@ -1022,6 +1024,7 @@ shows zero unexplained deviations.
 | File | Role, one line |
 |---|---|
 | `PRD.md` | what & why — spec, backlog, scope decisions |
+| `ROADMAP.md` | the multi-year arc — verdict calendar (R-2027 / R-2029 / R-2036), survival workstreams, items #113–119; re-read every July — added 2026-07-24 |
 | `SPECS.md` | how — build specs per item (session 0 writes it) |
 | `DESIGNS.md` | deep design decisions — folds into SPECS.md once specs exist; delete, don't accrete |
 | `EXECUTION.md` | session order, engine freeze, risk register |
@@ -1077,3 +1080,27 @@ Three sleeves; the bot only ever deploys the first:
 compares the cash sleeve's deployments vs a same-cash same-day index-DCA
 counterfactual only. SRS is excluded (it IS the index), ESPP is tracked
 separately (its return = discount + one stock, not signal skill).
+
+## 10. Long-horizon roadmap — 2027 / 2031 / 2036 (added 2026-07-24)
+
+Full text: **`ROADMAP.md`** (standing doc, re-read every July with the
+#40 re-test). This PRD keeps the near-term backlog; ROADMAP.md owns the
+multi-year arc. The shape, in one paragraph:
+
+**Horizon 1 (→2027)** is already scheduled by dated reads — the job is
+hitting them: #14 scorecard + October reads (2026-10), swing 26-week
+verdict (~2027-01), 2027-Q2 R10 selection slot, first live-vs-sim
+reconcile (2027-07), then the pre-registered **R-2027** year-one read.
+**Horizon 2 (2028–2031)** centres on **R-2029**, the three-fork rule
+frozen now: live edge above the #71 band → scale · inside → hold &
+cheapen · below → **demote to discipline mode** (signals stop gating
+money; DCA + risk lens + copilot + honest ledger survive) — the price
+of calling §9.0 a north star. Plus the era's survival workstreams:
+data durability (#113–114), the first live bear, model succession
+(#115), complexity pruning (#116). **Horizon 3 (→2036)** is the
+endowment test: **R-2036** is binding and benchmark-final; platform
+deaths are pre-planned as ops (#118); the glide-path question stays
+parked behind an owner-dated trigger (#119); the durable assets are
+the ledger, the scorecard, and docs a stranger could operate from.
+New items #113–119 live in ROADMAP.md §4 under the same gate law as
+§8.3; none is a signal, none consumes an R10 selection slot.
