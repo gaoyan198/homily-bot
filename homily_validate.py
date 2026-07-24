@@ -2362,4 +2362,56 @@ assert "homily_take" not in open(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "daily_run.py")).read()
 print("[66] #112 danny takes: golden render, staleness, grounding ......... PASS")
 
+# --- 67. #124 §8.1 target line: closed-form DCA math + info-only render -----
+# The math must be exact, the line must be additive-only (render without the
+# kwarg is byte-identical — the [52] fixtures already pin that path), and
+# the target must never leak outside the household block.
+import homily_household as _t67
+# closed-form sanity: zero rate degenerates to straight division
+assert _t67.required_monthly(1200.0, 0.0, 12, 0.0) == 100.0
+# a book already past the target needs nothing
+assert _t67.required_monthly(1000.0, 2000.0, 12, 0.08) == 0.0
+assert _t67.required_monthly(1000.0, 0.0, 0, 0.08) is None
+# round-trip: contributing exactly required_monthly() must land on the
+# target to the cent — simulate month by month at the same compounding
+_c67 = _t67.required_monthly(2_000_000.0, 54_000.0, 72, 0.08)
+_b67 = 54_000.0
+for _ in range(72):
+    _b67 = _b67 * (1.0 + 0.08 / 12.0) + _c67
+assert abs(_b67 - 2_000_000.0) < 1e-4, _b67
+# the line: no FX → '' (an SGD target is never approximated in USD);
+# past the target month → '' (retrospective is an owner conversation)
+_d67 = datetime.date(2026, 8, 3)
+assert _t67.target_line(42_000.0, 0.0, _d67) == ""
+assert _t67.target_line(42_000.0, 1.28, datetime.date(2032, 7, 5)) == ""
+_l67 = _t67.target_line(42_000.0, 1.28, _d67,
+                        flows=[{"month": "2026-07", "usd": 3500.0}])
+assert "🎯" in _l67 and "S$2.0M" in _l67 and "@8%" in _l67 and \
+    "@12%" in _l67 and "savings lever" in _l67, _l67
+assert "vs ~S$4,480/mo logged" in _l67, _l67       # 3500 × 1.28 trailing avg
+# needed-DCA magnitudes: both reference rates land in the S$15–25k/mo band
+# the §8.1 arithmetic promised (guards a silently broken formula: a linear
+# no-growth split of the gap would print ~S$27k/mo and must not)
+import re as _re67
+_n67 = [int(x.replace(",", ""))
+        for x in _re67.findall(r"S\$([\d,]+)/mo @", _l67)]
+assert len(_n67) == 2 and all(15_000 < v < 25_000 for v in _n67), _n67
+assert _n67[0] > _n67[1], "higher assumed return must need less DCA"
+# a book past S$2M prints 'on track', not a S$0 demand
+assert "on track" in _t67.target_line(2_000_000.0, 1.28, _d67)
+# render: target string is appended verbatim and only when passed
+_r67 = _t67.render(_comp52b, _cfA, 2000.0, _lev52, "BULL", 1.30, [],
+                   esc=lambda x: str(x), target="🎯 T")
+assert _r67.count("🎯 T") == 1 and _r67.replace("\n🎯 T", "") == _t67.render(
+    _comp52b, _cfA, 2000.0, _lev52, "BULL", 1.30, [], esc=lambda x: str(x)), \
+    "target line must be strictly additive"
+# info-only forever: the target constants must not be imported anywhere a
+# buy/size decision is made (R-guard in code, same pattern as #84's grep)
+for _mod67 in ("homily_buyday.py", "homily_positions.py", "daily_run.py"):
+    _src67 = open(os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), _mod67)).read()
+    assert "TARGET_SGD" not in _src67 and "required_monthly" not in _src67, \
+        f"§8.1 target leaked into {_mod67} — it must never gate money"
+print("[67] #124 §8.1 target line: closed-form DCA, additive, info-only ... PASS")
+
 print("\nAll structural assertions passed.")
