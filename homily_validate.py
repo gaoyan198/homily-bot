@@ -2379,26 +2379,44 @@ _b67 = 54_000.0
 for _ in range(72):
     _b67 = _b67 * (1.0 + 0.08 / 12.0) + _c67
 assert abs(_b67 - 2_000_000.0) < 1e-4, _b67
-# the line: no FX → '' (an SGD target is never approximated in USD);
-# past the target month → '' (retrospective is an owner conversation)
+# months_to_target: the deadline as the OUTPUT (the 2026-07-24 re-cut —
+# the owner called the S$18–21k/mo needed-DCA print demoralizing, and an
+# impossible monthly demand is R0 damage; the line now projects arrival)
+assert _t67.months_to_target(1000.0, 2000.0, 0.0, 0.08) == 0
+assert _t67.months_to_target(1200.0, 0.0, 100.0, 0.0) == 12
+assert _t67.months_to_target(1200.0, 0.0, 0.0, 0.0) is None
+_n67 = _t67.months_to_target(2_000_000.0, 54_000.0, 4_480.0, 0.08)
+# tightness: n months arrives, n−1 months does not — pins the closed form
+def _fv67(b, c, n, r):
+    for _ in range(n):
+        b = b * (1.0 + r / 12.0) + c
+    return b
+assert _fv67(54_000.0, 4_480.0, _n67, 0.08) >= 2_000_000.0
+assert _fv67(54_000.0, 4_480.0, _n67 - 1, 0.08) < 2_000_000.0
+# the line: no FX → '' (an SGD target is never approximated in USD)
 _d67 = datetime.date(2026, 8, 3)
 assert _t67.target_line(42_000.0, 0.0, _d67) == ""
-assert _t67.target_line(42_000.0, 1.28, datetime.date(2032, 7, 5)) == ""
 _l67 = _t67.target_line(42_000.0, 1.28, _d67,
                         flows=[{"month": "2026-07", "usd": 3500.0}])
-assert "🎯" in _l67 and "S$2.0M" in _l67 and "@8%" in _l67 and \
-    "@12%" in _l67 and "savings lever" in _l67, _l67
-assert "vs ~S$4,480/mo logged" in _l67, _l67       # 3500 × 1.28 trailing avg
-# needed-DCA magnitudes: both reference rates land in the S$15–25k/mo band
-# the §8.1 arithmetic promised (guards a silently broken formula: a linear
-# no-growth split of the gap would print ~S$27k/mo and must not)
+assert "🎯" in _l67 and "S$2.0M by ~47" in _l67 and "@8%" in _l67 and \
+    "S$2M ≈ 20" in _l67 and "40-checkpoint" in _l67 and \
+    "savings lever" in _l67, _l67
+assert "+S$1k/mo pulls it" in _l67, _l67
+# THE RE-CUT'S CONTRACT: every monthly amount the line asks for must be
+# reachable — the impossible S$2M needed-DCA (S$15k+) never prints again
 import re as _re67
-_n67 = [int(x.replace(",", ""))
-        for x in _re67.findall(r"S\$([\d,]+)/mo @", _l67)]
-assert len(_n67) == 2 and all(15_000 < v < 25_000 for v in _n67), _n67
-assert _n67[0] > _n67[1], "higher assumed return must need less DCA"
-# a book past S$2M prints 'on track', not a S$0 demand
-assert "on track" in _t67.target_line(2_000_000.0, 1.28, _d67)
+_amts67 = [int(x.replace(",", ""))
+           for x in _re67.findall(r"S\$([\d,]+)/mo", _l67)]
+assert _amts67 and all(v < 10_000 for v in _amts67), _amts67
+# no logged pace → ask for the flows, never guess or demand
+_l67b = _t67.target_line(42_000.0, 1.28, _d67)
+assert "log your monthly flows" in _l67b and "/mo →" not in _l67b, _l67b
+# a book past S$2M prints the retrospective note, not a S$0 demand
+assert "target reached" in _t67.target_line(2_000_000.0, 1.28, _d67)
+# after the checkpoint month the checkpoint clause drops, projection stays
+_l67c = _t67.target_line(700_000.0, 1.28, datetime.date(2033, 1, 3),
+                         flows=[{"month": "2032-12", "usd": 5000.0}])
+assert "40-checkpoint" not in _l67c and "S$2M ≈" in _l67c, _l67c
 # render: target string is appended verbatim and only when passed
 _r67 = _t67.render(_comp52b, _cfA, 2000.0, _lev52, "BULL", 1.30, [],
                    esc=lambda x: str(x), target="🎯 T")
