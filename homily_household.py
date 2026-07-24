@@ -189,7 +189,69 @@ def combined_leverage(comp):
     return gross / net
 
 
-def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None):
+# --- #124 · PLAYBOOK §8.1 owner target line -------------------------------
+# S$2M household net worth before the owner turns 40 in 2032, set
+# 2026-07-24 and assigned BY THE OWNER to the savings lever ("it's a
+# savings problem not a investing problem"). This line is progress
+# instrumentation only — §8.1 is explicit that the target changes no
+# investing rule, ever, and nothing here feeds sizing, budget or signals.
+TARGET_SGD = 2_000_000.0
+TARGET_MONTH = "2032-07"      # refine to the exact birthday month if stated
+TARGET_REF_RATES = (0.08, 0.12)   # sober reference CAGRs, monthly compounding
+
+
+def required_monthly(target, book, months, annual_rate):
+    """Closed-form level monthly contribution that grows `book` to `target`
+    over `months` at `annual_rate` (monthly compounding). 0.0 when the book
+    alone compounds past the target; None when months <= 0. Pure math —
+    the reference rate is an assumption and is printed as one, never a
+    promise (PLAYBOOK §8 stands)."""
+    if months <= 0:
+        return None
+    if annual_rate == 0.0:
+        return max(0.0, (target - book) / months)
+    i = annual_rate / 12.0
+    growth = (1.0 + i) ** months
+    gap = target - book * growth
+    if gap <= 0:
+        return 0.0
+    return gap * i / (growth - 1.0)
+
+
+def target_line(net_usd, usdsgd, today, flows=None):
+    """§8.1 target progress + needed-DCA line (#124), in SGD (the target's
+    own currency). '' when FX is unavailable (a USD approximation would
+    misstate an SGD promise) or once the target month has passed (the §8.1
+    retrospective is an owner conversation, not a digest line). The
+    "vs logged" tail compares against the trailing average of the last ≤6
+    logged flow months — the owner's actual savings rate, the one variable
+    the target is assigned to."""
+    if not usdsgd:
+        return ""
+    months = len(months_between(today.strftime("%Y-%m"), TARGET_MONTH)) - 1
+    if months <= 0:
+        return ""
+    book = net_usd * usdsgd
+    needs = []
+    for r in TARGET_REF_RATES:
+        c = required_monthly(TARGET_SGD, book, months, r)
+        needs.append("on track" if c == 0.0
+                     else f"S${c:,.0f}/mo @{r:.0%}")
+    now = ""
+    logged = [float(f.get("usd", 0.0)) for f in (flows or [])
+              if f.get("month")]
+    if logged:
+        avg = sum(logged[-6:]) / len(logged[-6:]) * usdsgd
+        if avg > 0:
+            now = f" (vs ~S${avg:,.0f}/mo logged)"
+    return (f"🎯 §8.1 target S$2.0M by {TARGET_MONTH}: book "
+            f"S${book:,.0f} ({book / TARGET_SGD:.1%}) · needed DCA ≈ "
+            + " · ".join(needs) + now
+            + " — savings lever; changes no investing rule")
+
+
+def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
+           target=""):
     """Pure assembly of the household block (Telegram-HTML safe, #34 R4).
 
     Every varying input is passed in, so the printed text is a deterministic
@@ -230,6 +292,9 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None):
     else:
         lines.append("<i>counterfactual unavailable — no contribution flows "
                      "logged yet (see contributions.json)</i>")
+
+    if target:
+        lines.append(target)          # #124 — pre-assembled, info-only
 
     if lev is not None:
         cap = LADDER_CAP.get(cap_label)
@@ -310,5 +375,6 @@ def household_block(positions, prices, today, *, regime_label="",
         nag = [m for m in months_between(inception, today.strftime("%Y-%m"))
                if m not in logged]
     lev = combined_leverage(comp)
+    tgt = target_line(comp["net"], usdsgd, today, flows)
     return render(comp, cf, contributed, lev, regime_label, usdsgd, nag,
-                  esc=esc)
+                  esc=esc, target=tgt)

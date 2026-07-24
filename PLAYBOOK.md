@@ -296,7 +296,11 @@ job, held for a long time.*
   bullet 1 notwithstanding, it exists) can pull that forward; it is
   never load-bearing.
 - The monthly #94 household block is the referee; progress is read
-  there, in SGD, against the same QQQ counterfactual as everything else.
+  there, in SGD, against the same QQQ counterfactual as everything else —
+  including the #124 needed-DCA line (what monthly saving reaches S$2M at
+  8%/12% reference rates, vs what you actually logged). When those two
+  numbers converge, the target is being earned; nothing about the gap is
+  ever the book's problem to close.
 
 ---
 
