@@ -1099,8 +1099,10 @@ of calling §9.0 a north star. Plus the era's survival workstreams:
 data durability (#113–114), the first live bear, model succession
 (#115), complexity pruning (#116). **Horizon 3 (→2036)** is the
 endowment test: **R-2036** is binding and benchmark-final; platform
-deaths are pre-planned as ops (#118); the glide-path question stays
-parked behind an owner-dated trigger (#119); the durable assets are
+deaths are pre-planned as ops (#118); the glide-path trigger is SET
+(2026-07-24, PLAYBOOK §8.1: S$2M household before 40 in 2032, assigned
+to the savings lever) while #119's study waits on its pre-registered
+proximity condition (≥S$1M or 2030-07); the durable assets are
 the ledger, the scorecard, and docs a stranger could operate from.
 New items #113–123 live in ROADMAP.md §5 under the same gate law as
 §8.3: #113–119 are infrastructure (no R10 slots); **#120–123 are the
