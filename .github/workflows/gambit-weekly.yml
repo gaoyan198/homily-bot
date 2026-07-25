@@ -87,3 +87,31 @@ jobs:
           git add gambit/gambit_live_book.json gambit/gambit_live_journal.csv 2>/dev/null || true
           git commit -m "gambit weekly paper+live $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
+
+      # #118(c) liveness watchdog — see homily-daily.yml for the full rationale.
+      # This book carries REAL money (#93/A5), so a silently dead weekly job is
+      # worse here than on the daily side: no order sheet printed is not the
+      # same as no trade needed. Its own check (weekly cadence, own grace
+      # window) — never share a monitor URL with the daily job, or one healthy
+      # book would mask the other's death. Pinned by validate [68].
+      - name: Watchdog ping — alive (skipped if secret unset)
+        if: ${{ success() }}
+        env:
+          HEALTHCHECK_URL_GAMBIT: ${{ secrets.HEALTHCHECK_URL_GAMBIT }}
+        run: |
+          if [ -z "$HEALTHCHECK_URL_GAMBIT" ]; then
+            echo "watchdog skipped (HEALTHCHECK_URL_GAMBIT unset)"; exit 0
+          fi
+          curl -fsS -m 10 --retry 3 "$HEALTHCHECK_URL_GAMBIT" \
+            && echo "watchdog pinged" \
+            || echo "::warning::watchdog ping failed — check the monitor"
+
+      - name: Watchdog ping — failed run (alert now, not in 60 days)
+        if: ${{ failure() }}
+        env:
+          HEALTHCHECK_URL_GAMBIT: ${{ secrets.HEALTHCHECK_URL_GAMBIT }}
+        run: |
+          if [ -z "$HEALTHCHECK_URL_GAMBIT" ]; then
+            echo "watchdog skipped (HEALTHCHECK_URL_GAMBIT unset)"; exit 0
+          fi
+          curl -fsS -m 10 --retry 3 "${HEALTHCHECK_URL_GAMBIT%/}/fail" || true

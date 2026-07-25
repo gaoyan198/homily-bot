@@ -180,7 +180,18 @@ Everything else remaining is DATE- or OWNER-gated:
 6. **Owner-gated** · T3 (two clean T2 months + cloud repo access; PRD §9.2
    verbatim) · IBKR_FLEX_TOKEN/QUERY secrets (#32) · MARGIN_ZERO ·
    BUY_BUDGET_USD back to 1550 · F3 only if two weeks of F2 shows
-   file-open friction.
+   file-open friction · **#118(c) watchdog secrets (do this one first —
+   until it is done CI can die silently and GitHub's 60-day inactivity
+   disable can kill both jobs, `workflow_dispatch` included):** create two
+   external monitor checks (healthchecks.io or any equivalent — the secret
+   is a whole URL, so the provider is replaceable), set
+   `HEALTHCHECK_URL_DAILY` and `HEALTHCHECK_URL_GAMBIT`, give each the cron
+   + grace of ITS job (daily is **Mon–Fri** — a plain 24h period
+   false-alarms every weekend; gambit is Saturday 02:00 UTC), and point the
+   alert at a channel this repo does not own (email, or a second bot — not
+   the Telegram bot whose own death you are trying to detect). Verify once
+   by re-running either job from the Actions tab and watching the check go
+   green; both workflows log `watchdog skipped` until the secrets exist.
 
 Guards #61 (engine-freeze SHA manifest) and #62 (ledger hash) — #62
 shipped with #13; #61 shipped 2026-07-11 (`engine_freeze.json`, validate

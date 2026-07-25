@@ -2432,4 +2432,55 @@ for _mod67 in ("homily_buyday.py", "homily_positions.py", "daily_run.py"):
         f"§8.1 target leaked into {_mod67} — it must never gate money"
 print("[67] #124 §8.1 target line: closed-form DCA, additive, info-only ... PASS")
 
+# ---------------------------------------------------------------------------
+# [68] #118(c) liveness watchdog — the watchdog IS the item, so the only
+# thing a self-test can defend is that it stays wired. A public repo's
+# scheduled workflows are auto-disabled after 60 days without commits, and
+# that disable also kills `workflow_dispatch` — so an out-of-GitHub ping is
+# the only signal that survives the event it reports. This case pins the
+# wiring in both CI files: a future workflow edit that drops the ping, points
+# both books at one monitor, moves the ping ahead of the commit, or lets a
+# dead monitor redden a good run fails here instead of failing silently in
+# sixty days' time. Same guard pattern as [67]'s R-guard grep.
+_wf68 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     ".github", "workflows")
+_specs68 = [("homily-daily.yml", "HEALTHCHECK_URL_DAILY"),
+            ("gambit-weekly.yml", "HEALTHCHECK_URL_GAMBIT")]
+_urls68 = set()
+for _name68, _sec68 in _specs68:
+    _src68 = open(os.path.join(_wf68, _name68)).read()
+    # the alive ping and the explicit failure ping both exist
+    assert "if: ${{ success() }}" in _src68, f"{_name68}: no alive-ping guard"
+    assert "if: ${{ failure() }}" in _src68, f"{_name68}: no failure ping"
+    assert f"secrets.{_sec68}" in _src68, f"{_name68}: wrong watchdog secret"
+    assert f'"${{{_sec68}%/}}/fail"' in _src68, f"{_name68}: no /fail path"
+    # unset secret = dark, never a red run (same idiom as the Flex rail)
+    assert _src68.count(f'if [ -z "${_sec68}" ]') == 2, \
+        f"{_name68}: watchdog must no-op when the secret is unset"
+    # a dead monitor must not redden a good run — the absent ping is the alert
+    assert "::warning::watchdog ping failed" in _src68, \
+        f"{_name68}: alive ping must warn, not fail the job"
+    # ordering is load-bearing: ping AFTER the push, so a failed push is silent
+    assert _src68.index("git push") < _src68.index("Watchdog ping — alive"), \
+        f"{_name68}: watchdog pings before the push — a failed push would " \
+        f"still report healthy"
+    # The manual button must survive: it is the re-entry path after a disable.
+    # Match the TRIGGER (2-space key under `on:`), not any prose mention of it
+    # — the comments above talk about workflow_dispatch, and an assertion a
+    # comment can satisfy is not an assertion.
+    assert "\n  workflow_dispatch:" in _src68, \
+        f"{_name68}: lost the workflow_dispatch trigger"
+    _urls68.add(_sec68)
+# one monitor per book, or a healthy book masks the other's death
+assert len(_urls68) == len(_specs68), "each workflow needs its own check URL"
+# no keepalive commits: manufacturing activity to dodge the 60-day policy is
+# a GitHub ToS violation (the popular keepalive action was taken down for it).
+# Every commit these jobs push must be real state, never a liveness marker.
+for _name68, _ in _specs68:
+    _src68 = open(os.path.join(_wf68, _name68)).read()
+    assert "keepalive" not in _src68.lower().replace(
+        "keepalive-commit", "").replace("keepalive action", ""), \
+        f"{_name68}: liveness must be a ping, never a manufactured commit"
+print("[68] #118(c) watchdog: both books wired, post-push, dark-if-unset .. PASS")
+
 print("\nAll structural assertions passed.")
