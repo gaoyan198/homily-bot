@@ -686,22 +686,29 @@ _pos27 = {
     "BIG": {"yahoo": "BIG", "shares": 90, "cost": 5},
     "SML": {"yahoo": "SML", "shares": 1, "cost": 5},
 }
-def _bs(tk, close, ftag, rs12, state="ACCUMULATE"):
+def _bs(tk, close, ftag, rs12, state="ACCUMULATE", tier="CONVICTION"):
     return {"ticker": tk, "state": state, "close": close,
-            "ftag": ftag, "rs12": rs12}
+            "ftag": ftag, "rs12": rs12, "conv_tier": tier}
 _yh27 = {"CSPX": "CSPX.L", "BIG": "BIG", "SML": "SML", "NEW": "NEW",
-         "0700": "0700.HK"}
-_st27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD"),
+         "0700": "0700.HK", "HLD": "HLD", "JNK": "JNK"}
+_st27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD", tier="fails"),
          _bs("BIG", 10, "F:3/3", 5), _bs("SML", 10, "F:1/3", 50),
-         _bs("NEW", 30, "F:2/3", 1), _bs("0700", 50, "F:—", 99)]
+         _bs("NEW", 30, "F:2/3", 1), _bs("0700", 50, "F:—", 99),
+         # #125: a CONVICTION name on a HOLD day is now eligible (ranked by
+         # the same RS12), while a fails-tier ⭐ no longer buys anything —
+         # the tier picks the name, not the at-support label
+         _bs("HLD", 20, "F:2/3", 0.5, state="HOLD"),
+         _bs("JNK", 10, "F:1/3", 80, tier="fails")]
 
 # ordering (PLAYBOOK §3.4 as promoted — #24, 2026-07-12): RS12 descending,
 # no F grouping (SML's F:1/3 no longer demotes it below the F:2+ names);
-# the HK name splits off as manual (R12), however strong its RS
+# the HK name splits off as manual (R12), however strong its RS.
+# Eligibility per #125 (2026-07-25): CONVICTION tier, ACCUMULATE or HOLD —
+# JNK (fails-tier ⭐, RS 80) is OUT, HLD (CONVICTION HOLD) is IN.
 _usd27, _man27 = homily_buyday.star_candidates(_st27, _pos27, _yh27)
-assert [s["ticker"] for s in _usd27] == ["SML", "BIG", "NEW"], \
-    f"RS12 descending (#24 promoted): {[s['ticker'] for s in _usd27]}"
-assert [s["ticker"] for s in _man27] == ["0700"], "non-USD ⭐ -> manual (R12)"
+assert [s["ticker"] for s in _usd27] == ["SML", "BIG", "NEW", "HLD"], \
+    f"#125 eligibility + RS12 order: {[s['ticker'] for s in _usd27]}"
+assert [s["ticker"] for s in _man27] == ["0700"], "non-USD -> manual (R12)"
 
 # SRS covers the index (PRD §9.4): whole $1,000 to stars. Stock book =
 # BIG 900 + SML 10 = 910 (bucket A out); post-deploy denom 1910 -> 25% cap
@@ -723,8 +730,9 @@ assert _p27["manual"] == ["0700"]
 _pn27 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27)
 assert _pn27["orders"][0][:2] == ("CSPX", 5) and _pn27["index_amt"] == 500
 
-# no ⭐ -> full amount to Bucket A (§3.5); 🐻 -> same reroute (§4.6)
-_flat27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD")]
+# no candidate -> full amount to Bucket A (§3.5); 🐻 -> same reroute (§4.6)
+# (#125: the index row is fails-tier — a HOLD state alone never qualifies)
+_flat27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD", tier="fails")]
 for _states, _reg, _mode in ((_flat27, "BULL", "nostars"),
                              (_st27, "BEAR", "bear")):
     _px27 = homily_buyday.plan(1000, _states, _pos27, _reg, yahoo=_yh27)
@@ -752,7 +760,8 @@ with tempfile.TemporaryDirectory() as _tmp27:
 # no BUY_BUDGET_USD configured -> the copilot stays dark, digest unchanged
 os.environ.pop("BUY_BUDGET_USD", None)
 assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ("", None)
-print("[27] Buy-day copilot: detection, RS12-top3 order, 10% cap, basket CSV  PASS")
+print("[27] Buy-day copilot: detection, #125 CONVICTION ACC|HOLD eligibility, "
+      "RS12-top3 order, cap, basket CSV  PASS")
 
 # --- 28. Chart cards (#35): valid PNG, deterministic pixels, top-3 pick ----
 # The gate D-35 pre-committed: a deterministic pixel-hash on fixture bars.
@@ -980,7 +989,43 @@ assert homily_promotions.forward_check(
 assert homily_promotions.forward_check(
     _e31, _rows31(8, "1", "4"))["status"] == "INSUFFICIENT", \
     "too few measured rows must defer, never decide"
-print("[31] Promotions: registry complete, checker PASS/FAIL/defer, 🐳rank . PASS")
+
+# #125 hold_adds_check on a synthetic ledger: the CONVICTION 🟢 name
+# compounds, the fails-tier ⭐ name is flat -> new set wins -> PASS; make
+# the ⭐ name the compounder -> FAIL; short ledger -> INSUFFICIENT.
+# (The CONVICTION ⭐ name sits in BOTH sets by design — the check compares
+# eligibility SETS, not disjoint groups.)
+def _hrows31(n, grower):
+    rows = []
+    for i in range(n):
+        d = (datetime.date(2026, 7, 13) + datetime.timedelta(days=i)).isoformat()
+        for tk, st, tier in (("CH", "HOLD", "CONVICTION"),
+                             ("CA", "ACCUMULATE", "CONVICTION"),
+                             ("JA", "ACCUMULATE", "fails")):
+            px = 100 * 1.01 ** i if tk == grower else 100.0
+            rows.append({"date": d, "ticker": tk, "state": st,
+                         "conv_tier": tier, "close": f"{px:.4f}"})
+    return rows
+_h31 = homily_promotions.hold_adds_check(
+    _hrows31(30, "CH"), "2026-07-13", "2026-12-31",
+    horizon_rows=5, min_rows=10)
+assert _h31["status"] == "PASS" and _h31["n_new"] == 50 \
+    and _h31["n_old"] == 50 and _h31["mean_new"] > _h31["mean_old"], _h31
+assert homily_promotions.hold_adds_check(
+    _hrows31(30, "JA"), "2026-07-13", "2026-12-31",
+    horizon_rows=5, min_rows=10)["status"] == "FAIL", \
+    "fails-tier ⭐ outrunning the CONVICTION set must FAIL -> demote"
+assert homily_promotions.hold_adds_check(
+    _hrows31(8, "CH"), "2026-07-13", "2026-12-31",
+    horizon_rows=5, min_rows=10)["status"] == "INSUFFICIENT", \
+    "too few measured rows must defer, never decide"
+# and the month-start block executes it inline (not a reminder line)
+_mb31 = homily_promotions.month_start_block(
+    _hrows31(30, "CH"), datetime.date(2026, 8, 3))
+assert "[hold-adds]" in _mb31 and "demotion check (rolling 6m):" in \
+    _mb31.split("[hold-adds]")[1], "the #125 watch must EXECUTE monthly"
+print("[31] Promotions: registry complete, checkers PASS/FAIL/defer "
+      "(rank + #125 set-vs-set), 🐳rank  PASS")
 
 # --- 32. Missed-run detector (#70): planted gap found, weekends aren't -----
 # #16 catches a run that FAILS; this catches one that never STARTS. Rows on

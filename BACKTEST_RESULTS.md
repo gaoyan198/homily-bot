@@ -1141,3 +1141,65 @@ that budget, so the true whale-dip allowance is smaller and every constraint
 above is looser than reality.
 
 **Nothing shipped from this study.** PLAYBOOK §3.6b keeps ≤2%.
+
+## 29 · #125 buy-day eligibility — the ⭐ gate subtracts return (run 2026-07-25) — PASSED, promoted same day (owner-directed)
+
+Trigger: NBIS printed ⭐ ACCUMULATE · CONVICTION 79 into BOTH of its crash
+sessions (−13.9% on 07-16, −15.0% on 07-24); the owner bought off the
+07-22 print and asked whether "buy day = buy ACCUMULATE" is right at all.
+
+**Method** (`homily_holdadds_backtest.py`, rule frozen in the docstring
+before the run): every log-screened ticker, full-history daily bars,
+per-day truncation to the live trailing-5y window, walked forward through
+the REAL `danny_signal()` + `conviction()` — 105k signals over 3 years.
+Replay fidelity was proven first: 99.5% state match (1602/1610) against
+the 12 live logged days; the 8 misses are HK/SG/LSE timezone closes, every
+US row exact.
+
+**Finding 1 — the tier picks names, and it works.** Excess over the
+same-day universe mean, date-clustered t-stats: CONVICTION tier +3.28%
+at 20d [t 14.7], +9.73% at 60d [t 17.9], monotone in the raw score
+(80-89 bucket +14.6% at 60d; sub-20 buckets negative). Positive every
+year 2024–2026; 2023 flat-negative.
+
+**Finding 2 — the ⭐ at-support day is the WORSE entry on those names.**
+Within CONVICTION tier, same names, only the state differs:
+
+| entry day | n | 20d excess | 60d excess |
+|---|---|---|---|
+| 🟢 HOLD | 6,037 | **+4.79** [t 12.1] | **+15.54** [t 15.8] |
+| ⭐ ACCUMULATE | 8,993 | +2.07 [t 8.5] | +5.63 [t 10.2] |
+
+ACC − HOLD is negative in all 12 tier×horizon cells. Mechanism: the states
+sort on prior momentum (HOLD names +11.8% prior-20d, ⭐ +5.4%, ⚪ −5.3%)
+and forward returns FOLLOWED prior momentum in this universe — waiting
+for the fade to the (rolling, re-anchoring) chip shelf is mean-reversion
+timing that momentum beat. Also answers the crash question honestly: ⭐ is
+UNDER-represented before >8% single-day drops (0.63× base rate; 🟢 is the
+crash-heavy state at 1.81×) — NBIS twice in nine days was bad luck, not
+the pattern.
+
+**The gate — live buy-day mechanics** (37 monthly buy days 2023-08..
+2026-07, $1k/mo star leg, top-3 by RS12, never sells, valued 2026-07-24):
+
+| arm | per $1 | win A (23-08..25-07) | win B (25-08..26-07) | MaxDD |
+|---|---|---|---|---|
+| OLD — ⭐ any tier | 1.944 | 2.322 | 1.156 | −28.9% |
+| **NEW — CONVICTION ⭐\|🟢** | **2.266** | **2.758** | **1.243** | −36.4% |
+| SPY DCA | 1.308 | 1.419 | 1.079 | −11.5% |
+| QQQ DCA | 1.395 | 1.539 | 1.095 | −14.2% |
+
+NEW > OLD on both windows → **PASS**; promoted same day, owner-directed
+(promotions.json `hold-adds`; R10: spends 2027-Q2's slot, next free
+2027-Q3; demotion = `hold_adds_check` rolling-6m on the live ledger,
+executed every month-start, FAIL restores ⭐-only mechanically).
+
+**Caveats frozen with the gate.** (1) Universe as of 2026-07-11 replayed
+BACKWARDS — every name survived to be picked, so absolute returns and the
+margin over SPY/QQQ are inflated and must not be quoted as "the routine
+beats the index 2×"; §16b's 10y honest control (engine 2.69 vs QQQ 2.86)
+remains the standing answer to "do we beat the market". The OLD-vs-NEW
+spread is within-universe, within-day, and is the finding. (2) NEW's
+mid-path drawdowns are deeper — more end value, scarier months, accepted.
+(3) 2023 is the weak year for the tier edge; the 3y average leans on
+2024–26. (4) No dividends anywhere (raw closes), consistent across arms.

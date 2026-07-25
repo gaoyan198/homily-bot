@@ -94,6 +94,55 @@ def timestop_watch(rows, lo=None, hi=None):
     return out
 
 
+def hold_adds_check(rows, lo, hi, horizon_rows=21, min_rows=30):
+    """#125 custom demotion checker (promotions.json "hold-adds").
+
+    The promotion widened the buy-day candidate set from ⭐-only to
+    CONVICTION-tier ACCUMULATE|HOLD. The frozen criterion compares the two
+    ELIGIBILITY sets on the ledger (top-3 needs raw RS12, which the ledger
+    doesn't carry — set-level is what's mechanically checkable): mean
+    forward-`horizon_rows`-ledger-row raw-close return of #125-eligible
+    rows must be >= that of old-rule rows (state ACCUMULATE, any tier)
+    over [lo, hi]. FAIL = restore the ⭐-only line in star_candidates —
+    mandatory. Fewer than `min_rows` measured on either side =
+    INSUFFICIENT (no action). Same raw-close caveat as forward_check().
+    -> {"status", "n_new", "n_old", "mean_new", "mean_old"}"""
+    dates = sorted({r["date"] for r in rows})
+    idx = {d: i for i, d in enumerate(dates)}
+    close = {(r["date"], r["ticker"]): float(r["close"])
+             for r in rows if r.get("close")}
+    new, old = [], []
+    for r in rows:
+        if not (lo <= r["date"] <= hi and r.get("close")):
+            continue
+        is_new = (r.get("conv_tier") == "CONVICTION"
+                  and r.get("state") in ("ACCUMULATE", "HOLD"))
+        is_old = r.get("state") == "ACCUMULATE"
+        if not (is_new or is_old):
+            continue
+        i = idx[r["date"]] + horizon_rows
+        if i >= len(dates):
+            continue                       # forward date hasn't happened yet
+        fwd = close.get((dates[i], r["ticker"]))
+        px = close.get((r["date"], r["ticker"]))
+        if fwd is None or px is None or px <= 0:
+            continue
+        ret = 100.0 * (fwd / px - 1)
+        if is_new:
+            new.append(ret)
+        if is_old:
+            old.append(ret)
+    out = {"n_new": len(new), "n_old": len(old),
+           "mean_new": (sum(new) / len(new) if new else None),
+           "mean_old": (sum(old) / len(old) if old else None)}
+    if len(new) < min_rows or len(old) < min_rows:
+        out["status"] = "INSUFFICIENT"
+    else:
+        out["status"] = ("PASS" if out["mean_new"] >= out["mean_old"]
+                         else "FAIL")
+    return out
+
+
 def forward_check(entry, rows):
     """One entry's frozen forward check against ledger rows.
     -> {"id", "status": PASS|FAIL|INSUFFICIENT, "n_top", "n_other",
@@ -163,12 +212,29 @@ def month_start_block(rows, day, esc=lambda x: x):
     for e in load_registry():
         fc = e["forward_check"]
         if fc.get("type") == "custom":
-            # #92-style entries: their checker runs elsewhere (named in the
-            # entry); this block just reminds that the watch is armed
             lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
                          + (f" {esc(e['promoted'])}"
                             if e.get("promoted") else "")
                          + f" · custom watch: {esc(fc['checker'])}")
+            # #125: this custom checker lives HERE, so it runs here — the
+            # rolling-6m read prints monthly like the rank entries do.
+            # (#92/#51-style checkers run elsewhere; the line above is the
+            # reminder that their watch is armed.)
+            if fc.get("checker_fn") == "hold_adds_check" \
+                    and e["status"] == "promoted":
+                lo = (day - datetime.timedelta(days=183)).isoformat()
+                r = hold_adds_check(rows, lo, day.isoformat())
+                lines.append(
+                    f"　demotion check (rolling 6m): {esc(r['status'])} "
+                    f"(new n={r['n_new']} mean "
+                    f"{r['mean_new']:.2f}% · old n={r['n_old']} mean "
+                    f"{r['mean_old']:.2f}%)"
+                    if r["status"] != "INSUFFICIENT" else
+                    f"　demotion check (rolling 6m): INSUFFICIENT "
+                    f"(new n={r['n_new']} · old n={r['n_old']})")
+                if r["status"] == "FAIL":
+                    lines.append("　<b>FAIL = demote, mandatory (registry "
+                                 "demotion_rule)</b>")
             continue
         frozen = forward_check(e, rows)
         lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
