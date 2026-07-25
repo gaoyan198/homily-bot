@@ -387,10 +387,18 @@ The playbook already routes money toward dips without the cash drag: the
 monthly buy goes to ⭐ names (names AT their shelf — the disciplined
 version of "buy the discount"), 🟡+🎯 allows an aggressive add, ⚪+🎯+🐳
 takes its ≤2% from the same budget, and the 🐻 protocol builds real dry
-powder for the only discounts that are actually massive. A staged-add
-variant (park the tranche, deploy at shelf / −7% / −14%) sits in the
-backlog as **#50** with a pre-registered test — if it beats single-add
-and DCA on average cost, it ships; nothing before that.
+powder for the only discounts that are actually massive.
+
+The staged-add variant (park the tranche, deploy at shelf / −7% / −14%)
+was **#50**, and it RAN on 2026-07-25 — **NULL, item closed** (§30).
+That is the fourth measurement and the cleanest: on the momentum/quality
+universe staging lost the MOIC race in **0 of 9** windows and paid a
+*higher* average cost in 8 of 9. It won only on the hype-2021 wreck
+control — where simply buying SPY beat both arms in 6 of 7 windows. The
+one-line version: **waiting for the dip helps only when you picked the
+wrong stock, and when you picked the wrong stock the index beat you
+anyway.** The instinct keeps exactly one measured outlet here: 🐳
+WHALE-DIP at its ≤2% cap.
 
 ---
 
