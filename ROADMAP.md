@@ -252,7 +252,8 @@ the cheapest layer to regenerate; the record and the rules are not.
 ## 5. New numbered items #113–#123
 
 PRD §8.3 numbering continues here (#101–#112 spent; #124 = the §8.1
-target line, shipped same day, row in PRD §8.3; next free: #125). Same law as every §8.3 row: pre-registered gate,
+target line, shipped same day, row in PRD §8.3; #125 = the buy-day
+eligibility promotion, 2026-07-25; next free: #126). Same law as every §8.3 row: pre-registered gate,
 info-only until promoted, null → closed honestly. #113–119 are
 infrastructure — none is a signal, none consumes an R10 selection slot.
 #120–123 are the §2 alpha program: their STUDIES are free, their

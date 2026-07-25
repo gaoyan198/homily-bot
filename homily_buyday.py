@@ -14,10 +14,12 @@ CSV, `docs/orders_YYYY-MM.csv`, committed by the workflow (R8).
 Allocation (D-31, PLAYBOOK §3):
   budget → index leg (50%; 0% if `SRS_COVERS_INDEX` — PRD §9.4: the
   owner's SRS contributions ARE the index half; 100% on 🐻 per §4.6 or
-  when there is no ⭐ per §3.5) → star leg split across the TOP-3 ⭐
-  names by RS12 (holdings + discovery — #24 promoted 2026-07-12, owner
-  override, promotions.json carries the basis + demotion rule; the
-  F:2+-first tie-break retired with equal-split-max-5) → per name the
+  when there is no candidate per §3.5) → star leg split across the TOP-3
+  by RS12 among CONVICTION-tier names in ACCUMULATE **or HOLD** (#125
+  promoted 2026-07-25, owner-directed; was ⭐-only — the 3y walk-forward
+  replay showed the at-support gate SUBTRACTS return on the same-quality
+  names, BACKTEST_RESULTS §29; promotions.json carries basis + demotion
+  rule. #24's RS12 top-3 ranking itself is unchanged) → per name the
   post-buy value is capped at CAP_PCT of the post-deploy stock book
   (#27's constant — 25% since the #92 promotion, 2026-07-12), overflow redistributed to the remaining stars → round DOWN
   to whole shares → leftover printed, rolls to next month.
@@ -70,17 +72,24 @@ def is_buy_day(day, ledger_rows):
 
 
 def star_candidates(states, positions, yahoo):
-    """Today's ⭐ set split into (usd, manual). `manual` = non-USD names the
-    orders must exclude (R12): held names by their holdings.json currency,
-    unheld discovery names by a suffixed Yahoo symbol (0700.HK, D05.SI —
-    every USD name in the universe maps to a bare symbol). Sort order per
+    """Today's buy-day candidate set split into (usd, manual). Eligibility
+    per #125 (promoted 2026-07-25): CONVICTION tier, state ACCUMULATE or
+    HOLD — the tier picks the name, the trend states are interchangeable
+    entry days (the replay says HOLD days are the BETTER ones; the old
+    ⭐-only gate waited for a fade to support that subtracted return,
+    BACKTEST_RESULTS §29). Demotion (promotions.json `hold-adds`) restores
+    the ⭐-only line below. `manual` = non-USD names the orders must
+    exclude (R12): held names by their holdings.json currency, unheld
+    discovery names by a suffixed Yahoo symbol (0700.HK, D05.SI — every
+    USD name in the universe maps to a bare symbol). Sort order per
     PLAYBOOK §3.4 as promoted (#24, 2026-07-12): RS12 descending, ticker
     tie-break — the same ranking homily_ledger.rs12_ranks pins for the
     forward check."""
     usd, manual = [], []
     for s in states:
-        if s["state"] != "ACCUMULATE":
-            continue
+        if not (s.get("conv_tier") == "CONVICTION"
+                and s["state"] in ("ACCUMULATE", "HOLD")):
+            continue          # demotion rule: restore `!= "ACCUMULATE"` only
         p = positions.get(s["ticker"])
         if p is not None:
             foreign = p.get("currency", "USD") != "USD"
@@ -200,8 +209,9 @@ def render(p, day, skim_usd=0.0):
         lines.append("<i>🐻 regime: entire budget → Bucket A "
                      "(PLAYBOOK §4.6 — buy the index through the bear)</i>")
     elif p["mode"] == "nostars":
-        lines.append("<i>no ⭐ today → full amount to Bucket A (§3.5: cash "
-                     "waiting for stars costs more than it saves)</i>")
+        lines.append("<i>no CONVICTION-tier name today (#125) → full amount "
+                     "to Bucket A (§3.5: cash waiting costs more than it "
+                     "saves)</i>")
     elif p["srs_covers_index"]:
         lines.append("<i>SRS covers the index leg (§9.4) — cash 100% to ⭐</i>")
     if p["orders"]:

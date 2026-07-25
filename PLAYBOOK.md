@@ -59,9 +59,21 @@ fallback.*
 3. Half of it → Bucket A (index). **Your SRS contributions ARE this half**
    (provided the SRS cash is actually deployed into SPY/QQQ, not idle) —
    if SRS is funded and invested, your cash DCA may go fully to step 4.
-4. Other half → split across the **top-3 ⭐ names by RS12** (holdings +
-   discovery; the digest marks them `RS#1–3`). Skip any name that would
-   exceed **25%** of your stock book.
+4. Other half → split across the **top-3 by RS12 among CONVICTION-tier
+   names in ⭐ ACCUMULATE or 🟢 HOLD** (holdings + discovery; the digest
+   marks them `RS#1–3`). Skip any name that would exceed **25%** of your
+   stock book.
+   *(#125 promoted 2026-07-25, owner-directed: the old rule bought ⭐ only
+   — any tier, and only on at-support days. The 3y walk-forward replay
+   (BACKTEST_RESULTS §29) showed the conviction TIER is what picks winning
+   names, while waiting for the ⭐ at-support day subtracted return on
+   those same names — a HOLD day is at least as good an entry. Plain
+   version: buy the strong names on their strong days too, don't wait for
+   the fade. Cost accepted with the gate: deeper mid-path drawdowns
+   (−36% vs −29% monthly-mark in the sim). Demotion is armed: at every
+   month-start, `hold_adds_check` compares the two eligibility sets on
+   the live ledger and a rolling-6-month FAIL restores the ⭐-only rule
+   mechanically — promotions.json `hold-adds`.)*
    *(#24 promoted 2026-07-12 — by owner override, AHEAD of its live
    forward-check; the check keeps publishing at each month-start through
    2026-10 and a FAIL demotes this back to equal-split-max-5 mechanically
@@ -77,8 +89,9 @@ fallback.*
    from its post-promotion high prints a 🚨 banner and the cap reverts
    to 10% in the next session, mandatorily. Uncapped remains excluded —
    its −95% shock number is 1.49.)*
-5. **If there are no ⭐ names: buy Bucket A with the full amount.** The
-   backtest is clear — cash waiting for stars costs more than it saves.
+5. **If there is no CONVICTION-tier candidate: buy Bucket A with the full
+   amount.** The backtest is clear — cash waiting costs more than it saves.
+   (In the 3y replay this happened on ~1 buy day in 30.)
 6. **Optional aggressive add (🎯 on a 🟡 row):** a still-bullish name whose
    dip has reached its support shelf — the Danny-style add. Allowed, but it
    is DISCRETIONARY: it isn't part of the backtested routine, comes out of
