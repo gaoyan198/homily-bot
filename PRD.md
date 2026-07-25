@@ -694,6 +694,39 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-07-25 (planning era, execution) · #118(c) shipped and it BREAKS #118's
+own "no standing infra, no new secrets kept live" clause — deliberately,
+scoped, recorded here rather than reinterpreted quietly.** The owner asked
+whether GitHub's 60-day inactivity disable threatens a repo entering a
+long-term planning phase. It does, and worse than the docs suggest: the repo
+is **public**, only commits reset the clock (issues/PRs/tags do not), and the
+disable takes the whole workflow file down including `workflow_dispatch`, so
+the manual re-run button dies with the schedule. Today the repo is safe by
+accident — `daily refine` pushes real state nearly every weekday — but that
+is exactly the signal a broken run removes, so "CI silently died" and "GitHub
+disabled CI" are one 60-day fuse, lit at the moment nobody is watching.
+
+The fix could not be a GitHub-hosted checker: it would be disabled by the
+same event it exists to report. So the liveness signal leaves GitHub, and an
+external monitor alerts on its absence — which requires exactly the standing
+infra and live secret #118's gate forbids. Rather than pretend a watchdog can
+be a drill, the clause is **amended for prong (c) alone**; (a)/(b) keep the
+original no-standing-infra bar. The alternative reading — file it as #125 —
+was rejected because this is the observability half of (b)'s scheduling
+death, not a new capability.
+
+Two things were deliberately NOT built. **No keepalive commit:** GitHub took
+down the popular keepalive action as a ToS violation for circumventing the
+inactivity policy, and validate [68] now fails if a manufactured liveness
+commit ever appears in either workflow. **No shared monitor URL** between the
+two books — one healthy book would mask the other's death, so [68] pins one
+check per book. Honest limit on the whole item: whether a commit pushed by the
+workflow's own `GITHUB_TOKEN` resets the inactivity clock is **not
+authoritatively documented** and community reports conflict; the watchdog is
+built to not depend on that answer, since it fires on missing pings either
+way. Owner half is unshipped by construction (the two checks + secrets) —
+until it is done, both workflows log `watchdog skipped` and nothing changes.
+
 **2026-07-12 (integration era, execution) · #99 shipped; the #73 line-budget
 interlock it was gated on does not exist yet.** D-99's gate named "#73's
 line-count check green", but #73 (the digest line budget) is still on the

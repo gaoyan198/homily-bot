@@ -74,3 +74,49 @@ jobs:
           git add holdings.json 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
+
+      # #118(c) liveness watchdog — the one signal that must NOT live on
+      # GitHub. Two failure modes share one clock: a public repo's scheduled
+      # workflows are auto-disabled after 60 days with no commits (and the
+      # disable takes `workflow_dispatch` down with it, so the manual button
+      # dies too), while a run that breaks silently is exactly what stops the
+      # push below from happening. A checker hosted here would be disabled by
+      # the same event it exists to report, so "still alive" is sent OUT of
+      # GitHub and the EXTERNAL monitor alerts on the ping's ABSENCE.
+      #
+      # We deliberately do NOT keepalive-commit: this repo's daily push is
+      # real state (refine log, signals ledger, dashboard), and manufacturing
+      # activity to dodge the 60-day policy is a GitHub ToS violation — the
+      # popular keepalive action was taken down for precisely that. The URL is
+      # a whole-URL secret, not a provider SDK, so the monitor is replaceable
+      # behind it like every other component (ROADMAP §4 assume-decay).
+      # Unset secret = dark, same idiom as the Flex and Telegram rails.
+      #
+      # Ordering is load-bearing: this runs AFTER the commit/push step, so a
+      # push that fails still withholds the ping. Pinned by validate [68].
+      - name: Watchdog ping — alive (skipped if secret unset)
+        if: ${{ success() }}
+        env:
+          HEALTHCHECK_URL_DAILY: ${{ secrets.HEALTHCHECK_URL_DAILY }}
+        run: |
+          if [ -z "$HEALTHCHECK_URL_DAILY" ]; then
+            echo "watchdog skipped (HEALTHCHECK_URL_DAILY unset)"; exit 0
+          fi
+          # A dead monitor must never redden a good digest run — the missing
+          # ping is itself what the monitor alerts on, so this is self-covering.
+          curl -fsS -m 10 --retry 3 "$HEALTHCHECK_URL_DAILY" \
+            && echo "watchdog pinged" \
+            || echo "::warning::watchdog ping failed — check the monitor"
+
+      # Explicit failure ping so a red run alerts in MINUTES rather than
+      # waiting out the monitor's grace window. `/fail` is the healthchecks.io
+      # convention; a monitor without it still fires on the absent alive-ping.
+      - name: Watchdog ping — failed run (alert now, not in 60 days)
+        if: ${{ failure() }}
+        env:
+          HEALTHCHECK_URL_DAILY: ${{ secrets.HEALTHCHECK_URL_DAILY }}
+        run: |
+          if [ -z "$HEALTHCHECK_URL_DAILY" ]; then
+            echo "watchdog skipped (HEALTHCHECK_URL_DAILY unset)"; exit 0
+          fi
+          curl -fsS -m 10 --retry 3 "${HEALTHCHECK_URL_DAILY%/}/fail" || true
