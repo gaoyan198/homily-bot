@@ -178,15 +178,31 @@ Everything else remaining is DATE- or OWNER-gated:
 5. **Quarterly** · #65 universe refresh (`--shard k/N` over CI nights) +
    #44 hygiene issue; #74/#81 timing-modifier studies — ONE per quarter.
 6. **Owner-gated** · T3 (two clean T2 months + cloud repo access; PRD §9.2
-   verbatim) · **IBKR_FLEX_TOKEN/QUERY secrets (#32) — token generated
-   2026-07-25, EXPIRES 2027-06-26 (ROADMAP §6 carries the rotation row);
-   token + Query ID both live on Performance & Reports → Flex Queries (the
-   Flex Web Service Configuration panel is at the bottom of that page — NOT
-   Account Settings → Reporting). Query must be an Activity Flex Query,
-   XML, Open Positions at SUMMARY detail: `parse_positions` does
-   `out[sym] = …`, so Lot-level detail keeps only the LAST lot and would
-   silently understate a multi-lot name (NVDA 14.85 → 4.85 in the shipped
-   simulation). IP field blank — runners rotate IPs** · MARGIN_ZERO ·
+   verbatim) · **IBKR_FLEX_TOKEN/QUERY secrets (#32) — SET 2026-07-25
+   13:12Z** (query `1582700`; token EXPIRES **2027-06-26**, ROADMAP §6
+   carries the rotation row). Both live on Performance & Reports → Flex
+   Queries — the Flex Web Service Configuration panel is at the FOOT of
+   that page, NOT Account Settings → Reporting. Query = Activity Flex,
+   XML, Open Positions, IP field blank (runners rotate IPs).
+   **⚠ ONE CHECK STILL OPEN: Open Positions must be at SUMMARY detail and
+   this was never verified against the live statement** — the setup
+   session's dry run was cut short by IBKR's repeat-`SendRequest` throttle.
+   `parse_positions` does `out[sym] = …` with no accumulation, so Lot-level
+   detail keeps only the LAST lot: simulated on the real book, NVDA
+   14.8527 → 4.8527, written to holdings.json with no error and committed
+   by CI (R8), feeding the book-value denominator and the 25% cap. Evidence
+   it is already Summary: the statement returned 13 `<OpenPosition>`
+   elements against 13 expected symbols (14 in the book, CSPX absent —
+   bucket A, exempt at `homily_flex.py:106`), and fractional DCA lots
+   (AAPL 8.7833, NVDA 14.8527) would yield dozens of rows at Lot level.
+   Close it by counting parsed symbols vs raw elements on one saved
+   statement — never by re-fetching in a loop, which is what tripped the
+   throttle. **Token exposure, recorded deliberately:** the first token was
+   pasted into a chat transcript during setup and the owner chose NOT to
+   rotate after weighing it (read-only scope — Flex can fetch statements,
+   never trade; exposure limited to model-provider logs + a local
+   transcript). Accepted, not overlooked; 2027-06-26 is its natural
+   retirement · MARGIN_ZERO ·
    BUY_BUDGET_USD back to 1550 · F3 only if two weeks of F2 shows
    file-open friction · **#118(c) watchdog secrets (do this one first —
    until it is done CI can die silently and GitHub's 60-day inactivity
