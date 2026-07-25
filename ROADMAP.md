@@ -281,6 +281,7 @@ PROMOTIONS pay the normal R10 selection price like everything else.
 | Monthly | buy-day routine + reconcile (#72) · household block (#94) |
 | Quarterly | R10 selection slot (max one) · universe hygiene (#44) · swing skim (#95) · rehearsal machinery green |
 | Yearly (July) | #40 re-test + live-vs-sim reconcile · **#120 selection bake-off (from 2028)** · LEVERAGE.md §5 re-run · #116 prune · #115 cold-start drill · re-read THIS file |
+| **2027-06-26** | **IBKR Flex token EXPIRES** (#32, set 2026-07-25 with ~1y max expiry). Rotate BEFORE this date: Performance & Reports → Flex Queries → Flex Web Service Configuration → Generate New Token (longest expiry, IP field blank — runners rotate IPs), then re-set `IBKR_FLEX_TOKEN`. Generating invalidates the old token, so secret and token must move together. **Why this earns a calendar row:** expiry is caught at `homily_flex.auto_sync`'s except and is deliberately non-fatal — CI stays GREEN, the #118(c) watchdog pings healthy, and the only signal is one `📒 book sync` line in Telegram. Nothing red ever appears while the book silently stops tracking reality |
 | 2027-12 | R-2027 read (§1) |
 | 2029-07, then yearly | R-2029 three-fork read (§3) |
 | 2036-07 | R-2036 binding read (§4) |
