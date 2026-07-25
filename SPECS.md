@@ -98,10 +98,11 @@ info-only.
 **Still on the shelf, each its own session:** #57 中文 toggle (S in
 name, but it touches every digest string → golden regen; do it alone) ·
 #58 behaviour-gap tracker (M — needs a persisted shadow book design) ·
-#47/#48/#50/#52 studies · #53 absorbed by #94. Studies remain buildable
-anytime; only *shipping* a money-touching result queues behind R10
-(queue now: #79 tag · whale-cap 1.6% · #20 weights · #51's 8wk edit —
-next slot 2027-Q2).
+#47/#48/#52 studies (**#50 RAN 2026-07-25 → NULL, closed**, §30) · #53
+absorbed by #94. Studies remain buildable anytime; only *shipping* a
+money-touching result queues behind R10 (queue now: #79 tag · whale-cap
+1.6% · #20 weights — #51's 8wk edit SHIPPED 2026-07-22, #125 SHIPPED
+2026-07-25 and spent 2027-Q2; **next selection slot 2027-Q3**).
 
 **Integration-era shelf (#94–100, added 2026-07-12 late; designs
 D-94…D-98).** The leverage era armed four money surfaces (core cash,

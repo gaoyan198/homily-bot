@@ -1203,3 +1203,63 @@ spread is within-universe, within-day, and is the finding. (2) NEW's
 mid-path drawdowns are deeper — more end value, scarier months, accepted.
 (3) 2023 is the weak year for the tier edge; the 3y average leans on
 2024–26. (4) No dividends anywhere (raw closes), consistent across arms.
+
+## 30 · #50 staged-add tranches (run 2026-07-25) — NULL on all three prongs; the dip instinct is insurance, not alpha
+
+Trigger: the owner's challenge, verbatim — *"but doesnt danny aggressively
+scale in when the price dips, seems counterintuitive to buy when the price
+hasnt retraced. But i will respect the data."* PRD §8.3 row 50 had
+pre-registered the shape (avg-cost + MOIC vs single-add and DCA, both
+universes); the rest of the rule was frozen in
+`homily_tranche_backtest.py`'s docstring before the first run — deadline
+6m primary, 3m/12m sensitivity explicitly non-promotable (the #86 clause).
+
+Arms, $1/name/month, identical cash on identical dates so only the SHAPE
+differs: **SINGLE** deploys at the month's first close · **STAGED** parks
+it and deploys ⅓ at the point-in-time chip shelf, ⅓ at −7%, ⅓ at −14%,
+unfilled tranches forced at market on the 6-month anniversary, waiting
+cash earning 0% · **DCA** the same dollars into SPY.
+
+| universe | MOIC vs SINGLE | avg cost vs SINGLE | MOIC vs DCA |
+|---|---|---|---|
+| A momentum/quality (36) | **0/9 windows** | **1/9** | 9/9 |
+| B hype-2021 control (29) | 4/7 | 4/7 | **1/7** |
+
+**Pre-committed rule: NULL — all three prongs fail**, each needing BOTH
+universes: (a) MOIC-vs-SINGLE dies on A (0/9), (b) avg-cost-vs-SINGLE dies
+on A (1/9), (c) MOIC-vs-DCA dies on B (1/7). The sensitivity grid changes
+nothing (3m: A 0/9, B 4/9 · 12m: A 0/9, B 3/9) and by pre-commitment
+could not have rescued it anyway.
+
+**The split IS the finding, and it is the honest answer to the owner.**
+Staging wins only where the name keeps falling. On universe A — the good
+names, the ones the buy routine actually points at — waiting for the dip
+lost every single window and paid a **higher** average cost in 8 of 9:
+quality names grind upward, so the discount you wait for usually arrives
+above today's price. On universe B it wins on both SINGLE metrics — and
+still loses to just buying SPY in 6 of 7 windows, because a basket
+carrying MOIC 0.63–1.07 is not a thing to optimise the entry into. There
+is no window in which staging is the right answer: where it helps you
+picked wrong, and where you picked wrong the index beat you anyway. It is
+insurance against bad selection, not a source of return — and #125 just
+established that the CONVICTION tier is the part of this engine that
+picks well.
+
+**Recorded caveats.** Universe B's early windows are thin (n=3 in
+2016-2021 and in the 2016-2026 10y — most B names listed 2019-2021), so
+those two rows carry little weight; the B verdict rests on the four
+2018→2026 windows where n=8–22. Cash earns 0% while parked, which is
+realistic for this book but flatters SINGLE in a high-rate window. The
+shelf is recomputed point-in-time per buy day from the frozen
+`build_profile`, i.e. the same re-anchoring shelf §29 identified — a
+tranche waiting on a rising shelf fills sooner than the −7%/−14% legs.
+
+**Nothing shipped. #50 closes.** Independently of the numbers it could not
+have shipped today: D-66 §(c) made tranche automation conditional on the
+thesis-break veto ("the machinery that sizes up into weakness refuses to
+run on names whose business broke"), and that veto is **dead** — #66's
+wreck-separation gate FAILED (§14). Averaging down into a genuine wreck
+had no guard, which is precisely the failure mode universe B is made of.
+The owner's instinct is not dismissed: the one dip trigger that DID beat
+DCA is 🐳 WHALE-DIP (§12 row 4, +10.9% vs +9.5% fwd-60d), which stays
+live at its ≤2% cap, and the 🐻 protocol remains the real dry-powder path.
