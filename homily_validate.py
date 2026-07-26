@@ -1843,6 +1843,23 @@ assert abs(_c52fx["net"] - _comp52["net"] - 128.0) < 1e-9, \
 _bal128 = dict(_bal52, btc_usd=1000.0, alt_usd=250.0)
 _c128 = _hh.book_value(_pos52, _px52, _live52, _bal128, fx=_fx52)
 assert _c128["crypto"] == 1250.0 and _c128["btc"] == 1000.0, _c128
+
+# #128b: a QUANTITY is marked live and beats the typed value; the typed one
+# survives only as the fetch-failure fallback, so a dead feed can never
+# silently zero the sleeve.
+_bal128q = dict(_bal52, btc_qty=2.0, btc_usd=999.0, ibit_usd=100.0,
+                alt_usd=250.0)
+_c128q = _hh.book_value(_pos52, dict(_px52, **{"BTC-USD": 500.0}), _live52,
+                        _bal128q, fx=_fx52)
+assert _c128q["btc"] == 1000.0 and not _c128q["btc_stale"], _c128q
+assert _c128q["crypto"] == 1350.0, _c128q          # 1000 btc + 100 ibit + 250
+assert _c128q["crypto_manual"] == 350.0, \
+    "#128b: a live-marked BTC is NOT part of the hand-typed exposure"
+_c128f = _hh.book_value(_pos52, _px52, _live52, _bal128q, fx=_fx52)
+assert _c128f["btc"] == 999.0 and _c128f["btc_stale"], \
+    "#128b: no BTC price -> fall back to the typed value and SAY so"
+assert "BTC price fetch failed" in _hh.render(
+    _c128f, None, 0.0, None, "BULL", 1.3, [], esc=lambda x: str(x))
 assert abs(_c128["net"] - (_c52fx["net"] + 1250.0)) < 1e-9, \
     "#128: crypto must add to net worth, exactly once"
 assert _c128["ibkr_gross"] == _c52fx["ibkr_gross"] and \
@@ -1859,14 +1876,23 @@ assert "crypto" not in _hh.render(_c128z, None, 0.0, None, "BULL", 1.3, [],
 _r128 = _hh.render(_c128, None, 0.0, None, "BULL", 1.3, [],
                    esc=lambda x: str(x))
 assert "crypto US$1,250" in _r128, _r128           # 1250/15278 = 8% -> quiet
-assert "manually-entered" not in _r128, "8% must not trip the ⚠"
+assert "hand-typed crypto" not in _r128, "8% must not trip the ⚠"
 _c128big = _hh.book_value(_pos52, _px52, _live52,
                           dict(_bal52, btc_usd=9000.0, alt_usd=1000.0),
                           fx=_fx52)                # 10000/24028 = 42% -> loud
 _r128big = _hh.render(_c128big, None, 0.0, None, "BULL", 1.3, [],
                       esc=lambda x: str(x))
-assert "manually-entered" in _r128big and "42% of net worth" in _r128big, \
-    _r128big
+assert "42% of net worth is hand-typed crypto" in _r128big, _r128big
+# #128b: the SAME size sleeve, but live-marked, must NOT nag — otherwise the
+# warning trains the owner to ignore it
+_c128lv = _hh.book_value(_pos52, dict(_px52, **{"BTC-USD": 9000.0}), _live52,
+                         dict(_bal52, btc_qty=1.0, alt_usd=1000.0), fx=_fx52)
+_r128lv = _hh.render(_c128lv, None, 0.0, None, "BULL", 1.3, [],
+                     esc=lambda x: str(x))
+assert _c128lv["crypto"] == _c128big["crypto"], "same sleeve size"
+assert "hand-typed crypto" not in _r128lv, \
+    "#128b: live-marked crypto must not be nagged about"
+assert "BTC 1.00000000 @" in _r128lv, _r128lv       # composition always shows
 
 # R12 is untouched where it actually governs money: the cap denominator.
 # 500.0 = NV only — stock_book_value drops Bucket-A (IX) as well as non-USD
