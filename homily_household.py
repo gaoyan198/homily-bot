@@ -186,11 +186,20 @@ def book_value(positions, prices, live_book, balances, fx=None):
     srs = float(bal.get("srs_usd") or 0.0)
     espp = float(bal.get("espp_external_usd") or 0.0)
     margin = float(bal.get("margin_loan_usd") or 0.0)
-    assets = core_gross + srs + espp + swing_mv
+    # #128: self-custodied / exchange crypto — off-IBKR like SRS and ESPP,
+    # owner-maintained. Split BTC vs alts in the FILE (different risk
+    # animals, and the split is what the owner actually tracks); summed for
+    # the printed line. Never enters ibkr_gross/ibkr_loan — the LEVERAGE.md
+    # ladder governs the IBKR account, and crypto is not collateral there.
+    btc = float(bal.get("btc_usd") or 0.0)
+    alt = float(bal.get("alt_usd") or 0.0)
+    crypto = btc + alt
+    assets = core_gross + srs + espp + swing_mv + crypto
     loans = margin + swing_loan
     return {"core_gross": core_gross, "core_index": core_index,
             "srs": srs, "espp": espp, "swing_mv": swing_mv,
             "swing_eq": swing_eq, "swing_loan": swing_loan,
+            "btc": btc, "alt": alt, "crypto": crypto,
             "margin": margin, "net": assets - loans,
             "ibkr_gross": core_gross + swing_mv, "ibkr_loan": loans,
             "unpriced": unpriced}
@@ -338,7 +347,20 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
              f"net worth {money(comp['net'])} across "
              f"index+core {money(comp['core_gross'])} · SRS {money(comp['srs'])}"
              f" · ESPP {money(comp['espp'])} · swing {money(comp['swing_eq'])}"
-             f" − margin {money(comp['margin'] + comp['swing_loan'])}"]
+             + (f" · crypto {money(comp.get('crypto', 0.0))}"
+                if comp.get("crypto") else "")
+             + f" − margin {money(comp['margin'] + comp['swing_loan'])}"]
+    # #128: a stale SRS balance drifts slowly; a stale crypto balance does
+    # not. Say how much of the book is riding on a hand-typed number.
+    if comp.get("crypto") and comp["net"] > 0:
+        _cshare = comp["crypto"] / comp["net"]
+        if _cshare >= 0.20:
+            lines.append(f"　<i>⚠ crypto is {_cshare:.0%} of net worth and is "
+                         "a manually-entered figure (BTC "
+                         f"{money(comp.get('btc', 0.0))} · alt "
+                         f"{money(comp.get('alt', 0.0))}) — re-enter it with "
+                         "each month's flows or this whole line goes "
+                         "stale</i>")
     if comp.get("unpriced"):
         # #127: never under-report in silence — an unpriceable holding is
         # missing from `net` above while its borrowing is still subtracted.
