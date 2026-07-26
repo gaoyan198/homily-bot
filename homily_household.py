@@ -336,8 +336,17 @@ def target_line(net_usd, usdsgd, today, flows=None):
     head = f"🎯 §8.1 S$2.0M by ~47: book S${book:,.0f} ({book / TARGET_SGD:.1%})"
     if book >= TARGET_SGD:
         return head + " — target reached; §8.1 retrospective is due"
-    logged = [float(f.get("usd", 0.0)) for f in (flows or [])
-              if f.get("month")]
+    # Sum WITHIN each month before averaging. contributions.json documents a
+    # per-sleeve `sleeve` tag, so one month legitimately carries several rows
+    # (espp + core + srs); averaging rows instead of months divided the
+    # owner's real rate by the number of sleeves he logged — S$4,250/mo read
+    # as S$2,125 the first time this ran with tagged rows (#129).
+    by_month = {}
+    for f in (flows or []):
+        m = f.get("month")
+        if m:
+            by_month[m] = by_month.get(m, 0.0) + float(f.get("usd", 0.0))
+    logged = [by_month[m] for m in sorted(by_month)]
     avg = (sum(logged[-6:]) / len(logged[-6:]) * usdsgd) if logged else 0.0
     parts = [head]
     if avg > 0:
