@@ -1818,7 +1818,33 @@ _bal52 = {"srs_usd": 12000.0, "espp_external_usd": 3000.0,
           "margin_loan_usd": 5000.0}
 _comp52 = _hh.book_value(_pos52, _px52, _live52, _bal52)
 assert _comp52["core_gross"] == 700.0 and _comp52["core_index"] == 200.0, \
-    _comp52                                   # HK excluded (R12), A counted
+    _comp52                        # no FX passed -> HK still out, but LOUDLY
+assert _comp52["unpriced"] == ["HK"], \
+    "#127: an unpriceable holding must be REPORTED, never silently dropped"
+assert "no FX for HK" in _hh.render(_comp52, None, 0.0, None, "BULL", 1.3,
+                                    [], esc=lambda x: str(x)), \
+    "#127: the block must say out loud that net worth is running low"
+
+# --- #127 gate: with FX supplied the sum reconciles to the broker ---------
+# HK 100 sh @ 10.0 HKD at 0.128 USD/HKD = 128.00 USD, and the loan is ONE
+# lump covering the HKD borrowing too. Pre-#127 this dropped the 128 asset
+# while keeping the loan — exactly the ~US$10.3k understatement found on the
+# live book 2026-07-26 (9992.HK). Broker truth for the fixture:
+#   gross = 700 USD-side + 128 HK + 4000 swing = 4828
+#   net   = 4828 + 12000 srs + 3000 espp − 5000 margin − 800 swing = 14028
+_fx52 = {"USD": 1.0, "HKD": 0.128}
+_c52fx = _hh.book_value(_pos52, _px52, _live52, _bal52, fx=_fx52)
+assert _c52fx["unpriced"] == [], _c52fx
+assert abs(_c52fx["core_gross"] - 828.0) < 1e-9, _c52fx["core_gross"]
+assert abs(_c52fx["net"] - 14028.0) < 1e-9, _c52fx["net"]
+assert abs(_c52fx["net"] - _comp52["net"] - 128.0) < 1e-9, \
+    "#127: the fix must recover exactly the non-USD asset, nothing else"
+# R12 is untouched where it actually governs money: the cap denominator.
+# 500.0 = NV only — stock_book_value drops Bucket-A (IX) as well as non-USD
+# (HK), which is why the household sum needed its own fix rather than a
+# shared one.
+assert homily_positions.stock_book_value(_pos52, _px52) == 500.0, \
+    "#127 must NOT move the R12 stock-book denominator (cap math)"
 assert _comp52["swing_mv"] == 4000.0 and _comp52["swing_loan"] == 800.0
 # net = 700 core + 12000 srs + 3000 espp + 4000 swing_mv − 5000 − 800
 assert abs(_comp52["net"] - 13900.0) < 1e-6, _comp52
