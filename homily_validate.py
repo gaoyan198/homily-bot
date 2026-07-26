@@ -1842,7 +1842,8 @@ assert abs(_c52fx["net"] - _comp52["net"] - 128.0) < 1e-9, \
 # --- #128 crypto sleeve: adds to net worth, NEVER to the ladder ----------
 _bal128 = dict(_bal52, btc_usd=1000.0, alt_usd=250.0)
 _c128 = _hh.book_value(_pos52, _px52, _live52, _bal128, fx=_fx52)
-assert _c128["crypto"] == 1250.0 and _c128["btc"] == 1000.0, _c128
+assert _c128["crypto"] == 1250.0 and \
+    _c128["sleeves"]["btc"]["usd"] == 1000.0, _c128
 
 # #128b: a QUANTITY is marked live and beats the typed value; the typed one
 # survives only as the fetch-failure fallback, so a dead feed can never
@@ -1851,15 +1852,34 @@ _bal128q = dict(_bal52, btc_qty=2.0, btc_usd=999.0, ibit_usd=100.0,
                 alt_usd=250.0)
 _c128q = _hh.book_value(_pos52, dict(_px52, **{"BTC-USD": 500.0}), _live52,
                         _bal128q, fx=_fx52)
-assert _c128q["btc"] == 1000.0 and not _c128q["btc_stale"], _c128q
+assert _c128q["sleeves"]["btc"]["usd"] == 1000.0 and \
+    _c128q["sleeves"]["btc"]["live"] and not _c128q["crypto_stale"], _c128q
 assert _c128q["crypto"] == 1350.0, _c128q          # 1000 btc + 100 ibit + 250
 assert _c128q["crypto_manual"] == 350.0, \
     "#128b: a live-marked BTC is NOT part of the hand-typed exposure"
 _c128f = _hh.book_value(_pos52, _px52, _live52, _bal128q, fx=_fx52)
-assert _c128f["btc"] == 999.0 and _c128f["btc_stale"], \
+assert _c128f["sleeves"]["btc"]["usd"] == 999.0 and \
+    _c128f["crypto_stale"] == ["btc"], \
     "#128b: no BTC price -> fall back to the typed value and SAY so"
 assert "BTC price fetch failed" in _hh.render(
     _c128f, None, 0.0, None, "BULL", 1.3, [], esc=lambda x: str(x))
+
+# #128c: the SAME machinery marks IBIT — a second sleeve must need no new
+# branch, only a MARKED_SLEEVES entry + the <key>_qty field
+assert _hh.MARKED_SLEEVES == {"btc": "BTC-USD", "ibit": "IBIT"}
+_bal128c = dict(_bal52, btc_qty=2.0, ibit_qty=10.0, ibit_usd=100.0,
+                alt_usd=250.0)
+_c128c = _hh.book_value(_pos52,
+                        dict(_px52, **{"BTC-USD": 500.0, "IBIT": 30.0}),
+                        _live52, _bal128c, fx=_fx52)
+assert _c128c["sleeves"]["ibit"] == {"usd": 300.0, "live": True,
+                                     "qty": 10.0, "px": 30.0}, _c128c
+assert _c128c["crypto"] == 1550.0, _c128c          # 1000 + 300 + 250 alt
+assert _c128c["crypto_manual"] == 250.0, \
+    "#128c: only the alt basket stays hand-typed once both qty are set"
+_r128c = _hh.render(_c128c, None, 0.0, None, "BULL", 1.3, [],
+                    esc=lambda x: str(x))
+assert "IBIT 10 @" in _r128c and "BTC 2 @" in _r128c, _r128c
 assert abs(_c128["net"] - (_c52fx["net"] + 1250.0)) < 1e-9, \
     "#128: crypto must add to net worth, exactly once"
 assert _c128["ibkr_gross"] == _c52fx["ibkr_gross"] and \
@@ -1892,7 +1912,12 @@ _r128lv = _hh.render(_c128lv, None, 0.0, None, "BULL", 1.3, [],
 assert _c128lv["crypto"] == _c128big["crypto"], "same sleeve size"
 assert "hand-typed crypto" not in _r128lv, \
     "#128b: live-marked crypto must not be nagged about"
-assert "BTC 1.00000000 @" in _r128lv, _r128lv       # composition always shows
+assert "BTC 1 @" in _r128lv, _r128lv                # composition always shows
+# :g keeps a real fractional holding readable rather than 8 dead zeros
+_c128g = _hh.book_value(_pos52, dict(_px52, **{"BTC-USD": 64369.71}),
+                        _live52, dict(_bal52, btc_qty=0.08558995), fx=_fx52)
+assert "BTC 0.08558995 @" in _hh.render(_c128g, None, 0.0, None, "BULL", 1.3,
+                                        [], esc=lambda x: str(x))
 
 # R12 is untouched where it actually governs money: the cap denominator.
 # 500.0 = NV only — stock_book_value drops Bucket-A (IX) as well as non-USD
