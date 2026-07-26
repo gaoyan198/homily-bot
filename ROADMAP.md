@@ -253,7 +253,7 @@ the cheapest layer to regenerate; the record and the rules are not.
 
 PRD §8.3 numbering continues here (#101–#112 spent; #124 = the §8.1
 target line, shipped same day, row in PRD §8.3; #125 = the buy-day
-eligibility promotion, 2026-07-25; #126 = the §4+§5.2 interaction study, 2026-07-26; #127 = the household FX asymmetry, 2026-07-26; #128 = the crypto sleeve, 2026-07-26; #129 = flows + the per-sleeve averaging fix, 2026-07-26; next free: #130). Same law as every §8.3 row: pre-registered gate,
+eligibility promotion, 2026-07-25; #126 = the §4+§5.2 interaction study, 2026-07-26; #127 = the household FX asymmetry, 2026-07-26; #128 = the crypto sleeve, 2026-07-26; #129 = flows + the per-sleeve averaging fix, 2026-07-26; #130 = the F-gate study, 2026-07-26; next free: #131). Same law as every §8.3 row: pre-registered gate,
 info-only until promoted, null → closed honestly. #113–119 are
 infrastructure — none is a signal, none consumes an R10 selection slot.
 #120–123 are the §2 alpha program: their STUDIES are free, their

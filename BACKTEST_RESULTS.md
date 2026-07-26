@@ -1327,7 +1327,7 @@ fallback) and concentrates into the 2021 cohort later; that is honest
 behaviour, not a bug, but the 10y row is not ten years of stock-picking.
 No dividends anywhere. Neither arm models the exits.
 
-## 32 · #126 — §4 + §5.2 together: the live combination is WORSE THAN EITHER HALF (run 2026-07-26)
+## 32 · #126 — §4 + §5.2 together (run 2026-07-26) — ⚠ **PARTLY RETRACTED SAME DAY, see §33**: this section measured the UNGATED §5.2, which fires ~6.7× more often than the live rule; with the real F-gate the live combination is byte-identical to §4 alone in grinders and there is NO destructive interaction. Read §33 first.
 
 D-63 kept both disciplines on the reasoning *"§4 = insurance; §5.2 =
 trash-taker. Different jobs, both kept"* (§3). `run_mode`'s modes are an
@@ -1396,3 +1396,82 @@ over 10y, so every benchmark bar in this repo is easier than reality.
 Mode (f) still runs without its F:0–1 gate here (D-63's "aggressive upper
 bound"), so §5.2's standalone 3.19 is an overstatement, which makes the
 combination's shortfall against it a *lower* bound.
+
+## 33 · #130 §5.2 WITH its F-gate (run 2026-07-26) — the arm was never tested as it actually runs, and §32 must be RETRACTED
+
+D-63 (§3) concluded *"the per-name §5.2 exit (f) is the only mode that
+ADDED return on the honest control (+3.4 pts/yr over hold at 10y)"*, with
+its own footnote: *"(Caveat: (f) was tested without its F-gate — an
+aggressive upper bound.)"* Every later use took the headline: §16b's league
+table, #51's 12→8wk promotion, and §32 (#126) this same day. The live rule
+(`homily_positions.trim_flags`) needs ⚪ 8+ weeks **AND** F:0–1; on the live
+signals log that second condition blocks **85%** of ⚪ rows.
+
+`homily_fgate_backtest.py` rebuilds F point-in-time from EDGAR (`filed` <=
+the month, never today's cache) and scores it with the LIVE
+`homily_fund.checks_from` (R6). F reconstructable for 29/29 and 10/10 names.
+
+| honest B · 10y | MOIC | MaxDD | sells | blocked |
+|---|---:|---:|---:|---:|
+| hold | 2.51 | −74% | 0 | — |
+| ungated (what D-63 published) | **3.19** | −71% | 214 | 0 |
+| **gated (the live rule)** | **2.77** | −72% | 58 | 351 |
+| DCA QQQ ← the bar | **2.86** | −34% | | |
+
+**Pre-committed verdict: (a) — §5.2 still adds.** 2.77 > hold's 2.51, so
+D-63's direction survives. Two corrections ride with it: the magnitude is
+roughly HALVED (+0.26 MOIC vs the published +0.68), and **the gated arm
+does NOT beat QQQ** (2.77 vs 2.86) although the ungated one did. Any
+session quoting "§5.2 is the only arm that beats the index" is quoting the
+ungated number — it is wrong. (5y: hold 1.75 · ungated 1.74 · gated 1.78 ·
+QQQ 1.73 — gated edges the bar there, on one window.)
+
+**The grinder result is the sharp one.** 33y, survivor-biased:
+
+| arm | MOIC | MaxDD | sells |
+|---|---:|---:|---:|
+| hold | 74.67 | −76% | 0 |
+| ungated | 47.39 | −79% | 259 |
+| **gated** | **76.61** | −76% | **1** |
+
+The live rule fires **once in thirty-three years** (563 blocked). It is
+near-inert on quality names and slightly BETTER than never selling — which
+is the rule working as designed: it sells broken businesses, and a
+survivor universe contains none. §5.2 does not wreck grinders. The ungated
+proxy did.
+
+### RETRACTION of §32 (#126), written the same day it shipped
+
+§32 measured "the live combination" with the UNGATED §5.2. Re-run with the
+real gate:
+
+| | §4 only | §4+§5.2 UNGATED (§32) | §4+§5.2 **GATED = live** | §5.2 only gated |
+|---|---:|---:|---:|---:|
+| grinders 33y | 49.14 / −29% | 39.79 / −37% | **49.14 / −29%** | 76.61 / −76% |
+| honest 10y | 1.69 / −51% | 1.98 / −48% | **1.93 / −50%** | 2.77 / −72% |
+
+**In grinders the real live combination is byte-identical to §4 alone
+(49.14, −29%, ZERO §5.2 sells).** §32's headline — "19% of wealth
+surrendered and a WORSE drawdown, −37% vs −29%" — is an artefact of a rule
+firing 6.7× too often. **There is no destructive interaction.** §32's
+"the two disciplines cannibalise each other" framing is WITHDRAWN, and the
+"bear-aware §5.2" next step it proposed was independently found to be a
+no-op (the bear branch already `continue`s before the per-name leg).
+
+What survives of §32: on the honest universe the combination still returns
+less than §5.2 alone (1.93 vs 2.77). That is **§4's insurance premium** —
+30% of terminal wealth for −72%→−50% drawdown — the same priced trade-off
+D-63 already recorded, not a new defect. In grinders §4 costs 76.61→49.14
+for −76%→−29%.
+
+**Net effect on this session's conclusions.** "The alpha is in the exits"
+is substantially weakened: the gated §5.2 is a mild, rarely-firing positive
+that loses to QQQ, and §4 is a deliberate insurance cost decided in 2026-07.
+No honest configuration of this engine beats QQQ at 10y — §5i and §31 stand.
+
+**Also on the record, not fixed:** `trim_flags` tests the F NUMERATOR, so
+**F:1/1 fires while F:2/2 does not**, both being 100% pass rates (24 live
+rows carry F:1/1). This study reproduces the live behaviour faithfully
+rather than quietly improving it; whether that test should be a ratio is
+its own item. **NOTHING SHIPPED** — Part III rule 5; the §3/§16b/#51 wording
+corrections are proposed to the owner, not executed here.
