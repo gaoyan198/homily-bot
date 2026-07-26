@@ -130,8 +130,20 @@ def counterfactual(flows, qqq_by_month):
             "deployed": deployed, "uncovered": uncovered}
 
 
-def book_value(positions, prices, live_book, balances):
+def book_value(positions, prices, live_book, balances, fx=None):
     """Assemble the whole-household composition (all USD).
+
+    `fx` (#127, 2026-07-26): {currency: USD per 1 unit} for the non-USD
+    holdings. Before this the sum skipped every non-USD position (R12) while
+    `margin_loan_usd` stayed ONE lump covering non-USD borrowing too — so a
+    book holding 9992.HK on HKD margin lost the asset and kept the loan, and
+    the printed net worth ran ~US$10.3k light on the owner's real book. R12
+    still governs the STOCK-BOOK PERCENTAGE (`core_gross` feeds no cap math
+    here; homily_positions owns that and is untouched) — this fixes only the
+    household NET-WORTH sum, which was never meant to be USD-only.
+    A non-USD holding with no rate in `fx` is still skipped, but its ticker
+    is returned in `unpriced` so the caller can say so out loud rather than
+    silently under-reporting again.
 
     Returns per-sleeve values + the combined-leverage inputs. The core stock
     book and index sleeve are priced from `prices` (the same raw closes the
@@ -150,13 +162,18 @@ def book_value(positions, prices, live_book, balances):
     """
     core_gross = 0.0
     core_index = 0.0
+    unpriced = []
+    rates = fx or {}
     for tk, p in (positions or {}).items():
-        if p.get("currency", "USD") != "USD":
-            continue                       # R12: no cross-currency in the sum
+        cur = p.get("currency", "USD")
+        rate = 1.0 if cur == "USD" else rates.get(cur)
+        if rate is None:                   # no FX for it -> reported, not hidden
+            unpriced.append(tk)
+            continue
         px = prices.get(tk)
         if px is None:
             continue
-        v = p["shares"] * px
+        v = p["shares"] * px * rate
         core_gross += v
         if p.get("bucket") == "A":
             core_index += v
@@ -175,7 +192,8 @@ def book_value(positions, prices, live_book, balances):
             "srs": srs, "espp": espp, "swing_mv": swing_mv,
             "swing_eq": swing_eq, "swing_loan": swing_loan,
             "margin": margin, "net": assets - loans,
-            "ibkr_gross": core_gross + swing_mv, "ibkr_loan": loans}
+            "ibkr_gross": core_gross + swing_mv, "ibkr_loan": loans,
+            "unpriced": unpriced}
 
 
 def combined_leverage(comp):
@@ -321,6 +339,13 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
              f"index+core {money(comp['core_gross'])} · SRS {money(comp['srs'])}"
              f" · ESPP {money(comp['espp'])} · swing {money(comp['swing_eq'])}"
              f" − margin {money(comp['margin'] + comp['swing_loan'])}"]
+    if comp.get("unpriced"):
+        # #127: never under-report in silence — an unpriceable holding is
+        # missing from `net` above while its borrowing is still subtracted.
+        lines.append("　<i>⚠ no FX for "
+                     + e(", ".join(sorted(comp["unpriced"])))
+                     + " — excluded from net worth above, but any loan "
+                     "against them IS subtracted: the figure is LOW</i>")
 
     if cf is not None and contributed:
         book_now = comp["net"]
@@ -400,7 +425,18 @@ def household_block(positions, prices, today, *, regime_label="",
         live = json.loads(LIVE_BOOK.read_text())
     except Exception:
         pass
-    comp = book_value(positions, prices, live, balances)
+    # #127: every currency the book actually holds needs a USD rate, or the
+    # net-worth sum silently drops the asset while keeping its loan. Yahoo
+    # quotes "<CUR>=X" as CUR per USD, so the USD-per-unit rate is 1/that.
+    need = {p.get("currency", "USD") for p in (positions or {}).values()}
+    fxr = {"USD": 1.0}
+    for cur in sorted(need - {"USD"}):
+        m = _fetch_month_map(f"{cur}=X", fetch_series)
+        if m:
+            per_usd = m[max(m)]
+            if per_usd:
+                fxr[cur] = 1.0 / per_usd
+    comp = book_value(positions, prices, live, balances, fx=fxr)
     qqq = _fetch_month_map("QQQ", fetch_series)
     # The book already held money at `inception` that the monthly flow log
     # does NOT capture. A money-weighted comparison must seed that OPENING
