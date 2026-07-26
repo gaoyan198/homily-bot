@@ -186,20 +186,45 @@ def book_value(positions, prices, live_book, balances, fx=None):
     srs = float(bal.get("srs_usd") or 0.0)
     espp = float(bal.get("espp_external_usd") or 0.0)
     margin = float(bal.get("margin_loan_usd") or 0.0)
-    # #128: self-custodied / exchange crypto — off-IBKR like SRS and ESPP,
-    # owner-maintained. Split BTC vs alts in the FILE (different risk
-    # animals, and the split is what the owner actually tracks); summed for
-    # the printed line. Never enters ibkr_gross/ibkr_loan — the LEVERAGE.md
-    # ladder governs the IBKR account, and crypto is not collateral there.
-    btc = float(bal.get("btc_usd") or 0.0)
+    # #128: off-IBKR crypto — like SRS and ESPP, outside the ladder. Broken
+    # out in the FILE (different risk animals; it is the split the owner
+    # tracks), summed for the printed line. Never enters ibkr_gross /
+    # ibkr_loan: the LEVERAGE.md ladder governs the IBKR account and crypto
+    # is not collateral there.
+    #   btc_qty  — coins, MARKED LIVE from `prices["BTC-USD"]` when the
+    #              caller supplies it (#128b). A quantity beats a typed
+    #              value: it cannot go stale, which matters when this sleeve
+    #              is ~half the book. Falls back to btc_usd when no price
+    #              arrived (fetch failure), so a dead feed never silently
+    #              zeroes half the net worth.
+    #   ibit_usd — spot-BTC ETF held away from IBKR; typed value. Send
+    #              ibit_qty instead and it can be marked live the same way.
+    #   alt_usd  — the alt basket; typed, unpriceable without the coin list.
+    btc_qty = float(bal.get("btc_qty") or 0.0)
+    btc_px = (prices or {}).get("BTC-USD")
+    btc_live = bool(btc_qty and btc_px)    # marked from a quantity + a price
+    if btc_live:
+        btc = btc_qty * btc_px
+    else:
+        btc = float(bal.get("btc_usd") or 0.0)
+    # stale = a quantity was configured but no price arrived (fetch died).
+    # A plain typed btc_usd is not "stale", it is simply manual — the two
+    # are different conditions and only the first deserves an alarm.
+    btc_stale = bool(btc_qty) and not btc_live
+    ibit = float(bal.get("ibit_usd") or 0.0)
     alt = float(bal.get("alt_usd") or 0.0)
-    crypto = btc + alt
+    crypto = btc + ibit + alt
     assets = core_gross + srs + espp + swing_mv + crypto
     loans = margin + swing_loan
     return {"core_gross": core_gross, "core_index": core_index,
             "srs": srs, "espp": espp, "swing_mv": swing_mv,
             "swing_eq": swing_eq, "swing_loan": swing_loan,
-            "btc": btc, "alt": alt, "crypto": crypto,
+            "btc": btc, "btc_qty": btc_qty, "btc_px": btc_px or 0.0,
+            "btc_stale": btc_stale, "ibit": ibit, "alt": alt,
+            "crypto": crypto,
+            # everything NOT marked from a live price — i.e. the part of the
+            # book that goes wrong on its own if the owner forgets to update
+            "crypto_manual": ibit + alt + (0.0 if btc_live else btc),
             "margin": margin, "net": assets - loans,
             "ibkr_gross": core_gross + swing_mv, "ibkr_loan": loans,
             "unpriced": unpriced}
@@ -351,16 +376,30 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
                 if comp.get("crypto") else "")
              + f" − margin {money(comp['margin'] + comp['swing_loan'])}"]
     # #128: a stale SRS balance drifts slowly; a stale crypto balance does
-    # not. Say how much of the book is riding on a hand-typed number.
-    if comp.get("crypto") and comp["net"] > 0:
-        _cshare = comp["crypto"] / comp["net"]
-        if _cshare >= 0.20:
-            lines.append(f"　<i>⚠ crypto is {_cshare:.0%} of net worth and is "
-                         "a manually-entered figure (BTC "
-                         f"{money(comp.get('btc', 0.0))} · alt "
-                         f"{money(comp.get('alt', 0.0))}) — re-enter it with "
-                         "each month's flows or this whole line goes "
-                         "stale</i>")
+    # not. #128b: only the HAND-TYPED part can go stale — a live-marked
+    # btc_qty must not be nagged about, or the warning trains you to ignore
+    # it. Composition always prints when there is a sleeve.
+    if comp.get("crypto"):
+        bits = []
+        if comp.get("btc"):
+            bits.append(
+                f"BTC {comp['btc_qty']:.8f} @ {money(comp['btc_px'])} = "
+                f"{money(comp['btc'])}" if comp.get("btc_px")
+                else f"BTC {money(comp['btc'])} <b>typed — no live price</b>")
+        if comp.get("ibit"):
+            bits.append(f"IBIT {money(comp['ibit'])} typed")
+        if comp.get("alt"):
+            bits.append(f"alt {money(comp['alt'])} typed")
+        lines.append("　<i>crypto: " + " · ".join(bits) + "</i>")
+        manual = comp.get("crypto_manual", comp["crypto"])
+        if comp["net"] > 0 and manual / comp["net"] >= 0.20:
+            lines.append(
+                f"　<i>⚠ {manual / comp['net']:.0%} of net worth is "
+                "hand-typed crypto — re-enter it with each month's flows, "
+                "or send quantities and it gets marked live instead</i>")
+        if comp.get("btc_stale"):
+            lines.append("　<i>⚠ BTC price fetch failed — falling back to the "
+                         "typed btc_usd; the figure may be well off</i>")
     if comp.get("unpriced"):
         # #127: never under-report in silence — an unpriceable holding is
         # missing from `net` above while its borrowing is still subtracted.
@@ -458,6 +497,13 @@ def household_block(positions, prices, today, *, regime_label="",
             per_usd = m[max(m)]
             if per_usd:
                 fxr[cur] = 1.0 / per_usd
+    # #128b: mark btc_qty live. Merged into a COPY of prices so the caller's
+    # dict (the digest's own closes) is never mutated.
+    prices = dict(prices or {})
+    if (balances or {}).get("btc_qty"):
+        btcm = _fetch_month_map("BTC-USD", fetch_series)
+        if btcm:
+            prices["BTC-USD"] = btcm[max(btcm)]
     comp = book_value(positions, prices, live, balances, fx=fxr)
     qqq = _fetch_month_map("QQQ", fetch_series)
     # The book already held money at `inception` that the monthly flow log
