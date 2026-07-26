@@ -1326,3 +1326,73 @@ Most B names listed 2019–2021, so the 10y window buys SPY early (§3.5
 fallback) and concentrates into the 2021 cohort later; that is honest
 behaviour, not a bug, but the 10y row is not ten years of stock-picking.
 No dividends anywhere. Neither arm models the exits.
+
+## 32 · #126 — §4 + §5.2 together: the live combination is WORSE THAN EITHER HALF (run 2026-07-26)
+
+D-63 kept both disciplines on the reasoning *"§4 = insurance; §5.2 =
+trash-taker. Different jobs, both kept"* (§3). `run_mode`'s modes are an
+elif chain, so that pairing was **never measured**. `homily_discipline_backtest.py`
+measures it, selection held at the committed `_screen` so this is purely a
+discipline question. Regression-locked: with the per-name leg off it
+reproduces the frozen `run_mode("faithful")` to **drift 0.00e+00** on every
+window, else the run aborts.
+
+**Grinding bears · 33y · dot-com + 2008 + 2022 (SURVIVOR-BIASED, inherited
+from D-63 Step 2 — the bias flatters hold-through):**
+
+| arm | MOIC | CAGR | MaxDD |
+|---|---:|---:|---:|
+| neither (hold-through) | **74.67** | 21.3% | −76% |
+| §4 only (mode d) | 49.14 | 20.3% | **−29%** |
+| §5.2 only (mode f) | 47.39 | 19.4% | −79% |
+| **§4 + §5.2 ← THE LIVE SYSTEM** | **39.79** | 19.3% | −37% |
+
+**Honest control · universe B · 10y (V-bear only):**
+
+| arm | MOIC | MaxDD |
+|---|---:|---:|
+| §5.2 only | **3.19** | −71% |
+| neither | 2.51 | −74% |
+| **§4 + §5.2 ← LIVE** | **1.98** | −48% |
+| §4 only | 1.69 | −51% |
+
+**THE FINDING, and it holds in BOTH bear types: the live combination is
+worse than its own better half.** In grinders it returns 39.79 against
+§4-alone's 49.14 — **19% of final wealth surrendered** — while drawdown
+gets *worse*, −37% vs −29%. In the V-bear window it returns 1.98 against
+§5.2-alone's 3.19, **38% surrendered**, for 3 points of drawdown. There is
+no window in this repo where running both beats running the better one.
+
+Mechanism: §4 liquidates the satellites at 🐻 onset, so §5.2 has nothing
+left to identify as trash; then thirds re-entry rebuys the same names,
+which §5.2 proceeds to half-sell again three months later. The exit is
+paid for twice and delivers once.
+
+**PRE-COMMITTED VERDICT — (b) FAILS decisively; (a) is disclosed twice.**
+(b) trash-taker pays: **FAIL**, 39.79 < 49.14. (a) insurance survives: the
+prose criterion ("no more than 5 points of protection given up") **FAILS**
+— 8 points given up; the criterion as first *coded* compared signed
+drawdowns the wrong way and printed PASS. That sign bug was caught while
+reading the first run's output, i.e. the fix was made with numbers
+visible — a genuine deviation from clean pre-registration, recorded here
+rather than buried, with both readings published so no one need trust the
+note. The verdict does not turn on it: (b) fails under any reading, and
+(b) is the actionable prong.
+
+Verdict per the frozen decision tree: **§5.2 costs wealth inside §4
+without adding safety → propose a bear-aware §5.2** (skip the per-name leg
+while the regime is 🐻, since §4 has already de-risked). NOTHING SHIPS FROM
+THIS FILE — Part III rule 5. Any §4/§5.2 change is a survival/exit
+recalibration (R10 unthrottled lane) needing its own pre-registered gate,
+registry entry and demotion checker.
+
+**Caveats.** GRIND_UNIV is survivor-biased by construction (D-63's own
+warning, inherited): names that died in 2000–02 are unfetchable, which
+flatters every never-sell arm and therefore makes the case against the
+combination *conservative*, not overstated. Universe B carries the same
+residual survivorship. Raw closes throughout — and note §31's measurement
+that ignoring dividends understates DCA QQQ by ~7% and DCA SPY by ~17%
+over 10y, so every benchmark bar in this repo is easier than reality.
+Mode (f) still runs without its F:0–1 gate here (D-63's "aggressive upper
+bound"), so §5.2's standalone 3.19 is an overstatement, which makes the
+combination's shortfall against it a *lower* bound.
