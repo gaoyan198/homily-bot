@@ -130,6 +130,28 @@ def counterfactual(flows, qqq_by_month):
             "deployed": deployed, "uncovered": uncovered}
 
 
+#: off-IBKR sleeves that may be held as a QUANTITY and marked live.
+#: key -> the symbol its price comes from. Adding a sleeve (ETHA, SOL-USD…)
+#: is a one-line entry here plus the `<key>_qty` field in contributions.json
+#: — deliberately data, not another branch in book_value (#128c: btc and
+#: ibit had already grown one copy-pasted block each).
+MARKED_SLEEVES = {"btc": "BTC-USD", "ibit": "IBIT"}
+
+
+def _marked_value(bal, prices, key, symbol):
+    """One off-IBKR sleeve -> (usd, live, qty, px).
+
+    A configured `<key>_qty` priced from `symbol` wins; otherwise the typed
+    `<key>_usd` is used. `live` is False for a typed value AND for a
+    quantity whose price never arrived — the caller distinguishes those two
+    (a dead feed deserves an alarm, a typed value only a note)."""
+    qty = float(bal.get(f"{key}_qty") or 0.0)
+    px = (prices or {}).get(symbol)
+    if qty and px:
+        return qty * px, True, qty, px
+    return float(bal.get(f"{key}_usd") or 0.0), False, qty, 0.0
+
+
 def book_value(positions, prices, live_book, balances, fx=None):
     """Assemble the whole-household composition (all USD).
 
@@ -200,31 +222,28 @@ def book_value(positions, prices, live_book, balances, fx=None):
     #   ibit_usd — spot-BTC ETF held away from IBKR; typed value. Send
     #              ibit_qty instead and it can be marked live the same way.
     #   alt_usd  — the alt basket; typed, unpriceable without the coin list.
-    btc_qty = float(bal.get("btc_qty") or 0.0)
-    btc_px = (prices or {}).get("BTC-USD")
-    btc_live = bool(btc_qty and btc_px)    # marked from a quantity + a price
-    if btc_live:
-        btc = btc_qty * btc_px
-    else:
-        btc = float(bal.get("btc_usd") or 0.0)
-    # stale = a quantity was configured but no price arrived (fetch died).
-    # A plain typed btc_usd is not "stale", it is simply manual — the two
-    # are different conditions and only the first deserves an alarm.
-    btc_stale = bool(btc_qty) and not btc_live
-    ibit = float(bal.get("ibit_usd") or 0.0)
+    sleeves, stale = {}, []
+    for key, sym in MARKED_SLEEVES.items():
+        usd, live, qty, px = _marked_value(bal, prices, key, sym)
+        sleeves[key] = {"usd": usd, "live": live, "qty": qty, "px": px}
+        # stale = a quantity WAS configured but no price arrived (fetch
+        # died). A plain typed value is not stale, merely manual — different
+        # conditions, and only the first deserves an alarm.
+        if qty and not live:
+            stale.append(key)
     alt = float(bal.get("alt_usd") or 0.0)
-    crypto = btc + ibit + alt
+    crypto = sum(s["usd"] for s in sleeves.values()) + alt
     assets = core_gross + srs + espp + swing_mv + crypto
     loans = margin + swing_loan
     return {"core_gross": core_gross, "core_index": core_index,
             "srs": srs, "espp": espp, "swing_mv": swing_mv,
             "swing_eq": swing_eq, "swing_loan": swing_loan,
-            "btc": btc, "btc_qty": btc_qty, "btc_px": btc_px or 0.0,
-            "btc_stale": btc_stale, "ibit": ibit, "alt": alt,
-            "crypto": crypto,
+            "sleeves": sleeves, "alt": alt, "crypto": crypto,
+            "crypto_stale": stale,
             # everything NOT marked from a live price — i.e. the part of the
             # book that goes wrong on its own if the owner forgets to update
-            "crypto_manual": ibit + alt + (0.0 if btc_live else btc),
+            "crypto_manual": alt + sum(s["usd"] for s in sleeves.values()
+                                       if not s["live"]),
             "margin": margin, "net": assets - loans,
             "ibkr_gross": core_gross + swing_mv, "ibkr_loan": loans,
             "unpriced": unpriced}
@@ -381,13 +400,17 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
     # it. Composition always prints when there is a sleeve.
     if comp.get("crypto"):
         bits = []
-        if comp.get("btc"):
-            bits.append(
-                f"BTC {comp['btc_qty']:.8f} @ {money(comp['btc_px'])} = "
-                f"{money(comp['btc'])}" if comp.get("btc_px")
-                else f"BTC {money(comp['btc'])} <b>typed — no live price</b>")
-        if comp.get("ibit"):
-            bits.append(f"IBIT {money(comp['ibit'])} typed")
+        for key, s in sorted((comp.get("sleeves") or {}).items()):
+            if not s["usd"]:
+                continue
+            nm = key.upper()
+            # .8g, not g: plain %g defaults to 6 significant digits and
+            # would print 0.08558995 BTC as 0.0855899 — a WRONG quantity on
+            # screen. .8g keeps satoshi-level holdings exact and still
+            # renders a share count as "663", not "663.00000".
+            bits.append(f"{nm} {s['qty']:.8g} @ {money(s['px'])} = "
+                        f"{money(s['usd'])}" if s["live"]
+                        else f"{nm} {money(s['usd'])} typed")
         if comp.get("alt"):
             bits.append(f"alt {money(comp['alt'])} typed")
         lines.append("　<i>crypto: " + " · ".join(bits) + "</i>")
@@ -397,9 +420,10 @@ def render(comp, cf, contributed, lev, cap_label, usdsgd, nag, esc=None,
                 f"　<i>⚠ {manual / comp['net']:.0%} of net worth is "
                 "hand-typed crypto — re-enter it with each month's flows, "
                 "or send quantities and it gets marked live instead</i>")
-        if comp.get("btc_stale"):
-            lines.append("　<i>⚠ BTC price fetch failed — falling back to the "
-                         "typed btc_usd; the figure may be well off</i>")
+        for key in comp.get("crypto_stale") or []:
+            lines.append(f"　<i>⚠ {key.upper()} price fetch failed — using "
+                         f"the typed {key}_usd; the figure may be well "
+                         "off</i>")
     if comp.get("unpriced"):
         # #127: never under-report in silence — an unpriceable holding is
         # missing from `net` above while its borrowing is still subtracted.
@@ -500,10 +524,11 @@ def household_block(positions, prices, today, *, regime_label="",
     # #128b: mark btc_qty live. Merged into a COPY of prices so the caller's
     # dict (the digest's own closes) is never mutated.
     prices = dict(prices or {})
-    if (balances or {}).get("btc_qty"):
-        btcm = _fetch_month_map("BTC-USD", fetch_series)
-        if btcm:
-            prices["BTC-USD"] = btcm[max(btcm)]
+    for _k, _sym in MARKED_SLEEVES.items():
+        if (balances or {}).get(f"{_k}_qty") and _sym not in prices:
+            _m = _fetch_month_map(_sym, fetch_series)
+            if _m:
+                prices[_sym] = _m[max(_m)]
     comp = book_value(positions, prices, live, balances, fx=fxr)
     qqq = _fetch_month_map("QQQ", fetch_series)
     # The book already held money at `inception` that the monthly flow log
