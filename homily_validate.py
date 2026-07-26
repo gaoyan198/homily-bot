@@ -1839,6 +1839,35 @@ assert abs(_c52fx["core_gross"] - 828.0) < 1e-9, _c52fx["core_gross"]
 assert abs(_c52fx["net"] - 14028.0) < 1e-9, _c52fx["net"]
 assert abs(_c52fx["net"] - _comp52["net"] - 128.0) < 1e-9, \
     "#127: the fix must recover exactly the non-USD asset, nothing else"
+# --- #128 crypto sleeve: adds to net worth, NEVER to the ladder ----------
+_bal128 = dict(_bal52, btc_usd=1000.0, alt_usd=250.0)
+_c128 = _hh.book_value(_pos52, _px52, _live52, _bal128, fx=_fx52)
+assert _c128["crypto"] == 1250.0 and _c128["btc"] == 1000.0, _c128
+assert abs(_c128["net"] - (_c52fx["net"] + 1250.0)) < 1e-9, \
+    "#128: crypto must add to net worth, exactly once"
+assert _c128["ibkr_gross"] == _c52fx["ibkr_gross"] and \
+    _c128["ibkr_loan"] == _c52fx["ibkr_loan"], \
+    "#128: crypto is off-IBKR — it must NOT move the LEVERAGE.md ladder"
+assert _hh.combined_leverage(_c128) == _hh.combined_leverage(_c52fx), \
+    "#128: the printed ladder reading must be identical with/without crypto"
+# absent/zero crypto keeps the old line byte-identical (additive-only)
+_c128z = _hh.book_value(_pos52, _px52, _live52, _bal52, fx=_fx52)
+assert "crypto" not in _hh.render(_c128z, None, 0.0, None, "BULL", 1.3, [],
+                                  esc=lambda x: str(x)), \
+    "#128: no crypto balance -> no crypto text (additive-only)"
+# the sleeve always prints; the staleness ⚠ fires ONLY past 20% of net worth
+_r128 = _hh.render(_c128, None, 0.0, None, "BULL", 1.3, [],
+                   esc=lambda x: str(x))
+assert "crypto US$1,250" in _r128, _r128           # 1250/15278 = 8% -> quiet
+assert "manually-entered" not in _r128, "8% must not trip the ⚠"
+_c128big = _hh.book_value(_pos52, _px52, _live52,
+                          dict(_bal52, btc_usd=9000.0, alt_usd=1000.0),
+                          fx=_fx52)                # 10000/24028 = 42% -> loud
+_r128big = _hh.render(_c128big, None, 0.0, None, "BULL", 1.3, [],
+                      esc=lambda x: str(x))
+assert "manually-entered" in _r128big and "42% of net worth" in _r128big, \
+    _r128big
+
 # R12 is untouched where it actually governs money: the cap denominator.
 # 500.0 = NV only — stock_book_value drops Bucket-A (IX) as well as non-USD
 # (HK), which is why the household sum needed its own fix rather than a
