@@ -79,7 +79,7 @@
   },
   {
    "id": "hold-adds",
-   "status": "promoted",
+   "status": "promoted-on-probation",
    "promoted": "2026-07-25",
    "promotion_basis": "OWNER-DIRECTED, recorded 2026-07-25: the owner ran the 3y walk-forward replay study (105,848 signals, replay validated 99.5% state-match against the live log), reviewed the result and directed implementation in the same day ('implement it'). Part III rule 5 note: study and ship happened in one session by explicit owner decision. R10 accounting, continuing the PRD §8.5 ledger: 2027-Q2's selection slot is SPENT by this promotion (Q3-2026 whale-dip · Q4-2026 rs12-top3 · 2027-Q1 add-cap-25, all early); next free selection slot 2027-Q3; #14/#14a/#85 reads now split FOUR promotion epochs.",
    "what": "buy-day candidate set widened from state==ACCUMULATE (any tier) to conv_tier==CONVICTION AND state in (ACCUMULATE, HOLD) — the tier picks the name, ACC/HOLD are interchangeable entry days; #24's RS12 top-3 ranking unchanged",
@@ -93,7 +93,8 @@
     "criterion": "mean forward-21-ledger-row raw-close return of #125-eligible rows (conv_tier==CONVICTION, state ACCUMULATE|HOLD) must be >= that of old-rule rows (state==ACCUMULATE, any tier) over the rolling 6-month window; <30 measured rows on either side = INSUFFICIENT, no action"
    },
    "if_promoted": "homily_buyday.star_candidates eligibility line + PLAYBOOK §3.4/§3.5 + validate [27] fixtures; one session, one commit",
-   "demotion_rule": "restore the ⭐-only eligibility line in homily_buyday.star_candidates (state==ACCUMULATE, no tier test — the exact pre-#125 line is quoted in the star_candidates comment) when hold_adds_check returns FAIL on the rolling 6-month window at any month-start after promotion; demotion is mandatory on a failed check, not a discussion"
+   "demotion_rule": "restore the ⭐-only eligibility line in homily_buyday.star_candidates (state==ACCUMULATE, no tier test — the exact pre-#125 line is quoted in the star_candidates comment) when hold_adds_check returns FAIL on the rolling 6-month window at any month-start after promotion; demotion is mandatory on a failed check, not a discussion",
+   "post_hoc_note": "2026-07-26, owner-requested honest re-test (BACKTEST_RESULTS §31, homily_holdadds_honest.py): on the hype-2021 control universe the #125 rule LOSES to the pre-#125 star-only rule at 5y (MOIC 1.51 vs 1.74) and ties at 10y (2.50 vs 2.52), and both lose to DCA QQQ at 10y (2.86). The 'CONVICTION too strict on a small universe' excuse was checked and fails — median 4 eligible names/month for BOTH arms on B. §29's advantage therefore looks like a survivorship artifact of the 2026-07-11 universe replayed backwards. This does NOT demote the entry (post-hoc tests never reverse a promotion here; the monthly hold_adds_check on live ledger rows is the only mechanism that can). Status moved to promoted-on-probation so no future session quotes §29 as validated evidence without §31."
   }
  ]
 }
