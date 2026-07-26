@@ -1263,3 +1263,66 @@ had no guard, which is precisely the failure mode universe B is made of.
 The owner's instinct is not dismissed: the one dip trigger that DID beat
 DCA is 🐳 WHALE-DIP (§12 row 4, +10.9% vs +9.5% fwd-60d), which stays
 live at its ≤2% cap, and the 🐻 protocol remains the real dry-powder path.
+
+## 31 · #125 HONEST-WINDOW re-test (run 2026-07-26) — the verdict survives, and #125's edge does NOT replicate
+
+Owner, 2026-07-26: *"the 2.69x study is already old, that's just buying
+stars during buy day."* Both halves correct — §16b tested the pre-#125
+selection, and #125's own gate (§29) replayed the 2026-07-11 universe
+BACKWARDS, so every name in it survived to be picked. Neither answers
+*"what do I get if I follow the NEW buy day for ten years?"*
+`homily_holdadds_honest.py` answers it on the repo's own honest control.
+
+Measured: the buy-day routine ALONE — $1,000/month, 100% to stocks
+(SRS_COVERS_INDEX=true), equal split across top-3 by RS12, **never sold**.
+No §5.2 exit, no §4 bear protocol. That is deliberately not §16b's
+strategy; §16b included the exits, which are the engine's best-measured
+arm. Never quote the two interchangeably.
+
+| universe | window | arm | MOIC | MaxDD | vs QQQ |
+|---|---|---|---|---|---|
+| **B honest** | 5y | OLD ⭐-only | **1.74** | −40.7% | beats (1.73) |
+| **B honest** | 5y | **NEW #125** | **1.51** | −41.8% | **loses** |
+| **B honest** | 10y | OLD ⭐-only | 2.52 | −79.2% | **loses** |
+| **B honest** | 10y | **NEW #125** | **2.50** | −79.1% | **loses** |
+| B honest | 5y/10y | DCA SPY | 1.50 / 2.08 | | |
+| B honest | 5y/10y | **DCA QQQ ← the bar** | **1.73 / 2.86** | −34% | |
+| A hindsight | 10y | OLD / NEW | 9.44 / 9.63 | −60/−63% | both "beat" |
+
+**Finding 1 — PRD §5i survives, on the current rule.** On the honest
+universe the buy-day routine returns **2.50 over ten years against QQQ's
+2.86, at −79% drawdown versus −34%.** Slightly WORSE than §16b's 2.69,
+which is the expected direction: §16b's engine carried the §5.2 exit and
+this arm carries none. The "does not reliably beat QQQ, 2–3× the index
+drawdown" verdict is re-confirmed against the rule that is live today, not
+inherited from the old one.
+
+**Finding 2 — #125's advantage does not replicate out of survivorship.**
+§29 had NEW beating OLD decisively (2.266 vs 1.944 per $, both windows).
+Here NEW **loses** to OLD at 5y (1.51 vs 1.74) and ties at 10y (2.50 vs
+2.52). The obvious excuse — "CONVICTION is too strict on a 29-name
+universe" — was checked and **fails**: both arms see a median of 4
+eligible names per month on B (zero-candidate months: OLD 15/120, NEW
+20/120). NEW is not starved on B; it selects differently and worse. On the
+hindsight universe A the tier filter is genuinely more selective (median 4
+candidates vs OLD's 13) and there it wins — which is exactly the pattern a
+survivorship artifact produces: a "quality" filter looks brilliant when
+every name in the pool was chosen for having survived.
+
+**Status of #125 — unchanged by this file, and that is deliberate.** #125
+shipped on a pre-registered gate it passed; this is a different universe
+and different windows, run after the fact. Post-hoc tests do not reverse
+promotions in this repo — the registry's `hold_adds_check` runs monthly on
+LIVE ledger rows and is the only mechanism allowed to demote it. What this
+result DOES do is strip #125 of its claimed evidence: it should now be
+read as **unproven, on probation**, not as a validated improvement. The
+owner has been told in these words. If the live check FAILs, the ⭐-only
+line returns mechanically.
+
+**Caveats.** Universe B inherits homily_strategy_backtest's residual
+survivorship — fully delisted names cannot be fetched key-free, so B's
+worst outcomes are missing and every B number above is still flattering.
+Most B names listed 2019–2021, so the 10y window buys SPY early (§3.5
+fallback) and concentrates into the 2021 cohort later; that is honest
+behaviour, not a bug, but the 10y row is not ten years of stock-picking.
+No dividends anywhere. Neither arm models the exits.

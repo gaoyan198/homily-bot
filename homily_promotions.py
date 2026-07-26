@@ -220,8 +220,11 @@ def month_start_block(rows, day, esc=lambda x: x):
             # rolling-6m read prints monthly like the rank entries do.
             # (#92/#51-style checkers run elsewhere; the line above is the
             # reminder that their watch is armed.)
+            # `startswith` not `==`: #125 moved to "promoted-on-probation"
+            # after the §31 honest re-test, and a probationary entry needs
+            # its demotion watch MORE than a settled one, not less.
             if fc.get("checker_fn") == "hold_adds_check" \
-                    and e["status"] == "promoted":
+                    and e["status"].startswith("promoted"):
                 lo = (day - datetime.timedelta(days=183)).isoformat()
                 r = hold_adds_check(rows, lo, day.isoformat())
                 lines.append(
@@ -241,7 +244,7 @@ def month_start_block(rows, day, esc=lambda x: x):
                      + (f" {esc(e['promoted'])}" if e.get("promoted") else "")
                      + f" · frozen window {esc(fc['window'][0])}→"
                      f"{esc(fc['window'][1])}: {esc(_fmt_check(frozen))}")
-        if e["status"] == "promoted":
+        if e["status"].startswith("promoted"):     # incl. -on-probation
             lo = (day - datetime.timedelta(days=183)).isoformat()
             rolling = forward_check(_windowed(e, lo, day.isoformat()), rows)
             lines.append(f"　demotion check (rolling 6m): "
