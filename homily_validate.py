@@ -2559,6 +2559,25 @@ import re as _re67
 _amts67 = [int(x.replace(",", ""))
            for x in _re67.findall(r"S\$([\d,]+)/mo", _l67)]
 assert _amts67 and all(v < 10_000 for v in _amts67), _amts67
+# #129: SEVERAL SLEEVE ROWS IN ONE MONTH ARE ONE MONTH'S PACE. The schema
+# documents a per-sleeve tag, so summing must happen within the month before
+# averaging — averaging rows divided the real rate by the sleeve count
+# (S$4,250/mo first printed as S$2,125 on the owner's own file).
+_split67 = [{"month": "2026-07", "usd": 1000.0, "sleeve": "espp"},
+            {"month": "2026-07", "usd": 2500.0, "sleeve": "core"}]
+assert _t67.target_line(42_000.0, 1.28, _d67, flows=_split67) == \
+    _t67.target_line(42_000.0, 1.28, _d67,
+                     flows=[{"month": "2026-07", "usd": 3500.0}]), \
+    "#129: split-by-sleeve must read identically to one combined row"
+# and two REAL months still average across months, not rows
+_two67 = [{"month": "2026-06", "usd": 1000.0, "sleeve": "espp"},
+          {"month": "2026-06", "usd": 1000.0, "sleeve": "core"},
+          {"month": "2026-07", "usd": 4000.0, "sleeve": "core"}]
+assert _t67.target_line(42_000.0, 1.28, _d67, flows=_two67) == \
+    _t67.target_line(42_000.0, 1.28, _d67,
+                     flows=[{"month": "2026-06", "usd": 2000.0},
+                            {"month": "2026-07", "usd": 4000.0}]), \
+    "#129: the average is over MONTHS (2000,4000 -> 3000), never over rows"
 # no logged pace → ask for the flows, never guess or demand
 _l67b = _t67.target_line(42_000.0, 1.28, _d67)
 assert "log your monthly flows" in _l67b and "/mo →" not in _l67b, _l67b
