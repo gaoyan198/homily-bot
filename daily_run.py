@@ -49,7 +49,15 @@ import homily_bearish
 POSITIONS = homily_positions.load_positions()
 HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
 # Owner-requested names not (yet) held — charted anyway, week after week
-WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ"}
+WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
+         # SPCX added 2026-07-31 on owner request. It was already in
+         # universe.json (#65 mechanical screen, origin "screen") but
+         # those rows are SHADOW-fenced until the adoption read, so it
+         # never reached the digest. WATCH prints it every day
+         # regardless of state — which is the only list that can, since
+         # UNIVERSE only surfaces ⭐/🔵 and SPCX cannot be either until
+         # it has 12 monthly bars (listed 2026-06-12, so ~2027-06).
+         "SPCX":"SPCX"}
 
 # Too-new listings whose real signal lives in their constituents: screen the
 # members and print a proxy line under the holding's row (DRAM = Roundhill
