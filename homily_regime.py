@@ -17,8 +17,10 @@ up ~1 pt/yr vs never-selling and cut worst drawdown −76% -> −29%; in the
   BEAR fires  -> margin to zero; sell weak satellites ONCE at onset -> dry
                  powder; index core stays; monthly buys keep going, into
                  the index, all bear long.
-  BULL resumes-> redeploy dry powder into the ⭐/🚀 screens in thirds over
-                 three months.
+  BEAR ends   -> the first month-end that is NOT bear (either index back
+                 above its 10m SMA — ⚖️ or 🐂): redeploy dry powder into
+                 the ⭐/🚀 screens in thirds over three months (#135/§38 —
+                 waiting for the full 🐂 was measured and rejected).
 
 The regime is judged on BOTH SPY and QQQ month-end closes:
   BULL    both above their 10m SMA
@@ -137,9 +139,10 @@ def market_regime(symbols=("SPY", "QQQ")):
         label, action = "BEAR", ("tail-insurance protocol (PLAYBOOK §4): "
                                  "margin→0, sell weak satellites ONCE → dry "
                                  "powder; index core stays, monthly buys → "
-                                 "index all bear; on 🐂 re-enter in thirds/"
-                                 "3mo. Costs ~1pt/yr over 33y (−7pt/yr in a "
-                                 "2022-style V) to cut −76% dd to −29%")
+                                 "index all bear; re-enter in thirds/3mo "
+                                 "once the banner LEAVES 🐻 (⚖️ or 🐂 — "
+                                 "§38). Costs ~1pt/yr over 33y (−7pt/yr in "
+                                 "a 2022-style V) to cut −76% dd to −29%")
     else:
         label, action = "MIXED", ("split signal — no action; judge at the "
                                   "next month-end close")

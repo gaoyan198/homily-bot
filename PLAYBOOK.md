@@ -122,12 +122,23 @@ basis: the window will usually be gone before the tranches are.*
 
 **Trigger:** the digest banner reads 🐻 BEAR. Nothing else is a trigger —
 not headlines, not a red week, not a feeling. (The banner fires when both
-SPY and QQQ close a MONTH below their 10-month average. It fires a handful
-of times per decade.)
+SPY and QQQ close a MONTH below their 10-month average.)
 
-**Know before it happens:** the signal typically fires after the market is
-already down 10–15%. It will feel late. It is still worth following — its
-value is avoiding the −40…−80% middle, not the first −15%.
+**How often — measured, not folklore (#137 rewrite, 2026-08-13, census
+§36):** 21 signals in 1999–2026 — roughly **once every 15 months**,
+median spell 1–2 months. The decisive multi-month bears (2000, 2002,
+2008, 2022) are a handful per decade; everything else is a short
+whipsaw. 17 of the 21 ended with re-entry at a HIGHER price (a 2–16%
+round-trip premium on the satellites). **Your first live 🐻 will most
+likely be a false alarm — following it anyway is the deal.** The version
+of this paragraph that said "a handful of times per decade" was wrong by
+roughly 4× and is retired.
+
+**Know before it happens:** the signal typically fires after the market
+is already down 6–15% from its recent top (census: dot-com onset −6%
+SPY / −19% QQQ; 2008-06 −17% SPY). It will feel late. It is still worth
+following — its value is avoiding the −40…−80% middle, not the first
+−15%.
 
 **What this insurance costs — measured, not asserted (D-63, 2026-07-10):**
 across 33 years spanning the dot-com grind, 2008 and 2022 (survivor-biased
@@ -171,15 +182,29 @@ moment.
    stock half also goes into Bucket A while 🐻. You are buying the index
    through the entire bear. This is where bear-market wealth is actually
    made, quietly.
-7. **Re-entry:** when the banner returns to 🐂, redeploy the dry powder into
-   ⭐ names **in thirds over three months** (first month ⅓, second ⅓, third
-   ⅓). Never all at once — first signals whipsaw.
+7. **Re-entry:** when the banner LEAVES 🐻 — the first month-end that is
+   ⚖️ or 🐂, i.e. EITHER index back above its 10-month average — redeploy
+   the dry powder into ⭐ names **in thirds over three months** (first
+   month ⅓, second ⅓, third ⅓). Never all at once — first signals
+   whipsaw. *(Re-worded 2026-08-13, #135/§38: this playbook used to say
+   "wait for 🐂" — both indices above — but every committed measurement
+   of §4, including its −1 pt/yr cost headline, was made with the
+   either-above rule, and the head-to-head confirmed it: waiting for
+   both lost the honest 10y (1.56 vs 1.69 MOIC) and gave up 21% of 33y
+   grinder wealth at identical −29% drawdown. Known counter-case: May
+   2008's bull-trap, where the slower rule skipped a re-entry that had
+   to be re-sold — real, but on the full record the earlier re-entry
+   wins.)*
 
 **What the signal cannot do (accept in advance):** a COVID-style crash is
-over before a monthly signal reacts — your protection there is position
-sizing, not the signal. And expect 1–2 false alarms per decade: you'll sell
-satellites, market recovers, you re-enter slightly higher. That's the
-premium on the insurance, not a malfunction.
+over before a monthly signal reacts — the census is exact about this:
+in March 2020 the signal fired AT the bottom month-end and re-entry cost
++12.7–18.1% (your protection there is position sizing, not the signal).
+And the false alarms are not rare: expect to execute this protocol
+roughly every 15 months in choppy regimes — sell satellites, market
+recovers, re-enter a few percent higher (2025-03 and 2026-03 were both
+exactly this, +5–16%). That's the premium on the insurance, not a
+malfunction; D-63's −1 pt/yr cost already includes every one of them.
 
 ---
 
