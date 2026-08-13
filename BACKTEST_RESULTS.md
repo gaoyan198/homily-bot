@@ -1808,6 +1808,31 @@ paths; contributions (the owner's actual paydown lever, S$3,000/mo since
 2026-07-31) are excluded by construction, so the live book delevers
 *faster* than any arm here.
 
+**How long this dependency is acute (scoping note, so a later session does
+not read it as permanent).** "The regime print is a solvency control" binds
+wherever borrowed dollars sit. On the CORE book that is a dated condition,
+not a standing one: the owner redirected S$3,000/mo to margin paydown from
+2026-08, which on the owner's own plan reaches MARGIN_ZERO around 2026-11
+(plan-derived, not measured here — check `homily_ops` against the live
+balance rather than trusting this sentence). After that the core book
+carries no margin and §2's ban is self-enforcing; the dependency does not
+disappear, it TRANSFERS to the levered swing sleeve, which MARGIN_ZERO is
+precisely the gate for (#93/A5). Read §39 as: acute on the core book for
+roughly the next quarter, permanent for anything levered thereafter.
+
+**Adjacent gap found while writing this, NOT part of #138 and not fixed
+here** (own item, Part III rule 5): the money path treats an unavailable
+regime as a normal buy day — `homily_buyday.buyday_block` states it
+verbatim, "a regime of None (check unavailable) is treated as a normal buy
+day — §3 only reroutes on an explicit 🐻". That fails OPEN: unknown ⇒
+deploy as if 🐂. Two things bound it and both are real: #134 already made
+the outage visible (retry, `monthly_from_daily` fallback, `regime_last_good`
+carry, 🚨 at ≥3 days), and the buy-day deploys only NEW cash — it cannot
+add leverage. So the failure mode is *the owner not being told to
+de-lever*, not the bot levering up. Cosmetic before §39; a risk-class
+question after it, because §39 is what established that the 🐻 print is the
+control keeping levered books solvent.
+
 **Not shipped, proposed (#139+):** the core-book ban in LEVERAGE.md §2 is
 argued as arithmetic — constant L ≥ 1.25 sits inside the book's −59…−76%
 range. That premise is a *constant-L* book, which `ratchet` is not: the 🐻
@@ -1818,3 +1843,15 @@ dot-com/2008 core path, survivor bias in the only long window. Lifting or
 re-wording §2 is a separate item with its own gate (Part III rule 5); this
 study only records that §2's stated reason no longer matches the measured
 mechanism.
+
+> **Do not cite the paragraph above in support of carrying core margin.**
+> The gap is in the ARGUMENT, not the CONCLUSION. §2's ban stands
+> unchanged, and it is currently being cured from a LIVE BREACH — the core
+> book carried ~S$10.8k of margin at 1.34× on 2026-07-31, the third breach
+> of the 1.30 cap, now being paid down at S$3,000/mo. A flaw in why a rule
+> was argued is not permission to stop obeying it, and this study measured
+> nothing that would make core margin safe: the core cells are monthly
+> (blind to intramonth lows), reach back only to 2016, and the only path
+> through dot-com and 2008 is QQQ — where the arm that stops de-levering
+> was margin-called. Nothing here reduces the case for reaching
+> MARGIN_ZERO on schedule.
