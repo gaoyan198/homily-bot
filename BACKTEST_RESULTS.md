@@ -1475,3 +1475,41 @@ rows carry F:1/1). This study reproduces the live behaviour faithfully
 rather than quietly improving it; whether that test should be a ratio is
 its own item. **NOTHING SHIPPED** — Part III rule 5; the §3/§16b/#51 wording
 corrections are proposed to the owner, not executed here.
+
+## 34 · #131 dual volatility-hole bottom marker (run 2026-08-13) — NULL; the dual shape is rare and reads WEAKER than the single hole
+
+Claim under test (PRD §5n, Danny's INTC post Jul 1 2026): "dual
+volatility holes" — two holes stacked at one base — marked INTC's major
+long-term bottom; the dual shape should therefore mark better bottoms
+than a lone hole. Rule frozen in `homily_dualvh_backtest.py`'s docstring
+before the first run: live `find_hole` point-in-time (R6), a distinct
+second cluster (cluster-end jump > MAX_GAP) arming ≤ 40 bars after a
+still-unresolved first = DUAL; headline scope = bottoming-process
+(trend DOWN) BREAKOUT resolutions; fwd 60/120d vs the single-hole 🔵
+baseline; 5y daily; universes A + B + ALL; verdict pre-registered
+(n ≥ 20 AND dual ≥ single on BOTH horizons).
+
+ALL (58 names), bottoming BREAKOUT:
+
+| arm | n | fwd60 | win | fwd120 | win |
+|---|---|---|---|---|---|
+| single 🔵 breakout | 618 | +6.2% | 54% | +20.6% | 60% |
+| **DUAL 🔵 breakout** | **18** | **+1.7%** | **39%** | **+13.1%** | **59%** |
+
+All three prongs FAIL: n = 18 < 20, and the dual arm loses on both
+horizons — in universe A (the better names) dual is far weaker (+3.1%
+vs +10.3% fwd60). **NULL — item CLOSED.** The honest reading is the
+inverse of the claim on our approximation: a second hole forming before
+the first resolves marks a choppier, weaker base, not a stronger one.
+
+Caveats, both directions, recorded: (a) n = 18 is underpowered — this is
+"no evidence + point estimate against", not "proven worse"; (b) our
+hole detector is an approximation of his proprietary construction, and
+his INTC read was MONTHLY — the monthly-TF half of the claim already ran
+NULL separately (#77, §7); (c) context rows (dual topping breakouts
++9.9%/n=28, dual bottoming breakdowns +19.9% fwd120/n=24) are small,
+unregistered cuts — not evidence, not to be quoted as findings. What
+stands: the single-hole 🔵 event edge (homily_vol_backtest baseline) is
+untouched; `find_hole`'s one-cluster design loses nothing measurable.
+**NOTHING SHIPPED** — no engine edit, no digest surface; the would-be
+`×2` mark on 🔵 dies with the item.
