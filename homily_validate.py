@@ -2725,4 +2725,40 @@ _rg69 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 assert "monthly_from_daily" in _rg69, "[69] fallback path missing"
 print("[69] #134 regime months: double/single/none/dup + last-good carry .. PASS")
 
+# ---------------------------------------------------------------------------
+# [70] #136 F-ratio — "fundamentals failing" = fewer than half the applicable
+# checks pass. The pre-fix numerator test (<= 1) mislabelled F:1/1 as failing
+# and let §4's bear-onset sell list and §5.2's flag sell healthy names first
+# (§36 finding 4). Fixtures pin BOTH sides of every boundary the notation can
+# express, the trim_flags integration, and that every consumer shares the ONE
+# definition (no local numerator regex survives anywhere).
+from homily_positions import f_failing as _ff70, trim_flags as _tf70, \
+    CAUTION_WEEKS as _cw70
+
+for _tag70, _want70 in (("F:0/1", True), ("F:0/3", True), ("F:1/3", True),
+                        ("F:1/1", False), ("F:1/2", False), ("F:2/2", False),
+                        ("F:2/4", False), ("F:2/3", False), ("F:3/3", False),
+                        ("F:—", False), ("", False), (None, False)):
+    assert _ff70(_tag70) is _want70, f"[70] f_failing({_tag70!r}) wrong"
+# integration: the flag itself — F:1/3 fires at the week boundary, the two
+# 100%-pass shapes never do (F:1/1 was the live bug), F:— never
+assert _tf70(None, "CAUTION", _cw70, "F:1/3"), "[70] ratio-failing must fire"
+assert not _tf70(None, "CAUTION", _cw70, "F:1/1"), \
+    "[70] F:1/1 is 100% pass — the pre-fix bug is back"
+assert not _tf70(None, "CAUTION", _cw70, "F:2/2"), "[70] F:2/2 must not fire"
+assert not _tf70(None, "CAUTION", _cw70, "F:—"), "[70] unknown must not fire"
+assert not _tf70(None, "CAUTION", _cw70 - 1, "F:0/3"), \
+    "[70] week threshold moved"
+assert not _tf70(None, "HOLD", _cw70, "F:0/3"), "[70] state gate moved"
+# one definition: no consumer keeps a private numerator test
+for _mod70 in ("homily_positions.py", "homily_promotions.py"):
+    _src70 = open(os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), _mod70)).read()
+    assert _src70.count('re.match(r"F:(\\d)"') == 0, \
+        f"[70] {_mod70}: local numerator F-regex survived the fix"
+_src70 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_promotions.py")).read()
+assert "f_failing" in _src70, "[70] timestop pairing no longer mirrors rule 2"
+print("[70] #136 F-ratio: 12 tag boundaries + trim_flags + one definition .. PASS")
+
 print("\nAll structural assertions passed.")
