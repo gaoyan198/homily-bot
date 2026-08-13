@@ -27,11 +27,22 @@ The regime is judged on BOTH SPY and QQQ month-end closes:
 
 homily_regime_backtest.py holds the honest 30y comparison vs buy-and-hold;
 headline numbers are also on docs/index.html.
+
+#134 (2026-08-13, gate: validate [69]): Yahoo's 1mo endpoint returns the
+RUNNING month twice — a period row stamped the 1st plus a live row
+stamped at the last trade — so the old fixed-count trim (`[:-1]`) could
+leave one partial row in and judge a MID-MONTH price as the completed
+month-end (caught live: QQQ partial-Aug 718.45 read as "completed" vs
+July's true 687.99). Completed months are now selected by MONTH KEY
+(strictly before the current month), the fetch retries, and a dead 1mo
+endpoint falls back to resampling the daily chart — two independent
+paths to the same rule.
 """
 import datetime
+import time
 from dataclasses import dataclass
 
-from homily_data import fetch_daily  # noqa: F401  (re-export convenience)
+from homily_data import fetch_daily
 import json, ssl, urllib.request
 
 
@@ -42,26 +53,65 @@ class Regime:
     action: str
 
 
-def fetch_monthly(symbol, rng="max"):
-    """-> [(date, close)] month-end closes; last row may be a partial month."""
+def fetch_monthly(symbol, rng="max", attempts=3):
+    """-> [(date, close)]; the running month may appear as ONE OR TWO
+    trailing partial rows (#134) — consumers must go through
+    completed_months(), never trim by count."""
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
            f"?range={rng}&interval=1mo")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=20,
-                                context=ssl.create_default_context()) as r:
-        data = json.load(r)
-    res = data["chart"]["result"][0]
-    out = []
-    for t, c in zip(res["timestamp"],
-                    res["indicators"]["quote"][0]["close"]):
-        if c is not None:
-            out.append((datetime.date.fromtimestamp(t), c))
-    return out
+    err = None
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=20,
+                                        context=ssl.create_default_context()) as r:
+                data = json.load(r)
+            res = data["chart"]["result"][0]
+            out = []
+            for t, c in zip(res["timestamp"],
+                            res["indicators"]["quote"][0]["close"]):
+                if c is not None:
+                    out.append((datetime.date.fromtimestamp(t), c))
+            if out:
+                return out
+            raise ValueError("empty monthly series")
+        except Exception as e:          # noqa: BLE001 — any fetch shape
+            err = e
+            if i + 1 < attempts:
+                time.sleep(1 + 2 * i)
+    raise RuntimeError(f"fetch_monthly({symbol}) failed x{attempts}: {err}")
 
 
-def sma10_state(monthly):
-    """State from COMPLETED month-ends only (last row = current partial)."""
-    closes = [c for _, c in monthly[:-1]]         # completed months
+def monthly_from_daily(symbol):
+    """#134 fallback — the same month-end closes resampled from the daily
+    chart (independent endpoint; read-only use of the R1 bars). Last row
+    is the current partial month, same contract as fetch_monthly."""
+    out = {}
+    for b in fetch_daily(symbol, rng="max"):
+        out[(b[0].year, b[0].month)] = (b[0], b[4])
+    return [out[k] for k in sorted(out)]
+
+
+def completed_months(monthly, today=None):
+    """Rows of months strictly BEFORE the current month, deduped to the
+    last row per month (#134). A month is complete because the calendar
+    left it, not because of its position in Yahoo's array — the running
+    month can appear once, twice, or (before its first trading day) not
+    at all. `today` is injectable for tests; the runner clock matters
+    only in the hours around a month boundary before the new month first
+    trades, where the earlier-timezone reading is the correct one (R7)."""
+    today = today or datetime.date.today()
+    cur = (today.year, today.month)
+    out = {}
+    for d, c in monthly:
+        if (d.year, d.month) < cur:
+            out[(d.year, d.month)] = (d, c)
+    return [out[k] for k in sorted(out)]
+
+
+def sma10_state(monthly, today=None):
+    """State from COMPLETED month-ends only (#134: month-key filter)."""
+    closes = [c for _, c in completed_months(monthly, today)]
     sma = sum(closes[-10:]) / 10
     last_completed = closes[-1]
     live = monthly[-1][1]                          # intramonth, for context
@@ -71,7 +121,10 @@ def sma10_state(monthly):
 def market_regime(symbols=("SPY", "QQQ")):
     detail, above = {}, []
     for sym in symbols:
-        m = fetch_monthly(sym)
+        try:
+            m = fetch_monthly(sym)
+        except Exception:
+            m = monthly_from_daily(sym)            # #134 second path
         last_done, sma, live = sma10_state(m)
         ok = last_done > sma
         above.append(ok)

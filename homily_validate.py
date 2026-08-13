@@ -185,19 +185,23 @@ print(f"[11] Conviction: leader -> {c_lead.tier} {c_lead.score}, "
       f"megacap laggard fails {len(c_mega.gates_failed)} gates ....... PASS")
 
 # --- 12. Regime: 10m-SMA month-end rule on synthetic monthly closes ---------
+# (fixture moved with #134: "current partial month" is now a MONTH-KEY fact,
+# not a positional one, so the running month is expressed via the injectable
+# clock — `today` inside the last row's month. [69] covers the boundary zoo.)
 from homily_regime import sma10_state
 
 up_m = [(_dt.date(2020 + i // 12, i % 12 + 1, 1), 100 * 1.02 ** i)
         for i in range(30)]
-last, sma, live = sma10_state(up_m)
+_now12 = up_m[-1][0]                      # clock inside the running month
+last, sma, live = sma10_state(up_m, today=_now12)
 assert last > sma, "rising market not above its 10m SMA!"
 dn_m = [(d, 200 * 0.97 ** i) for i, (d, _) in enumerate(up_m)]
-last, sma, live = sma10_state(dn_m)
+last, sma, live = sma10_state(dn_m, today=_now12)
 assert last < sma, "falling market not below its 10m SMA!"
 # partial current month must NOT affect the month-end judgement
 spiked = dn_m[:-1] + [(dn_m[-1][0], 1e6)]
-l2, s2, _ = sma10_state(spiked)
-assert (l2, s2) == (last, sma) or l2 < s2, "partial month leaked into signal!"
+l2, s2, _ = sma10_state(spiked, today=_now12)
+assert (l2, s2) == (last, sma), "partial month leaked into signal!"
 print("[12] Regime 10m-SMA: up->BULL, down->BEAR, partial month ignored ..... PASS")
 
 # --- 13. Fundamentals verdict logic (offline, no EDGAR calls) ----------------
@@ -2652,5 +2656,73 @@ for _name68, _ in _specs68:
         "keepalive-commit", "").replace("keepalive action", ""), \
         f"{_name68}: liveness must be a ping, never a manufactured commit"
 print("[68] #118(c) watchdog: both books wired, post-push, dark-if-unset .. PASS")
+
+# ---------------------------------------------------------------------------
+# [69] #134 regime completed-month contract — Yahoo's 1mo endpoint may show
+# the running month once (period row), twice (period row + live row), or —
+# before its first trading day — not at all. The old [:-1] trim let a partial
+# row masquerade as a completed month-end (caught live 2026-08-13: QQQ
+# partial-Aug 718.45 read as "completed" vs July's true 687.99). These
+# fixtures pin the month-key rule on every boundary shape WITHOUT network,
+# plus the snapshot's regime_last_good carry-through and the backtest's use
+# of the same helper. homily_regime.py is FROZEN: this edit went through
+# Phase-C with engine_freeze.json updated in the same commit ([39] enforces).
+import datetime as _dt69
+import tempfile as _tmp69
+from homily_regime import Regime as _Reg69, completed_months as _cm69, \
+    sma10_state as _sma69
+
+_hist69 = [(_dt69.date(2025, m, 1), 100.0 + m) for m in range(1, 13)]  # 2025
+_jan69 = (_dt69.date(2026, 1, 1), 200.0)
+_today69 = _dt69.date(2026, 2, 15)
+# (a) double partial row — the live defect shape
+_dbl69 = _hist69 + [_jan69, (_dt69.date(2026, 2, 1), 300.0),
+                    (_dt69.date(2026, 2, 14), 310.0)]
+# (b) single partial row — the shape the old code assumed
+_sgl69 = _hist69 + [_jan69, (_dt69.date(2026, 2, 1), 300.0)]
+# (c) no current-month row yet (weekend before Feb's first trade)
+_non69 = _hist69 + [_jan69]
+for _tag69, _m69 in (("double", _dbl69), ("single", _sgl69), ("none", _non69)):
+    _done69 = _cm69(_m69, today=_today69)
+    assert _done69[-1] == _jan69, \
+        f"[69] {_tag69}: last completed must be Jan-2026, got {_done69[-1]}"
+    assert all(d.month != 2 or d.year != 2026 for d, _ in _done69), \
+        f"[69] {_tag69}: a partial Feb row leaked into completed months"
+    _last69, _sma_v69, _ = _sma69(_m69, today=_today69)
+    assert _last69 == 200.0, f"[69] {_tag69}: sma10_state read {_last69}"
+    # SMA = last 10 completed months (Apr-2025..Jan-2026)
+    _want69 = (sum(c for _, c in _hist69[3:]) + 200.0) / 10
+    assert abs(_sma_v69 - _want69) < 1e-9, f"[69] {_tag69}: SMA drifted"
+# the OLD [:-1] trim provably misreads the double shape — the defect stays
+# documented as a failing counterexample, not folklore
+assert _dbl69[:-1][-1][1] == 300.0, "[69] counterexample lost its teeth"
+# (d) duplicate HISTORICAL month rows — last row per month wins
+_dup69 = _hist69 + [(_dt69.date(2025, 6, 15), 999.0), _jan69]
+assert dict((k.month, v) for (k, v) in
+            [(d, c) for d, c in _cm69(_dup69, today=_today69)])[6] == 999.0, \
+    "[69] duplicate-month dedupe must keep the later row"
+# (e) regime_last_good carries through a failed day, "regime" stays honest
+import homily_ledger as _hl69
+with _tmp69.TemporaryDirectory() as _td69:
+    _p69 = os.path.join(_td69, "snap.json")
+    _r69 = _Reg69("BULL", {"SPY": (1.0, 1.0, 0.0, True)}, "x")
+    _hl69.write_snapshot(_dt69.date(2026, 8, 12), _r69, [], [], path=_p69)
+    _s69 = json.load(open(_p69))
+    assert _s69["regime_last_good"] == {"label": "BULL", "asof": "2026-08-12"}
+    _hl69.write_snapshot(_dt69.date(2026, 8, 13), None, [], [], path=_p69)
+    _s69 = json.load(open(_p69))
+    assert _s69["regime"] is None, "[69] a failed day must not show a label"
+    assert _s69["regime_last_good"]["asof"] == "2026-08-12", \
+        "[69] last good read lost on a dark day"
+    _hl69.verify_snapshot(_s69)     # schema contract survives the new field
+# (f) the 30y backtest and any future consumer go through the helper, never
+# a positional trim
+_rb69 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "homily_regime_backtest.py")).read()
+assert "completed_months" in _rb69 and "fetch_monthly(sym)[:-1]" not in _rb69
+_rg69 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "homily_regime.py")).read()
+assert "monthly_from_daily" in _rg69, "[69] fallback path missing"
+print("[69] #134 regime months: double/single/none/dup + last-good carry .. PASS")
 
 print("\nAll structural assertions passed.")

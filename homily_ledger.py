@@ -357,12 +357,28 @@ def write_snapshot(day, regime, holdings, discovery, path=SNAPSHOT,
     if regime is not None:
         reg = {"label": regime.label, "action": regime.action,
                "detail": {sym: list(v) for sym, v in regime.detail.items()}}
+    # #134: the last GOOD regime read survives fetch failures, so a dark
+    # spell has a measurable age ("regime" itself stays None on a failed
+    # day — consumers must see unavailability, never a stale label).
+    if regime is not None:
+        last_good = {"label": regime.label, "asof": day.isoformat()}
+    else:
+        last_good = None
+        try:
+            with open(path) as f:
+                old = json.load(f)
+            last_good = old.get("regime_last_good") or (
+                {"label": old["regime"]["label"], "asof": old["date"]}
+                if old.get("regime") else None)
+        except Exception:
+            pass
     snap = {
         "_v": SNAPSHOT_V,
         "date": day.isoformat(),
         "generated_utc": datetime.datetime.now(datetime.timezone.utc)
                          .replace(microsecond=0).isoformat(),
         "regime": reg,
+        "regime_last_good": last_good,
         # #70: ledger coverage — #14 must report this next to its returns
         "coverage": coverage,
         # #75/T3: the buy-day plan (None off buy days) — the machine-readable
