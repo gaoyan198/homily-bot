@@ -59,7 +59,7 @@ import datetime
 from homily_data import fetch_daily
 from homily_danny import danny_signal
 from homily_strategy_backtest import (
-    COST, UNIV_A, UNIV_B, month_first_idx, regime_series, close_on,
+    COST, UNIV_A, UNIV_B, bull_series, month_first_idx, regime_series, close_on,
     run_strategy, run_dca,
 )
 
@@ -134,7 +134,7 @@ def _deploy(picks, cash, hold, core, data, d, ipx, index_bars):
 
 
 def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
-             win=None, bucketb=None, caution_months=None):
+             win=None, bucketb=None, caution_months=None, reentry="either"):
     """Point-in-time backtest under one `bear_mode`. Returns
     (MOIC, TWR-CAGR, MaxDD, cash_months, trades). `win=(start,end)` isolates
     an episode: months outside the range are skipped but full bar history
@@ -145,10 +145,18 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
     pessimistic bound, which is what the committed tables used).
     `caution_months` (#51): the ⚪ time-stop in completed months for mode
     (f) — None keeps the committed CAUTION_MONTHS=3 (≈ §5.2's 12 weeks),
-    so every existing table replays byte-identically."""
+    so every existing table replays byte-identically.
+    `reentry` (#135, mode (d) only): "either" = D-63's committed
+    behaviour — the thirds re-entry arms on the first month-end that is
+    not BEAR (one index recovering is enough); "both" = PLAYBOOK §4.7's
+    literal reading — the thirds arm only on a 🐂 month-end (BOTH indices
+    above their 10m SMA), so powder idles through ⚖️ MIXED months. The
+    default replays every committed table byte-identically."""
     assert mode in MODES, mode
+    assert reentry in ("either", "both"), reentry
     cm = CAUTION_MONTHS if caution_months is None else caution_months
     is_bear = regime_series(spy, qqq)
+    is_bull = bull_series(spy, qqq) if reentry == "both" else None
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
     if win:
         months = [m for m in months if win[0] <= m <= win[1]]
@@ -213,7 +221,12 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
                     cash_months += 1
                 prev_bear = bear
                 continue
-            if prev_bear:                  # 🐂 resumes -> start thirds re-entry
+            if reentry == "either":
+                if prev_bear:              # 🐂 resumes -> start thirds re-entry
+                    reentry_left = REENTRY_TRANCHES
+            elif reentry_left == 0 and powder > 1e-12 and is_bull(d):
+                # #135 "both": arm the thirds only on a 🐂 month-end;
+                # powder waits through ⚖️ months by design (§4.7 literal)
                 reentry_left = REENTRY_TRANCHES
             if reentry_left > 0 and powder > 0:
                 tranche = powder / reentry_left

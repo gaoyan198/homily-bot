@@ -52,6 +52,18 @@ def month_first_idx(bars):
     return out
 
 
+def bull_series(spy, qqq):
+    """date -> True if BULL (both completed-month closes > their 10m SMA)
+    — #135, the mirror of regime_series' bear test. MIXED (split) is
+    neither bear nor bull."""
+    def above(bars, d):
+        mos = monthly_closes([b for b in bars if b[0] < d.replace(day=1)])
+        if len(mos) < 11:
+            return False
+        return mos[-1] > sum(mos[-10:]) / 10
+    return lambda d: above(spy, d) and above(qqq, d)
+
+
 def regime_series(spy, qqq):
     """date -> True if BEAR (both completed-month closes < their 10m SMA)."""
     def bear_at(bars, d):
