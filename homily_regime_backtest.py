@@ -12,7 +12,7 @@ chosen from data through month t-1.
 Also reports each major bear episode so the "sell signal" value is visible
 where it matters, and the bull-market lag cost where it hurts.
 """
-from homily_regime import fetch_monthly
+from homily_regime import completed_months, fetch_monthly
 
 COST = 0.0005
 EPISODES = [
@@ -25,7 +25,7 @@ EPISODES = [
 
 
 def run(sym):
-    m = fetch_monthly(sym)[:-1]              # completed months only
+    m = completed_months(fetch_monthly(sym))   # completed months only (#134)
     dates = [d for d, _ in m]
     px = [c for _, c in m]
     n = len(px)

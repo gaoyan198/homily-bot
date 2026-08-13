@@ -347,7 +347,8 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
                   lev="", household="", cross_book=None, ops="", bear="",
-                  turnover="", crash="", dataqa=None, prov=None, brkmap=None):
+                  turnover="", crash="", dataqa=None, prov=None, brkmap=None,
+                  regime_stale=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
     the varying inputs are passed in so the exact printed text is a
     deterministic function of them; that is what makes the golden-file test
@@ -383,7 +384,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             # regime banner it is gated by
             lines.append(lev)
     else:
-        lines.append("⚖️ regime check unavailable today")
+        # #134: a dark regime has a measurable age (regime_stale is built
+        # by the IO shell from snapshot.json's regime_last_good; '' keeps
+        # this branch byte-identical for fixtures that predate it)
+        lines.append("⚖️ regime check unavailable today"
+                     + (f" — {regime_stale}" if regime_stale else ""))
     # #99 ops-readiness: the owner's own unset switches, one standing line
     if ops:
         lines.append(ops)
@@ -578,6 +583,28 @@ def build_digest(flex_notes=None):
         regime = market_regime()
     except Exception:
         regime = None
+    # #134: age the dark spell from the committed snapshot's last good read
+    # (write_snapshot carries regime_last_good through failed days)
+    regime_stale = ""
+    if regime is None:
+        try:
+            import json as _json
+            with open(homily_ledger.SNAPSHOT) as _f:
+                _old = _json.load(_f)
+            _lg = _old.get("regime_last_good") or (
+                {"label": _old["regime"]["label"], "asof": _old["date"]}
+                if _old.get("regime") else None)
+            if _lg:
+                _days = (datetime.date.today()
+                         - datetime.date.fromisoformat(_lg["asof"])).days
+                regime_stale = (f"last good read {_lg['label']} "
+                                f"{_lg['asof']} ({_days}d ago)")
+                if _days >= 3:
+                    regime_stale = ("🚨 DARK ≥3 DAYS — the only sell "
+                                    "authority is missing; check Yahoo/"
+                                    "workflow · " + regime_stale)
+        except Exception:
+            pass
     # constituent proxy reads for too-new holdings (e.g. DRAM basket)
     proxy = {}
     for tk, members in PROXY_CONSTITUENTS.items():
@@ -809,7 +836,8 @@ def build_digest(flex_notes=None):
                            dips=dips, qual=qual, promos=promos, swing=swing,
                            lev=lev, household=household, ops=ops, bear=bear,
                            turnover=turnover, crash=crash_line(spy),
-                           dataqa=dataqa, prov=prov, brkmap=brkmap)
+                           dataqa=dataqa, prov=prov, brkmap=brkmap,
+                           regime_stale=regime_stale)
     # #15 state-change alerts: diff today's states against yesterday's ledger
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
