@@ -185,20 +185,28 @@ Everything else remaining is DATE- or OWNER-gated:
    Queries — the Flex Web Service Configuration panel is at the FOOT of
    that page, NOT Account Settings → Reporting. Query = Activity Flex,
    XML, Open Positions, IP field blank (runners rotate IPs).
-   **⚠ ONE CHECK STILL OPEN: Open Positions must be at SUMMARY detail and
-   this was never verified against the live statement** — the setup
-   session's dry run was cut short by IBKR's repeat-`SendRequest` throttle.
-   `parse_positions` does `out[sym] = …` with no accumulation, so Lot-level
-   detail keeps only the LAST lot: simulated on the real book, NVDA
-   14.8527 → 4.8527, written to holdings.json with no error and committed
-   by CI (R8), feeding the book-value denominator and the 25% cap. Evidence
-   it is already Summary: the statement returned 13 `<OpenPosition>`
-   elements against 13 expected symbols (14 in the book, CSPX absent —
-   bucket A, exempt at `homily_flex.py:106`), and fractional DCA lots
-   (AAPL 8.7833, NVDA 14.8527) would yield dozens of rows at Lot level.
-   Close it by counting parsed symbols vs raw elements on one saved
-   statement — never by re-fetching in a loop, which is what tripped the
-   throttle. **Token exposure, recorded deliberately:** the first token was
+   **CLOSED 2026-08-13 by #139 — detail level is no longer load-bearing.**
+   It was never verified against a live statement (the setup session's dry
+   run, and a second attempt the same day, were both cut short by IBKR's
+   repeat-`SendRequest` throttle), so rather than keep depending on an
+   unverified setting, `parse_positions` now ACCUMULATES: shares summed
+   across lots, `costBasisPrice` averaged weighted by lot size. Summary
+   (one row per symbol) is the degenerate case of the same arithmetic, so
+   the parser is correct at either level. Gate [38] pins the two-lot case —
+   the pre-existing Summary-only fixture passed the broken parser, which is
+   why this survived unnoticed.
+   The defect it closes: `out[sym] = …` with no accumulation kept only the
+   LAST lot — simulated on the real book, NVDA 14.8527 → 4.8527, written to
+   holdings.json with no error and committed by CI (R8), feeding the
+   book-value denominator and the 25% cap. Independent evidence the query
+   was already Summary (so the live book was probably never at risk): the
+   statement returned 13 `<OpenPosition>` elements against 13 expected
+   symbols (14 in the book, CSPX absent — bucket A, exempt at
+   `homily_flex.py:106`), and fractional DCA lots (AAPL 8.7833, NVDA
+   14.8527) would yield dozens of rows at Lot level. That evidence is now a
+   nice-to-have rather than the thing correctness rests on. **Still never
+   re-fetch in a loop to check** — that is what tripped the throttle twice,
+   and on 2026-08-13 it escalated to a `Too many failed attempts` lockout. **Token exposure, recorded deliberately:** the first token was
    pasted into a chat transcript during setup and the owner chose NOT to
    rotate after weighing it (read-only scope — Flex can fetch statements,
    never trade; exposure limited to model-provider logs + a local

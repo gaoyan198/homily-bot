@@ -25,7 +25,9 @@ Flex is a two-step API: SendRequest returns a reference code, then
 GetStatement (with retry while the report generates). The parser pins the
 fields this repo needs from the FlexQueryResponse XML — `symbol`,
 `position`, `costBasisPrice`, `currency` on <OpenPosition> — and the
-validate fixture (check [38]) is the contract for it.
+validate fixture (check [38]) is the contract for it. `symbol` is NOT
+unique in that XML: a LOT-detail query repeats it per tax lot, so the
+parser accumulates rather than assigns (#139).
 """
 import os
 import json
@@ -65,16 +67,41 @@ def fetch_flex(token, query_id, *, opener=urllib.request.urlopen,
 
 
 def parse_positions(xml_text):
-    """FlexQueryResponse XML -> {symbol: {"shares","cost","currency"}}."""
+    """FlexQueryResponse XML -> {symbol: {"shares","cost","currency"}}.
+
+    A symbol can appear MORE THAN ONCE (#139): at LOT `levelOfDetail` the
+    query emits one <OpenPosition> per tax lot, so shares are summed and
+    `costBasisPrice` is averaged weighted by lot size. A SUMMARY query — one
+    row per symbol, which is what #32 intended — is the degenerate case of
+    the same arithmetic, so this is correct either way and the query's detail
+    level stops being load-bearing.
+
+    Assigning instead of accumulating (the original) silently kept only the
+    LAST lot: two NVDA lots of 10.0 and 4.8527 parsed to 4.8527 shares with
+    no error, and `sync` would write that into the book as an ordinary diff
+    line while the digest reported success. Validate [38] pins the two-lot
+    case — a SUMMARY-only fixture passes a parser broken this way.
+    """
     root = ET.fromstring(xml_text)
     out = {}
     for p in root.iter("OpenPosition"):
         sym = (p.get("symbol") or "").strip().split(" ")[0]
         if not sym:
             continue
-        out[sym] = {"shares": float(p.get("position") or 0),
-                    "cost": float(p.get("costBasisPrice") or 0),
-                    "currency": (p.get("currency") or "USD").strip()}
+        shares = float(p.get("position") or 0)
+        cost = float(p.get("costBasisPrice") or 0)
+        prev = out.get(sym)
+        if prev is None:
+            out[sym] = {"shares": shares, "cost": cost,
+                        "currency": (p.get("currency") or "USD").strip()}
+            continue
+        total = prev["shares"] + shares
+        # Weighted mean of the lot bases. A net-flat symbol (long and short
+        # lots cancelling) has no meaningful basis, and `sync` ignores a
+        # non-positive cost anyway, so 0.0 is the honest answer there.
+        prev["cost"] = ((prev["cost"] * prev["shares"] + cost * shares)
+                        / total) if total else 0.0
+        prev["shares"] = total
     return out
 
 
