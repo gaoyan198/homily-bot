@@ -47,11 +47,25 @@ VERDICT RULE (pre-committed, decided on the HONEST 10y window):
 Either way NOTHING SHIPS from this file: Part III rule 5. A retraction is a
 docs change proposed to the owner, not executed here.
 
-KNOWN ISSUE, RECORDED NOT FIXED: `trim_flags` tests `int(F_numerator) <= 1`,
-so **F:1/1 fires while F:2/2 does not** — both are 100% pass rates. 24 live
-rows carry F:1/1. That is the live rule's behaviour and this study
-reproduces it faithfully rather than quietly improving it; whether the
-numerator test should be a RATIO is a separate question for its own item.
+KNOWN ISSUE — FIXED 2026-08-13 by #136: `trim_flags` tested the F
+NUMERATOR (<= 1), so F:1/1 fired while F:2/2 did not — both 100% pass
+rates. Mode "gated" preserves the PRE-fix rule so §33's committed table
+stays reproducible. Two candidate fixes are measured here:
+  gated_ratio — failing = fewer than half the applicable checks pass;
+  gated_thin  — failing = ratio OR only ONE check is applicable (m == 1:
+                a business that cannot be verified on at least two axes
+                has not earned §5.2's hold-through pass; F:— — nothing
+                computable, e.g. foreign filers — stays exempt as before).
+DISCLOSURE + PRE-REGISTERED SELECTION RULE (frozen 2026-08-13 BEFORE
+gated_thin was ever run; gated/gated_ratio numbers HAD been seen —
+honest 10y 3.03 vs 2.52 with hold 2.51, i.e. the pure ratio erases the
+arm's measured value because the numerator bug was accidentally selling
+thin-coverage names): ship gated_thin iff on the honest 10y it recovers
+at least half the gated-vs-ratio gap (>= 2.775 MOIC) AND is within 0.02
+of gated_ratio on the 5y window; otherwise ship the pure ratio and book
+the value loss as the price of semantic correctness. Either way the
+shipped rule lives in homily_positions.f_failing and PLAYBOOK
+§4.3a/§5.2 state it in words (BACKTEST_RESULTS §37).
 
 Reproduce:  python homily_fgate_backtest.py      (~20 min; ~40 EDGAR pulls)
 """
@@ -158,8 +172,22 @@ def run(names, data, spy, qqq, mode, fdata, *, index_bars=None, win=None):
                     continue
                 if mode == "gated":
                     ft = f_tag_at(fdata.get(n), d)
-                    # live trim_flags: fires on numerator <= 1; F:— never
+                    # pre-#136 trim_flags: numerator <= 1 fires; F:— never
                     if ft is None or ft[0] > 1:
+                        blocked += 1
+                        continue
+                elif mode == "gated_ratio":
+                    # #136 candidate (a): fires iff fewer than half the
+                    # applicable checks pass; F:— never
+                    ft = f_tag_at(fdata.get(n), d)
+                    if ft is None or ft[1] == 0 or ft[0] / ft[1] >= 0.5:
+                        blocked += 1
+                        continue
+                elif mode == "gated_thin":
+                    # #136 candidate (b): ratio OR unverifiable-thin (m == 1)
+                    ft = f_tag_at(fdata.get(n), d)
+                    if ft is None or ft[1] == 0 or (
+                            ft[1] > 1 and ft[0] / ft[1] >= 0.5):
                         blocked += 1
                         continue
                 px = close_on(data[n], d)
@@ -214,7 +242,8 @@ def main():
             print(f"  {'arm':<26}{'MOIC':>8}{'CAGR':>8}{'MaxDD':>8}"
                   f"{'sells':>7}{'blocked':>9}")
             res = {}
-            for mode in ("hold", "ungated", "gated"):
+            for mode in ("hold", "ungated", "gated", "gated_ratio",
+                         "gated_thin"):
                 m, c, dd, fired, blk = run(live, data, spy, qqq, mode, fdata,
                                            index_bars=spy, win=(w0, w1))
                 res[mode] = m

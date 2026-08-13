@@ -30,6 +30,7 @@ import json
 import datetime
 
 import homily_ledger
+from homily_positions import f_failing
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REGISTRY = os.path.join(HERE, "promotions.json")
@@ -72,7 +73,10 @@ def timestop_watch(rows, lo=None, hi=None):
             continue
         if r.get("state") != "CAUTION" or not r.get("close"):
             continue
-        m = re.match(r"F:(\d)", r.get("ftag") or "")
+        # #136: the pairing must mirror the LIVE rule-2 notion exactly, or
+        # it scores episodes the flag no longer fires on (ratio, not
+        # numerator — definition lives in homily_positions.f_failing)
+        _fail = f_failing(r.get("ftag"))
         try:
             wk = int(r.get("wk_weeks") or 0)
             px = float(r["close"])
@@ -80,8 +84,7 @@ def timestop_watch(rows, lo=None, hi=None):
             continue
         tk = r["ticker"]
         if tk not in seen_early:
-            if EARLY_LO <= wk <= EARLY_HI and m and int(m.group(1)) <= 1 \
-                    and px > 0:
+            if EARLY_LO <= wk <= EARLY_HI and _fail and px > 0:
                 seen_early[tk] = px
         elif wk >= LATE:
             deltas.append(px / seen_early.pop(tk) - 1)
