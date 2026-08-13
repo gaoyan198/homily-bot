@@ -1676,3 +1676,33 @@ was accidentally trading — is available to future study, but it enters
 as its own pre-registered item or not at all. Wording corrections to
 §3/§16b/#51 that #130 proposed remain proposed and now carry this
 section too.
+
+## 38 · #135 bear re-entry: EITHER-above beats BOTH-above (run 2026-08-13) — PLAYBOOK §4.7 re-worded to the measured rule
+
+§36 finding 2: the "−1 pt/yr" insurance headline was measured on
+`run_mode`, which re-arms the thirds on the first month-end that is NOT
+BEAR (either index recovering suffices), while PLAYBOOK §4.7 told the
+owner to wait for 🐂 (both above). Rule frozen in
+`homily_reentry_backtest.py`'s docstring before the run; `run_mode`
+gained `reentry=` ("either" default; kwarg-inert at drift 0.00e+00 on
+every window, `_assert_regression` OK — the committed tables replay
+byte-identically).
+
+| window | hold | faithful EITHER (D-63) | faithful BOTH (§4.7-literal) |
+|---|---|---|---|
+| B honest 5y | 1.75 / −64% | 1.32 / −42% | 1.34 / −38% |
+| B honest 10y | 2.51 / −74% | **1.69 / −51%** | 1.56 / −49% |
+| GRIND 33y (context) | 74.67 / −76% | **49.14 / −29%** | 38.87 / −29% |
+
+Pre-registered verdict (BOTH keeps §4.7 only if MOIC ≥ EITHER with
+MaxDD not worse on BOTH honest windows): 5y holds, **10y fails** →
+**§4.7 is re-worded to the measured either-above rule** (ships via
+#137, Part III rule 5 — nothing edited here). The grinders context is
+decisive in the same direction: waiting for both indices cost 21% of
+33y final wealth for ZERO drawdown benefit. The census's 2008
+bull-trap case (§36) is real but rare; on the full record the earlier
+re-entry wins. Honesty: the B-honest MOICs sit far below hold because
+these windows are dominated by the 2022 V-bear + 2025/2026 whipsaws —
+§4's premium windows; its payout window is the grinder column. That
+trade-off is priced and signed (D-63); this study only settles WHICH
+re-entry the protocol should prescribe.
