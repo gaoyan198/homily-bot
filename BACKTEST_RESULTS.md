@@ -1557,3 +1557,79 @@ MaxDD than rs12-top3 in every universe-A window (e.g. −43% vs −57% at
 item (#121) ever wants this, it enters as its own pre-registered study;
 do not quote this paragraph as support. **NOTHING SHIPPED** — no R10
 slot, no engine edit, goldens untouched.
+
+## 36 · #133 bear-regime census (run 2026-08-13) — owner-requested audit; 4 findings, 1 live defect
+
+Owner: "timing of the bear market is more important than ever … relook
+at our bear market indicators and scrutinize them as closely as
+possible." Since #130/#126 established that gated §5.2 fires ~once in
+33y and the live combination equals §4 alone in grinders, **the regime
+banner is effectively the book's entire bear defence** — so it got the
+full treatment: code audit of the live path (`homily_regime.py`,
+`daily_run` surface, `homily_buyday` reroute, `trim_flags`, `run_mode`)
+plus `homily_regimecensus_backtest.py`, a point-in-time census of every
+signal the live dual-index rule ever gave (1999-12 → 2026-07, 319
+month-ends). Diagnostic only — no gate, nothing shipped.
+
+**FINDING 1 — LIVE DEFECT: the regime engine reads a partial month as a
+completed month-end.** Yahoo's 1mo endpoint returns the current month
+TWICE (a period row stamped the 1st + a live row stamped at the last
+trade: SPY 2026-08-01 770.56 AND 2026-08-13 772.49 in the same
+response). `sma10_state`'s single `[:-1]` drops only the live row, so
+`last_completed` today = QQQ 718.45 (mid-August) instead of July's
+687.99 — the banner's margins read +8.0%/+9.0% when the true completed
+reading is +6.0%/+5.9%. Both say BULL today (benign), but at a boundary
+this makes the "decisive month-end" signal flip INTRA-month on a crash
+or bounce — it is not the tested rule, and it can differ between two
+runs on the same day. `homily_regime_backtest.run` carries the same
+`[:-1]`. homily_regime.py is FROZEN (engine list) → fix is Phase-C with
+its own gate: **#134**, priority 1.
+
+**FINDING 2 — the measured re-entry rule is NOT the playbook's.** D-63's
+`run_mode` (source of §4's "−1 pt/yr for −76%→−29%" headline) re-enters
+on the first month-end that is not BEAR (EITHER index recovers);
+PLAYBOOK §4.7 tells the owner to wait for 🐂 (BOTH above). The census
+prices both on every spell — the divergence is material and cuts both
+ways: dot-com re-entry SPY −20.3% (EITHER) vs −36.0% (BOTH, 13 months
+later); 2008-01 spell: EITHER re-entered May-2008 INTO the bull trap
+(+2.2%) and sold again at the 2008-06 re-onset, BOTH skipped the trap
+(−33.1%); 2022-02 spell: EITHER whipsawed +3.4%, BOTH re-entered
+2023-01 at −6.9%/−15.0%. Summary over 21 spells: EITHER avg round-trip
+SPY +1.4% (premium paid 17/21), BOTH −0.7% (15/21). Neither dominates;
+what is broken is that the OWNER-facing rule was never the MEASURED
+rule. Resolution study = **#135**.
+
+**FINDING 3 — the signal fires ~4× as often as the playbook says.**
+PLAYBOOK §4: "a handful of times per decade." Census: **21 BEAR spells
+in 26.7y** (≈ one per 15 months), median length 1–2 months; 9 spells in
+the 2010s alone; two in the last 18 months (2025-03, 2026-03 — the
+latter a +10.5%/+15.7% round-trip whipsaw three months before this bot
+went live). 17 of 21 spells re-entered higher (EITHER). The signal
+earned its keep in exactly the sequences it exists for — 2000-09
+(−43% further fall avoided, re-entry 20–36% cheaper), 2002-04, 2008-06
+(−42% avoided, ~28% cheaper), 2022-04 — and charged a 2–16% round-trip
+premium roughly every other year in between. COVID (2020-03): fired at
+the exact bottom month-end, pure +12.7–18.1% premium, as §4 already
+admits. Expectations text correction = **#137**; the D-63 net cost
+(−1pt/yr) already includes all whipsaws and stands.
+
+**FINDING 4 — recap, now bear-critical: `trim_flags` F numerator.**
+Known since #130: `F:(\d)` reads the count passed, not the ratio, so
+F:1/1 (100% of its one applicable check) fires the §5.2 flag while
+F:2/2 does not. §4 step 3a sells "everything in ⚪ CAUTION with weak
+fundamentals (F:0–1)" FIRST at onset — with 24 live rows carrying
+F:1/1, the onset sell list mislabels healthy names as weak. Fix =
+**#136** (was "own item" in §33; now it has a bear-path reason to jump
+the queue).
+
+Also audited, no defect found: `run_mode`'s thirds re-entry state
+machine (prev_bear reset correct, tranches correct); the regime-None
+fallback (digest prints "unavailable", buy-day deliberately treats None
+as a normal day — single-day exposure, monthly cadence; hardening
+folded into **#134**); MIXED near-misses (10 spells ever, only
+ladder-relevant); QQQ-veto months (11 — the AND-rule's whipsaw damping,
+working as designed). Honesty: census is price-only (no dividends),
+Yahoo bars as-served today (no point-in-time index vault — #113), and
+the census metric itself was amended mid-session (12m-peak column
+ADDED alongside the frozen all-time column after the all-time numbers
+proved misleading for 2002–2011 onsets; both printed).
