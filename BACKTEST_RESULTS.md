@@ -1706,3 +1706,115 @@ these windows are dominated by the 2022 V-bear + 2025/2026 whipsaws —
 §4's premium windows; its payout window is the grinder column. That
 trade-off is priced and signed (D-63); this study only settles WHICH
 re-entry the protocol should prescribe.
+
+---
+
+## 39 · #138 leverage drift: the ladder was certified on a policy we do not run (run 2026-08-13) — 1.30× SURVIVES; the 🐻 rule is the load-bearing control
+
+Owner's question: *"how do we fix the issue of leverage growing when
+stocks are suffering drawdowns? If we say 30% leverage is safe, then when
+drawdown comes our leverage becomes 40% right even without borrowing
+more."* The arithmetic half is correct and not in dispute — debt is fixed
+in dollars, equity absorbs the whole loss, so constant-debt 1.30× reads
+1.41× at −20% and 1.86× at −50%. The drifted ratio is a **symptom**: the
+call point was fixed at entry (d\*(1.30) = −69.2%), so the reading moving
+does not move the risk.
+
+The audit behind it is the #130 class — a headline certified on something
+other than what we run. §15's arms reset position **and** debt to target on
+the first session of every month, which in a decline *sells and pays debt
+down*. Verified empirically before any arm was written (synthetic −0.3%/day
+path: 4/4 month boundaries SELLS+PAYS DOWN), not read off the docstring.
+The live account never performs that sale (§5 never-sell, §4 grandfathered
+shrink-only) and is not holding QQQ. Two new policy arms and a core-book
+series were pre-registered in PRD #138 **before** the run.
+
+**Policies.** `rebal` = §15's monthly reset both ways · `ratchet` =
+LEVERAGE.md as actually written (lever UP to cap on a 🐂 month, NEVER sell
+to delever, debt→0 at a 🐻 onset, ⚖️ MIXED adds no new margin and drifts) ·
+`fixed` = borrow once, never act on the 🐻 signal at all.
+
+**Regression lock (printed every run):** the default policy reproduces
+§15's ladder-1.30 read windows exactly — 2.57 / 2.29 / 9.43. §15's "MAX"
+row is deliberately not locked; it ends at the run date and drifts by
+construction. `run_mode` and `run_emergent` gained a kwarg-inert `nav_out=`
+sink (#135's pattern); nothing above reads it.
+
+### QQQ, base financing (`homily_leverage_backtest.py`)
+
+| policy | worst equity/position (boundary 0.25) | 1.30× drifted to | verdict |
+|---|---:|---:|---|
+| rebal (what §15 measured) | 0.68 | 1.46× | PASS |
+| **ratchet (LEVERAGE.md as written)** | **0.66** | **1.52×** | **PASS** |
+| fixed (🐻 signal ignored) | 0.25 | 4.05× | **⚠ CALL 2008-11-19** |
+
+### Core book, honest universe B (`homily_levdrift_backtest.py`)
+
+Book NAV from the committed harness; 5y window contains the 2022 bear
+(mode `hold` MaxDD −64%, `faithful` −42%).
+
+| policy | worst equity/position | 1.30× drifted to | verdict |
+|---|---:|---:|---|
+| rebal | 0.73 | 1.37× | PASS |
+| **ratchet** | **0.62** | **1.62×** | **PASS** |
+| fixed | 0.34 | 2.93× | PASS at 1.30 · **⚠ CALL at 1.50 (2022-07-01**, base AND stress) |
+
+**Readout (a) SURVIVAL — the pre-registered primary: `ratchet`@1.30 passes
+everywhere `rebal`@1.30 passes**, on both assets. Per the verdict frozen
+before the run, the ladder therefore does **NOT** shrink; LEVERAGE.md keeps
+1.30/1.15/1.00 and gains a footnote instead. **This contradicts the
+expectation the session started with** (a softer ladder, a §5 shrink, a #91
+retraction) — shipped as measured, Part III rule 6.
+
+**Readout (b) DRIFT — the owner's number, measured.** Under the live
+policy 1.30× peaks at **1.52× on QQQ and 1.62× on the core book**. The
+owner's estimate of "40%" was the right instinct and slightly conservative.
+It is also not the risk: at 1.62× the worst equity/position was 0.62, still
+2.5× clear of the 0.25 boundary.
+
+**Readout (c) COST OF DELEVERING.** Written sign-safe against the #126
+trap (MaxDD are negative; test is `maxdd_ratchet >= maxdd_rebal − 0.05`).
+Every cell is within tolerance — and on QQQ `ratchet` both *earns more* and
+draws down *less* than `rebal` (MAX 28.70 vs 25.37 at −85% vs −86%), because
+the monthly reset sells low and rebuys. On the core book the sign flips
+(10y/hold 19.41 vs 21.99): the same reset that hurts on an index helps on a
+book whose drawdowns mean-revert harder. Not a rule change either way —
+recorded, unregistered.
+
+### What is actually load-bearing
+
+**The 🐻 margin-to-zero rule, not the cap.** The only breaches in the whole
+study are in the `fixed` arm — the one that ignores the regime signal:
+1.30× margin-called on QQQ in **2008-11-19**, and 1.50× on the core book in
+**2022-07-01** at base *and* stress financing. `ratchet` and `fixed` differ
+in exactly one behaviour. So the answer to "how do we fix leverage growing
+in a drawdown" is: **it is already fixed, by the rule that cuts margin to
+zero at a 🐻 onset — provided that signal fires.** That re-prices #134 (the
+partial-month regime defect, fixed the same day): a defect in the regime
+print is not a reporting bug, it is a fault in the only control that keeps
+levered books solvent.
+
+**Honesty box.** (1) The core NAV is **MONTHLY**, so intramonth lows are
+invisible and every core cell is FLATTERED — a core cell that breaches has
+breached decisively, but a core cell that passes has not been tested
+intramonth. Same direction as §15's "intra-day gaps not modeled". (2) The
+honest universe reaches back only to 2016 — **the core book was never run
+through dot-com or 2008**; the only asset tested across those is QQQ. The
+33y GRIND rows are survivor-biased context and were excluded from the
+verdict by construction. (3) `fixed` borrows once and never adjusts, so
+over long windows its leverage *decays* toward 1.00× as equity compounds —
+its mild 33y peaks are that decay, not safety. (4) These are lump-sum NAV
+paths; contributions (the owner's actual paydown lever, S$3,000/mo since
+2026-07-31) are excluded by construction, so the live book delevers
+*faster* than any arm here.
+
+**Not shipped, proposed (#139+):** the core-book ban in LEVERAGE.md §2 is
+argued as arithmetic — constant L ≥ 1.25 sits inside the book's −59…−76%
+range. That premise is a *constant-L* book, which `ratchet` is not: the 🐻
+rule delevers before the boundary, and the honest core book survives 1.30×
+because of it. That is a real gap in the ban's reasoning, **but it is not
+grounds to lift the ban** on this evidence — monthly resolution, no
+dot-com/2008 core path, survivor bias in the only long window. Lifting or
+re-wording §2 is a separate item with its own gate (Part III rule 5); this
+study only records that §2's stated reason no longer matches the measured
+mechanism.
