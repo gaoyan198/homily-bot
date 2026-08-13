@@ -134,7 +134,8 @@ def _deploy(picks, cash, hold, core, data, d, ipx, index_bars):
 
 
 def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
-             win=None, bucketb=None, caution_months=None, reentry="either"):
+             win=None, bucketb=None, caution_months=None, reentry="either",
+             nav_out=None):
     """Point-in-time backtest under one `bear_mode`. Returns
     (MOIC, TWR-CAGR, MaxDD, cash_months, trades). `win=(start,end)` isolates
     an episode: months outside the range are skipped but full bar history
@@ -151,7 +152,14 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
     not BEAR (one index recovering is enough); "both" = PLAYBOOK §4.7's
     literal reading — the thirds arm only on a 🐂 month-end (BOTH indices
     above their 10m SMA), so powder idles through ⚖️ MIXED months. The
-    default replays every committed table byte-identically."""
+    default replays every committed table byte-identically.
+    `nav_out` (#138) is a pure SINK: pass a list and it receives the book's
+    own equity curve as (date, unit_value) pairs. Nothing above reads it, so
+    an omitted sink is byte-identical to the pre-#138 function — the same
+    kwarg-inert pattern #135 used for `reentry=`. The path is MONTHLY, so a
+    consumer measuring a margin-call boundary against it cannot see
+    intramonth lows and is FLATTERED; #138 declares that rather than
+    correcting it."""
     assert mode in MODES, mode
     assert reentry in ("either", "both"), reentry
     cm = CAUTION_MONTHS if caution_months is None else caution_months
@@ -314,6 +322,8 @@ def run_mode(names, data, spy, qqq, mode, min_bars=260, index_bars=None,
     yrs = len(months) / 12
     cagr = (nav[-1] / nav[0]) ** (1 / yrs) - 1
     mdd = min(nav[j] / max(nav[:j + 1]) - 1 for j in range(1, len(nav)))
+    if nav_out is not None:                       # #138 sink; see docstring
+        nav_out.extend(zip(months + [d_end], nav))
     return final / paid, cagr, mdd, cash_months, trades
 
 

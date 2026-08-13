@@ -28,7 +28,15 @@ from homily_strategy_backtest import (month_first_idx, close_on, run_dca,
                                       UNIV_B, COST)
 
 
-def run_emergent(names, data, spy, weighted, min_bars=260):
+def run_emergent(names, data, spy, weighted, min_bars=260, nav_out=None):
+    """`nav_out`, when a list is passed, receives the book's own NAV path as
+    (date, unit_value) pairs — a pure SINK added for #138 (the leverage-drift
+    study needs the core book's equity curve, not just its scalars). The
+    return tuple and every committed number are unchanged by design: nothing
+    above reads nav_out, so an omitted sink is byte-identical to the pre-#138
+    function. The path is MONTHLY, so any consumer measuring drawdown or a
+    margin-call boundary against it is blind to intramonth lows and is
+    FLATTERED — #138 declares that limitation rather than correcting it."""
     months = [spy[i][0] for i in month_first_idx(spy)][1:]
     spy_px = [b[4] for b in spy]
     hold, cash = {}, 0.0
@@ -88,6 +96,8 @@ def run_emergent(names, data, spy, weighted, min_bars=260):
     ranked = sorted(final_by.items(), key=lambda kv: -kv[1])
     top3 = sum(v for _, v in ranked[:3]) / final
     top4 = sum(v for _, v in ranked[:4]) / final
+    if nav_out is not None:                       # #138 sink; see docstring
+        nav_out.extend(zip(months + [d_end], nav))
     return (final / len(months), cagr, mdd, top3, top4, top4_peak,
             ranked[:6], len(final_by))
 

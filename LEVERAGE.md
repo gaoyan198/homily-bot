@@ -24,7 +24,22 @@ policy, with its own review rule in §5.
 Derivation (D-91): margin call at uniform drop d\* = (1−mL)/(L(1−m)),
 m = 0.25. At 1.30× the boundary is −69.2%; the worst measured path reached
 equity/position 0.68 (1999→2026, levered through three bears) — never near
-0.25. At 1.50× a COVID-speed crash landing before the month-end signal is
+0.25.
+
+> **#138 footnote (2026-08-13, BACKTEST_RESULTS §39).** That 0.68 is the
+> *constant-leverage* number: §15's arm resets position and debt to target
+> every month, which in a decline SELLS and pays debt down — a delever this
+> policy never performs. Re-measured under the ladder **as written above**
+> (lever up on 🐂, never sell, debt→0 at 🐻): worst equity/position **0.66
+> on QQQ, 0.62 on the core book** — the cap HOLDS, and the ladder does not
+> shrink. Gross leverage does drift up in a drawdown without any new
+> borrowing (1.30× peaks at 1.52× on QQQ, 1.62× on the core book); that is
+> arithmetic, not a breach, because the loan is fixed in dollars and the
+> call point was set at entry. **What is load-bearing is §1's 🐻 row, not
+> the cap:** the only margin calls in the whole study belong to the arm that
+> ignores the regime signal (1.30× called 2008-11-19 on QQQ; 1.50× called
+> 2022-07-01 on the core book). A defect in the regime print is therefore a
+> solvency fault, not a display bug — see #134. At 1.50× a COVID-speed crash landing before the month-end signal is
 one gap from a call on concentrated maintenance — excluded. Concentrated
 books carry m > 0.25 at IBKR; every number above flatters leverage, so a
 breach in the model is certainly a breach live.

@@ -70,6 +70,15 @@ FIN_STRESS = 0.078
 LADDER_LS = (1.15, 1.30, 1.50)
 MIXED_CAP = 1.15
 READ_WINDOWS = (("2020-07", 60), ("2021-07", 60), ("2016-07", 120))
+POLICIES = ("rebal", "ratchet", "fixed")
+
+# #138 regression lock: the committed §15 MOICs for the ladder-1.30 arm under
+# the DEFAULT policy. Only the date-anchored read windows are locked — §15's
+# "MAX 1999→2026" row ends at the run date, so it drifts by construction and
+# cannot be asserted. If one of these moves, the policy refactor changed the
+# pre-#138 behaviour and the whole §15 table is invalid.
+SEC15_REBAL_L130 = {("2020-07", 60): 2.57, ("2021-07", 60): 2.29,
+                    ("2016-07", 120): 9.43}
 
 
 def d_star(L, m=M_MAINT):
@@ -139,13 +148,42 @@ def target(L, label):
     return L
 
 
-def run_arm(dates, adj, labels, L, fin, timed=False):
-    """One NAV path. -> dict(moic, cagr, maxdd, breach, min_ratio)."""
+def run_arm(dates, adj, labels, L, fin, timed=False, policy="rebal",
+            periods_per_year=252):
+    """One NAV path. -> dict(moic, cagr, maxdd, breach, min_ratio, max_lev).
+
+    `policy` (#138) selects what happens at each month boundary — the axis
+    the ladder was never tested across, and the reason §15's survival table
+    does not describe the live account:
+
+      "rebal"   — reset position AND debt to the target every month, in both
+                  directions. The pre-#138 behaviour, and the one every
+                  committed §15 number was produced by. In a decline it
+                  SELLS and pays debt down; that delever is what keeps the
+                  drifted ratio off the call boundary.
+      "ratchet" — LEVERAGE.md as actually written: lever UP to the cap on a
+                  🐂 month only, NEVER sell to delever (§5 never-sell), debt
+                  to zero at a 🐻 onset (§1). ⚖️ MIXED adds no new margin and
+                  is allowed to drift (§1's "paydown drift" is funded by
+                  contributions, which a lump-sum NAV path excludes).
+      "fixed"   — borrow once at entry, never adjust again, not even at a 🐻
+                  onset: the floor case where the owner does not act on the
+                  signal at all.
+
+    `max_lev` is the highest gross leverage the arm ever carried — for the
+    never-delever policies that is the drift number, i.e. the answer to
+    "1.30× became what?", and it is descriptive only (no pass/fail).
+
+    `periods_per_year` sets the financing accrual to the series' own step,
+    252 for the daily QQQ path this file runs. #138's core-book arm feeds a
+    MONTHLY NAV and must pass 12, or interest is undercharged ~21× and every
+    levered core cell is flattered into surviving.
+    """
     eq, pos, debt = 1.0, 0.0, 0.0
     peak, maxdd = 1.0, 0.0
-    breach, min_ratio = None, 1.0
-    cur_m = None
-    daily_fin = fin / 252.0
+    breach, min_ratio, max_lev = None, 1.0, 0.0
+    cur_m, entered = None, False
+    daily_fin = fin / float(periods_per_year)
     for i, d in enumerate(dates):
         k = month_key(d)
         if k != cur_m:                            # first session of the month
@@ -155,7 +193,19 @@ def run_arm(dates, adj, labels, L, fin, timed=False):
                    else (1.0 if timed else target(L, lbl)))
             if breach is not None:
                 tgt = min(tgt, 1.0)               # failed arms stay delevered
-            pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+            if policy == "rebal" or not entered:
+                pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+            elif policy == "ratchet":
+                if breach is not None or lbl == "BEAR":
+                    # the ONLY delever the live policy performs (§1)
+                    pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+                elif lbl == "BULL" and pos < tgt * eq:
+                    # 🐂 may lever UP into unused headroom
+                    pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+                # ⚖️ MIXED: no new margin, drift. 🐂 already above its cap:
+                # left alone, because §5 forbids the sale that would fix it.
+            # "fixed": never touched after entry, by construction
+            entered = True
         if i:
             pos *= adj[i] / adj[i - 1]
             debt *= 1.0 + daily_fin
@@ -163,6 +213,8 @@ def run_arm(dates, adj, labels, L, fin, timed=False):
         if pos:
             ratio = eq / pos
             min_ratio = min(min_ratio, ratio)
+            if eq > 0:
+                max_lev = max(max_lev, pos / eq)
             if ratio < M_MAINT and breach is None:
                 breach = d.isoformat()
                 pos, debt = eq, 0.0               # forced full delever
@@ -170,7 +222,8 @@ def run_arm(dates, adj, labels, L, fin, timed=False):
         maxdd = min(maxdd, eq / peak - 1.0)
     yrs = (dates[-1] - dates[0]).days / 365.25
     return {"moic": eq, "cagr": eq ** (1 / yrs) - 1 if yrs > 0 else 0.0,
-            "maxdd": maxdd, "breach": breach, "min_ratio": min_ratio}
+            "maxdd": maxdd, "breach": breach, "min_ratio": min_ratio,
+            "max_lev": max_lev}
 
 
 def window_slice(dates, start_ym, months):
@@ -290,6 +343,99 @@ def main():
     else:
         print("\nNO L ≤ 1.30 passed — the policy does NOT sign; "
               "the ladder shrinks per D-91.")
+
+    policy_axis(qd, qqq_adj, labels, results)
+
+
+def policy_axis(qd, qqq_adj, labels, results):
+    """#138 · the axis §15 never varied: WHAT HAPPENS AT THE MONTH BOUNDARY.
+
+    Everything above this line rebalances to target monthly in both
+    directions, which in a decline sells and pays debt down. The live policy
+    never performs that sale (§5 never-sell; §4 grandfathered shrink-only).
+    Same asset, same financing, same regime labels — only the policy moves.
+    """
+    print("\n== #138 · REGRESSION LOCK (the policy refactor must be inert) ==")
+    bad = []
+    for w, want in SEC15_REBAL_L130.items():
+        got = results.get(w, {}).get("L1.3", {}).get("moic")
+        if got is None:
+            bad.append(f"{w}: window missing")
+        elif abs(got - want) > 0.015:
+            bad.append(f"{w}: §15 says {want:.2f}, got {got:.2f}")
+        else:
+            print(f"  {str(w):<20} §15 {want:.2f} · rebuilt {got:.2f}  OK")
+    if bad:
+        print("  ⚠ REGRESSION FAILED — §15 is invalid, do not read further:")
+        for b in bad:
+            print(f"    {b}")
+    else:
+        print("  default policy reproduces §15 — the arms below are"
+              " comparable to it.")
+
+    print("\n== #138 · POLICY AXIS, QQQ, base financing ==")
+    print("  rebal   = monthly reset both ways (what §15 measured)")
+    print("  ratchet = LEVERAGE.md as written: up in 🐂, never sell,"
+          " debt→0 at 🐻")
+    print("  fixed   = borrow once, never act on the 🐻 signal at all")
+    print(f"\n{'window':<14}{'policy':<9}"
+          + "".join(f"{f'L{L}':>26}" for L in LADDER_LS))
+    print(f"{'':<23}" + "".join(f"{'moic  minR  maxL':>26}"
+                                for _ in LADDER_LS))
+    drift = {}
+    for start, months in list(READ_WINDOWS) + [("MAX", None)]:
+        sl = ((0, len(qd)) if start == "MAX"
+              else window_slice(qd, start, months))
+        if not sl:
+            continue
+        dts, adj = qd[sl[0]:sl[1]], qqq_adj[sl[0]:sl[1]]
+        lab = (f"{start}+{months // 12}y" if months else "MAX(1999→)")
+        for pol in POLICIES:
+            line = f"{lab if pol == POLICIES[0] else '':<14}{pol:<9}"
+            for L in LADDER_LS:
+                r = run_arm(dts, adj, labels, L, FIN_BASE, policy=pol)
+                drift[(start, pol, L)] = r
+                br = " ⚠CALL" if r["breach"] else ""
+                line += (f"{r['moic']:>10.2f}{r['min_ratio']:>7.2f}"
+                         f"{r['max_lev']:>7.2f}{br:<2}")
+            print(line)
+
+    print("\n== #138 · READOUT (a) SURVIVAL — breach ⇔ equity/position <"
+          f" {M_MAINT} ==")
+    for pol in POLICIES:
+        for L in LADDER_LS:
+            cells = [(w, drift[(w, pol, L)]) for w, _ in
+                     list(READ_WINDOWS) + [("MAX", None)]
+                     if (w, pol, L) in drift]
+            breaches = [(w, r["breach"]) for w, r in cells if r["breach"]]
+            worst = min(r["min_ratio"] for _, r in cells)
+            print(f"  {pol:<8} L={L:<5} worst equity/position {worst:.2f}"
+                  + ("  → PASS (zero breaches)" if not breaches else
+                     "  → BREACH " + ", ".join(f"{w} {b}"
+                                               for w, b in breaches)))
+
+    print("\n== #138 · READOUT (b) DRIFT — descriptive, no pass/fail ==")
+    for L in LADDER_LS:
+        for pol in POLICIES:
+            peak = max(r["max_lev"] for (w, p, ll), r in drift.items()
+                       if p == pol and ll == L)
+            print(f"  {pol:<8} started {L:.2f}× → peaked {peak:.2f}×")
+
+    print("\n== #138 · READOUT (c) COST OF DELEVERING (sign-safe) ==")
+    print("  MaxDD are NEGATIVE fractions; the test is"
+          " maxdd_ratchet >= maxdd_rebal − 0.05")
+    print("  (worked: rebal −0.29, ratchet −0.37 → −0.37 >= −0.34 is"
+          " FALSE → ratchet worse by more than tolerance)")
+    for start, _ in list(READ_WINDOWS) + [("MAX", None)]:
+        if (start, "rebal", 1.30) not in drift:
+            continue
+        a = drift[(start, "rebal", 1.30)]
+        b = drift[(start, "ratchet", 1.30)]
+        ok = b["maxdd"] >= a["maxdd"] - 0.05
+        print(f"  {start:<10} rebal {a['maxdd']*100:>5.0f}%  "
+              f"ratchet {b['maxdd']*100:>5.0f}%  "
+              f"moic {a['moic']:.2f} vs {b['moic']:.2f}  → "
+              + ("within tolerance" if ok else "ratchet WORSE by >5pt"))
 
 
 if __name__ == "__main__":
