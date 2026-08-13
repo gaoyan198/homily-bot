@@ -1303,6 +1303,38 @@ _fx38 = homily_flex.parse_positions(_XML38)
 assert _fx38["NVDA"] == {"shares": 20.5, "cost": 190.1, "currency": "USD"}
 assert set(_fx38) == {"NVDA", "AAA", "9992"}
 
+# #139: LOT-detail queries repeat a symbol once per tax lot. The parser must
+# SUM the lots -- assigning keeps only the last one, which is a wrong share
+# count written into the book with no error and a digest that says success.
+# The SUMMARY fixture above cannot catch that, so the two-lot case is pinned
+# here explicitly. Detail level is a Flex-query setting the repo does not
+# control (SPECS #32), so correctness must not depend on it.
+_XML38L = """<FlexQueryResponse queryName="pos" type="AF">
+ <FlexStatements count="1"><FlexStatement accountId="U000">
+  <OpenPositions>
+   <OpenPosition symbol="NVDA" position="10.0" costBasisPrice="150.0"
+                 currency="USD" levelOfDetail="LOT"/>
+   <OpenPosition symbol="NVDA" position="4.8527" costBasisPrice="263.0"
+                 currency="USD" levelOfDetail="LOT"/>
+   <OpenPosition symbol="AAA" position="7" costBasisPrice="10"
+                 currency="USD" levelOfDetail="LOT"/>
+  </OpenPositions>
+ </FlexStatement></FlexStatements>
+</FlexQueryResponse>"""
+_fx38L = homily_flex.parse_positions(_XML38L)
+assert abs(_fx38L["NVDA"]["shares"] - 14.8527) < 1e-9, \
+    f"LOT lots must SUM, not overwrite: {_fx38L['NVDA']}"
+# cost = lot-size-weighted mean: (150*10 + 263*4.8527) / 14.8527
+assert abs(_fx38L["NVDA"]["cost"] - (150.0 * 10.0 + 263.0 * 4.8527)
+           / 14.8527) < 1e-9, _fx38L["NVDA"]
+assert _fx38L["NVDA"]["currency"] == "USD"
+assert _fx38L["AAA"]["shares"] == 7, "a single-lot symbol is unaffected"
+# a net-flat symbol must not divide by zero
+_fx38Z = homily_flex.parse_positions(
+    '<F><OpenPosition symbol="Z" position="5" costBasisPrice="10"/>'
+    '<OpenPosition symbol="Z" position="-5" costBasisPrice="12"/></F>')
+assert _fx38Z["Z"] == {"shares": 0.0, "cost": 0.0, "currency": "USD"}, _fx38Z
+
 with tempfile.TemporaryDirectory() as _t38:
     _hp38 = os.path.join(_t38, "holdings.json")
     json.dump({"_v": 2, "positions": {
