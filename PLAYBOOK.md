@@ -156,7 +156,9 @@ moment.
 2. **Margin first.** If any margin loan exists (it shouldn't — §6), sell
    satellites until it is zero. Nothing else happens before this.
 3. **Sell satellites (Bucket C), in this order:**
-   a. everything in ⚪ CAUTION with weak fundamentals (F:0–1) — all of it;
+   a. everything in ⚪ CAUTION with weak fundamentals (fewer than half of
+      the applicable F checks pass: F:0/3, F:1/3, F:0/1 — #136 ratio fix
+      2026-08-13; F:— is unknown, not weak) — all of it;
    b. everything else in ⚪ CAUTION — until satellites total ≤10% of book;
    c. keep any satellite still ⭐/🟢 (rare in a real bear) if you wish.
 4. **Do NOT sell Bucket A. Do NOT sell Bucket B** (earned cores with real
@@ -189,7 +191,8 @@ premium on the insurance, not a malfunction.
    moved 10→25 with the #92 cap promotion, 2026-07-12; it reverts with
    the cap if the demotion rule fires.)*
 2. **Broken business, not just broken chart:** in ⚪ CAUTION for 8+ weeks
-   **and** fundamentals failing (profit check failed / F:0–1) → sell half,
+   **and** fundamentals failing (fewer than half of the applicable F
+   checks pass — #136 ratio fix 2026-08-13) → sell half,
    set a note to review the remainder in one quarter. A broken chart with a
    healthy business (F:2+) is a drawdown; a broken chart with a broken
    business is how "temporary" becomes permanent. *(Measured, D-63 mode f,

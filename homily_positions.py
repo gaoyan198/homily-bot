@@ -113,6 +113,21 @@ def position_view(ticker, positions, prices, book_value):
     return {"pct": pct, "bucket": bucket, "cap_note": cap_note}
 
 
+def f_failing(ftag):
+    """#136 (2026-08-13): "fundamentals failing" = FEWER THAN HALF of the
+    applicable F checks pass (F:0/3, F:1/3, F:0/1 …). The pre-fix rule
+    tested the NUMERATOR (<= 1), so F:1/1 — a name passing 100% of its
+    one measurable check — was labelled failing while F:2/2 was not
+    (BACKTEST_RESULTS §36 finding 4; 24 live rows carried F:1/1, and §4's
+    bear-onset sell list keys off the same notion). F:— / unparseable is
+    unknown, never failing. Every consumer of the notion (trim_flags,
+    timestop_watch's pairing, PLAYBOOK §4.3a/§5.2 wording) moved in the
+    same commit — the definition lives HERE, nowhere else."""
+    m = re.match(r"F:(\d+)/(\d+)", ftag or "")
+    return bool(m) and int(m.group(2)) > 0 \
+        and int(m.group(1)) / int(m.group(2)) < 0.5
+
+
 def trim_flags(pos_view, state, wk_weeks, ftag):
     """#28: PLAYBOOK §5 as executable flags, wording mirrored from §5 —
     info only, there is still no SELL state (PRD §1 survives).
@@ -120,7 +135,9 @@ def trim_flags(pos_view, state, wk_weeks, ftag):
         stock book → trim back to it. Bucket B (earned core) gets the pass,
         so only bucket C fires; #27's cap note handles the adds side, this
         flag is the trim side.
-      Rule 2 (§5.2): ⚪ CAUTION 8+ weeks AND fundamentals failing (F:0–1)
+      Rule 2 (§5.2): ⚪ CAUTION 8+ weeks AND fundamentals failing (fewer
+        than half of the applicable F checks pass — #136 ratio fix,
+        2026-08-13; the numerator test before it mislabelled F:1/1)
         → sell half, review the remainder in one quarter. The weekly
         WHITE-circle run length stands in for "weeks in CAUTION" (the
         state is gated on that circle). F:— is unknown, not failing.
@@ -136,8 +153,7 @@ def trim_flags(pos_view, state, wk_weeks, ftag):
         flags.append(f"RULE 1: {pos_view['pct']:.0f}% bought-not-earned — "
                      f"trim back to {CAP_PCT:.0f}%, proceeds to ⭐/index "
                      "(§5.1)")
-    m = re.match(r"F:(\d)", ftag or "")
-    if state == "CAUTION" and wk_weeks >= CAUTION_WEEKS and m and int(m.group(1)) <= 1:
+    if state == "CAUTION" and wk_weeks >= CAUTION_WEEKS and f_failing(ftag):
         flags.append(f"RULE 2 REVIEW: ⚪ {wk_weeks}w + {ftag} — sell half, "
                      "review the remainder in one quarter (§5.2)")
     return flags

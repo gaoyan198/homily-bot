@@ -1633,3 +1633,46 @@ Yahoo bars as-served today (no point-in-time index vault — #113), and
 the census metric itself was amended mid-session (12m-peak column
 ADDED alongside the frozen all-time column after the all-time numbers
 proved misleading for 2002–2011 onsets; both printed).
+
+## 37 · #136 F "failing" is now a ratio (run + SHIPPED 2026-08-13) — and the honest §5.2 edge mostly belonged to the bug
+
+The bug (§33 known-issue, §36 finding 4): `trim_flags` tested the F
+NUMERATOR (`<= 1`), so F:1/1 — a name passing 100% of its one
+measurable check — fired §5.2's sell-half flag while F:2/2 did not, and
+§4 step 3a's bear-onset sell list keys off the same notion (24 live
+rows carried F:1/1). The fix: **"failing" = fewer than half of the
+applicable checks pass** (`homily_positions.f_failing`, the ONE
+definition; `timestop_watch`'s pairing, PLAYBOOK §4.3a and §5.2 moved
+in the same commit; gate validate [70] pins both sides of 12 tag
+boundaries).
+
+Measured effect (`homily_fgate_backtest.py`, now 5 arms; "gated" keeps
+the pre-fix rule so §33 stays reproducible):
+
+| honest B | hold | ungated | gated (pre-fix) | **gated_ratio (shipped)** | gated_thin |
+|---|---|---|---|---|---|
+| 5y MOIC | 1.75 | 1.74 | 1.79 (53 sells) | **1.78 (5)** | 1.74 (28) |
+| 10y MOIC | 2.51 | 3.19 | 3.03 (70) | **2.52 (14)** | 2.65 (38) |
+| GRIND 33y | 74.67 | 47.39 | 76.61 (1) | **74.67 (0)** | 76.61 (1) |
+
+Selection was pre-registered in the study docstring BEFORE gated_thin
+ran (disclosure: gated/gated_ratio HAD been seen first — the sequence
+is in the docstring): ship thin (ratio OR m==1 "unverifiable") only if
+10y ≥ 2.775 and 5y within 0.02 of ratio. Thin FAILED both prongs
+(2.65; 1.74) → **the pure ratio ships**, value loss booked as the price
+of semantic correctness.
+
+THE BIGGER FINDING, stated plainly: with the correct gate, §5.2's
+measured contribution on the honest 10y is **+0.01 MOIC over hold**
+(2.52 vs 2.51) and ZERO firings in 33y of grinders. #130 halved the
+published magnitude; #136 shows most of the remainder was carried by
+sells the rule's own semantics call mistakes (thin-coverage 2021-era
+names — good sells, wrong reason). After §31, §33 and this: **"the
+alpha is in the exits" is dead on honest measurements.** §4 remains
+priced tail insurance (§38 re-measures its re-entry), §5.2 remains a
+semantically coherent trash-taker that almost never fires. A DELIBERATE
+"unverifiable fundamentals + broken chart" tell — the pattern the bug
+was accidentally trading — is available to future study, but it enters
+as its own pre-registered item or not at all. Wording corrections to
+§3/§16b/#51 that #130 proposed remain proposed and now carry this
+section too.
