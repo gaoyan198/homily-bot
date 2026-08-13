@@ -1513,3 +1513,47 @@ stands: the single-hole 🔵 event edge (homily_vol_backtest baseline) is
 untouched; `find_hole`'s one-cluster design loses nothing measurable.
 **NOTHING SHIPPED** — no engine edit, no digest surface; the would-be
 `×2` mark on 🔵 dies with the item.
+
+## 35 · #132 buy-signal density as a selection challenger (run 2026-08-13) — NULL; rs12-top3 stands, strength beats dip-affinity a FIFTH time
+
+Claim under test (PRD §5n, Danny's HOOD post Jul 16 2026): conviction
+that expresses as REPEATED buy signals on one name over months should
+identify the better name — so a trailing signal COUNT should rank names
+at least as well as the incumbent rs12. Rule frozen in
+`homily_sigdensity_backtest.py`'s docstring before the first run:
+density = count of weeks (of the trailing 13) whose week-first
+`danny_signal` state ∈ {ACCUMULATE, BOTTOMING}, live engine on truncated
+bars (R6); dens-top3 (tie-break rs12) raced in the UNCHANGED #24 harness
+(same cache, same accounting, equal-all regression drift < 1e-9 every
+window — all printed OK); verdict = MOIC ≥ rs12-top3 − 0.01 on ALL THREE
+universe-B read windows.
+
+Universe B (hype-2021 control), read windows — the verdict table:
+
+| window | dens-top3 | rs12-top3 | read |
+|---|---|---|---|
+| 2020→2025 | 1.76 | 1.89 | FAIL |
+| 2021→2026 | 1.73 | 1.82 | FAIL |
+| 2016→2026 | 2.74 | 2.84 | FAIL |
+
+0 of 3. **NULL — item CLOSED; rs12-top3 stands.** Universe A (hindsight
+upper bound, never the verdict) agrees and is starker: 10y dens 6.22 vs
+rs12 10.24.
+
+Mechanism, and why this null was predictable in hindsight: buy-class
+states fire at support (⭐) or on bottoming breakouts (🔵), so a high
+13-week count marks a name that keeps COMING BACK to support — a weaker
+tape — while rs12 marks strength. This is the FIFTH measurement in which
+some form of dip-affinity loses to strength (staged adds #50/§30,
+war-chest #86, at-support ⭐-day entries §29/§31, whale-cap raise §28's
+direction, now density). Danny's repeated-signal campaigns are a
+POSITION-SIZING behaviour on names he already picked; as a PICKING rule
+the pattern selects laggards.
+
+Unregistered observation, recorded but NOT evidence (wrong side of the
+gate, and mostly in the hindsight universe): dens-top3 rode shallower
+MaxDD than rs12-top3 in every universe-A window (e.g. −43% vs −57% at
+10y) — the at-support tilt buys less-extended names. If a drawdown-repair
+item (#121) ever wants this, it enters as its own pre-registered study;
+do not quote this paragraph as support. **NOTHING SHIPPED** — no R10
+slot, no engine edit, goldens untouched.
