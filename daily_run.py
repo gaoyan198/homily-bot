@@ -57,7 +57,18 @@ WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
          # regardless of state — which is the only list that can, since
          # UNIVERSE only surfaces ⭐/🔵 and SPCX cannot be either until
          # it has 12 monthly bars (listed 2026-06-12, so ~2027-06).
-         "SPCX":"SPCX"}
+         "SPCX":"SPCX",
+         # SNDK added 2026-08-14 on owner request. Already screened twice
+         # over — universe.json carries it from #65 (origin "screen",
+         # since 2026-07-11, shadow-fenced until the adoption read) and
+         # it is a PROXY_CONSTITUENTS member of DRAM — but neither route
+         # gives it a row of its own. WATCH does, every day, whatever the
+         # state. Note it can never reach 🚀: G1 caps dollar volume at
+         # $5B/day and SNDK trades ~$20B/day, so "fails" on the tier
+         # column is the size gate doing its job, not a fundamentals
+         # problem (F:3/3). Bars come free — DRAM's proxy already fetches
+         # it. Overlap flagged to the owner: DRAM (held) CONTAINS SNDK.
+         "SNDK":"SNDK"}
 
 # Too-new listings whose real signal lives in their constituents: screen the
 # members and print a proxy line under the holding's row (DRAM = Roundhill
