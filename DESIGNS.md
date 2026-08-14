@@ -1136,6 +1136,102 @@ fetch. The expected result is a NULL in the useful sense — the pipeline
 reaches these names only after their move — and that closes honestly
 and feeds D-140's band widths with a measured number instead of a guess.
 
+### D-142 · VH fidelity audit — are our holes his holes? (#142)
+
+**Why this is a prerequisite and not a parallel task.** The 2026-08-14
+probe (PRD §5o) scored our weekly detector against four freshly
+published, dated, priced claims: three zones landed far above his, one
+was adjacent. HOW_IT_WORKS has always said our hole is an approximation
+of a proprietary construction — but an approximation with an unmeasured
+error is indistinguishable from a different indicator wearing the same
+name. Every VH conclusion in the repo (§7's multi-TF null, §34's dual
+null, the committed daily event study) is therefore currently a
+statement about OUR construct with an unknown mapping to his.
+
+**Build.** `danny_vh_claims.json`, committed: one row per DATED, PRICED
+VH claim across §5k/§5l/§5m/§5o — `{ticker, week, zone_lo, zone_hi, url,
+timeframe, quote}` — transcribed verbatim so the owner can audit every
+row against the source post. Roughly 10–14 cases exist today; the file
+is append-only as new posts arrive.
+
+**Score (prong 1, pure diagnostic).** For each claim, run the LIVE
+`find_hole` on bars truncated at that week (R6) on the timeframe he
+used, and record: hole present within ±N weeks? zone overlaps his? zone
+offset in % of price? direction of the miss? Output = hit rate, median
+offset, and a signed bias (our probe suggests ours sit systematically
+HIGH, which would mean we are detecting a later, higher consolidation
+than his). Ships nothing.
+
+**Sweep (prong 2, reports only).** Grid `REF_WIN` × `MAX_GAP` ×
+`VOL_WIN` × {daily, weekly} for the setting maximising overlap.
+Adopting any of it is a Phase-C engine edit — own session, own gate,
+`engine_freeze.json` re-pin, and a mandatory re-run of §7/§34 publishing
+the deltas, because a changed detector silently rewrites both nulls.
+**Never adopt inside this study.**
+
+**Frozen honesty clause.** A low hit rate is not evidence his method
+fails, nor that ours does. It means they are different objects. The
+required consequence is a labelling one: every past VH finding gets an
+explicit "measured on our proxy, fidelity X%" qualifier, and the README
+honesty list gains the number.
+
+### D-143 · Descending blue ribbon — the missing primitive, and its base rate (#143)
+
+**What we have and what is missing.** `homily_clone` computes
+`EMA10(weekly) > EMA30(weekly)` as one point of the 0–4 circle score.
+There is no exposed ribbon state and no slope anywhere in the repo, so
+"descending blue ribbon" cannot currently be expressed. Danny's colour
+convention: red ribbon = mid-term uptrend, blue = protracted downtrend
+(distinct from CANDLES, which are red-bullish / yellow-bearish — there
+is no "blue candle").
+
+**Build.** `ribbon_state(weekly_closes) -> (blue, descending, slope)`, a
+read-only derived helper reusing `homily_clone.ema`. `homily_clone` is
+FROZEN and is not touched: this reads its output, exactly as the ribbon
+run-length study (#82) already does.
+
+**The base rate is the gate, not a footnote.** Measured 2026-08-14 over
+58 names × 5y = 13,028 weekly observations: blue 48.6%, blue+descending
+**45.0%**. Danny's 4-for-4 on his own examples is what a 45% filter
+produces on four self-selected tries. So the study may not ask "does the
+conjunction precede bottoms" (it will, ~45% of the time by construction)
+— it must ask whether the conjunction beats BOTH single conditions AND
+the unconditional baseline. Four arms, his horizons (6wk / 3mo / 6mo,
+his own stated 6-weeks-to-6-months window), both universes, hype-2021
+control, n≥30 conjunction events required.
+
+**Precedent that sets the prior.** #82 measured ribbon RUN LENGTH and
+its conditioning prong ran null; #108's triple-red continuation ran null
+below baseline. Ribbon-derived conditioning has failed twice. That is
+not a reason to skip the test — it is the reason the gate is a margin
+over baseline rather than a bare positive.
+
+### D-144 · Hole count as a weakness proxy — the interaction #131 never tested (#144)
+
+**The reframe.** #131 asked "are dual-hole events better than
+single-hole events?" and answered no (fwd60 +1.7% vs +6.2%, n=18,
+closed NULL 2026-08-13). Danny's post asserts the same fact with the
+opposite sign of interest: hole count is a MARKER OF WEAKNESS ("1 hole
+for strong stocks, 2–3 for weak"), so dual events SHOULD underperform in
+absolute terms — because they happen to weaker names. The untested
+claim is conditional: given a weak name, does the 2nd/3rd hole mark its
+bottom better than the 1st did?
+
+**Method.** Reuse `homily_dualvh_backtest.events` unchanged for
+detection; add a point-in-time strength classifier (RS12 vs SPY via the
+live `homily_conviction._ret`, R6) and cut forward 6wk/3mo/6mo returns
+by (RS12 tertile) × (hole ordinal N=1,2,3).
+
+**Pre-register the INTERACTION.** PASS requires BOTH: (a) weak tertile —
+hole 2/3 beats hole 1 at 6wk and 6mo; (b) strong tertile — hole 1 ≥ hole
+2/3. n≥20 per reported cell. A main effect without the interaction is a
+NULL for this hypothesis and is reported as one; #131's headline already
+supplies the pooled main effect, so re-finding it proves nothing new.
+
+**Dependency.** Gated behind D-142. If our detector does not locate his
+holes, this study measures the ordinal count of OUR holes, and its
+headline must say exactly that rather than claiming to have tested him.
+
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
