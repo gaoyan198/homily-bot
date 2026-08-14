@@ -1048,6 +1048,94 @@ step, never by `daily_run.py`), `homily_dashboard.py` render block,
 
 ---
 
+### D-140 · Universe capacity cut — a dollar-volume band, not a ceiling (#140)
+
+**The defect this fixes is structural, not a bug.** D-65's L2 ranks L1
+survivors by 60-day dollar volume and keeps the top ~120. That is a
+popularity ordering. `homily_conviction.G1` then rejects any name at or
+above $5B/day, because a name that big cannot multiply quickly. So the
+discovery layer recruits for exactly the property the multi-bagger tier
+disqualifies. Measured on the committed list (2026-08-14): 18/124 names
+(15%) are permanently 🚀-ineligible, including every megacap the list
+works hardest to include; the eligible end is sparse (ZETA $165M/d is
+the floor, and only a handful sit under $1B/d).
+
+**Design.** Keep L0/L1 unchanged. Replace L2's flat `top_n` with a band
+allocation over the SAME ranking:
+  * `BAND_ELIGIBLE` — reserved slots for names with median 60d dvol in
+    [$50M, $5B) — the G1-operable range;
+  * `BAND_LARGE` — a capped allowance for ≥$5B/day names, kept because
+    they are legitimate HOLDINGS and index-leg context, not because the
+    tier can use them;
+  * carve-outs unchanged and additive: every current holding, plus every
+    name that passed all 🚀 gates in the last two quarters (stickiness,
+    read from the ledger).
+Band widths are CONSTANTS in `homily_universe.py`, printed by the
+refresh diff, and moved only through this item's gate.
+
+**Why there is no retrospective backtest, stated so no future session
+invents one.** `universe.json` is a 2026 artifact. Rebuilding "the top
+120 by dollar volume as of 2018" needs point-in-time listings and
+volumes we do not have — the NASDAQ Trader directory is published daily
+and not archived here, and bulk history sources were probed auth-gated
+on 2026-07-11. A backtest over today's list would select 2018 names
+using 2026 membership: the exact survivorship error §31 caught. #113's
+bars vault is the enabler; until then the honest instrument is forward
+shadow measurement, which is what D-65 already built and what this item
+reuses.
+
+**Gate (forward, pre-registered).** Build the banded list, tag its
+non-overlapping names with a SECOND shadow origin so both cuts log side
+by side for one quarter, then adopt only on all three: (a) retains ≥90%
+of the ⭐/🔵 setups the incumbent cut surfaced; (b) surfaces ≥3
+G1-ELIGIBLE setups the incumbent structurally could not; (c) those extra
+setups clear the same F/quality checks as incumbent rows. Adoption
+changes WHICH names can receive money → SELECTION under R10 → pays the
+next free slot (2027-Q3). Building, shadowing and measuring are free.
+
+**Risk register.** R9 (scope): touches `homily_universe.py` only; the
+engines and the digest are untouched until adoption. The shadow fence is
+load-bearing — a banded name must not reach ranks, snapshot or digest
+before the read, or the read measures its own contamination.
+
+### D-141 · Discovery blind-spot audit — what the pipeline cannot see (#141)
+
+**The gap in the #65 adoption gate.** Its two pre-committed prongs both
+ask continuity questions: does the mechanical list keep what the hand
+list found, and does it find at least one more. A list can pass both and
+still be blind to the only names that matter — the small, unloved ones.
+Danny's documented entries (RKLB ~$5.50, PLTR ~$8.80, NBIS before its
+run, OSCR/IBRX/CLSK) were all below the visibility of a top-N-by-volume
+cut at entry, and by the time such a cut reaches them G1 has locked them
+out. Nobody has measured that lateness.
+
+**Method.** For each name on a frozen winner list, walk its history and
+report the first date it would have (i) cleared L1 (price ≥$5, median
+60d dvol ≥$50M, ≥130 bars, major exchange), (ii) ranked into the top
+~120 by dvol against the same-date field, (iii) still been G1-eligible
+(<$5B/day). The interesting quantity is the overlap of (ii) and (iii) —
+the window in which our pipeline could have surfaced the name while it
+still had room to run — plus its lateness versus the name's own low.
+Approximation recorded: the same-date field must be reconstructed from
+the current L0 membership, so (ii) is an UPPER bound on reachability
+(it cannot see names that have since delisted).
+
+**Frozen honesty clause — the whole point of writing this before
+running it.** The winner list is selected with hindsight. This study
+measures REACHABILITY and nothing else: whether a name could have
+appeared on the board, never whether the engine would have bought it,
+still less whether it would have held it. Any write-up that quotes a
+coverage number as evidence of skill is wrong on its face, and §31 is
+the standing example of how that error looks in this repo.
+
+**Gate.** Declared BEFORE the ~2026-10 #65 read, and it ADDS a third
+coverage prong to that read — a pre-registered gate may be tightened
+before its read, never loosened after it. Winner list and per-name
+pre-run cut-off dates frozen in the study docstring before the first
+fetch. The expected result is a NULL in the useful sense — the pipeline
+reaches these names only after their move — and that closes honestly
+and feeds D-140's band widths with a measured number instead of a guess.
+
 ## Part II — extended idea bank (#46–60)
 
 Unvetted. Each carries its gate; none touches money before its gate passes.
