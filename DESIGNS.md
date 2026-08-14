@@ -1154,6 +1154,46 @@ timeframe, quote}` — transcribed verbatim so the owner can audit every
 row against the source post. Roughly 10–14 cases exist today; the file
 is append-only as new posts arrive.
 
+**Diagnostic findings, 2026-08-14 (added after the owner asked WHY the
+zones differ — these convert the item from "audit a gap" into three
+named hypotheses).**
+
+*Correction first, because the error was mine:* the initial probe called
+`find_hole` with DAILY defaults on WEEKLY bars (`max_age=90` → 90 weeks).
+The repo does not do this — #77's harness passes `events(wk, 60, 52)` and
+`events(mo, ref_win, 18)`, i.e. it already scales the age. The "stale
+zone" effect in the first probe was partly self-inflicted and the
+write-up must not blame the repo for it.
+
+  * **H1 — age expiry.** Ours expires a hole on a timer; his wording is
+    "remains valid until invalidated by either side", i.e. a zone stays a
+    standing level until price closes through it. For MSFT the zone that
+    matches his call is a Dec-2023→Jan-2024 cluster at 362.90–377.64
+    (his 367–400) which ANY finite `max_age` discards.
+  * **H2 — latest-cluster-only.** `find_hole` returns just the most
+    recent cluster; history is thrown away. MSFT and GOOGL both had a
+    matching OLDER cluster still on the chart.
+  * **H3 — the volatility definition itself.** At all four of his
+    bottoms our relvol sat **1.4×–2.6× ABOVE** its 60-period minimum, so
+    a hole could not form there under our rule at any age setting. Bottoms
+    are violent; quiet periods are not bottoms. This is a semantic
+    difference, not a tuning gap, and it is the one H1/H2 cannot fix.
+  * **REJECTED — "his hole is a low-volume node."** Tested against the
+    live chip profile: his zones are HEAVY, sitting in the top 6–26% of
+    traded price bins (mean weight 0.31–0.63 of POC). They are
+    accumulation shelves, not voids. Do not revive this reading.
+
+**Sweep preview and its own health warning.** A 30-combination grid over
+(`ref_win` × `max_age`) on weekly bars reaches **3/4 overlap** at
+`ref_win`≈10–15 with no age expiry (HOOD, GOOGL, MSFT hit; RBRK never
+does — one cluster in its whole history). Both winning changes match his
+stated semantics, which is a principled reason to prefer them. **But
+3/4 on four self-selected examples after sweeping 30 combinations is
+what overfitting looks like**, and it is recorded here as a caution, not
+a result. The full audit needs the whole claims file (~14 cases), and
+the adoption rule below is what keeps a match rate from being mistaken
+for an edge.
+
 **Score (prong 1, pure diagnostic).** For each claim, run the LIVE
 `find_hole` on bars truncated at that week (R6) on the timeframe he
 used, and record: hole present within ±N weeks? zone overlaps his? zone
@@ -1168,6 +1208,17 @@ Adopting any of it is a Phase-C engine edit — own session, own gate,
 `engine_freeze.json` re-pin, and a mandatory re-run of §7/§34 publishing
 the deltas, because a changed detector silently rewrites both nulls.
 **Never adopt inside this study.**
+
+**THE ADOPTION RULE — fidelity is not profit.** Matching his zones and
+making money are different objectives, and only the second one is the
+north star. Our current detector already failed its event studies twice
+(§7, §34). A version tuned to reproduce his published calls must clear
+those SAME studies independently, on the honest universe, before it goes
+anywhere near the digest: adoption requires the re-run of §7/§34 to be
+NO WORSE than the committed numbers, with the deltas published either
+way. A change that improves the match rate and degrades the returns is
+rejected — and saying so here, before the sweep runs, is what stops the
+match rate from becoming the objective.
 
 **Frozen honesty clause.** A low hit rate is not evidence his method
 fails, nor that ours does. It means they are different objects. The
