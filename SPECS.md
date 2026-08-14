@@ -158,6 +158,13 @@ Everything else remaining is DATE- or OWNER-gated:
    promotions.json or attributes nothing) — 3 ledger months; also the
    #65 shadow-quarter adoption read (D-65 rule) and the first
    #64-split scorecard.
+   **+ #141's coverage prong (added 2026-08-14, BEFORE the read):** the
+   two D-65 prongs are continuity tests (does the mechanical list keep
+   what the hand list found, does it find one more); #141 measures what
+   the pipeline structurally CANNOT see, and is declared now so it is
+   not post-hoc — a pre-registered gate may be tightened before its
+   read, never loosened after it. #140 (volume band) rides the same
+   read as a second shadow tag.
 4. **2026-10-01** · #24 forward-check READ (no longer a promotion
    decision — promoted early 2026-07-12 by owner override, Q4's R10 slot
    SPENT; the month-start digest block publishes the frozen-window read
