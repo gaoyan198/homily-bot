@@ -24,11 +24,27 @@ SCORE (0-100) ranks the gated survivors and sets the sizing tier:
   trend 25 · relative strength 25 · structure 15 · vol-hole 10 ·
   size/room 15 · listing age 10
 
-SIZING TIERS (guidance, not orders — hard cap regardless: no single name
-above 10% of the account including what's already held):
+SIZING TIERS — the ENTRY size for a new/added position (guidance, not
+orders):
   score >= 75  CONVICTION  up to 5% of account, add only at ⭐ zones
   score 60-74  STARTER     up to 2%, prove itself before sizing up
   score < 60   fails       watch only, no capital
+
+These are NOT the same number as `homily_positions.CAP_PCT` (25% since
+the #92 promotion, 2026-07-12; this docstring said 10% until 2026-08-14,
+which was the pre-#92 value and stale by a month). Do not read the cap
+as an allowance for a high scorer. They do different jobs:
+  * the TIER (5% / 2%) is what you may put IN on a buy day;
+  * CAP_PCT (25%) is a CEILING and a trim TRIGGER — PLAYBOOK §5 Rule 1
+    trims a position BOUGHT above it, and the buy-day copilot skips any
+    add that would cross it. It exists mainly so a position that GREW
+    there (Bucket B, the earned core) is not trimmed for winning; buying
+    straight to 25% is the exact thing Rule 1 is written to prevent.
+Raising it was measured as BUYING LESS INSURANCE, not more upside: on a
+−95%-and-never-recovers shock the 25% cap keeps 1.70 MOIC vs the 10%
+cap's 1.89 (§12/D-67). Its demotion rule is live and mandatory — any
+name >= 15% of the stock book closing −50% from its post-promotion high
+reverts CAP_PCT to 10% in the next session.
 """
 from dataclasses import dataclass
 
