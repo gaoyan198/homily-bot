@@ -99,6 +99,16 @@ UNIVERSE = {
     "0700":"0700.HK","3690":"3690.HK","1810":"1810.HK",
     # SG liquid names
     "D05":"D05.SI",
+    # Japan — owner request 2026-08-15. The ADR, NOT the 7974.T primary,
+    # and this is the one place the repo's use-the-local-listing rule
+    # (0700.HK, D05.SI, 000660.KS) is deliberately broken: Tokyo trades in
+    # 100-share lots, so one lot of 7974.T is ~¥890k ≈ US$6k — 2.6 months
+    # of BUY_BUDGET_USD in a single indivisible ticket, which the buy-day
+    # copilot could never size into. NTDOY is ~US$14 with no lot minimum
+    # and settles in USD, so it needs no FX leg in the book either.
+    # Cost: ~US$31M/day vs the primary's ~US$437M, and 1 ADR = 1/4 of an
+    # ordinary share, so ADR prices are not comparable to Tokyo quotes.
+    "NTDOY":"NTDOY",
     # crypto-beta spot ETFs
     "IBIT":"IBIT","ETHA":"ETHA",
     # growth mid-caps — the multi-bagger hunting ground
