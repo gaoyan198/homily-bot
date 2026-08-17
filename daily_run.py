@@ -161,12 +161,35 @@ UNIVERSE = {
     # engine is happy; the risk here is transcription, not data.
     "TE":"TE","P":"P",
     # Index / sector ETFs from his "Major ETFs" section (QQQ is already on
-    # WATCH, DRAM is held). None of these can reach CONVICTION, so none can
-    # become a buy-day order: SPY/IWM/SMH all breach G1's $5B/day ceiling
-    # and SPY/IWM/IGV fail G3 (an index cannot beat SPY by 20 points). They
-    # are context rows — they surface only on ⭐/🔵, like any UNIVERSE name.
-    "SPY":"SPY","IWM":"IWM","SMH":"SMH","IGV":"IGV",
+    # WATCH, DRAM is held). None can reach CONVICTION, so none can become a
+    # buy-day order: IWM/SMH breach G1's $5B/day ceiling and IWM/IGV fail G3
+    # (an index cannot beat SPY by 20 points). Context rows — they surface
+    # only on ⭐/🔵, like any UNIVERSE name.
+    # SPY deliberately NOT here (owner, 2026-08-17): the Bucket A sleeve is
+    # CSPX and both track the S&P 500, so a SPY row would be a second name
+    # for an exposure the buy-day already funds. It is still fetched every
+    # run as the RS12/G3 benchmark — that is a different job, and screening
+    # the benchmark against itself is what pins its RS12 at exactly 0.0.
+    "IWM":"IWM","SMH":"SMH","IGV":"IGV",
 }
+
+# 👁 OBSERVATION FENCE (owner, 2026-08-17, review 2026-11-17).
+# Names that are fully screened, ranked, ledgered and printed — but that the
+# buy-day copilot may NOT order. Scope control, not a signal change: #125
+# eligibility and #24's RS12 ordering are untouched, and homily_buyday.plan
+# drops these AFTER ranking so the block still reports what the fence cost.
+#
+# Why it exists: the 2026-08-17 add would otherwise have replaced all three
+# of next buy day's picks on its first run (ASML/MDB/DDOG -> AXTI/LITE/AEHR),
+# i.e. a hand-typed weekend list would have moved real money before a single
+# forward row existed. One quarter mirrors #65's shadow-quarter precedent.
+# Emptying the pool is a legitimate §3.5 `nostars` day — budget to the index,
+# never to cash. To unfence early, delete a name (or the whole set).
+OBSERVE = {tk for tk in UNIVERSE if tk in {
+    "AVGO", "AEHR", "LITE", "AAOI", "AXTI", "GOOGL", "NOW", "TEAM", "RBRK",
+    "ZETA", "AFRM", "DELL", "RDDT", "CRWV", "IREN", "CIFR", "COIN", "PL",
+    "SATL", "ONDS", "OUST", "TMC", "NAK", "ABCL", "OSCR", "LMND", "BB",
+    "NOK", "TE", "P", "IWM", "SMH", "IGV"}}
 
 # #64 universe-entry provenance: how each name got into the screen, logged
 # per ledger row so #14's scorecard can split by it (the referee must not
@@ -704,7 +727,7 @@ def build_digest(flex_notes=None):
         if states:
             buyday, buyplan = homily_buyday.buyday_block(
                 states, POSITIONS, regime, today,
-                yahoo={**HOLDINGS, **WATCH, **UNIVERSE})
+                yahoo={**HOLDINGS, **WATCH, **UNIVERSE}, observe=OBSERVE)
     except Exception as e:
         print(f"[buyday] skipped: {e}")
     # #30 bear-readiness rehearsal, first Monday of the month. Non-fatal.

@@ -127,16 +127,33 @@ def _cap_split(pool, picks, prices, positions, book_value):
 
 
 def plan(budget, states, positions, regime_label, *, srs_covers_index=False,
-         yahoo=None):
+         yahoo=None, observe=()):
     """Pure allocation: budget + today's screened states -> the order plan.
     No env, no clock, no files — that's what check [27] fixtures exercise.
     -> {"orders": [(ticker, shares, price, note)], "manual": [...],
-        "skipped": [...], "index_amt", "spent", "leftover", "mode"}"""
+        "skipped": [...], "index_amt", "spent", "leftover", "mode"}
+
+    `observe` (default empty — goldens byte-identical with the fence off) is
+    the owner's observation fence: tickers that stay fully screened, ranked
+    and ledgered but may NOT receive an order. It is a scope control, not a
+    signal change — the #125 eligibility rule and the #24 RS12 ordering are
+    untouched, the fenced names are simply removed from the pool after
+    ranking and reported by name on the buy-day block. Emptying the pool
+    this way is a legitimate `nostars` day (§3.5: the budget goes to the
+    index rather than waiting in cash)."""
     yahoo = yahoo or {}
+    observe = frozenset(observe)
     prices = {s["ticker"]: s["close"] for s in states
               if s.get("close") is not None}
     book = homily_positions.stock_book_value(positions, prices)
     usd_stars, manual = star_candidates(states, positions, yahoo)
+    # both pools, or the fence would leak: a `manual` row is not an order but
+    # it IS an instruction to go buy the name by hand, which is the exact
+    # thing an observation fence exists to withhold.
+    fenced = sorted((s for s in usd_stars + manual if s["ticker"] in observe),
+                    key=lambda s: (-s.get("rs12", 0.0), s["ticker"]))
+    usd_stars = [s for s in usd_stars if s["ticker"] not in observe]
+    manual = [s for s in manual if s["ticker"] not in observe]
     picks = usd_stars[:MAX_STARS]
 
     if regime_label == "BEAR":
@@ -149,6 +166,11 @@ def plan(budget, states, positions, regime_label, *, srs_covers_index=False,
     star_pool = budget - index_amt
 
     orders, skipped, spent = [], [], 0.0
+    # named first, and by rank, so the block says what the fence cost today
+    for i, s in enumerate(fenced, 1):
+        skipped.append(f"{s['ticker']}: 👁 under observation — rank {i} of "
+                       f"{len(fenced)} fenced, RS12 {s.get('rs12', 0.0):+.0f}, "
+                       f"screened but not ordered")
     ipx = prices.get(INDEX_TICKER)
     if index_amt > 0:
         if ipx:
@@ -252,7 +274,7 @@ def write_basket(p, day, docs=DOCS):
     return path
 
 
-def buyday_block(states, positions, regime, day, *, yahoo=None,
+def buyday_block(states, positions, regime, day, *, yahoo=None, observe=(),
                  ledger=homily_ledger.LEDGER, docs=DOCS):
     """IO shell daily_run calls: env + ledger in -> (rendered block, plan).
     ("", None) on a non-buy-day or with no budget configured. The plan dict
@@ -270,7 +292,7 @@ def buyday_block(states, positions, regime, day, *, yahoo=None,
     srs = os.getenv("SRS_COVERS_INDEX", "").lower() in ("1", "true", "yes", "on")
     p = plan(budget, states, positions,
              regime.label if regime is not None else "MIXED",
-             srs_covers_index=srs, yahoo=yahoo)
+             srs_covers_index=srs, yahoo=yahoo, observe=observe)
     write_basket(p, day, docs=docs)
     return render(p, day, swing_skim_this_month(day)), p
 

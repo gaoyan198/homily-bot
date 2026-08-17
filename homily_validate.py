@@ -2793,4 +2793,62 @@ _src70 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 assert "f_failing" in _src70, "[70] timestop pairing no longer mirrors rule 2"
 print("[70] #136 F-ratio: 12 tag boundaries + trim_flags + one definition .. PASS")
 
+# ---------------------------------------------------------------------------
+# [71] 👁 observation fence (owner, 2026-08-17) — a name may be screened,
+# ranked and ledgered while still being barred from the order sheet. It is a
+# SCOPE control, not a signal change: it must not touch #125 eligibility or
+# #24's RS12 ordering, and it must be inert unless explicitly passed, or the
+# fence itself becomes an untested edit to the money path.
+_obs71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27)
+assert _obs71 == homily_buyday.plan(1000, _st27, _pos27, "BULL",
+                                    yahoo=_yh27, observe=()), \
+    "[71] fence must be inert when empty — the default path moved"
+
+# ranking is untouched: star_candidates never sees the fence, so the pool it
+# returns is identical and the fence is applied strictly AFTER the ranking
+assert [s["ticker"] for s in homily_buyday.star_candidates(
+    _st27, _pos27, _yh27)[0]] == ["SML", "BIG", "NEW", "HLD"], \
+    "[71] fence leaked into star_candidates — ordering is #24's, not ours"
+
+# rank-1 fenced: it must not buy, must be named, and the next name promotes
+_f71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", srs_covers_index=True,
+                          yahoo=_yh27, observe={"SML"})
+assert all(tk != "SML" for tk, *_ in _f71["orders"]), \
+    "[71] a fenced name reached the order sheet"
+assert any(s.startswith("SML:") and "👁" in s for s in _f71["skipped"]), \
+    "[71] fenced names are reported by name, never silently dropped"
+assert "BIG" in {tk for tk, *_ in _f71["orders"]} | {
+    s.split(":")[0] for s in _f71["skipped"]}, "[71] rank 2 did not promote"
+
+# the fence also withholds a non-USD name — `manual:` is still an instruction
+_m71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27,
+                          observe={"0700"})
+assert _m71["manual"] == [], "[71] fenced non-USD name still printed as manual"
+assert any(s.startswith("0700:") for s in _m71["skipped"]), "[71] and unnamed"
+
+# fencing the whole pool is a §3.5 nostars day — index, never cash
+_all71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27,
+                            observe={"SML", "BIG", "NEW", "HLD", "0700"})
+assert _all71["mode"] == "nostars" and _all71["orders"] == \
+    [("CSPX", 10, 100, "Bucket A index leg")], \
+    "[71] an emptied pool must reroute to Bucket A, not hold cash"
+
+# a fenced name can never reach the importable basket CSV either
+with tempfile.TemporaryDirectory() as _tmp71:
+    _bp71 = homily_buyday.write_basket(_f71, _d27, docs=_tmp71)
+    assert all(r[2] != "SML" for r in list(csv.reader(open(_bp71)))[1:]), \
+        "[71] fenced name reached the IBKR basket"
+
+# the live fence is only ever a restriction on DISCOVERY names: fencing a
+# held name would silently block adds to the core book, which is not what
+# this control is for.
+import daily_run as _dr71
+assert _dr71.OBSERVE <= set(_dr71.UNIVERSE), "[71] OBSERVE names off-universe"
+assert not (_dr71.OBSERVE & (set(_dr71.HOLDINGS) | set(_dr71.WATCH))), \
+    "[71] fence reaches a held/WATCH name — adds would be blocked silently"
+assert "SPY" not in _dr71.UNIVERSE, \
+    "[71] SPY is CSPX's index twin (owner, 2026-08-17) — screen it once"
+print("[71] 👁 observation fence: inert by default, post-ranking, USD+manual, "
+      "§3.5 reroute, basket-clean  PASS")
+
 print("\nAll structural assertions passed.")
