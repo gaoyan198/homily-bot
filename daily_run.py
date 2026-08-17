@@ -116,6 +116,56 @@ UNIVERSE = {
     "AXON":"AXON","TOST":"TOST","RBLX":"RBLX","IOT":"IOT","CRDO":"CRDO",
     "TMDX":"TMDX","CAVA":"CAVA","ONON":"ONON","SE":"SE","GRAB":"GRAB",
     "NBIS":"NBIS","ALAB":"ALAB",
+    # ---- Danny's 2026-08-17 weekend review, owner request ----------------
+    # His "66 stocks covered" list + the 12 Dr. Cat videos. 29 of the names
+    # were already on HOLDINGS/WATCH/UNIVERSE; these are the rest. Same
+    # inline-documented pattern as the SPCX/SNDK/NTDOY owner adds — no
+    # numbered item. All verified against the live engine 2026-08-17:
+    # fetch_series returns bars for every one, danny_signal + conviction
+    # score them, ORIGINS tags them owner-request automatically.
+    #
+    # NOT added: TNA (Direxion Small Cap Bull 3X). PRD §5c keeps levered
+    # ETFs out, and this is the add that shows WHY the list is the only
+    # thing enforcing it: TNA scores 80/CONVICTION and passes all five
+    # gates today (G1 sees only $0.27B/day of turnover — a 3x fund is
+    # small by dollar volume, not by risk), so it would have gone straight
+    # into the buy-day order sheet. homily_conviction has no leverage gate.
+    #
+    # 13 of these already sat in universe.json from #65's mechanical screen
+    # (origin "screen", since 2026-07-11) but those rows are SHADOW-fenced
+    # until the adoption read, so they never reached the digest. Naming
+    # them here moves them off the shadow list (the tk-not-in-UNIVERSE
+    # filter below), so it costs no extra fetches for those 13.
+    #
+    # semis / AI hardware
+    "AVGO":"AVGO","AEHR":"AEHR","LITE":"LITE","AAOI":"AAOI","AXTI":"AXTI",
+    # megacap tech
+    "GOOGL":"GOOGL",
+    # software / growth
+    "NOW":"NOW","TEAM":"TEAM","RBRK":"RBRK","ZETA":"ZETA","AFRM":"AFRM",
+    "DELL":"DELL","RDDT":"RDDT",
+    # AI infra / crypto-miner beta
+    "CRWV":"CRWV","IREN":"IREN","CIFR":"CIFR","COIN":"COIN",
+    # space / sensing / mining — Danny's small-cap end
+    "PL":"PL","SATL":"SATL","ONDS":"ONDS","OUST":"OUST","TMC":"TMC",
+    "NAK":"NAK",
+    # health / fintech / insurtech
+    "ABCL":"ABCL","OSCR":"OSCR","LMND":"LMND",
+    # turnarounds
+    "BB":"BB","NOK":"NOK",
+    # Two tickers taken literally off Danny's list, flagged to the owner
+    # because neither is the obvious company: "TE" resolves to T1 Energy
+    # (NYSE, ~$5, ex-Freyr Battery) and NOT TE Connectivity, which is TEL;
+    # "P" resolves to Everpure (NYSE, ~$118) — the old Pandora ticker,
+    # reassigned. Both are real and liquid (~$280M and ~$203M/day), so the
+    # engine is happy; the risk here is transcription, not data.
+    "TE":"TE","P":"P",
+    # Index / sector ETFs from his "Major ETFs" section (QQQ is already on
+    # WATCH, DRAM is held). None of these can reach CONVICTION, so none can
+    # become a buy-day order: SPY/IWM/SMH all breach G1's $5B/day ceiling
+    # and SPY/IWM/IGV fail G3 (an index cannot beat SPY by 20 points). They
+    # are context rows — they surface only on ⭐/🔵, like any UNIVERSE name.
+    "SPY":"SPY","IWM":"IWM","SMH":"SMH","IGV":"IGV",
 }
 
 # #64 universe-entry provenance: how each name got into the screen, logged
