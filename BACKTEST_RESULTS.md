@@ -1855,3 +1855,88 @@ mechanism.
 > through dot-com and 2008 is QQQ — where the arm that stops de-levering
 > was margin-called. Nothing here reduces the case for reaching
 > MARGIN_ZERO on schedule.
+
+---
+
+## 40 · #146 does 🐳 have precognition? (run 2026-08-20) — NULL; the tag marks bounces, not news
+
+**Origin.** Owner question after MRNA gapped +84% at the open and closed
+**+177%** on 2026-08-19 on cancer-trial news: *did the bot flag whale
+accumulation before the news?* Two answers, and the general one needed a
+study.
+
+**The MRNA answer is trivial and worth recording anyway.** MRNA is not in
+the core universe (152 names scanned in the 4,172-row signals log, zero
+MRNA rows) and gambit drops it explicitly — `"drop": "capacity-cut"`, its
+$368M mdv126 missing the top-120 cut. A point-in-time replay of the
+run-up (32 sessions, `danny_signal` on `bars[:i+1]`) tagged **🐳 on zero
+of 32 sessions**, with `absorb_days = 0` every single day. The reason is
+not a threshold that barely missed: **volume in the 20 sessions before the
+news never once reached the 50-day average** (max 1.00×, against the
+detector's 1.30× requirement). There was no footprint to find. And the
+move was a **+84% gap** — 48% of the day's gain happened before a share
+could trade, so even a perfect same-day detector captures nothing.
+
+**The general study.** `homily_whalegap_backtest.py`, rule frozen in the
+docstring before the first run. Claim under test is *not* "does 🐳 pay"
+(that is #12/#67, answered) but "does the footprint carry information
+about news that has not broken yet." Gaps are the right endpoint because
+a gap is the part of a news move nobody can trade.
+
+The comparator is the design decision that matters: **in-dip-but-not-🐳**,
+not all-days. 🐳 requires a dip by construction, and dips are elevated-
+variance states that raise gap probability on their own; scoring the tag
+against all days would credit it for the dip it is standing in.
+
+Primary endpoint, pre-registered, single (no multiplicity to shop):
+P(up-gap ≥10% within 21 sessions). Gate: relative lift ≥ +25% **and**
+same sign in both universes. Episode-clustered (gap > 5d), 5y, 300-bar
+warmup, 65 names.
+
+| | 🐳 | in-dip, no 🐳 | all days (context) | lift |
+|---|---|---|---|---|
+| **A** (bot list, hindsight-biased) | 9.09% (n=748) | 7.59% (n=1080) | 7.95% | **+19.7%** |
+| **B** (hype-2021 control, wrecks) | 9.11% (n=604) | 8.46% (n=721) | 9.37% | **+7.6%** |
+
+**VERDICT: NULL.** Gate condition (1) fails in both universes — neither
+clears +25%, and the honest control retains barely a third of the
+already-insufficient A figure, the familiar hindsight-decay shape. Note
+also that in universe B the 🐳 rate (9.11%) sits *below* the all-days
+baseline (9.37%): whatever the tag marks, it is not a richer news
+environment than an average day in the control.
+
+**The secondaries explain WHAT the tag actually is, and this is the part
+worth keeping.** Direction skew (up-rate − down-rate, 21d):
+
+| gap | A: 🐳 | A: dip-only | B: 🐳 | B: dip-only |
+|---|---|---|---|---|
+| ≥5% | **+8.7** | +4.4 | **+9.9** | +5.5 |
+| ≥10% | +2.5 | **+2.8** | +1.2 | **+2.8** |
+| ≥20% | +1.2 | +0.2 | +0.0 | +0.1 |
+
+At **≥5%** gaps 🐳 roughly doubles the dip-only upward skew in both
+universes — consistent and real. At **≥10%**, the news-shaped threshold,
+the 🐳 skew is *equal or worse* than plain dip-only in both. So the tag's
+information lives entirely in small gaps, which is what a bounce off
+absorbed supply looks like — **the dip-buy edge #12/#67 already measured
+and already ships**. It adds nothing where actual news lives.
+
+**Interpretation.** 🐳 is a dip-absorption detector, exactly as
+`homily_whale.py` documents, and it has no pre-news channel. This is the
+expected result from a feed that is Yahoo daily OHLCV only: the datasets
+that would carry informed positioning (unusual options volume/OI,
+dark-pool prints, Form 4) are not wired in, and #109 already established
+the deeper reason — Danny's whale scale measures a *stock* quantity
+(share of float held by large accounts), unknowable from public bars.
+Informed pre-news accumulation, where it exists at all, is not a footprint
+in daily OHLCV.
+
+**No re-cut.** The threshold, horizon, comparator and gate were fixed
+before the run and stay fixed. The small positive lift in both universes
+is recorded as directionally positive and insufficient — not as a
+promising signal awaiting a friendlier threshold. **This item does not
+touch the existing 🐳 tier**, which was promoted on dip-buy returns and
+was not on trial here; §12/§28's whale-dip rules stand unchanged.
+
+**Closed.** Harness kept for #116's archive sweep (a dated pending read:
+nothing consumes it live).
