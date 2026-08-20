@@ -1940,3 +1940,163 @@ was not on trial here; §12/§28's whale-dip rules stand unchanged.
 
 **Closed.** Harness kept for #116's archive sweep (a dated pending read:
 nothing consumes it live).
+
+## 41 · #147 the crypto cycle sleeve (run 2026-08-20) — leverage FAILS its pre-registered gate; the cycle thesis is itself the argument against it
+
+**Origin.** Owner, 2026-08-20: *"now that crypto market seems to be back, i
+want you to use ibit and etha as proxy to work out the optimium dca strategy
+so that i can capture this entire bull cycle, and work out how much leverage
+is safe … i am thinking dca 2k at 3x leverage for each asset … when will i be
+liquidated if ever."* Refined twice mid-session, and both refinements changed
+the answer: **venue is Hyperliquid perps, not IBKR margin** (*"i wil be using
+hyper liquid, buying perps so i can leverage up to 20x … max 3x and
+considering even 2x"*), and **the objective is BTC UNITS, not USD** (*"the
+goal is to collect as much btc as possible … i havezero btc as u know i
+recently liquidataed all"*, after the 2026-08 household reset, commit
+5256145).
+
+Harness `homily_cryptocycle_backtest.py`, seven rules frozen in the docstring
+before the first fetch. Data: Yahoo daily OHLC (repo standard fetcher),
+Binance 8h funding 2019-09→live, Hyperliquid `/info meta` for live margins.
+
+### 41.1 · The IBKR route dies on arithmetic before any backtest
+
+Recorded because it was the original question. Reg T caps initial margin at
+50% — **2x is the ceiling** on IBIT/ETHA; portfolio margin needs ~US$110k
+equity against the account's US$38k. At a 30% house maintenance a 3x ETF
+position **fails margin at the moment of opening**. Separately the proposed
+US$4,000/mo is **120% of the S$4,250 household savings rate**, and the account
+already runs **1.216×** (S$71.1k gross / S$58.4k net liq) against LEVERAGE.md
+§1's 1.30 BULL cap — month 1 of the plan prints 1.33×, month 12 prints 2.02×.
+Three independent blockers, none of which needed a study.
+
+### 41.2 · Perps move the liquidation line a long way — and that is real
+
+Hyperliquid maintenance margin is `(1/maxLeverage)/2`, read live: **BTC 1.25%**
+(40x) and **ETH 2.00%** (25x). The uniform-drawdown call point
+`d* = (1-mL)/(L(1-m))` is therefore far kinder than the ETF's:
+
+| | 2x | 2.5x | 3x |
+|---|---|---|---|
+| BTC | −49.4% | −39.2% | −32.5% |
+| ETH | −49.0% | −38.8% | −32.0% |
+
+against **−11.1%** for a 3x ETF at a 25% maintenance. Frequency of a
+liquidating month, measured from each month's open: BTC 3x **9/144 (6.2%,
+~1 per 16 months)**, 2x **1/144**; ETH 3x **14/106 (13.2%, ~1 per 8 months)**,
+2x **3/106**. The single BTC 2x hit is **March 2020**: month open $8,600,
+intraday low $4,107 = **−52.2%**, through the −49.4% line. ETH −56.7%. One
+day did that.
+
+### 41.3 · Funding is charged on NOTIONAL — the mechanism no prior study here modelled
+
+§15 and §39 both certify leverage under a **broker margin loan**, which
+charges interest only on the borrowed part. A perp charges funding on the
+**whole position**. That is a different cost object and it is much larger:
+
+| | mean funding | at 2x | at 3x |
+|---|---|---|---|
+| BTC | 11.61%/yr | 23.2% of equity | **34.8% of equity** |
+| ETH | 13.91%/yr | 27.8% | **41.7%** |
+
+and it is worst exactly when a long is winning — **2020-10→2021-04 averaged
+44.7% annualised** (134%/yr of equity at 3x). By year, BTC: 2020 17.2%, 2021
+30.6%, 2024 11.9%, **2026 2.3%** — currently cheap, which is a statement about
+the drawdown, not about the sleeve's future.
+
+**The sharpest result in the study is unlevered.** Same window 2020-01→
+2022-12, $2k/mo, **1x**: pure spot DCA **0.90x**, a 1x *perp* **0.21x** —
+funding took **$49,703** on $72,000 contributed, because it accrues on a
+notional that peaked at $202,559. IBIT costs 0.25%/yr to hold. **A perp is not
+a holding instrument, and the 4-year cycle is a holding thesis.**
+
+Proxy honesty: Binance is the long-history stand-in because Hyperliquid
+launched 2023. On the overlapping 30d, HL BTC 6.61% vs Binance 6.06%, HL ETH
+7.13% vs 3.93% — HL runs *higher*, so the study's funding is if anything
+understated.
+
+### 41.4 · The verdict metric (R1) — units, not dollars — and leverage FAILS R7
+
+R7 was pre-registered: a levered arm must beat unlevered spot **on BTC units**
+in **both** accumulation-phase analogs (peak+10mo → peak+27mo, i.e. exactly
+the phase the sleeve occupies on 2026-08-20, 10.4 months past the peak).
+
+| arm | c2 (2018-10→2020-03) | c3 (2022-09→2024-02) | R7 |
+|---|---|---|---|
+| SPOT DCA | 5.8804 BTC | 1.4068 BTC | — |
+| perp 2x const | 0.1069 (**−98.2%**) LIQ×1 | 2.0369 (+44.8%) | **FAIL** |
+| perp 3x const | 0.1696 (**−97.1%**) LIQ×2 | 2.8480 (+102.5%) | **FAIL** |
+| perp 3x entry | 0.1967 (−96.7%) LIQ×2 | 2.4742 (+75.9%) | **FAIL** |
+
+**1/2 on every setting.** The whole difference is whether the trough was
+already in when the window opened: c3's arrived 2.5 months in (−27.7% from
+window open, survivable at 3x); c2's arrived 2 months in at **−51.3%**, which
+liquidated 2x *and* 3x, after which the stack is gone and the recovery is
+bought back at higher prices. This is **not** a coin flip to be re-shopped at
+a friendlier leverage — R7 says one wipe is a fail, and the wipe is
+permanent in the metric that matters.
+
+### 41.5 · The conflict that decides the sleeve
+
+Out-of-sample cycle timing is genuinely good. Projecting each trough from
+**prior** cycles' peak→trough gaps only: 2018 error **−47d**, 2022 error
+**−10d**. Applied to the 2025-10-06 peak: **projected trough 2026-10-24**,
+quoted as the window **2026-08-25 .. 2026-12-23**. Trough→trough spacing is
+1431d and 1437d — 3.92 and 3.93 years. The owner's read that "the 4-year cycle
+is really playing out" is supported, not indulged.
+
+**And that is exactly why leverage cannot ship now.** Completed peak→trough
+drawdowns are **−83.1%** (2018) and **−75.7%** (2022). This cycle has fallen
+−42.5% (low so far −53.7%). If the cycle plays out as the thesis asserts:
+
+| implied trough | price | from today ($71.7k) |
+|---|---|---|
+| −75.7% (mildest) | $30,315 | −57.7% |
+| −83.1% | $21,083 | −70.6% |
+
+against liquidation prices for a position opened today of **$36,328 (2x)**,
+**$43,593 (2.5x)**, **$48,437 (3x)** — and even **$24,218 at 1.5x**. **The
+mildest completed drawdown lands below every levered liquidation price.**
+Believing the cycle and levering through the trough are the same bet taken
+twice in opposite directions.
+
+### 41.6 · What DID pass — cycle-weighted unlevered accumulation
+
+Schedule test on units, unlevered, same analogs:
+
+| schedule | c2 | c3 |
+|---|---|---|
+| flat DCA | — | — |
+| cycle-weighted (2.5× within ±6mo of trough) | **+22.2%** | **+14.4%** |
+| all-in at projected trough month | +52.1% | +49.1% |
+| all-in at true low (hindsight bound) | +91.8% | +64.1% |
+
+Cycle-weighting wins in both. **This is the one place the 4-year cycle earns
+its keep**, and note it is the *opposite* result to the equity book, where
+hold-cash-for-dips has now failed five times (#50, §29/§31 lineage) — because
+there the dip date is unknown, and here the estimator carries a measured ±47d
+error. The weighted and all-in arms are **conditional on that estimator**;
+they are not free. The all-in rows are printed as the ceiling of the
+conditioning, **not as a recommendation** — they concentrate the entire budget
+on one month whose date carries the ±47d error.
+
+### 41.7 · Verdict and what ships
+
+**Leverage FAILS R7 and does not enter the sleeve.** What ships is
+`CRYPTO_SLEEVE.md`: unlevered spot accumulation, cycle-weighted, with leverage
+defined as a **post-trough** instrument capped at 2x BTC and never on ETH
+(every ETH setting above 1.5x has a negative median across rolling 3y
+windows: 2x const 0.60x, 3x const 0.30x with 100% liquidated).
+
+**Caveats that must travel with any quote of these numbers.** n=2 completed
+accumulation analogs — every comparison above is a statement about two paths.
+Funding before 2019-09 is unmeasured and modelled at the 0.01%/8h baseline, so
+pre-2019 results are optimistic. The 2013-11 peak predates the Yahoo series,
+so that cycle's drawdown is quoted from the chronology, not measured. And the
+cycle estimator has three observations: it is the best-supported thing in this
+study and it is still three observations.
+
+**This item is sleeve-local.** It touches no signal, no selection rule, and no
+part of the stock engine; §9.0's beat-QQQ bar is unaffected. Per #128's
+standing note, a crypto-driven household result is not evidence about the
+stock engine — and the reverse holds here too.
