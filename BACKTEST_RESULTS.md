@@ -2300,3 +2300,64 @@ in which this sleeve is "leverage only".
 ~2.5 independent cycles, not 45 trials. The G2 failure is real. And the
 monotonic-decline stress is not a hypothetical: it is the path this cycle is
 in until §42's confirmation says otherwise.
+
+## 44 · #151 BTC regime + the two-gate leverage rule (run 2026-08-21) — the stock book's 10m-SMA rule transfers, and each gate guards a different failure
+
+**Origin.** Owner: *"i want our digest to clearly tell us when we are in bear
+or bull market in crypto mainly bitcoin … add in how we calculate nasdaq and
+spy bull bear regime and add it to btc … we should be clear when to add
+leverage and when to NOT."*
+
+**The stock book's rule transfers to BTC.** `homily_regime.sma10_state`
+classifies off a 10-month SMA of COMPLETED month-end closes. Applied unchanged
+to 134 months of BTC:
+
+| | months | mean next-month | median | 
+|---|---|---|---|
+| BULL | 93 (69%) | **+8.61%** | +6.38% |
+| BEAR | 41 (31%) | +0.96% | **−3.19%** |
+
+Long-only-in-BULL returns **395.5×** against buy-and-hold's **284.2×**, at a
+**60.0%** max drawdown instead of **75.6%**. The rule earns its place on BTC on
+its own evidence, not by analogy.
+
+**But it is NOT a safe entry gate, and the first test said otherwise because
+the window was wrong.** Measured on windows starting 10 months post-peak,
+regime-only looked best (+74.6% / +96.3% vs the §42 signal's +60.3% / +73.7%).
+That window silently excludes the regime's worst behaviour: **the 10m SMA
+mislabels 9/35 markdown months as BULL (26%)**, and they cluster immediately
+after the peak — 2017-12 and 2018-01 both read BULL while BTC fell $19k → $10k.
+Re-run **peak-to-peak**, so the lag is included:
+
+| gate | 2017→2021 peak | liquidations | 2021→2025 peak | liquidations |
+|---|---|---|---|---|
+| signal only (§42) | +50.0% | 2 | +63.8% | 0 |
+| regime only | **+57.4%** | **5** | **+80.7%** | 0 |
+| **signal ENTRY + regime EXIT** | +54.3% | **1** | +63.8% | 0 |
+
+**Regime-only buys the highest return with five liquidations.** Under
+CRYPTO_SLEEVE §6 a realised liquidation bans sleeve leverage permanently, so
+that arm destroys itself on the first one and never reaches the return it is
+credited with. The combined gate takes **one**.
+
+**The rule, therefore: the signal guards the ENTRY, the regime guards the
+EXIT.** They fail differently — the §42 signal cannot fire in a markdown but
+never turns off; the regime turns off but fires early in a markdown. Each
+covers the other's hole. This is not a compromise between two candidates; it
+is two different jobs.
+
+**Shipped.** `homily_cryptocycle.btc_regime` / `cycle_phase` /
+`leverage_verdict` (validate [73]), printing two lines above the timing detail:
+the regime + 4-year-cycle phase, and a single **✅ PERMITTED / ❌ NO LEVERAGE**
+verdict that names *every* open gate rather than the first one. The running
+month never votes — same invariant as #134, pinned in [73].
+
+**Live 2026-08-21:** last completed month-end **$62,814** vs 10m SMA
+**$77,257** = **🐻 BEAR (−18.7%)**; phase MARKDOWN; entry gate open; verdict
+**❌ NO LEVERAGE** on all three counts.
+
+**Caveats.** 134 months = ~3 cycles, and the regime statistics inherit that.
+The 26% markdown-mislabel rate is measured on 35 markdown months. The whipsaw
+rate is 1 flip per 10.1 months with 7/14 runs under 3 months, so the exit gate
+will sometimes delever into a recovery — that cost is real and is the price of
+the 5→1 liquidation reduction.

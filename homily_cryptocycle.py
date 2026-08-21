@@ -38,6 +38,7 @@ The engine ALSO requires CRYPTO_SLEEVE §3's other conditions (trough window
 closed, BTC-only, <= the sanctioned leverage). This line reports the timing
 condition only and says so — it is a WATCH, never an authorisation.
 """
+import collections
 import datetime
 
 PCT = 0.30                 # above the running cycle low
@@ -127,3 +128,100 @@ def cycle_line(state, esc=lambda x: x):
                f"({TROUGH_WINDOW[0]:%Y-%m-%d}…{TROUGH_WINDOW[1]:%Y-%m-%d}) "
                f"— spot accumulation is HEAVY here")
     return f"₿ <i>CYCLE: {esc(head)} — {esc(tail)}{prov}{win}</i>"
+
+
+# ─────────────────────── #151: regime + phase ────────────────────────
+# The stock book classifies BULL/BEAR off a 10-month SMA of COMPLETED
+# month-end closes (homily_regime.sma10_state). Measured on BTC over 134
+# months (BACKTEST_RESULTS §44): BULL months average +8.61% forward vs
+# BEAR +0.96%, and long-only-in-BULL returns 395x against 284x buy-and-
+# hold at a 60% max drawdown instead of 76%. Same rule, same shape, so
+# one regime vocabulary covers both books.
+SMA_N = 10
+HALVING_NEXT = datetime.date(2028, 4, 16)
+PEAK_NEXT = datetime.date(2029, 10, 4)
+
+
+def month_ends(bars):
+    """Daily bars -> [(date, close)] one row per month, last print wins."""
+    out = collections.OrderedDict()
+    for b in bars:
+        out[(b[0].year, b[0].month)] = (b[0], b[4])
+    return [out[k] for k in sorted(out)]
+
+
+def btc_regime(bars, asof=None):
+    """-> (label, last_completed_close, sma) using COMPLETED months only.
+
+    Identical construction to homily_regime.sma10_state: the running month
+    never votes, because a month is complete when the calendar leaves it."""
+    asof = asof or datetime.date.today()
+    rows = [(d, c) for d, c in month_ends(bars)
+            if (d.year, d.month) < (asof.year, asof.month)]
+    if len(rows) < SMA_N + 1:
+        return None, None, None
+    sma = sum(c for _, c in rows[-SMA_N:]) / SMA_N
+    last = rows[-1][1]
+    return ("BULL" if last > sma else "BEAR"), last, sma
+
+
+def cycle_phase(asof=None):
+    """Where the 4-year clock says we are. Dates frozen in §41's chronology."""
+    asof = asof or datetime.date.today()
+    if asof < TROUGH_WINDOW[0]:
+        return "MARKDOWN", "past the peak, trough window not yet open"
+    if asof <= TROUGH_WINDOW[1]:
+        return "TROUGH WINDOW", "the projected bottom is HERE — buy heaviest"
+    if asof < HALVING_NEXT:
+        return "ACCUMULATION", f"post-trough, pre-halving ({HALVING_NEXT})"
+    if asof < PEAK_NEXT - datetime.timedelta(days=365):
+        return "MARKUP", f"post-halving, running to ~{PEAK_NEXT}"
+    if asof < PEAK_NEXT + datetime.timedelta(days=120):
+        return "DISTRIBUTION", "peak window — harvest to CASH, wind the engine down"
+    return "MARKDOWN", "past the peak"
+
+
+def leverage_verdict(state, regime):
+    """The single ON/OFF the owner asked for, with the binding reason.
+
+    ENTRY is gated by the §42 signal, EXIT by the regime (§44): measured
+    peak-to-peak, signal-only took 2 liquidations and regime-only took 5,
+    while signal-ENTRY + regime-EXIT took 1. Under CRYPTO_SLEEVE §6 a
+    realised liquidation bans sleeve leverage permanently, so the arm with
+    5 kills itself on the first one."""
+    reasons = []
+    if not state:
+        return False, ["no BTC read"]
+    if not state.get("fired"):
+        need = state["need_days"] if state.get("armed_since") else HOLD_WKS * 7
+        reasons.append(f"entry gate OPEN — needs ${state['trigger']:,.0f} "
+                       f"held {need}d more")
+    if regime != "BULL":
+        reasons.append(f"regime is {regime or 'unknown'} (10m SMA) — "
+                       "exit gate says flat")
+    phase, _ = cycle_phase()
+    if phase in ("MARKDOWN", "TROUGH WINDOW"):
+        reasons.append(f"cycle phase {phase} — CRYPTO_SLEEVE §3 cond.1 "
+                       "requires the trough window CLOSED")
+    return (not reasons), reasons
+
+
+def regime_line(bars, state=None, esc=lambda x: x, asof=None):
+    """-> the 🐂/🐻 regime + phase + leverage verdict line (or "")."""
+    label, last, sma = btc_regime(bars, asof=asof)
+    if not label:
+        return ""
+    phase, why = cycle_phase(asof)
+    icon = "🐂" if label == "BULL" else "🐻"
+    ok, reasons = leverage_verdict(state, label)
+    head = (f"{icon} BTC {label} — last month-end ${last:,.0f} vs 10m SMA "
+            f"${sma:,.0f} ({last/sma-1:+.1%})")
+    mid = f"phase {phase}: {why}"
+    if ok:
+        tail = ("✅ LEVERAGE PERMITTED — entry gate met, regime BULL, window "
+                "closed. Size per CRYPTO_SLEEVE §3.4 (≤3× inside the sweep, "
+                "W = your max loss)")
+    else:
+        tail = "❌ NO LEVERAGE — " + "; ".join(reasons)
+    return (f"₿ <i>{esc(head)} · {esc(mid)}</i>\n"
+            f"₿ <i>{esc(tail)}</i>")

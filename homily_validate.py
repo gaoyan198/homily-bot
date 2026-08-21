@@ -2904,4 +2904,29 @@ assert "urlopen" not in _src72 and ".record(" not in _src72 and \
     "open(" not in _src72, "#148: the cycle line is pure — no IO"
 print("[72] #148/#150 crypto-cycle watch: 30%/8wk, reset guard, SETTLED bars  PASS")
 
+
+# --- #151: BTC regime (same 10m-SMA rule as the stock book) + verdict -----
+assert _cc72.SMA_N == 10, "#151: BTC uses the SAME 10m window as homily_regime"
+_md = [(datetime.date(2020, m, 28), 100.0) for m in range(1, 13)]
+_r151 = _cc72.btc_regime([(d, c, c, c, c) for d, c in _md],
+                         asof=datetime.date(2021, 1, 15))
+assert _r151[0] == "BEAR", "#151: flat series sits ON the SMA -> not above -> BEAR"
+_up = [(datetime.date(2020, m, 28), float(m)) for m in range(1, 13)]
+assert _cc72.btc_regime([(d, c, c, c, c) for d, c in _up],
+                        asof=datetime.date(2021, 1, 15))[0] == "BULL", \
+    "#151: a rising series must read BULL"
+# the RUNNING month must never vote (same invariant as #134)
+_rm = [(d, c, c, c, c) for d, c in _up] + \
+      [(datetime.date(2021, 1, 5), 0.01, 0.01, 0.01, 0.01)]
+assert _cc72.btc_regime(_rm, asof=datetime.date(2021, 1, 15))[0] == "BULL", \
+    "#151: an in-progress month cannot flip the regime (cf. #134)"
+# the verdict is AND-gated: every open gate must be named
+_ok, _why = _cc72.leverage_verdict(None, "BULL")
+assert not _ok and _why, "#151: no state -> no leverage, with a reason"
+_ok2, _why2 = _cc72.leverage_verdict(_g72, "BEAR")
+assert not _ok2 and any("regime" in r for r in _why2), \
+    "#151: a fired entry gate does NOT authorise leverage in a BEAR regime"
+assert _cc72.regime_line([], None) == "", "#151: no bars -> no line (additive)"
+print("[73] #151 BTC regime + phase + leverage verdict: AND-gated, month-safe  PASS")
+
 print("\nAll structural assertions passed.")
