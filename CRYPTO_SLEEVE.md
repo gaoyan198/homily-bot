@@ -107,31 +107,40 @@ and it is never the reason to add risk.
   ($49,703 on $72,000 contributed). Perps are a trading instrument; this
   is a holding thesis. IBIT costs 0.25%/yr to hold; a perp cost ~12%/yr
   on average and 45% in the last bull.
-* **Split: 50/50 BTC/HYPE** — **owner decision 2026-08-21, reaffirmed after
-  the contrary analysis was presented (§48).** ETH is OUT of the accumulation
-  leg: 100% BTC beat 70/30 in both accumulation-phase analogs (0.85 vs 0.80,
-  1.84 vs 1.73), and ETH's one large win came in the late markup, not here.
+* **Split: 70/30 BTC/HYPE** — **owner decision 2026-08-21 (final of three
+  that day: 70/30 BTC/ETH → 50/50 BTC/HYPE → 100% BTC → 70/30 BTC/HYPE).**
+  The sequence is recorded deliberately: an allocation revised four times in
+  an afternoon is one that cannot be held through a 50% drawdown, and holding
+  it through a drawdown is the only time it matters. **This split is now
+  fixed until the December review (§6); it is not re-opened on new
+  information.**
 
-  **What the evidence said, recorded because the decision went the other
-  way.** For 50/50: HYPE's correlation to BTC is **0.48** and does NOT spike
-  in selloffs (0.29 on BTC −3% days, 0.03 on −5% days); on BTC's ten worst
-  days HYPE fell less on six; and a monthly-rebalanced 50/50 carried a
-  **lower max drawdown than 100% BTC (48.0% vs 53.1%)**. Against 50/50:
-  **none of this policy's machinery governs HYPE** — the 4-year cycle, the
-  trough window, the regime board, the §42 signal and the §46 stop are all
-  calibrated on 12 years of BTC across three cycles, while HYPE has 1.7 years
-  and has never seen a bear market; the sleeve's own leverage venue is
-  Hyperliquid, so HYPE plus engine collateral concentrates most of the sleeve
-  behind one exchange; and the $1M target is BTC-denominated, so halving BTC
-  contributions requires the HYPE half to return **~8×**. The session
-  recommended **25/75**, the lowest measured max drawdown of any blend
-  (45.9%). **The owner chose 50/50 and that is the operative split.**
+  **Why 70/30 is defensible.** It sits one point from the 75/25 the evidence
+  recommended, and it keeps most of the measured diversification: HYPE's
+  correlation to BTC is **0.48** and does NOT spike in selloffs (0.29 on BTC
+  −3% days, **0.03** on −5% days), and a rebalanced 30% HYPE carries a **max
+  drawdown of 46.2% against 53.1% for 100% BTC** — near the 45.9% minimum at
+  25%. It also cuts the target strain: at 50/50 the HYPE half had to return
+  ~8.7× to reach $1M, and BTC needed a $564k peak; at 70/30 BTC needs **$403k**
+  and HYPE **9.4×** — still demanding, but on a much smaller share.
 
-  **HYPE is therefore explicitly UNMANAGED**: no regime gate, no cycle rule,
-  no entry signal, no stop — because none exist for it, and inventing them
-  from 1.7 years would be worse than admitting there aren't any. The digest
-  prints risk telemetry for it and renders no verdict (#155, validate [76]).
-  **HYPE never carries leverage** — §4's ban covers every non-BTC asset.
+  **ETH is OUT** of the accumulation leg: 100% BTC beat 70/30 BTC/ETH in both
+  accumulation-phase analogs (0.85 vs 0.80; 1.84 vs 1.73). ETH's one large win
+  came in the late markup and is a Phase-2 question at most.
+
+  **The RESERVE deployment is 100% BTC, not 70/30.** The trough-window logic
+  is "buy the thing that is cheap"; on 2026-08-21 BTC was −40% from its high
+  and HYPE was at its high. The 70/30 governs ongoing monthly contributions;
+  the timed lump goes to BTC.
+
+  **HYPE is explicitly UNMANAGED**: no regime gate, no cycle rule, no entry
+  signal, no stop — none exist for it, and inventing them from 1.7 years of
+  history (never through a bear) would be worse than admitting there are
+  none. The digest prints risk telemetry and renders no verdict (#155,
+  validate [76]). **HYPE never carries leverage** — §4's ban covers every
+  non-BTC asset. The sleeve's leverage venue IS Hyperliquid, so HYPE plus
+  engine collateral remains a concentration the owner is choosing to run.
+
 * **Schedule: cycle-weighted, 2.5× inside the trough window, 0.4×
   outside** — the one arm that beat flat DCA in **both** analogs (+22.2%,
   +14.4% in units, §41.6). Concretely, against a base sleeve rate `B`:
