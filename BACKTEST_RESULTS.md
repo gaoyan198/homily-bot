@@ -2536,3 +2536,66 @@ price-versus-its-own-average at different lookbacks, so "3 of 3" is closer to
 one opinion measured three ways than three independent votes. The 9% floor
 appearing identically across seven different sets is itself evidence of that
 redundancy, not of robustness.
+
+## 47 · #154 the $1M target tracker (shipped 2026-08-21) — and the correction that made it worth building
+
+**Origin.** Owner, twice: *"i want to make 1million in crypto this cycle"* then
+*"no i need 1mm by the next bull run."* The second time was a reaffirmation
+after this session had twice told them it was unrealistic. **The session was
+wrong, and the error is worth recording precisely.**
+
+**What the error was.** §41's path tables were computed at US$2,000/mo, and the
+"$400–600k is the realistic ceiling" line was carried forward from that without
+re-deriving it against the owner's actual savings rate of **S$4,250/mo
+(US$3,342)**. A 67% understatement of the input produced a conclusion that
+looked like a judgement about the market but was arithmetic about the wrong
+number.
+
+**Re-derived at the real run-rate** (US$10k already in, US$60k average
+accumulation cost, 1.72× strategy multiple from §46's 5× + stop):
+
+| S$/mo | BTC | @1.9× peak | @3.4× peak | **BTC price needed for $1M** |
+|---|---|---|---|---|
+| 3,000 | 2.79 | $661k | $1.18M | $358,591 = **2.9×** last peak |
+| **4,250** | **3.83** | **$908k** | **$1.63M** | **$261,015 = 2.1×** |
+| 5,500 | 4.87 | $1.16M | $2.07M | $205,182 = **1.6×** |
+
+Historical cycle-over-cycle peak growth is **3.4× then 1.9×**. At S$4,250/mo
+the target needs **2.1×, inside that range**; at S$5,500/mo it needs **1.6×,
+below the weakest cycle on record.** The goal is reachable and the earlier
+verdict was an arithmetic error, not a market view.
+
+**A deeper trough helps**, because it lowers the accumulation cost — the
+second-largest lever after contribution rate, and larger than leverage:
+
+| average accumulation cost | BTC | value at a 1.9× peak |
+|---|---|---|
+| $45,000 | 5.11 | **$1.21M** |
+| $60,000 | 3.83 | $908k |
+| $70,000 | 3.28 | $778k |
+
+**What shipped.** `target_state`/`target_line` (validate [75]) print daily
+progress: coins held now, projected coins at the peak, coins needed, months
+left, the peak price the current path implies, and — when behind — **the
+run-rate that would fix it**. Four assumptions are module CONSTANTS rather than
+buried arithmetic (`TARGET_PEAK_MULT` 2.1, `AVG_COST_ASSUMPTION` $60k,
+`STRATEGY_MULT` 1.72, `LAST_PEAK`) precisely because the answer is very
+sensitive to all four and the owner must be able to argue with each.
+
+**Units are never invented.** They are read from the same `contributions.json`
+balances the household scorecard marks (#128), with IBIT converted to
+BTC-equivalent at its own mark so the tracker counts economic coins rather than
+share counts. An unset run-rate prints **"run-rate NOT SET"** and scores
+nothing — pinned in [75], because a tracker that guesses its own input is worse
+than no tracker.
+
+**Live 2026-08-21:** `btc_qty` and `ibit_qty` are both **0** in the file, and
+`crypto_monthly_usd` is unset, so the line reports exactly that. The owner has
+stated a US$10k re-entry (BTC + HYPE) that is **not yet in the file** — the
+tracker will read 0 until it is, by design.
+
+**Caveats.** The projection is a straight run-rate extrapolation; it does not
+model the 2.5×/0.4× cycle weighting, so it is conservative during the trough
+window and optimistic after it. Every number inherits §43/§46's n=2 analogs
+and the 1.72× multiple's dependence on the engine actually being switched on —
+which, today, all four gates forbid.

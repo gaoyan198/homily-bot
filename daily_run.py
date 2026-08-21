@@ -836,9 +836,25 @@ def build_digest(flex_notes=None):
         # + the single leverage verdict, above the timing detail.
         # #152: the crystal-clear regime board — one verdict, then exactly
         # why, with the 4-year cycle PRIMARY over the indicators.
+        # #154: progress against the $1M target. Units come from the SAME
+        # contributions.json balances the household scorecard marks — never
+        # invented here; run-rate is owner-set and 0 means "unset", which the
+        # line says out loud rather than guessing.
+        _bal = homily_household.load_contributions().get("balances", {}) or {}
+        _units = float(_bal.get("btc_qty") or 0)
+        _ibit = float(_bal.get("ibit_qty") or 0)
+        if _ibit and _cbars:
+            # IBIT is BTC exposure, not BTC — convert at its own mark so the
+            # tracker counts economic coins, not share counts.
+            _ip = (homily_data.fetch_series("IBIT", rng="5d")[0] or [None])[-1]
+            if _ip:
+                _units += (_ibit * _ip[4]) / _cbars[-1][4]
+        _ts = homily_cryptocycle.target_state(
+            _units, float(_bal.get("crypto_monthly_usd") or 0))
         crypto = "\n".join(x for x in (
             homily_cryptocycle.regime_block(_cbars, _cs, esc=esc),
-            homily_cryptocycle.cycle_line(_cs, esc=esc)) if x)
+            homily_cryptocycle.cycle_line(_cs, esc=esc),
+            homily_cryptocycle.target_line(_ts, esc=esc)) if x)
     except Exception as e:
         print(f"[cryptocycle] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched
