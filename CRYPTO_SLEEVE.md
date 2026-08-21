@@ -160,6 +160,14 @@ and it is never the reason to add risk.
 
 ## 6 · Review + demotion (this policy's own kill rule)
 
+* **Two stock-book items ride this same review** (they fall due together and
+  would otherwise be orphaned): **(a) did the year-end SRS actually get
+  funded?** `SRS_COVERS_INDEX=true` makes SRS the *only* thing funding the
+  index half, so if the bonus did not land, flip it to `false` and the 50%
+  index leg resumes from the monthly budget. **(b) is `BUY_BUDGET_USD` still
+  right?** It is a GitHub Actions variable, invisible to this repo, and it
+  silently sized the buy sheet at S$4,500 for three days after the leg was
+  cut to S$2,000.
 * **At the close of the trough window (2026-12-23):** re-run the harness,
   re-derive §2 from actuals, and record whether the trough landed inside
   the window. **If it did not, the estimator's error set is updated and
