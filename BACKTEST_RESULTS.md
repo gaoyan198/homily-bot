@@ -2667,3 +2667,52 @@ that it survives a bear — no alt's first cycle ever is. The 0.48 correlation i
 measured over a window in which HYPE rose 12× while BTC fell 20%; that is an
 unusual regime and the correlation should be expected to rise in a genuine
 market-wide liquidation.
+
+## 49 · #156 the playbook's engine routine was incomplete — and out of order (2026-08-21)
+
+**Origin.** Owner: *"are all these actually documented in the crypto_playbook?
+I want to be super clear what needs to be done when it switches on."* The
+answer was no, and the audit found a defect worse than the omissions.
+
+**The ordering defect.** `CRYPTO_PLAYBOOK` Part A had the stop reset as **Step
+2b**, before the contribution (Step 3) and the sweep (Step 4). The correct
+order is **contribute → sweep → re-lever → reset stop**. A stop computed
+before re-levering is stale the instant the position changes, and §46's whole
+finding is that a stale stop is one funding cycle away from being outrun. The
+document instructed the reader to do the one protective step first, which is
+the one position in the sequence where it does nothing.
+
+**The omission.** **The re-lever step was not documented at all.** Part A said
+"top up the engine to W" and "sweep above W", but nowhere stated that the
+position is then brought back to 3× the remaining equity. A reader following
+the playbook literally would have contributed, swept, and left the engine at
+whatever leverage the market had drifted it to.
+
+**Also missing, all discussed with the owner but never written down:** monthly
+vs quarterly cadence and why monthly wins (the stop reset forces monthly
+contact regardless); that the sweep buys **BTC, not 50/50**, so the split
+governs contributions rather than the whole book; and a worked example with
+actual dollars.
+
+**Fixed.** Part A is rewritten as a verdict-routed flow: Step 1 reads the
+verdict, Step 2 is the SPOT path (🐻/⚖️), Step 3 is the ENGINE routine (🐂)
+with four ordered sub-steps and a dollar-denominated worked example, Step 4
+isolates the stop because it is the step that saves the account.
+
+**New Part D2 — "tested and rejected".** Nine ideas that were proposed,
+measured, and lost, recorded so no future session quietly reintroduces one:
+the 20% dip fund (**6th** hold-cash-for-dips failure in this repo — BTC dipped
+20% **23 times in 3 years**, lost 11 of 15 tests), dip-levering (stop-outs 1 →
+6), quarterly cadence, fixed-price stops, unswept leverage, ETH in the
+accumulation leg, leverage on any alt, majority-vote regime, and the shorter
+entry hold (flagged as the open judgement call it is, not as settled).
+
+The section closes on the distinction that makes the dip fund fail and
+cycle-weighting succeed: **a price drop tells you nothing because they happen
+every six weeks; the cycle tells you something because three bottoms have
+landed in the same place ±47 days.** Same instinct, different trigger, opposite
+outcome — and the buffer is therefore trough-window ammunition, not a dip fund.
+
+**No code changed.** This is a documentation defect in an operating manual the
+owner has said they will follow religiously, which makes it a live risk rather
+than a tidiness issue.
