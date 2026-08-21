@@ -2100,3 +2100,72 @@ study and it is still three observations.
 part of the stock engine; §9.0's beat-QQQ bar is unaffected. Per #128's
 standing note, a crypto-driven household result is not evidence about the
 stock engine — and the reverse holds here too.
+
+## 42 · #148 the leverage-ON signal (run 2026-08-21) — the HOLD is the rule; the threshold is noise
+
+**Origin.** #147 shipped `CRYPTO_SLEEVE.md` with leverage gated behind a
+markup confirmation quoted as "+40% above the cycle low, held 8 weeks" —
+a number asserted from two firings and explicitly flagged in §41 as *"fitted
+to 2 firings … not a well-tested rule."* Owner then asked the right question:
+*"what is the signal to go on leverage?"* This section is that rule tested
+instead of asserted, and it CHANGES the constant.
+
+**Method.** For each completed cycle, scan forward from the PEAK, tracking the
+running low; a candidate fires when its condition holds for its hold period.
+Scored on three things: **false positives** (signal fires, price then makes a
+NEW low — i.e. it levered you into a falling knife), **lateness** vs the actual
+trough, and **upside remaining** (subsequent max ÷ price at firing).
+
+| candidate | false pos | lateness (days after trough) | upside left | geo-mean |
+|---|---|---|---|---|
+| +30%, hold **4wk** | **1/3** | 58, **−282**, 82 | — | — |
+| +30%, hold **6wk** | **1/3** | 72, **−268**, 96 | — | — |
+| **+30%, hold 8wk** | **0/3** | 86, 163, 166 | 82.6× / 7.7× / 4.3× | **14.0×** |
+| +40%, hold 8wk | 0/3 | 209, 164, 167 | 72.1× / 7.7× / 4.4× | 13.5× |
+| +50%, hold 8wk | 0/3 | 331, 164, 168 | 43.1× / 7.7× / 4.5× | 11.5× |
+| +30% AND >200d SMA, 8wk | 0/3 | 328, 164, 166 | 46.9× / 7.7× / 4.3× | 11.6× |
+| +30%, hold 12wk | 0/3 | 308, 191, 194 | 58.3× / 6.1× / 4.6× | 11.8× |
+
+**The finding is the hold period, not the percentage.** Every 4wk and 6wk
+variant produced a false positive; every 8wk variant produced none, 3/3. The
+canonical failure is **2018-03-08: +30%/4wk fired at $9,395, and BTC then fell
+to $3,191** — −66% *after* the go signal, 282 days before the real trough. At
+3x that is a wipeout, and it is the entire reason the hold exists.
+
+**The threshold is inside the noise and the change is small.** +30% beats +40%
+on geo-mean upside (14.0× vs 13.5×) and fires ~42 days earlier on average with
+identical false-positive behaviour, so **the constant moves 0.40 → 0.30**. But
+that ranking is carried by ONE cycle: 2015 contributes 82.6× against 7.7× and
+4.3×; drop it and +30% vs +40% is a coin toss. **What is defensible at n=3 is
+the hold, not the threshold**, and CRYPTO_SLEEVE.md now says so in those words.
+
+**Adding a moving-average filter made it worse.** `+30% AND >200d SMA` fell to
+11.6× because it delayed the 2015 entry to 328 days post-trough. Recorded as a
+rejected complication, not a tuning knob to revisit.
+
+**What the signal costs, stated plainly.** It fires **86–167 days after the
+trough**, at **+38% to +176% above the low**. You give up the first leg of the
+markup by construction. That is the price of never levering into a decline,
+and the sleeve's unlevered spot leg is already capturing that first leg —
+§41.6's cycle-weighting is what buys the bottom, not this.
+
+**Shipped, not just measured.** `homily_cryptocycle.py` (validate [72]) runs
+the identical loop the study runs — the digest and this section cannot drift —
+and prints a daily ₿ CYCLE line under the leverage ladder: 🟠 OFF with the
+trigger price and distance, 🟡 ARMING with days held and the reset warning, or
+🟢 CONFIRMED. The line is a **watch, not an authorisation**: it reports the
+timing condition only, and CRYPTO_SLEEVE §3's other conditions are unchanged
+and still bind. Additive-only — a failed BTC fetch leaves the digest
+byte-identical.
+
+**Live at time of writing (2026-08-21):** cycle low $57,748 (2026-07-01), BTC
+$75,360, trigger $75,072 — **the signal ARMED today**, 0/56 days held. Any
+close below $75,072 resets it to zero. Recorded here because a signal that
+arms on the day it ships deserves to be on the record before anyone can claim
+it was fitted afterwards.
+
+**Caveats.** Three cycles. The 2015 cycle dominates every geometric mean. The
+trigger is measured off the running low so it falls with a new low — which
+means "lateness" is only defined after the fact, and a real-time reader never
+knows whether the current low is THE low. That is a property of the problem,
+not a defect of the rule.

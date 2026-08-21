@@ -2851,4 +2851,45 @@ assert "SPY" not in _dr71.UNIVERSE, \
 print("[71] 👁 observation fence: inert by default, post-ranking, USD+manual, "
       "§3.5 reroute, basket-clean  PASS")
 
+
+# --- 72. #148 crypto-cycle watch: signal semantics pinned, pure, additive ---
+import homily_cryptocycle as _cc72
+assert _cc72.PCT == 0.30 and _cc72.HOLD_WKS == 8, \
+    "#148: signal constants are CRYPTO_SLEEVE.md/§42 — the 8wk HOLD is the " \
+    "load-bearing part (every 4wk/6wk variant produced a false positive)"
+_d72 = datetime.date(2026, 1, 1)
+def _bars72(closes, lows=None):
+    lows = lows or closes
+    return [(_d72 + datetime.timedelta(days=i), c, c, l, c)
+            for i, (c, l) in enumerate(zip(closes, lows))]
+_f72 = _cc72.cycle_state(_bars72([100.0] * 120), since=_d72)
+assert _f72["armed_since"] is None and _f72["fired"] is None, \
+    "#148: no move -> never armed"
+_a72 = _cc72.cycle_state(_bars72([100.0] * 10 + [131.0] * 20), since=_d72)
+assert _a72["armed_since"] is not None and _a72["fired"] is None, \
+    "#148: above the line but short of 8wk must ARM, never fire"
+assert _a72["need_days"] == 56 - 19, _a72
+_g72 = _cc72.cycle_state(_bars72([100.0] * 10 + [131.0] * 60), since=_d72)
+assert _g72["fired"] is not None, "#148: 8wk above the line fires"
+_r72 = _cc72.cycle_state(
+    _bars72([100.0] * 10 + [131.0] * 40 + [120.0] + [131.0] * 10), since=_d72)
+assert _r72["fired"] is None, \
+    "#148: any close below the trigger resets the clock — this is the rule " \
+    "that blocked the 2018-03-08 false positive"
+_n72 = _cc72.cycle_state(_bars72([100.0, 50.0, 66.0]), since=_d72)
+assert abs(_n72["trigger"] - 65.0) < 1e-9, \
+    "#148: trigger is measured off the RUNNING low, not the first bar"
+assert _n72["low"] == 50.0 and _n72["above"], _n72
+assert _cc72.cycle_line(None) == "", "#148: no state -> no text (additive)"
+assert "watch, not an authorisation" in _cc72.cycle_line(_g72), \
+    "#148: a fired line must NOT read as permission to lever"
+assert "RESETS" in _cc72.cycle_line(_a72), "#148: arming line states the reset rule"
+assert "leverage OFF" in _cc72.cycle_line(_f72), "#148: quiet state says OFF"
+assert _cc72.cycle_line(_g72) == _cc72.cycle_line(_g72), "#148: deterministic"
+_src72 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_cryptocycle.py")).read()
+assert "urlopen" not in _src72 and ".record(" not in _src72 and \
+    "open(" not in _src72, "#148: the cycle line is pure — no IO"
+print("[72] #148 crypto-cycle watch: 30%/8wk pinned, reset guard, pure .... PASS")
+
 print("\nAll structural assertions passed.")

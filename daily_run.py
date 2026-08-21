@@ -38,6 +38,7 @@ import homily_quality
 import homily_universe
 import homily_swing
 import homily_leverage
+import homily_cryptocycle
 import homily_household
 import homily_ops
 import homily_bearish
@@ -440,7 +441,7 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
                   *, fund=fund_tag, suspect=None, positions=None, buyday="",
                   bearready="", gaps=None, breadth_read=None, conc=None,
                   flex_notes=None, dips=None, qual=None, promos="", swing="",
-                  lev="", household="", cross_book=None, ops="", bear="",
+                  lev="", crypto="", household="", cross_book=None, ops="", bear="",
                   turnover="", crash="", dataqa=None, prov=None, brkmap=None,
                   regime_stale=""):
     """Pure digest assembly — no network, no clock, no state mutation. All
@@ -477,6 +478,11 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
             # #91 (LEVERAGE.md): the ladder line rides directly under the
             # regime banner it is gated by
             lines.append(lev)
+        if crypto:
+            # #148 (CRYPTO_SLEEVE.md §3): the crypto-cycle watch rides with
+            # the leverage block — it gates a DIFFERENT sleeve's leverage,
+            # and the equity ladder above never applies to it
+            lines.append(crypto)
     else:
         # #134: a dark regime has a measurable age (regime_stale is built
         # by the IO shell from snapshot.json's regime_last_good; '' keeps
@@ -818,6 +824,17 @@ def build_digest(flex_notes=None):
             lev = homily_leverage.leverage_line(regime.label, mz, esc=esc)
     except Exception as e:
         print(f"[leverage] skipped: {e}")
+    # #148 (CRYPTO_SLEEVE.md): the crypto-cycle leverage watch. Pure compute
+    # + render over BTC daily bars; non-fatal and additive — a failed fetch
+    # leaves the digest byte-identical.
+    crypto = ""
+    try:
+        _cb, _ = homily_data.fetch_series("BTC-USD", rng="2y")
+        _cs = homily_cryptocycle.cycle_state(
+            [(b[0], b[1], b[2], b[3], b[4]) for b in _cb])
+        crypto = homily_cryptocycle.cycle_line(_cs, esc=esc)
+    except Exception as e:
+        print(f"[cryptocycle] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched
     # bars; both non-fatal, both info-only.
     br, conc, cross_book = None, None, None
@@ -928,7 +945,7 @@ def build_digest(flex_notes=None):
                            breadth_read=br, conc=conc, cross_book=cross_book,
                            flex_notes=flex_notes,
                            dips=dips, qual=qual, promos=promos, swing=swing,
-                           lev=lev, household=household, ops=ops, bear=bear,
+                           lev=lev, crypto=crypto, household=household, ops=ops, bear=bear,
                            turnover=turnover, crash=crash_line(spy),
                            dataqa=dataqa, prov=prov, brkmap=brkmap,
                            regime_stale=regime_stale)
