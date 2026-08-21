@@ -834,8 +834,10 @@ def build_digest(flex_notes=None):
         _cs = homily_cryptocycle.cycle_state(_cbars)
         # #151: regime (10m SMA, same rule as the stock book) + cycle phase
         # + the single leverage verdict, above the timing detail.
+        # #152: the crystal-clear regime board — one verdict, then exactly
+        # why, with the 4-year cycle PRIMARY over the indicators.
         crypto = "\n".join(x for x in (
-            homily_cryptocycle.regime_line(_cbars, _cs, esc=esc),
+            homily_cryptocycle.regime_block(_cbars, _cs, esc=esc),
             homily_cryptocycle.cycle_line(_cs, esc=esc)) if x)
     except Exception as e:
         print(f"[cryptocycle] skipped: {e}")
