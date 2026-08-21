@@ -191,6 +191,15 @@ the historical 1.9–3.4× range. **At 70/30 the BTC leg alone needs a $403k
 peak and the HYPE leg must return ~9.4×** — the line states both, every day,
 so the cost of the split is never out of sight.
 
+## Step 5b · The stock book is a SEPARATE routine — do not confuse them
+
+Same buy day, different rules. The stock leg buys **CONVICTION tier, state
+ACCUMULATE *or* HOLD**, ranked RS12 top-3 (#125, promoted 2026-07-25). It is
+**not** ACCUMULATE-only — the replay found HOLD days are the *better* entry
+days, and the old ⭐-only gate waited for a fade that subtracted return
+(BACKTEST_RESULTS §29). Nothing in this crypto playbook governs that leg, and
+nothing in the stock PLAYBOOK.md governs this one.
+
 ## Step 6 · Write one line in a log
 
 `date · amount · price · spot or engine`. That is the whole requirement.
