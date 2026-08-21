@@ -14,7 +14,7 @@ This is **income you can commit each month**, not an average to front-load
 against. If it is S$3,000, the number is S$3,000. It does not change with the
 cycle.
 
-Split **50/50 BTC / HYPE** every month.
+Split **70% BTC / 30% HYPE** every month.
 
 ## 2 · Reserve — cash you ALREADY hold for this sleeve
 
@@ -34,13 +34,13 @@ flat and that is a perfectly good plan.**
 most you can lose.** Everything above W is swept out to spot, where nothing
 can liquidate it.
 
-The engine is BTC-only, so W is sized off the BTC half of your monthly amount:
+The engine is BTC-only, so W is sized off the **BTC 70% leg** of your monthly amount:
 
-| monthly amount | BTC half | **W (12 months)** = max loss |
+| monthly amount | BTC leg (70%) | **W (12 months)** = max loss |
 |---|---|---|
-| S$2,000/mo | S$1,000 | S$12,000 |
-| S$3,000/mo | S$1,500 | S$18,000 |
-| S$4,250/mo | S$2,125 | S$25,500 |
+| S$2,000/mo | S$1,400 | S$16,800 |
+| S$3,000/mo | S$2,100 | S$25,200 |
+| S$4,250/mo | S$2,975 | S$35,700 |
 
 **Pick W by one question: if this went to zero tomorrow, would I be fine?**
 12 months is a starting point. 6 months halves the risk and the contribution.
@@ -67,14 +67,15 @@ weighting edge, and it costs you nothing you do not already have.
 
 **Worked example — S$3,000/mo income, S$20,000 reserve:**
 
-* **25 Aug → 23 Dec:** S$3,000 + (S$20,000 ÷ 4) = **S$8,000/month**
-* **after 23 Dec:** **S$3,000/month**
-* each month split 50/50 BTC / HYPE
-* W (if the engine ever opens) = 12 × S$1,500 = **S$18,000**
+* **25 Aug onward:** S$3,000 + (S$20,000 ÷ 8) = **S$5,500/month**
+  (reserve spread over ~8 months — being EARLY is punished, being late is not)
+* **once the reserve is spent:** **S$3,000/month**
+* each month split 70/30 BTC / HYPE
+* W (if the engine ever opens) = 12 × S$2,100 = **S$25,200**
 
 **Worked example — S$3,000/mo income, no reserve:**
 
-* **every month: S$3,000**, split 50/50. Nothing else changes.
+* **every month: S$3,000**, split 70/30. Nothing else changes.
 * You forgo the weighting edge. The plan still works.
 
 ---
@@ -98,7 +99,8 @@ There is no fourth case and no judgement call.
 
 ## Step 2 · SPOT PATH (🐻 BEAR or ⚖️ MIXED) — this is where you are today
 
-Buy spot, **split 50/50 BTC / HYPE**, at the weight the window dictates:
+Buy spot, **split 70% BTC / 30% HYPE**, at the weight the window dictates.
+**Reserve deployments go 100% BTC** — the window logic is buy-what-is-cheap.
 
 | | weight | why |
 |---|---|---|
@@ -126,7 +128,7 @@ moment you finish, which is how a stop stops protecting you.
 
 **Three rules inside this routine:**
 
-* **The sweep buys BTC, not HYPE.** Your 50/50 governs *contributions* — the
+* **The sweep buys BTC, not HYPE.** Your 70/30 governs *contributions* — the
   part you control. Engine profits are BTC profits and stay BTC. Sweeping
   them into HYPE would grow the unmanaged half out of the managed half's
   earnings.
@@ -165,12 +167,13 @@ It reads `✅ ON TRACK` or `⚠️ BEHIND`, and when behind it names the run-rat
 that would fix it. Three things must be set in `contributions.json` for it to
 score anything: `balances.btc_qty` / `ibit_qty` (what you hold),
 `balances.crypto_monthly_usd` (your run-rate) and `balances.crypto_btc_share`
-(0.5 for the 50/50). **Until they are set it prints "run-rate NOT SET" and
+(0.7 for the 70/30). **Until they are set it prints "run-rate NOT SET" and
 scores nothing — by design.**
 
 US$1M needs **S$4,250/mo** and BTC at **$261k (2.1× the last peak)** — inside
-the historical 1.9–3.4× range. At 50/50 the BTC half only gets you part way,
-and the line states what the HYPE half must return to close the rest.
+the historical 1.9–3.4× range. **At 70/30 the BTC leg alone needs a $403k
+peak and the HYPE leg must return ~9.4×** — the line states both, every day,
+so the cost of the split is never out of sight.
 
 ## Step 6 · Write one line in a log
 
@@ -249,8 +252,10 @@ regime-only **5**, both together **1**.
 1. **The safe is never collateral.** Not for margin, not for a perp, not once.
 2. **W is your maximum loss.** Set it so losing it entirely changes nothing.
 3. **Never add to the engine after a loss.** That is how the §41 arms died.
-4. **The sleeve is 50/50 BTC/HYPE** (owner decision 2026-08-21). Spot buys
-   split 50/50. **HYPE is unmanaged** — no regime gate, no cycle rule, no
+4. **The sleeve is 70/30 BTC/HYPE** (owner decision 2026-08-21, fixed until
+   the December review). Monthly buys split 70/30; **the reserve deployment
+   is 100% BTC** — the window logic is "buy what is cheap", and HYPE is at
+   its high. **HYPE is unmanaged** — no regime gate, no cycle rule, no
    stop — and **never carries leverage.** Every gate, phase and signal in
    this playbook governs the BTC half ONLY.
 5. **No leverage on ETH, HYPE or any alt, ever.** Every ETH setting above 1.5× has a

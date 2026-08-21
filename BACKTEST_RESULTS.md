@@ -2800,3 +2800,44 @@ where the pool comes from — and this file asserted a S$50,800 "gap" that the
 reader was expected to fill, which is not advice, it is an unpriced
 assumption. The owner caught it by reading the number and checking it against
 their bank balance, which is the check that should have been run here first.
+
+### 49.3 · The split settled at 70/30 BTC/HYPE — and the churn is the finding worth keeping (2026-08-21)
+
+The sleeve's allocation was set **four times in one afternoon**: 70/30 BTC/ETH
+(inherited from #147) → 50/50 BTC/HYPE (§48, owner decision against advice) →
+100% BTC (after a single observation about HYPE trading at its high) → **70/30
+BTC/HYPE (final)**.
+
+**70/30 is well supported.** It sits one point from the 75/25 the evidence
+recommended and keeps nearly all the measured diversification: HYPE's
+correlation to BTC is 0.48 and does not spike in selloffs, and a rebalanced 30%
+HYPE carries a max drawdown of **46.2% vs 53.1% for 100% BTC** — close to the
+45.9% minimum at 25%. It also eases the target: at 50/50 the BTC leg implied a
+**$564k** peak; at 70/30 it implies **$403k**, with the HYPE leg carrying 9.4×
+on a much smaller share.
+
+| BTC share | BTC projected | implied BTC peak for $1M | HYPE must return |
+|---|---|---|---|
+| 100% | 3.54 | $282,108 | — |
+| **70%** | **2.48** | **$403,011** | **9.4×** |
+| 50% | 1.77 | $564,215 | 8.7× |
+
+**The reserve deployment is 100% BTC, not 70/30.** The trough-window rule is
+"buy what is cheap." On 2026-08-21 BTC was −40% from its high and HYPE was *at*
+its high, so the timed lump goes to BTC while the 70/30 governs ongoing monthly
+contributions. Two rules, each with its own justification.
+
+**The churn is recorded as a risk in its own right.** Three of the four changes
+were triggered by information arriving mid-conversation, and one was triggered
+by a narrow observation of mine that did not support the swing it produced. An
+allocation revised four times in an afternoon cannot be held through a 50%
+drawdown — and holding it through a drawdown is the only circumstance in which
+the allocation matters at all. `CRYPTO_SLEEVE §5` therefore now states that the
+split is **fixed until the December review and is not re-opened on new
+information**, which is a constraint on the process rather than on the numbers.
+
+**A note on this session's own conduct.** The 100%-BTC swing came directly
+after an observation phrased strongly enough to read as a recommendation when
+it was scoped to one narrow point (where the *reserve* should go). Flagging the
+scope mismatch immediately, rather than implementing the swing, is what let the
+allocation settle somewhere defensible.
