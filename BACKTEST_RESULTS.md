@@ -2758,3 +2758,45 @@ question and it had only ever been said in conversation.
 **No code changed.** Both defects were in prose that the owner had said they
 would follow religiously, and both would have produced wrong actions rather
 than wrong understanding.
+
+### 49.2 · The weighting was specified as income the owner does not have (2026-08-21)
+
+Owner: *"what is 16.945k per month coming from? i dont have that much money."*
+**Correct objection, and the defect is mine.**
+
+**What went wrong.** §41.6's cycle-weighting was measured by normalising a
+2.5/0.4 weight across the sleeve's months — a schedule that redistributes a
+*fixed total* of capital. Carrying that into the playbook as an instruction
+silently assumed the owner could front-load 37 months of budget into 4, i.e.
+that a large reserve existed. It does not. §49.1 corrected the arithmetic of
+the multiplier but left the deeper error intact: **the instruction was still
+denominated in money the owner has not got.** Fixing an unaffordable number to
+a *different* unaffordable number is not a fix.
+
+**The correct decomposition: income is flat, only the RESERVE is timed.**
+Contributions are income-constrained and cannot be front-loaded. What *can* be
+timed is a lump the owner already holds. Re-measured that way, with S$4,250/mo
+of income:
+
+| reserve deployment | c2 analog | c3 analog |
+|---|---|---|
+| **across the 4 trough-window months** | **22.81 BTC** | **5.56 BTC** |
+| spread evenly over the whole plan | 20.66 (−9.4%) | 4.94 (−11.0%) |
+| all up front | 20.08 (−12.0%) | 5.33 (−4.1%) |
+| **no reserve — flat income only** | **12.50** | **2.99** |
+
+Window-timing beats spreading by **+10.4% / +12.4%**. That is the real,
+capturable edge, and **it requires no income the owner does not have** — only
+a decision about *when* existing cash goes in.
+
+**The rule is now: `monthly amount + reserve ÷ 4` during the window, `monthly
+amount` after.** With no reserve, contribute flat and forgo the edge; the
+plan still works and the file now says so explicitly rather than implying a
+shortfall the reader must somehow close.
+
+**Lesson worth keeping.** A backtested *weighting* is a statement about the
+allocation of a fixed pool. Turning it into an *instruction* requires asking
+where the pool comes from — and this file asserted a S$50,800 "gap" that the
+reader was expected to fill, which is not advice, it is an unpriced
+assumption. The owner caught it by reading the number and checking it against
+their bank balance, which is the check that should have been run here first.
