@@ -3051,4 +3051,17 @@ assert _cc72.contribution(0.0, 5000.0, 0.7, True) is None, \
 assert "BTC" in _cc72.buyday_line(True, 1000.0, 8000.0, 0.7, True)
 print("[77] #157 crypto buy day: rides the stock buy day, reserve BTC-only  PASS")
 
+
+# --- #158: the emergency-fund floor — asks, never pretends to verify ------
+assert _cc72.EMERGENCY_FLOOR_SGD == 15000.0, \
+    "#158: owner commitment 2026-08-21 — S$15,000, never touched"
+assert _cc72.emergency_line(15000.0, False) == "", \
+    "#158: buy day only — the day money actually moves"
+_e158 = _cc72.emergency_line(15000.0, True)
+assert "15,000" in _e158 and "cut the buy, not the floor" in _e158, _e158
+assert "cannot read your bank" in _e158, \
+    "#158: it must NOT imply verification it cannot perform"
+assert _cc72.emergency_line(0, True) == "", "#158: no floor set -> silent"
+print("[78] #158 emergency floor: buy-day only, asks rather than verifies  PASS")
+
 print("\nAll structural assertions passed.")

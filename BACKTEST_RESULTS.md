@@ -2863,3 +2863,60 @@ the **reserve slice is BTC-only** (§49.3 — the window rule is buy-what-is-
 cheap, and HYPE was at its high while BTC sat 40% below its own). The slice is
 `reserve ÷ 8`, not `÷ 4`, per §49.2's early-vs-late asymmetry, and it deploys
 **only inside the trough window** — [77] pins that it is zero outside it.
+
+## 50 · #158 the sleeve goes live on real numbers — and what they actually reach (2026-08-21)
+
+**Owner, verbatim:** *"i can afford 3k sgd every month, i reduced my ibkr
+stocks allocation to 2k sgd per mth, count crypto reserve as zero, i am
+stretched out. I have reduced my emergency fund to 15k sgd and i will not touch
+that ever again and u should hold me accountable for that. Currently i
+reentered crypto 14k usd … I will not make any changes to this plan."*
+
+**Set:** `crypto_monthly_usd` 2359 (S$3,000) · `crypto_reserve_usd` **0** ·
+`crypto_btc_share` 0.7 · `emergency_floor_sgd` 15000.
+
+**Reserve zero means the weighting edge is gone.** §41.6's +22.2%/+14.4% and
+§49.2's +10.4%/+12.4% both come from *timing a lump you already hold*. With no
+lump there is nothing to time: contributions are flat, the trough window
+changes nothing about the amount, and the sleeve runs plain monthly DCA into
+the cycle. **That is a legitimate configuration and the playbook already said
+so** — it is simply the version without the largest measured edge in the plan.
+
+**What S$3,000/mo reaches, stated plainly.**
+
+| next peak | BTC leg reaches | |
+|---|---|---|
+| 1.9× (like 2021→2025) | **$446,177** | + whatever HYPE does |
+| 2.5× | $587,075 | |
+| 3.4× (like 2017→2021) | $798,422 | |
+
+For US$1M on the BTC leg alone, BTC would need **$531,248 — 4.3× its last
+peak**, above the 1.9–3.4× historical range. Closing the gap from the 30% HYPE
+leg requires **~19×** from it. **The $1M target is not reachable on these
+inputs**, and the earlier "reachable at 2.1×" finding (§47) assumed
+**S$4,250/mo, 100% BTC, and no alt leg** — three assumptions that have all
+since changed. The tracker will print ⚠️ BEHIND every day and name the run-rate
+that would close it; that is the honest output, not a malfunction.
+
+**This is recorded, not argued.** The owner has stated the constraint is
+affordability and that the plan is now fixed. The number the sleeve reaches is
+a consequence of the inputs, and roughly **$450k–$800k on the BTC leg** across
+the historical range of cycle outcomes is a very good result from S$3,000/mo —
+it is simply not $1M, and the file should not let the target drift into
+implying otherwise.
+
+### 50.1 · The emergency-fund floor, and the limit of what a digest can promise
+
+The owner asked to be held accountable for a S$15,000 floor. The honest form
+that can take here is narrow, and the implementation says so on every print:
+**there is no bank feed, so the line cannot verify the balance — it asks.**
+
+It prints on **buy day only** — the day money actually moves and the floor is
+therefore actually at risk — and closes with the rule that matters when the
+two collide: *"If today's crypto buy needs it, the buy is too big — cut the
+buy, not the floor."* [78] pins that it never claims verification it cannot
+perform.
+
+A standing question on the day of temptation is weak accountability. It is
+also the only kind available without a data feed, and it is better than a
+commitment made once and never restated.

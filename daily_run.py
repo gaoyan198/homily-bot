@@ -875,7 +875,9 @@ def build_digest(flex_notes=None):
             _bd, float(_bal.get("crypto_monthly_usd") or 0),
             float(_bal.get("crypto_reserve_usd") or 0),
             float(_bal.get("crypto_btc_share") or 1.0), _in_win, esc=esc)
-        crypto = "\n".join(x for x in (_bl,
+        _el = homily_cryptocycle.emergency_line(
+            float(_bal.get("emergency_floor_sgd") or 0), _bd, esc=esc)
+        crypto = "\n".join(x for x in (_bl, _el,
             homily_cryptocycle.regime_block(_cbars, _cs, esc=esc),
             homily_cryptocycle.cycle_line(_cs, esc=esc),
             homily_cryptocycle.target_line(_ts, esc=esc), _hy) if x)
