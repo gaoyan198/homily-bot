@@ -490,3 +490,27 @@ def buyday_line(buy_day, monthly, reserve, btc_share, in_window,
         body += (f" (incl. {cur}{c['reserve']:,.0f} reserve slice, BTC-only, "
                  f"1 of ~{RESERVE_MONTHS})")
     return f"📌 <b>CRYPTO BUY DAY</b> — <i>{esc(body)}</i>"
+
+
+# ──────────────── #158: the emergency-fund floor ────────────────────
+# Owner, 2026-08-21, verbatim: "I have reduced my emergency fund to 15k sgd
+# and i will not touch that ever again and u should hold me accountable for
+# that."  Taken literally. The digest prints the floor on every buy day —
+# the day money moves — because a commitment that is never restated is a
+# commitment that quietly lapses.
+#
+# This line CANNOT read the balance (no bank feed exists here), so it does
+# not pretend to verify. It asks. That is the honest form of accountability
+# available: a standing question on the day the temptation occurs.
+EMERGENCY_FLOOR_SGD = 15000.0
+
+
+def emergency_line(floor_sgd, buy_day, esc=lambda x: x):
+    """-> the floor reminder, on buy day only, or ""."""
+    if not buy_day or not floor_sgd:
+        return ""
+    return (f"🛟 <i>EMERGENCY FUND FLOOR <b>S${floor_sgd:,.0f}</b> — owner "
+            f"commitment 2026-08-21, never to be touched. This line cannot "
+            f"read your bank; it asks. <b>Is it still whole?</b> If today's "
+            f"crypto buy needs it, the buy is too big — cut the buy, not the "
+            f"floor.</i>")
