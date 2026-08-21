@@ -2401,3 +2401,65 @@ rather than serially dependent.** The cost is measured and modest: −3.7% and
 on an n=2 return estimate is a judgement call, and is logged as one — a future
 reader with more cycles should revisit it, and if 4wk is adopted then §42.1's
 false-positive table is the thing that must be re-argued, not this paragraph.
+
+## 45 · #152 the unambiguous regime board (run 2026-08-21) — every indicator works alone, and every one of them is wrong often enough to lose money on
+
+**Origin.** Owner: *"our crypto sleeve needs to be SUPER CRYSTAL clear on
+whether we are still in bear or bull market, the last time i got it off and
+lost a lot of money … prioritise the 4 year cycle where possible but also look
+at indicators like 200 sma and the indicators u look at when determining bull
+bear cycle for s&p and nasdaq."*
+
+**Four candidates, measured on BTC 2014→2026, forward 30 days:**
+
+| indicator | fwd \| BULL | fwd \| BEAR | spread | flips/yr | **markdown false-BULL** |
+|---|---|---|---|---|---|
+| 200-day SMA | +8.77% | +2.83% | +5.94% | 6.6 | 14% |
+| 50d/200d cross | +8.36% | +3.47% | +4.89% | 1.8 | 20% |
+| 20-week SMA | +9.31% | +2.02% | +7.29% | 6.6 | 14% |
+| 10-month SMA (§44) | +8.25% | +2.40% | +5.85% | 1.2 | **23%** |
+
+**Every one of them works, and every one of them is wrong 14–23% of the days
+inside a markdown** — which is precisely the failure the owner is describing.
+The 10m SMA we shipped in #151 is the *worst* of the four on that measure.
+
+**And they disagree right now**, which is the whole problem stated as data: on
+2026-08-21 the 200d and 20wk read BULL while the 50/200 cross and the 10m read
+BEAR. **2 against 2.** A digest that shows four indicators and no rule is not
+clearer than one indicator — it is less clear.
+
+**Unanimity is the fix.** Scoring 0–4 and grouping as the stock book does:
+
+| board | % of days | mean fwd 30d | median | **markdown false-BULL** |
+|---|---|---|---|---|
+| 🐂 BULL 4/4 | 53% | **+9.89%** | +4.53% | **9%** |
+| ⚖️ MIXED 2–3/4 | 14% | +3.36% | +2.05% | — |
+| 🐻 BEAR 0–1/4 | 33% | +2.45% | +1.52% | — |
+
+**4/4 fires on only 9% of markdown days** — better than the best single
+indicator (14%) and far better than the one we had (23%) — while carrying the
+highest forward return of any bucket. Requiring unanimity costs nothing and
+removes most of the way this goes wrong.
+
+**The hierarchy, and there is no judgement call anywhere in it.**
+
+1. **The 4-year cycle is PRIMARY** (owner's explicit priority). In MARKDOWN or
+   the TROUGH WINDOW the verdict is **BEAR regardless of the indicators**, and
+   the block says `← OVERRIDES the indicators` so the reader can see it did.
+2. **Only once the cycle permits do the indicators vote**, and only
+   **unanimity** reads BULL. 0–1 reads BEAR, 2–3 reads MIXED.
+
+The verdict is always exactly one of three labels, pinned in validate [74].
+
+**Live 2026-08-21:** `🐻 BEAR — SPOT ONLY`. Cycle PRIMARY says MARKDOWN;
+indicators 2/4; entry gate open. **The cycle override is doing real work
+today** — two indicators are bullish and the verdict is still BEAR.
+
+**Caveats.** ~3 cycles of history, and the four indicators are heavily
+correlated by construction (all price-vs-its-own-average), so "unanimity" is
+not four independent opinions — it is closer to one opinion measured at four
+lookbacks. The 9% markdown false-BULL rate is measured on 1,061 markdown days
+across four peaks, three of which are complete. A bug found in review and
+fixed before shipping: `indicator_board` was not threading `asof` into
+`btc_regime`, so the 10-month indicator silently returned `None` under any
+back-dated evaluation and the board scored 3/3 instead of 4/4 — pinned now.

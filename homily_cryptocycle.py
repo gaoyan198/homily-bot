@@ -225,3 +225,95 @@ def regime_line(bars, state=None, esc=lambda x: x, asof=None):
         tail = "❌ NO LEVERAGE — " + "; ".join(reasons)
     return (f"₿ <i>{esc(head)} · {esc(mid)}</i>\n"
             f"₿ <i>{esc(tail)}</i>")
+
+
+# ───────────────── #152: the unambiguous regime board ─────────────────
+# Owner: "our crypto sleeve needs to be SUPER CRYSTAL clear on whether we
+# are still in bear or bull market, the last time i got it off and lost a
+# lot of money ... prioritise the 4 year cycle where possible but also
+# look at indicators like 200 sma."
+#
+# Measured (BACKTEST_RESULTS §45), forward 30d, BTC 2014->2026:
+#   200d SMA        +8.77% when BULL vs +2.83% BEAR · 14% markdown false-bull
+#   50d>200d cross  +8.36% / +3.47%                 · 20%
+#   20wk (140d) SMA +9.31% / +2.02%                 · 14%
+#   10m SMA (ours)  +8.25% / +2.40%                 · 23%
+# Each works alone; each is wrong often enough alone to lose money on.
+# UNANIMITY is what fixes it: 4/4 fires on only 9% of markdown days, and
+# its forward 30d is +9.89% vs +3.36% at 2-3/4 and +2.45% at 0-1/4.
+#
+# HIERARCHY (deterministic — there is no judgement call anywhere in it):
+#   1. The 4-year cycle is PRIMARY. In MARKDOWN or the TROUGH WINDOW the
+#      verdict is BEAR no matter what the indicators say.
+#   2. Only once the cycle permits do the indicators decide, and only
+#      UNANIMITY reads BULL.
+IND_BULL_MIN = 4          # of 4 — unanimity or it is not a bull
+
+
+def _sma(closes, n):
+    return sum(closes[-n:]) / n if len(closes) >= n else None
+
+
+def indicator_board(bars, asof=None):
+    """-> [(name, bullish|None, detail)] for the four confirming indicators."""
+    closes = [b[4] for b in bars]
+    px = closes[-1] if closes else None
+    out = []
+    s200, s50, s140 = (_sma(closes, 200), _sma(closes, 50), _sma(closes, 140))
+    out.append(("200-day SMA", (px > s200) if s200 else None,
+                f"${px:,.0f} vs ${s200:,.0f}" if s200 else "insufficient history"))
+    out.append(("50d/200d cross", (s50 > s200) if (s50 and s200) else None,
+                f"${s50:,.0f} vs ${s200:,.0f}" if (s50 and s200) else "—"))
+    out.append(("20-week SMA", (px > s140) if s140 else None,
+                f"${px:,.0f} vs ${s140:,.0f}" if s140 else "—"))
+    lab, last, sma = btc_regime(bars, asof=asof)
+    out.append(("10-month SMA", (lab == "BULL") if lab else None,
+                f"${last:,.0f} vs ${sma:,.0f}" if lab else "—"))
+    return out
+
+
+def regime_verdict(bars, asof=None):
+    """-> (verdict, phase, why, board, n_bull, n_known). Deterministic."""
+    board = indicator_board(bars, asof=asof)
+    known = [b for _, b, _ in board if b is not None]
+    n_bull, n_known = sum(1 for b in known if b), len(known)
+    phase, why = cycle_phase(asof)
+    if phase in ("MARKDOWN", "TROUGH WINDOW"):     # rule 1: cycle is PRIMARY
+        return "BEAR", phase, why, board, n_bull, n_known
+    if n_known < 4:
+        return "MIXED", phase, why, board, n_bull, n_known
+    if n_bull >= IND_BULL_MIN:
+        return "BULL", phase, why, board, n_bull, n_known
+    if n_bull <= 1:
+        return "BEAR", phase, why, board, n_bull, n_known
+    return "MIXED", phase, why, board, n_bull, n_known
+
+
+def regime_block(bars, state=None, esc=lambda x: x, asof=None):
+    """The crystal-clear block: one verdict, then exactly why."""
+    if not bars:
+        return ""
+    verdict, phase, why, board, n_bull, n_known = regime_verdict(bars, asof)
+    icon = {"BULL": "🐂", "MIXED": "⚖️", "BEAR": "🐻"}[verdict]
+    action = {"BULL": "leverage ALLOWED if the entry signal has fired",
+              "MIXED": "SPOT ONLY — no new leverage",
+              "BEAR": "SPOT ONLY — no leverage"}[verdict]
+    lines = [f"₿ <b>═══ CRYPTO REGIME: {icon} {verdict} ═══ {esc(action)}</b>"]
+    prim = "🐻" if phase in ("MARKDOWN", "TROUGH WINDOW") else "🐂"
+    tag = " ← OVERRIDES the indicators" if phase in ("MARKDOWN",
+                                                     "TROUGH WINDOW") else ""
+    lines.append(f"₿ <i>PRIMARY · 4-year cycle: {prim} {esc(phase)} — "
+                 f"{esc(why)}{tag}</i>")
+    bits = " · ".join(f"{'🐂' if b else '🐻' if b is not None else '·'} "
+                      f"{n} {d}" for n, b, d in board)
+    lines.append(f"₿ <i>CONFIRMING · {n_bull} of {n_known} bullish "
+                 f"(need {IND_BULL_MIN}/4 for 🐂): {esc(bits)}</i>")
+    ok, reasons = leverage_verdict(state, "BULL" if verdict == "BULL" else verdict)
+    if verdict != "BULL":
+        reasons = [r for r in reasons if "regime" not in r]
+        reasons.insert(0, f"regime is {verdict}")
+    lines.append("₿ <i>" + ("✅ LEVERAGE PERMITTED — size per CRYPTO_SLEEVE §3.4"
+                            if ok and verdict == "BULL"
+                            else "❌ NO LEVERAGE — " + esc("; ".join(reasons)))
+                 + "</i>")
+    return "\n".join(lines)

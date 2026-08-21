@@ -2929,4 +2929,36 @@ assert not _ok2 and any("regime" in r for r in _why2), \
 assert _cc72.regime_line([], None) == "", "#151: no bars -> no line (additive)"
 print("[73] #151 BTC regime + phase + leverage verdict: AND-gated, month-safe  PASS")
 
+
+# --- #152: the regime board — 4-year cycle PRIMARY, unanimity for BULL ----
+assert _cc72.IND_BULL_MIN == 4, \
+    "#152: BULL needs UNANIMITY — 4/4 fires on 9% of markdown days vs the " \
+    "10m SMA alone at 23%; a majority rule reintroduces the false bull"
+def _mk152(px, n=260):
+    return [(datetime.date(2027, 1, 1) + datetime.timedelta(days=i),
+             px, px, px, px) for i in range(n)]
+# rule 1: the cycle OVERRIDES the indicators. Flat series = every SMA equal,
+# so no indicator is bullish; but even a raging tape cannot lift a MARKDOWN.
+_rising = [(datetime.date(2026, 1, 1) + datetime.timedelta(days=i),
+            100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i) for i in range(400)]
+_v152 = _cc72.regime_verdict(_rising, asof=datetime.date(2026, 9, 1))
+assert _v152[0] == "BEAR", \
+    "#152: inside the trough window the verdict is BEAR whatever the tape does"
+assert "OVERRIDES" in _cc72.regime_block(_rising, None,
+                                         asof=datetime.date(2026, 9, 1)), \
+    "#152: the block must SAY the cycle overrode the indicators"
+# rule 2: once the cycle permits, unanimity is required
+_v2 = _cc72.regime_verdict(_rising, asof=datetime.date(2027, 6, 1))
+assert _v2[0] == "BULL" and _v2[4] == 4, \
+    "#152: a monotonically rising tape post-trough is 4/4 -> BULL"
+assert _cc72.regime_verdict(_mk152(100.0),
+                            asof=datetime.date(2027, 6, 1))[0] != "BULL", \
+    "#152: a flat tape is never BULL"
+# the verdict is one of exactly three labels, always
+for _a in (datetime.date(2026, 9, 1), datetime.date(2027, 6, 1),
+           datetime.date(2030, 1, 1)):
+    assert _cc72.regime_verdict(_rising, asof=_a)[0] in ("BULL", "MIXED", "BEAR")
+assert _cc72.regime_block([], None) == "", "#152: no bars -> no block (additive)"
+print("[74] #152 regime board: cycle PRIMARY, unanimity for BULL, 3 labels  PASS")
+
 print("\nAll structural assertions passed.")

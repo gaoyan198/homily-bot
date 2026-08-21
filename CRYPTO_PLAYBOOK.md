@@ -66,7 +66,24 @@ consecutive weeks**. Any close below resets the clock to zero. The trigger is
 measured off the running low, so it *falls* with any new low — you never have
 to guess where the bottom is.
 
-## Gate 3 — the regime (this is the same maths as your stock book)
+## Gate 3 — the regime board (§45)
+
+**One verdict, four confirming indicators, and the 4-year cycle outranks all
+of them.** Measured markdown false-BULL rates: 200d SMA 14%, 50/200 cross 20%,
+20wk SMA 14%, 10m SMA 23% — **every single indicator is wrong often enough
+inside a markdown to lose money on.** Unanimity (4/4) cuts that to **9%**.
+
+* **PRIMARY — the 4-year cycle.** In MARKDOWN or the TROUGH WINDOW the verdict
+  is 🐻 BEAR *no matter what the indicators say*. The digest prints
+  `← OVERRIDES the indicators` when this fires, so you can see it happen.
+* **CONFIRMING — 4 of 4 or it is not a bull.** 0–1 = 🐻 BEAR, 2–3 = ⚖️ MIXED
+  (spot only), 4 = 🐂 BULL.
+
+**Today: 2 of 4 bullish and the cycle says MARKDOWN → 🐻 BEAR.** Two
+indicators are bullish and the verdict is still BEAR. That is the override
+working, not a malfunction.
+
+## Gate 3a — the 10-month SMA, in detail (same maths as your stock book)
 
 10-month SMA of **completed** month-end closes. Above = 🐂 BULL, below =
 🐻 BEAR. The running month never votes. Identical construction to
