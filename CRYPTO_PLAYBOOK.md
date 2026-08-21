@@ -8,86 +8,100 @@ applies here.**
 
 # PART A — WHAT TO DO THIS MONTH
 
-## Step 1 · Open the digest, read three lines
+## Step 1 · Open the digest. Read the verdict line.
 
 ```
-₿ 🐻 BTC BEAR — last month-end $62,814 vs 10m SMA $77,257 (-18.7%)
-  · phase MARKDOWN: past the peak, trough window not yet open
-₿ ❌ NO LEVERAGE — entry gate OPEN; regime is BEAR; phase MARKDOWN
-₿ CYCLE: 🟠 $69,266 is +20% off the $57,748 low · live $74,740 (unsettled)
+₿ ═══ CRYPTO REGIME: 🐻 BEAR ═══ SPOT ONLY — no leverage
 ```
 
-Line 2 is the instruction. **✅ = leverage permitted. ❌ = spot only.**
-Nothing else in the digest governs this sleeve.
+Three possible verdicts, and they send you down different paths:
 
-## Step 2 · Look up the regime. Do exactly what the row says.
+| verdict | go to |
+|---|---|
+| 🐻 **BEAR** or ⚖️ **MIXED** | **Step 2** (spot only) |
+| 🐂 **BULL** | **Step 3** (the engine routine) |
 
-| regime | what it means | **contribution** | **the engine** |
-|---|---|---|---|
-| 🐻 **BEAR** | cycle is MARKDOWN/TROUGH, **or** 0–1 of 3 indicators | **spot BTC only** — 2.5× base rate inside the trough window, 0.4× outside | must be **FLAT**. If open, close it and move the proceeds to spot. |
-| ⚖️ **MIXED** | cycle permits, 2 of 3 indicators | **spot BTC only**, base rate | **no new money in.** An open engine stays open with its stop; it is not topped up. |
-| 🐂 **BULL** | cycle permits **and** 3 of 3 **and** entry signal fired | base rate into the engine; overflow above W → spot | **ON**, ≤3× inside the sweep, W capped, swept monthly, **stop always resting** |
+There is no fourth case and no judgement call.
 
-There is no fourth case and no judgement call. The digest prints the regime;
-you read the row.
+## Step 2 · SPOT PATH (🐻 BEAR or ⚖️ MIXED) — this is where you are today
 
-## Step 2b · If the engine is open, RESET THE STOP (every month, without fail)
+Buy spot, **split 50/50 BTC / HYPE**, at the weight the window dictates:
+
+| | weight | why |
+|---|---|---|
+| inside the trough window (`🎯` shows) | **2.5× base rate** | the cycle says the bottom is here |
+| outside it | **0.4× base rate** | same total money, spent smarter |
+
+**Trough window: 2026-08-25 → 2026-12-23.**
+
+The engine must be **FLAT**. If it is open and the verdict has turned, close
+it and move the proceeds to spot. Then stop — Steps 3 and 4 do not apply.
+
+## Step 3 · ENGINE ROUTINE (🐂 BULL only) — do these FOUR in this ORDER
+
+**Order matters.** Resetting the stop before you re-lever leaves it stale the
+moment you finish, which is how a stop stops protecting you.
+
+**Worked example — engine cap W = $24,000, BTC has risen, engine now $30,000:**
+
+| # | do this | example |
+|---|---|---|
+| **1** | **Contribute** your base rate into the engine | engine $30,000 → **$32,000** |
+| **2** | **Sweep** everything above **W** out to **spot BTC** | $8,000 out → engine back to **$24,000** |
+| **3** | **Re-lever** to 3× the remaining equity | hold **$72,000** of BTC on $24,000 |
+| **4** | **Reset the stop** — recompute it now, last | see Step 4 |
+
+**Three rules inside this routine:**
+
+* **The sweep buys BTC, not HYPE.** Your 50/50 governs *contributions* — the
+  part you control. Engine profits are BTC profits and stay BTC. Sweeping
+  them into HYPE would grow the unmanaged half out of the managed half's
+  earnings.
+* **W is your maximum loss.** It is the only real sizing decision in this
+  sleeve. Pick a number that, if it went to zero tomorrow, would change
+  nothing.
+* **Do the sweep even when it feels early.** Especially then. The sweep is
+  the entire reason leverage is permitted here (§43: worst case 0.07× → 0.96×
+  *while* the median rises).
+
+**Monthly, never quarterly.** Returns between the two were a coin flip
+(+54.5% vs +40.5% in one window, +63.8% vs +71.6% in the other). Monthly wins
+on a different argument: the stop must be reset every month regardless, so
+you are touching the position monthly anyway.
+
+## Step 4 · Reset the stop (part of Step 3, called out because it is the one that saves you)
 
 Place a resting stop where **equity ÷ notional = 5%**. Hyperliquid liquidates
-at **1.25%**, so this fires first:
+at **1.25%**, so yours fires first:
 
 ```
 stop price = (size × avg_entry − collateral) ÷ (size × 0.95)
 ```
 
-**Recompute it every month.** Funding drains collateral, which *raises* this
-price over time. §46 tested a fixed price-from-entry stop and it was outrun by
-funding — the exchange liquidated first. Expressing the stop as a margin
-*ratio* is what makes it un-outrunnable.
+**Recompute every month — this is the mechanism, not housekeeping.** Funding
+drains collateral, which *raises* this price over time. §46 tested a stop
+fixed at a price below your entry: funding outran it and the exchange
+liquidated first. A stop that can be outrun is not a stop.
 
-Measured (§46): this took liquidations to **zero** across both peak-to-peak
-windows **at no cost to returns** (16.0806 vs 16.0561 BTC, and identical in
-the second window).
-
-## Step 3 · Send this month's contribution
-
-| digest says | you buy | how much |
-|---|---|---|
-| ❌ NO LEVERAGE + `🎯 in trough window` | **spot, 50/50 BTC/HYPE** | **2.5× base rate** |
-| ❌ NO LEVERAGE, no 🎯 | **spot, 50/50 BTC/HYPE** | **0.4× base rate** |
-| ✅ LEVERAGE PERMITTED | **top up the engine to W** | base rate; overflow → spot |
-
-"Base rate" is your chosen monthly crypto budget. The 2.5×/0.4× weighting
-deploys the *same total* money, front-loaded into the cheap window — worth
-+22.2% / +14.4% in coins (§41.6).
-
-**Trough window: 2026-08-25 → 2026-12-23.** You are in it from this month.
-
-## Step 4 · If — and only if — the digest says 🐂 BULL, sweep
-
-Every month, move everything in the engine above **W** into spot. Do it when
-it feels early. That sweep is the entire reason leverage is allowed here
-(§43: worst case 0.07× → 0.96× *while* the median rises).
+Measured: this took liquidations to **zero** across both peak-to-peak windows
+**at no cost to returns**.
 
 ## Step 5 · Check the ₿ TARGET line
 
 It reads `✅ ON TRACK` or `⚠️ BEHIND`, and when behind it names the run-rate
-that would fix it. Two things must be set in `contributions.json` for it to
-score anything: `balances.btc_qty` / `ibit_qty` (what you actually hold) and
-`balances.crypto_monthly_usd` (your sleeve run-rate). **Until both are set it
-prints "run-rate NOT SET" and scores nothing — by design.**
+that would fix it. Three things must be set in `contributions.json` for it to
+score anything: `balances.btc_qty` / `ibit_qty` (what you hold),
+`balances.crypto_monthly_usd` (your run-rate) and `balances.crypto_btc_share`
+(0.5 for the 50/50). **Until they are set it prints "run-rate NOT SET" and
+scores nothing — by design.**
 
-The US$1M target needs **S$4,250/mo** and BTC at **$261k (2.1× the last
-peak)** — inside the historical 1.9–3.4× range. At S$5,500/mo it needs 1.6×,
-below the weakest cycle on record. At S$3,000/mo it needs 2.9×, which is
-possible but is betting on a strong cycle.
+US$1M needs **S$4,250/mo** and BTC at **$261k (2.1× the last peak)** — inside
+the historical 1.9–3.4× range. At 50/50 the BTC half only gets you part way,
+and the line states what the HYPE half must return to close the rest.
 
 ## Step 6 · Write one line in a log
 
-`date · amount · price · spot or engine`. That is the whole record-keeping
-requirement.
-
----
+`date · amount · price · spot or engine`. That is the whole requirement.
 
 # PART B — THE GATES (why the digest says what it says)
 
@@ -181,6 +195,39 @@ regime-only **5**, both together **1**.
    playbook that has ever been liquidated in testing.
 
 ---
+
+# PART D2 — TESTED AND REJECTED (do not reinvent these)
+
+Each of these was proposed, tested against real data, and **lost**. They are
+recorded so nobody — including a future session — quietly reintroduces one.
+
+| idea | what happened | verdict |
+|---|---|---|
+| **Hold 20% USDC, buy on a −20% dip** | BTC dipped 20% **23 times in 3 years** — every 6–8 weeks. Not a bargain, just Tuesday. Lost in **11 of 15** tests; worst −13.6%, best +2.9% | ❌ the **6th** failure of hold-cash-for-dips in this repo |
+| **Add leverage during dips** | Returns fell (+51.0% vs +54.5%) and stop-outs went **1 → 6** | ❌ this is Rule 3 as data |
+| **Quarterly engine rebalance** | Coin flip on returns, but the stop needs a monthly reset anyway | ❌ more parts, no gain |
+| **Fixed price stop (−25% from entry)** | Funding drain raises the liquidation price until it passes your stop. Still liquidated at **every** level tested | ❌ use the margin-ratio stop |
+| **Held leverage, no sweep** | −97% of coins in the losing analog | ❌ the sweep is why leverage is allowed at all |
+| **ETH in the accumulation leg** | 100% BTC beat 70/30 in **both** accumulation analogs | ❌ Phase-2 question at most |
+| **Leverage on ETH / HYPE / any alt** | ETH 3× = 0.30× median, **100%** of windows liquidated | ❌ never |
+| **Majority-vote regime (2 of 3)** | Reintroduces the false-BULL that costs money in markdowns | ❌ unanimity or it is not a bull |
+| **Shorter entry hold (4wk / 6wk)** | Measured *better* with the regime gate, but only the 8wk hold is independently sufficient — at 4wk only the regime exit stands between the engine and a markdown | ⚠️ judgement call, logged in §44.1 |
+
+## The one that looks the same but WORKS
+
+**Buying heavy when the 4-year cycle says the bottom is due** gave **+22.2% /
++14.4%** more coins.
+
+Same instinct as the dip fund — hold back, buy cheap. The difference is what
+tells you *when*. **A price drop tells you nothing** (they happen every six
+weeks). **The cycle tells you something** (three bottoms, same place, ±47
+days).
+
+**So your cash buffer is trough-window ammunition, not a dip fund.** To buy at
+2.5× weight for the four months of the window you need roughly **S$67,800**,
+against about **S$17,000** of salary over that stretch — a **~S$50,800 gap**
+that only existing cash can fill. Held back for dips, that cash costs you the
+single largest edge in the plan.
 
 # PART E — CONFIDENCE, AND WHAT WOULD PROVE THIS WRONG
 
