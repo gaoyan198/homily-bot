@@ -6,6 +6,64 @@ applies here.**
 
 ---
 
+# PART 0 — THE TWO NUMBERS YOU MUST SET
+
+Everything below refers to these. Set them once, write them down.
+
+## "Base rate" — your AVERAGE monthly crypto budget
+
+Not what you send this month. The **average** you intend to send per month
+across the whole sleeve, to the projected peak (~Oct 2029, **37 months**).
+
+You then send *more* than base inside the trough window and *less* after —
+same total money, better timed.
+
+**⚠️ The window amount is NOT "2.5 × base rate".** The weights 2.5 and 0.4 are
+normalised across 4 window months and 33 later months, so:
+
+| your base rate | send each month **in the window**<br>(25 Aug → 23 Dec) | send each month **after** |
+|---|---|---|
+| S$2,000/mo | **S$7,974** | S$1,276 |
+| S$3,000/mo | **S$11,961** | S$1,914 |
+| **S$4,250/mo** | **S$16,945** | S$2,711 |
+| S$5,500/mo | **S$21,929** | S$3,509 |
+
+Each row deploys exactly `base × 37` in total. If you prefer the formula:
+
+```
+scale  = base × 37 ÷ (2.5×4 + 0.4×33)   =  base × 1.595
+window = 2.5 × scale        after = 0.4 × scale
+```
+
+**This is why you need a cash reserve.** At base S$4,250 the window wants
+S$16,945/mo for four months — about **S$67,800** — against roughly
+**S$17,000** of salary over that stretch. The **~S$50,800 gap** must come from
+cash you already hold. Without it you can only fund base rate, and you lose
+the +22% the weighting is worth.
+
+## "W" — the size cap on the leveraged engine
+
+**W is the most money allowed inside the leveraged account at any one time,
+and therefore the most you can lose.** Everything the engine earns above W is
+swept out to spot, where it can never be liquidated.
+
+The engine is **BTC-only**, so it is fed by the BTC half of your contributions
+(half of base, at the 50/50 split). A W of 12 months of that BTC leg:
+
+| your base rate | BTC leg | **W (12 months)** = your max loss |
+|---|---|---|
+| S$3,000/mo | S$1,500/mo | **S$18,000** (US$14,154) |
+| **S$4,250/mo** | S$2,125/mo | **S$25,500** (US$20,051) |
+| S$5,500/mo | S$2,750/mo | **S$33,000** (US$25,948) |
+
+**Pick W by one question: if this went to zero tomorrow, would I be fine?**
+Whatever you answer is your W. 12 months is a starting point, not a rule —
+6 months halves both the risk and the engine's contribution.
+
+W is the only real sizing decision in this sleeve. Everything else is a gate.
+
+---
+
 # PART A — WHAT TO DO THIS MONTH
 
 ## Step 1 · Open the digest. Read the verdict line.
@@ -29,8 +87,8 @@ Buy spot, **split 50/50 BTC / HYPE**, at the weight the window dictates:
 
 | | weight | why |
 |---|---|---|
-| inside the trough window (`🎯` shows) | **2.5× base rate** | the cycle says the bottom is here |
-| outside it | **0.4× base rate** | same total money, spent smarter |
+| inside the trough window (`🎯` shows) | **the window amount** (Part 0) | the cycle says the bottom is here |
+| outside it | **the after amount** (Part 0) | same total money, spent smarter |
 
 **Trough window: 2026-08-25 → 2026-12-23.**
 
