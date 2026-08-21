@@ -2211,3 +2211,87 @@ neither outcome can be narrated afterwards as having been obvious.
 Note the sleeve's Phase 1 (unlevered spot, cycle-weighted) is correct under
 both readings, which is the design property that makes the ambiguity tolerable
 rather than decision-blocking.
+
+## 43 · #149 harvest-to-spot: the levered structure that PASSES (run 2026-08-20, written up 2026-08-21)
+
+**Provenance note first, because it matters.** §41 rejected leverage on a
+buy-and-hold levered structure. The owner then proposed a *different* one:
+*"monthly rebalancing close out positions that are in profit and move them to
+spot, and dca only leveraged positions."* That is not the failed structure with
+a friendlier constant — it changes the mechanism, so it gets its own
+pre-registered gate rather than re-shopping §41's. **This section was run
+2026-08-20 but only written up now**, after §42's doc work cited a 3× figure
+that no committed study supported. That gap was a process failure: the
+`CRYPTO_PLAYBOOK.md` Phase 2 text ran ahead of the evidence file.
+
+**Structure.** Working-capital cap `W = k × monthly contribution`. Each month:
+deposit into the perp engine, mark it, withdraw everything above `W` to buy
+**spot**. The engine is a fixed-size machine; spot is the accumulator and can
+never be liquidated. Withdrawal feasibility was audited against Hyperliquid's
+rule (withdrawable = account value − initial margin): **zero blocked
+withdrawals** in both analogs, so the sweeps are executable, not notional.
+
+**Gate, pre-registered before the first run.** G1: beat unlevered spot DCA on
+the declared metric in BOTH accumulation analogs. G2: beat plain levered perp
+(§41's arms) in both. G3: in the losing analog, retain ≥50% of what spot DCA
+retained. G4: cumulative harvested spot never goes to zero.
+
+| arm | c2 (2018-10→2020-03) | c3 (2022-09→2024-02) |
+|---|---|---|
+| SPOT DCA | — | — |
+| perp 3× **no** harvest (§41) | **−97.1%** (LIQ×2) | +102.5% |
+| perp 2× harvest W=12 | −22.9% (LIQ×1) | +27.7% |
+| perp 3× harvest W=6 | +11.8% (LIQ×2) | +35.0% |
+| **perp 3× harvest W=12** | **+18.4%** (LIQ×2) | **+53.7%** |
+
+**G1 PASS at 3× (all W tested), FAIL at 2×. G3 PASS everywhere** (c2 retained
+102–118% of spot). **G2 FAILS everywhere** and is reported as written: harvest
+loses to unharvested leverage in c3 (+53.7% vs +102.5%). G2 was arguably the
+wrong test — it benchmarks against an arm with a 0.07× worst case — but it was
+pre-registered and it failed, and that is recorded rather than re-specified.
+
+**The result that matters is the tail, on 45 rolling 3y windows** (USD, as a
+ratio to spot DCA in the same window):
+
+| arm | median | p10 | worst | % beat spot | % windows liquidated |
+|---|---|---|---|---|---|
+| 3× no harvest | 1.18× | 0.26× | **0.07×** | 56% | 69% |
+| 2× harvest W=12 | 1.12× | 0.93× | 0.88× | 78% | 9% |
+| **3× harvest W=12** | **1.39×** | **1.13×** | **0.96×** | **93%** | 69% |
+| 3× harvest W=24 | 1.60× | 1.06× | 0.91× | 96% | 69% |
+
+**Worst case moves 0.07× → 0.96× while the median RISES 1.18× → 1.39×** — a
+Pareto improvement, and the reason 3× is defensible here when §41 found it
+indefensible. The engine is still liquidated in 69% of windows; it no longer
+matters, because the gains were swept out before the liquidation arrived.
+
+**ETH still fails.** 3× harvest W=12 median 0.98×, 47% beat spot, **100% of
+windows liquidated**. Harvest rescues ETH from catastrophe (0.14× → 0.98×) but
+does not make it profitable. The §4 ban stands unchanged.
+
+**Where it does NOT work, and this is the live risk.** Harvest can only bank
+gains that occur. Stress-tested on a monotonic glide to a cycle trough with no
+intervening rally — the exact path §41.5's drawdown arithmetic predicts:
+
+| path | spot DCA | 3× harvest W=12 | harvested |
+|---|---|---|---|
+| glide to $30,315 (−75.7%) | 0.64× | **0.29×** | **$0** |
+| glide to $21,083 (−83.1%) | 0.54× | **0.20×** | **$0** |
+
+Every rolling window that flattered this structure contained a rally. **In a
+markdown the engine is just leverage, and leverage loses.** This is why the
+structure is gated behind §42's confirmation and CRYPTO_SLEEVE §3 rather than
+being switched on today.
+
+**Contribution split at the switch (asked 2026-08-21).** Once Phase 2 begins,
+routing new money to the engine vs continuing to buy spot is close to flat
+between 25% and 100%: c2 spans +58.1%…+61.4%, c3 spans +55.0%…+73.7%, against
++54.8%/+47.9% for pure cycle-weighted spot. **The split is a second-order
+decision** — the cap `W` already self-limits it, since contributions arriving
+at a full engine are swept straight to spot the same month. There is no state
+in which this sleeve is "leverage only".
+
+**Caveats.** Two completed analogs. The 45 rolling windows overlap heavily —
+~2.5 independent cycles, not 45 trials. The G2 failure is real. And the
+monotonic-decline stress is not a hypothetical: it is the path this cycle is
+in until §42's confirmation says otherwise.
