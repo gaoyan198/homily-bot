@@ -2169,3 +2169,45 @@ trigger is measured off the running low so it falls with a new low — which
 means "lateness" is only defined after the fact, and a real-time reader never
 knows whether the current low is THE low. That is a property of the problem,
 not a defect of the rule.
+
+### 42.1 · The 8-week hold, re-tested on 25 episodes instead of 3 cycles (2026-08-21)
+
+Owner asked how confident the 8wk constant is. §42 rested on three cycle-level
+firings, which is nearly no statistical power. The mechanism is testable on far
+more data: **every bear-phase episode that cleared the +30% line, and how long
+it sustained.** If bear rallies reliably die before 8 weeks, the rule has a
+structural reason to work rather than a fitted one.
+
+Across the four markdown phases (2013, 2017, 2021, 2025 peaks): **25 episodes**,
+median duration **2 days**, longest **46 days** (2018-02-08).
+
+| hold | bear rallies surviving it | implied false-positive rate |
+|---|---|---|
+| 4wk (28d) | 2/25 | 8% |
+| 6wk (42d) | 1/25 | 4% |
+| **8wk (56d)** | **0/25** | **0%** |
+| 12wk (84d) | 0/25 | 0% |
+
+**The mechanism is real and the margin is thin.** 56 days clears the worst
+observed bear rally by **10 days**. A 57-day bear rally would defeat it. 12wk
+is also 0/25 and would be safer, at the cost of ~40 days of lateness (§42's
+geo-mean 11.8× vs 14.0×). The constant stays at 8wk, with the margin now on the
+record so a future breach is a known risk being run, not a surprise.
+
+### 42.2 · The live disagreement, recorded before it resolves
+
+The signal armed 2026-08-21 at **−42.7% from the peak**. Prior confirmations
+fired at **−79.7% (2015), −54.0% (2019), −55.5% (2023)** from their peaks, and
+the two completed cycles bottomed at −83.1% and −75.7% against this cycle's
+−53.7% low. A confirmation here would therefore be **the shallowest in the
+sample, on the shallowest drawdown in the sample.**
+
+Two readings, both honest: **(a)** the cycle is genuinely milder (ETF and
+institutional flows), or **(b)** the bottom is not in and this is the first
+false positive in 25 episodes. **This section takes no side** — it exists so
+that whichever resolves, the disagreement was on the record beforehand and
+neither outcome can be narrated afterwards as having been obvious.
+
+Note the sleeve's Phase 1 (unlevered spot, cycle-weighted) is correct under
+both readings, which is the design property that makes the ambiguity tolerable
+rather than decision-blocking.
