@@ -850,11 +850,21 @@ def build_digest(flex_notes=None):
             if _ip:
                 _units += (_ibit * _ip[4]) / _cbars[-1][4]
         _ts = homily_cryptocycle.target_state(
-            _units, float(_bal.get("crypto_monthly_usd") or 0))
+            _units, float(_bal.get("crypto_monthly_usd") or 0),
+            btc_share=float(_bal.get("crypto_btc_share") or 1.0))
+        # #155: the unmanaged half, watched but never governed.
+        _hy = ""
+        try:
+            _hb, _ = homily_data.fetch_series(
+                homily_cryptocycle.HYPE_SYM, rng="max")
+            _hy = homily_cryptocycle.hype_line(
+                [(x[0], x[1], x[2], x[3], x[4]) for x in _hb], esc=esc)
+        except Exception as _e:
+            print(f"[hype] skipped: {_e}")
         crypto = "\n".join(x for x in (
             homily_cryptocycle.regime_block(_cbars, _cs, esc=esc),
             homily_cryptocycle.cycle_line(_cs, esc=esc),
-            homily_cryptocycle.target_line(_ts, esc=esc)) if x)
+            homily_cryptocycle.target_line(_ts, esc=esc), _hy) if x)
     except Exception as e:
         print(f"[cryptocycle] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched

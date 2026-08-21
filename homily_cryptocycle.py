@@ -355,7 +355,8 @@ AVG_COST_ASSUMPTION = 60000.0   # average accumulation price over the sleeve
 STRATEGY_MULT = 1.72            # units vs flat spot DCA (§43/§46, 5x + stop)
 
 
-def target_state(units_held, monthly_usd, asof=None, peak_date=PEAK_NEXT):
+def target_state(units_held, monthly_usd, asof=None, peak_date=PEAK_NEXT,
+                 btc_share=1.0):
     """-> progress dict, or None when there is nothing to report.
 
     `units_held` is BTC-equivalent (spot BTC + IBIT), read from the same
@@ -366,11 +367,19 @@ def target_state(units_held, monthly_usd, asof=None, peak_date=PEAK_NEXT):
     months = max(0, round((peak_date - asof).days / 30.44))
     peak_px = LAST_PEAK * TARGET_PEAK_MULT
     need = TARGET_USD / peak_px
-    add = ((monthly_usd * months) / AVG_COST_ASSUMPTION) * STRATEGY_MULT \
-        if monthly_usd else 0.0
+    # #155: only the BTC SHARE of contributions builds BTC. At a 50/50
+    # split the other half is an alt bet the BTC-denominated target cannot
+    # count, and the tracker must not pretend otherwise.
+    btc_usd = monthly_usd * btc_share
+    add = ((btc_usd * months) / AVG_COST_ASSUMPTION) * STRATEGY_MULT \
+        if btc_usd else 0.0
     proj = units_held + add
+    other_usd = monthly_usd * (1 - btc_share) * months
+    shortfall = max(0.0, TARGET_USD - proj * peak_px)
     return dict(units=units_held, need=need, months=months, proj=proj,
-                peak_px=peak_px, monthly=monthly_usd,
+                peak_px=peak_px, monthly=monthly_usd, btc_share=btc_share,
+                other_usd=other_usd, shortfall=shortfall,
+                other_mult=(shortfall / other_usd) if other_usd else None,
                 on_track=(proj >= need) if monthly_usd else None,
                 # the peak price the CURRENT path would need to hit $1M
                 implied=(TARGET_USD / proj) if proj > 0 else None,
@@ -392,9 +401,46 @@ def target_line(st, esc=lambda x: x):
     mark = "✅ ON TRACK" if st["on_track"] else "⚠️ BEHIND"
     gap = ""
     if not st["on_track"]:
-        gap = (f" — needs <b>${st['need_monthly']:,.0f}/mo</b> "
-               f"(${st['monthly']:,.0f} set)")
+        gap = (f" — needs <b>${st['need_monthly']:,.0f}/mo to BTC</b> "
+               f"(${st['monthly']*st['btc_share']:,.0f} set)")
+    if st["btc_share"] < 1.0 and st["other_mult"]:
+        gap += (f" · the non-BTC {(1-st['btc_share'])*100:.0f}% "
+                f"(${st['other_usd']:,.0f}) must return "
+                f"<b>{st['other_mult']:.1f}×</b> to close the rest")
     return (f"₿ <i>TARGET ${TARGET_USD/1e6:.0f}M: {mark} · {st['units']:.4f} BTC now "
             f"→ {st['proj']:.2f} projected vs {st['need']:.2f} needed · "
             f"{st['months']}mo left · implied peak ${st['implied']:,.0f} "
             f"({st['implied']/LAST_PEAK:.1f}× last){gap}</i>")
+
+
+# ─────────────── #155: the HYPE monitor — watched, not governed ───────────
+# Owner decision 2026-08-21: the sleeve runs 50/50 BTC/HYPE, reaffirmed after
+# the §48 analysis. HYPE is therefore HALF the sleeve and NONE of this
+# module's machinery applies to it: the 4-year cycle, the trough window, the
+# regime board, the +30%/8wk signal and the 5% margin stop are all calibrated
+# on 12 years of BTC across three complete cycles. HYPE has 1.7 years and has
+# never seen a bear market.
+#
+# This line therefore reports RISK TELEMETRY ONLY and says so on every print.
+# It deliberately renders no verdict, because inventing one from 1.7 years
+# would be worse than admitting there isn't one.
+HYPE_SYM = "HYPE32196-USD"
+
+
+def hype_line(bars, esc=lambda x: x):
+    """-> one telemetry line for the unmanaged half, or ""."""
+    if not bars or len(bars) < 30:
+        return ""
+    closes = [b[4] for b in bars]
+    px = closes[-1]
+    ath = max(closes)
+    ath_i = closes.index(ath)
+    trough = min(closes[ath_i:]) if ath_i < len(closes) - 1 else px
+    d30 = closes[-30]
+    hist_d = (bars[-1][0] - bars[0][0]).days
+    return (f"◈ <i>HYPE (UNMANAGED — no cycle rule, no regime gate, no stop): "
+            f"${px:,.2f} · {px/ath-1:+.0%} from ATH ${ath:,.2f} · "
+            f"{px/d30-1:+.0%} 30d · worst drawdown since ATH "
+            f"{trough/ath-1:.0%} · only {hist_d//365}y{(hist_d%365)//30}m of "
+            f"history, never through a bear — <b>sized by conviction, not by "
+            f"evidence</b></i>")

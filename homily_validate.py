@@ -3004,4 +3004,28 @@ assert _cc72.target_state(0.5, 3000.0, asof=datetime.date(2029, 1, 1))["proj"] <
 assert _cc72.target_line(None) == "", "#154: no state -> no text (additive)"
 print("[75] #154 $1M target tracker: explicit assumptions, monotone, honest  PASS")
 
+
+# --- #155: 50/50 split — the tracker must not count the alt half as BTC ----
+_s155 = _cc72.target_state(0.0, 4000.0, asof=datetime.date(2026, 8, 21),
+                           btc_share=0.5)
+_f155 = _cc72.target_state(0.0, 4000.0, asof=datetime.date(2026, 8, 21),
+                           btc_share=1.0)
+assert abs(_s155["proj"] - _f155["proj"] / 2) < 1e-9, \
+    "#155: at a 50/50 split only HALF the contributions build BTC — the " \
+    "BTC-denominated target cannot count the alt half"
+assert _s155["other_mult"] > 1.0 and "must return" in _cc72.target_line(_s155), \
+    "#155: the line must state what the non-BTC half has to return"
+assert _f155["other_mult"] is None, "#155: at 100% BTC there is no other half"
+# the HYPE line is telemetry, never a verdict
+_hb155 = [(datetime.date(2025, 1, 1) + datetime.timedelta(days=i),
+           10.0 + i, 10.0 + i, 10.0 + i, 10.0 + i) for i in range(400)]
+_hl155 = _cc72.hype_line(_hb155)
+assert "UNMANAGED" in _hl155 and "no stop" in _hl155, \
+    "#155: the HYPE line must declare on every print that no rule governs it"
+for _w in ("BULL", "BEAR", "LEVERAGE", "PERMITTED"):
+    assert _w not in _hl155, \
+        f"#155: the HYPE line must render NO verdict — found '{_w}'"
+assert _cc72.hype_line([]) == "", "#155: no bars -> no line (additive)"
+print("[76] #155 50/50 split: alt half never counted as BTC, HYPE unmanaged  PASS")
+
 print("\nAll structural assertions passed.")

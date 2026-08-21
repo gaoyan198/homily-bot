@@ -53,8 +53,8 @@ the second window).
 
 | digest says | you buy | how much |
 |---|---|---|
-| ❌ NO LEVERAGE + `🎯 in trough window` | **spot BTC** | **2.5× base rate** |
-| ❌ NO LEVERAGE, no 🎯 | **spot BTC** | **0.4× base rate** |
+| ❌ NO LEVERAGE + `🎯 in trough window` | **spot, 50/50 BTC/HYPE** | **2.5× base rate** |
+| ❌ NO LEVERAGE, no 🎯 | **spot, 50/50 BTC/HYPE** | **0.4× base rate** |
 | ✅ LEVERAGE PERMITTED | **top up the engine to W** | base rate; overflow → spot |
 
 "Base rate" is your chosen monthly crypto budget. The 2.5×/0.4× weighting
@@ -162,17 +162,21 @@ regime-only **5**, both together **1**.
 1. **The safe is never collateral.** Not for margin, not for a perp, not once.
 2. **W is your maximum loss.** Set it so losing it entirely changes nothing.
 3. **Never add to the engine after a loss.** That is how the §41 arms died.
-4. **No leverage on ETH or any alt, ever.** Every ETH setting above 1.5× has a
+4. **The sleeve is 50/50 BTC/HYPE** (owner decision 2026-08-21). Spot buys
+   split 50/50. **HYPE is unmanaged** — no regime gate, no cycle rule, no
+   stop — and **never carries leverage.** Every gate, phase and signal in
+   this playbook governs the BTC half ONLY.
+5. **No leverage on ETH, HYPE or any alt, ever.** Every ETH setting above 1.5× has a
    negative median; 3× const was 0.30× with 100% of windows liquidated.
    **HYPE is not covered by any of this work** — 1.7 years of history, 2.6×
    BTC's volatility, and it has never seen a bear market.
-5. **Never hold a perp long-term.** Funding accrues on the whole notional: a 1×
+6. **Never hold a perp long-term.** Funding accrues on the whole notional: a 1×
    *perp* returned 0.21× where spot DCA returned 0.90× (§41.3).
-6. **The 8-week clock resets on any close below the trigger.** No exceptions
+7. **The 8-week clock resets on any close below the trigger.** No exceptions
    for "it only dipped a day."
-7. **One realised liquidation of the engine bans sleeve leverage permanently**
+8. **One realised liquidation of the engine bans sleeve leverage permanently**
    (CRYPTO_SLEEVE §6), pending a written post-mortem.
-8. **The engine never runs without a resting stop**, and the stop is reset
+9. **The engine never runs without a resting stop**, and the stop is reset
    every month. An unstopped engine is the only configuration in this
    playbook that has ever been liquidated in testing.
 
