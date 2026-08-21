@@ -20,7 +20,36 @@ applies here.**
 Line 2 is the instruction. **✅ = leverage permitted. ❌ = spot only.**
 Nothing else in the digest governs this sleeve.
 
-## Step 2 · Send this month's contribution
+## Step 2 · Look up the regime. Do exactly what the row says.
+
+| regime | what it means | **contribution** | **the engine** |
+|---|---|---|---|
+| 🐻 **BEAR** | cycle is MARKDOWN/TROUGH, **or** 0–1 of 3 indicators | **spot BTC only** — 2.5× base rate inside the trough window, 0.4× outside | must be **FLAT**. If open, close it and move the proceeds to spot. |
+| ⚖️ **MIXED** | cycle permits, 2 of 3 indicators | **spot BTC only**, base rate | **no new money in.** An open engine stays open with its stop; it is not topped up. |
+| 🐂 **BULL** | cycle permits **and** 3 of 3 **and** entry signal fired | base rate into the engine; overflow above W → spot | **ON**, ≤3× inside the sweep, W capped, swept monthly, **stop always resting** |
+
+There is no fourth case and no judgement call. The digest prints the regime;
+you read the row.
+
+## Step 2b · If the engine is open, RESET THE STOP (every month, without fail)
+
+Place a resting stop where **equity ÷ notional = 5%**. Hyperliquid liquidates
+at **1.25%**, so this fires first:
+
+```
+stop price = (size × avg_entry − collateral) ÷ (size × 0.95)
+```
+
+**Recompute it every month.** Funding drains collateral, which *raises* this
+price over time. §46 tested a fixed price-from-entry stop and it was outrun by
+funding — the exchange liquidated first. Expressing the stop as a margin
+*ratio* is what makes it un-outrunnable.
+
+Measured (§46): this took liquidations to **zero** across both peak-to-peak
+windows **at no cost to returns** (16.0806 vs 16.0561 BTC, and identical in
+the second window).
+
+## Step 3 · Send this month's contribution
 
 | digest says | you buy | how much |
 |---|---|---|
@@ -34,13 +63,13 @@ deploys the *same total* money, front-loaded into the cheap window — worth
 
 **Trough window: 2026-08-25 → 2026-12-23.** You are in it from this month.
 
-## Step 3 · If — and only if — the digest says ✅, sweep
+## Step 4 · If — and only if — the digest says 🐂 BULL, sweep
 
 Every month, move everything in the engine above **W** into spot. Do it when
 it feels early. That sweep is the entire reason leverage is allowed here
 (§43: worst case 0.07× → 0.96× *while* the median rises).
 
-## Step 4 · Write one line in a log
+## Step 5 · Write one line in a log
 
 `date · amount · price · spot or engine`. That is the whole record-keeping
 requirement.
@@ -69,17 +98,21 @@ to guess where the bottom is.
 ## Gate 3 — the regime board (§45)
 
 **One verdict, four confirming indicators, and the 4-year cycle outranks all
-of them.** Measured markdown false-BULL rates: 200d SMA 14%, 50/200 cross 20%,
-20wk SMA 14%, 10m SMA 23% — **every single indicator is wrong often enough
-inside a markdown to lose money on.** Unanimity (4/4) cuts that to **9%**.
+of them.** Measured markdown false-BULL rates: 20wk SMA 14%, 200d SMA 14%, 10m SMA 24%,
+50/200 cross 20% — **every single indicator is wrong often enough inside a
+markdown to lose money on.** Unanimity of the three kept ones cuts it to
+**9%**, the best achievable on this data.
 
 * **PRIMARY — the 4-year cycle.** In MARKDOWN or the TROUGH WINDOW the verdict
   is 🐻 BEAR *no matter what the indicators say*. The digest prints
   `← OVERRIDES the indicators` when this fires, so you can see it happen.
-* **CONFIRMING — 4 of 4 or it is not a bull.** 0–1 = 🐻 BEAR, 2–3 = ⚖️ MIXED
-  (spot only), 4 = 🐂 BULL.
+* **CONFIRMING — 3 of 3 or it is not a bull.** 0–1 = 🐻 BEAR, 2 = ⚖️ MIXED
+  (spot only), 3 = 🐂 BULL. The three are **20-week SMA · 200-day SMA ·
+  10-month SMA**. The 50d/200d cross was dropped (§46): every indicator set
+  containing the 20-week scores 9% markdown false-BULL, every set without it
+  scores 14–24%, and the cross adds nothing to a set that already has it.
 
-**Today: 2 of 4 bullish and the cycle says MARKDOWN → 🐻 BEAR.** Two
+**Today: 2 of 3 bullish and the cycle says MARKDOWN → 🐻 BEAR.** Two
 indicators are bullish and the verdict is still BEAR. That is the override
 working, not a malfunction.
 
@@ -126,6 +159,9 @@ regime-only **5**, both together **1**.
    for "it only dipped a day."
 7. **One realised liquidation of the engine bans sleeve leverage permanently**
    (CRYPTO_SLEEVE §6), pending a written post-mortem.
+8. **The engine never runs without a resting stop**, and the stop is reset
+   every month. An unstopped engine is the only configuration in this
+   playbook that has ever been liquidated in testing.
 
 ---
 

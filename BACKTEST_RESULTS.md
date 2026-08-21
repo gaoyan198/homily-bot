@@ -2463,3 +2463,76 @@ across four peaks, three of which are complete. A bug found in review and
 fixed before shipping: `indicator_board` was not threading `asof` into
 `btc_regime`, so the 10-month indicator silently returned `None` under any
 back-dated evaluation and the board scored 3/3 instead of 4/4 — pinned now.
+
+## 46 · #153 zero liquidations, and the indicator set cut to what actually works (run 2026-08-21)
+
+**Origin.** Owner: *"let's use the best indicators only … i also know
+liquidations can happen during bull market so let's reduce that occurance to
+zero as much as possible while still balancing maximising our returns."*
+
+### 46.1 · A fixed price stop does NOT work — funding outruns it
+
+First attempt: delever when price falls X% below average entry. **It failed.**
+At every level from −30% down to −12% the 2017→2021 window still recorded **one
+liquidation**. The mechanism: funding drains collateral continuously, and a
+falling collateral balance **raises** the liquidation price
+`p_liq = (size·entry − collateral) / (size·(1−m))`. Given enough drain, the
+exchange's liquidation price rises *above* a stop pinned to entry, and the
+exchange gets there first. A stop that can be outrun is not a stop.
+
+### 46.2 · A MARGIN-RATIO stop takes liquidations to zero, for free
+
+Express the stop as "delever when equity ÷ notional reaches X%" — the same
+quantity the exchange is measuring, so it cannot be outrun:
+
+| stop at equity/notional | ≈ drawdown | 2017→2021 BTC (liq · self-stops) | 2021→2025 BTC (liq · stops) |
+|---|---|---|---|
+| none (as shipped) | −32.5% | 16.0561 (**1** · 0) | 4.0419 (0 · 0) |
+| **5%** | −29.8% | **16.0806 (0 · 1)** | **4.0419 (0 · 0)** |
+| 8% | −27.5% | 15.8259 (0 · 2) | 4.0419 (0 · 0) |
+| 10% | −25.9% | 15.9021 (0 · 2) | 4.0419 (0 · 0) |
+| 15% | −21.6% | 16.0913 (0 · 4) | 3.6850 (0 · 2) |
+| 20% | −16.7% | 16.3565 (0 · 6) | 3.8154 (0 · 3) |
+
+**5% is adopted.** Zero liquidations in both windows, and returns **equal or
+better** than the unstopped arm (16.0806 vs 16.0561; identical in the second
+window, where it never fires). This is the rare free lunch: the loss the stop
+prevents is larger than the upside it forgoes, because a liquidation closes the
+*entire* position at the worst price of the move while a stop closes it 3
+percentage points of drawdown earlier and keeps the residual.
+
+Tighter stops are not better. 15% and 20% fire 4–6 times and cost real money in
+the second window (3.6850 vs 4.0419). The point of the stop is to pre-empt the
+exchange, not to trade the drawdown.
+
+**The stop must be recomputed monthly** — that is not housekeeping, it is the
+mechanism. §46.1 is exactly what happens if it is set once.
+
+### 46.3 · Indicator subset sweep — the 20-week SMA is doing all the work
+
+All 15 combinations, scored on markdown false-BULL rate (the failure that costs
+money) and forward 30-day return under unanimity:
+
+| set | % time BULL | fwd30 BULL | markdown false-BULL |
+|---|---|---|---|
+| **20wk + 200d + 10m** | 57% | +9.52% | **9%** |
+| 20wk + 200d | 58% | +9.61% | **9%** |
+| 20wk + 10m | 58% | +9.69% | **9%** |
+| *(all 7 sets containing 20wk)* | 53–58% | +9.5…+10.0% | **9%** |
+| 20wk alone | 61% | +9.31% | 14% |
+| 200d alone | 62% | +8.77% | 14% |
+| 50/200 alone | 62% | +8.36% | 20% |
+| 10m alone | 71% | +8.25% | **24%** |
+
+**Every set containing the 20-week SMA scores 9%. Every set without it scores
+14–24%.** The 50d/200d cross is the weakest single indicator (+4.89% spread,
+20% false-BULL) and adds nothing to any set that already has the 20wk, so it is
+**dropped**. Kept: **20wk** (the one that works), **200d** (owner-requested),
+**10m** (the stock book's own rule, kept so one vocabulary spans both books).
+**3/3 scores the same 9% as 4/4 did** — the cross was never contributing.
+
+**Caveat that must travel with this.** These indicators are all
+price-versus-its-own-average at different lookbacks, so "3 of 3" is closer to
+one opinion measured three ways than three independent votes. The 9% floor
+appearing identically across seven different sets is itself evidence of that
+redundancy, not of robustness.

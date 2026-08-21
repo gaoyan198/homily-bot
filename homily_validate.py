@@ -2931,9 +2931,26 @@ print("[73] #151 BTC regime + phase + leverage verdict: AND-gated, month-safe  P
 
 
 # --- #152: the regime board — 4-year cycle PRIMARY, unanimity for BULL ----
-assert _cc72.IND_BULL_MIN == 4, \
-    "#152: BULL needs UNANIMITY — 4/4 fires on 9% of markdown days vs the " \
-    "10m SMA alone at 23%; a majority rule reintroduces the false bull"
+assert _cc72.IND_BULL_MIN == 3, \
+    "#152/#153: BULL needs UNANIMITY of the THREE kept indicators — 3/3 " \
+    "scores the same 9% markdown false-BULL as 4/4 did; a majority rule " \
+    "reintroduces the false bull the owner lost money to"
+assert _cc72.MARGIN_STOP == 0.05 and _cc72.MARGIN_STOP > 0.0125, \
+    "#153: our stop must sit ABOVE Hyperliquid's 1.25% maintenance or it " \
+    "cannot pre-empt a liquidation"
+_ib153 = [(datetime.date(2026, 1, 1) + datetime.timedelta(days=i),
+           100.0 + i, 100.0 + i, 100.0 + i, 100.0 + i) for i in range(400)]
+assert [n for n, _, _ in _cc72.indicator_board(_ib153)] == \
+    ["20-week SMA", "200-day SMA", "10-month SMA"], \
+    "#153: the 50d/200d cross is dropped — every set containing the 20wk " \
+    "scores 9%, every set without it scores 14-24%"
+# the stop is a MARGIN RATIO, so funding drain RAISES it (that is the point)
+_sp_fresh = _cc72.stop_price(100.0, 3.0, 100.0)
+_sp_drained = _cc72.stop_price(100.0, 3.0, 80.0)
+assert _sp_drained > _sp_fresh, \
+    "#153: draining collateral must RAISE the stop — a fixed price-from-" \
+    "entry stop is outrun by funding and the exchange liquidates first"
+assert _cc72.stop_price(100.0, 0.0, 100.0) is None, "#153: no position, no stop"
 def _mk152(px, n=260):
     return [(datetime.date(2027, 1, 1) + datetime.timedelta(days=i),
              px, px, px, px) for i in range(n)]
@@ -2949,8 +2966,8 @@ assert "OVERRIDES" in _cc72.regime_block(_rising, None,
     "#152: the block must SAY the cycle overrode the indicators"
 # rule 2: once the cycle permits, unanimity is required
 _v2 = _cc72.regime_verdict(_rising, asof=datetime.date(2027, 6, 1))
-assert _v2[0] == "BULL" and _v2[4] == 4, \
-    "#152: a monotonically rising tape post-trough is 4/4 -> BULL"
+assert _v2[0] == "BULL" and _v2[4] == 3, \
+    "#152/#153: a monotonically rising tape post-trough is 3/3 -> BULL"
 assert _cc72.regime_verdict(_mk152(100.0),
                             asof=datetime.date(2027, 6, 1))[0] != "BULL", \
     "#152: a flat tape is never BULL"
@@ -2959,6 +2976,6 @@ for _a in (datetime.date(2026, 9, 1), datetime.date(2027, 6, 1),
            datetime.date(2030, 1, 1)):
     assert _cc72.regime_verdict(_rising, asof=_a)[0] in ("BULL", "MIXED", "BEAR")
 assert _cc72.regime_block([], None) == "", "#152: no bars -> no block (additive)"
-print("[74] #152 regime board: cycle PRIMARY, unanimity for BULL, 3 labels  PASS")
+print("[74] #152/#153 regime board: cycle PRIMARY, 3/3 unanimity, margin stop  PASS")
 
 print("\nAll structural assertions passed.")
