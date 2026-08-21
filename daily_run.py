@@ -829,10 +829,14 @@ def build_digest(flex_notes=None):
     # leaves the digest byte-identical.
     crypto = ""
     try:
-        _cb, _ = homily_data.fetch_series("BTC-USD", rng="2y")
-        _cs = homily_cryptocycle.cycle_state(
-            [(b[0], b[1], b[2], b[3], b[4]) for b in _cb])
-        crypto = homily_cryptocycle.cycle_line(_cs, esc=esc)
+        _cb, _ = homily_data.fetch_series("BTC-USD", rng="max")
+        _cbars = [(b[0], b[1], b[2], b[3], b[4]) for b in _cb]
+        _cs = homily_cryptocycle.cycle_state(_cbars)
+        # #151: regime (10m SMA, same rule as the stock book) + cycle phase
+        # + the single leverage verdict, above the timing detail.
+        crypto = "\n".join(x for x in (
+            homily_cryptocycle.regime_line(_cbars, _cs, esc=esc),
+            homily_cryptocycle.cycle_line(_cs, esc=esc)) if x)
     except Exception as e:
         print(f"[cryptocycle] skipped: {e}")
     # #26 breadth + #29 concentration: both pure reads of already-fetched
