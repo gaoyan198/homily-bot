@@ -247,7 +247,17 @@ def regime_line(bars, state=None, esc=lambda x: x, asof=None):
 #      verdict is BEAR no matter what the indicators say.
 #   2. Only once the cycle permits do the indicators decide, and only
 #      UNANIMITY reads BULL.
-IND_BULL_MIN = 4          # of 4 — unanimity or it is not a bull
+IND_BULL_MIN = 3          # of 3 — unanimity or it is not a bull
+# #153: the 50d/200d cross is DROPPED. Subset-swept all 15 combinations on
+# markdown false-BULL rate (§46): every set containing the 20-week SMA scores
+# 9%; every set without it scores 14-24%. The cross is the weakest single
+# indicator (+4.89% spread, 20% false-BULL) and adds nothing to any set that
+# already has the 20wk. Kept: 200d (owner-requested), 20wk (the one that
+# works), 10m (the stock book's own rule, kept for one vocabulary across
+# both books). 3/3 scores the same 9% as 4/4 did.
+MARGIN_STOP = 0.05        # delever when equity/notional hits 5% (HL liquidates
+                          # at 1.25%). §46: zero liquidations across both
+                          # peak-to-peak windows at no return cost.
 
 
 def _sma(closes, n):
@@ -259,13 +269,11 @@ def indicator_board(bars, asof=None):
     closes = [b[4] for b in bars]
     px = closes[-1] if closes else None
     out = []
-    s200, s50, s140 = (_sma(closes, 200), _sma(closes, 50), _sma(closes, 140))
-    out.append(("200-day SMA", (px > s200) if s200 else None,
-                f"${px:,.0f} vs ${s200:,.0f}" if s200 else "insufficient history"))
-    out.append(("50d/200d cross", (s50 > s200) if (s50 and s200) else None,
-                f"${s50:,.0f} vs ${s200:,.0f}" if (s50 and s200) else "—"))
+    s200, s140 = _sma(closes, 200), _sma(closes, 140)
     out.append(("20-week SMA", (px > s140) if s140 else None,
                 f"${px:,.0f} vs ${s140:,.0f}" if s140 else "—"))
+    out.append(("200-day SMA", (px > s200) if s200 else None,
+                f"${px:,.0f} vs ${s200:,.0f}" if s200 else "insufficient history"))
     lab, last, sma = btc_regime(bars, asof=asof)
     out.append(("10-month SMA", (lab == "BULL") if lab else None,
                 f"${last:,.0f} vs ${sma:,.0f}" if lab else "—"))
@@ -280,7 +288,7 @@ def regime_verdict(bars, asof=None):
     phase, why = cycle_phase(asof)
     if phase in ("MARKDOWN", "TROUGH WINDOW"):     # rule 1: cycle is PRIMARY
         return "BEAR", phase, why, board, n_bull, n_known
-    if n_known < 4:
+    if n_known < 3:
         return "MIXED", phase, why, board, n_bull, n_known
     if n_bull >= IND_BULL_MIN:
         return "BULL", phase, why, board, n_bull, n_known
@@ -307,7 +315,7 @@ def regime_block(bars, state=None, esc=lambda x: x, asof=None):
     bits = " · ".join(f"{'🐂' if b else '🐻' if b is not None else '·'} "
                       f"{n} {d}" for n, b, d in board)
     lines.append(f"₿ <i>CONFIRMING · {n_bull} of {n_known} bullish "
-                 f"(need {IND_BULL_MIN}/4 for 🐂): {esc(bits)}</i>")
+                 f"(need {IND_BULL_MIN}/3 for 🐂): {esc(bits)}</i>")
     ok, reasons = leverage_verdict(state, "BULL" if verdict == "BULL" else verdict)
     if verdict != "BULL":
         reasons = [r for r in reasons if "regime" not in r]
@@ -317,3 +325,15 @@ def regime_block(bars, state=None, esc=lambda x: x, asof=None):
                             else "❌ NO LEVERAGE — " + esc("; ".join(reasons)))
                  + "</i>")
     return "\n".join(lines)
+
+
+def stop_price(entry, size, collateral, mstop=MARGIN_STOP):
+    """Price at which equity/notional falls to `mstop` -> the resting stop.
+
+    MUST be recomputed monthly, not set once: funding drains collateral, which
+    raises this price over time. §46 found a fixed price-from-entry stop is
+    outrun by funding and lets the exchange liquidate first — the whole point
+    of expressing it as a margin RATIO is that it cannot be outrun."""
+    if size <= 0:
+        return None
+    return (size * entry - collateral) / (size * (1 - mstop))
