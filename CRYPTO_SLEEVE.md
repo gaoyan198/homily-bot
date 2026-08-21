@@ -1,8 +1,11 @@
 # CRYPTO_SLEEVE.md — the 4-year-cycle accumulation policy (#147 / D-147)
 
 **Status: PROPOSED 2026-08-20, awaiting the owner line at the bottom.**
-Constants pinned by `homily_cryptocycle_backtest.py` (run 2026-08-20,
-BACKTEST_RESULTS §41). This is the two-artifact governance record, same
+**Amended 2026-08-21 (#148):** the §3 markup confirmation moved from +40% to
+**+30%, held 8 weeks**, on measurement (BACKTEST_RESULTS §42), and is now
+watched daily in the digest. Constants pinned by
+`homily_cryptocycle_backtest.py` (run 2026-08-20, BACKTEST_RESULTS §41) and
+`homily_cryptocycle.py` (§42). This is the two-artifact governance record, same
 pattern as LEVERAGE.md: §41 is the evidence, this file is the policy.
 
 **The objective is BTC UNITS, not dollars.** Every rule below is written
@@ -55,9 +58,18 @@ but only by assuming this cycle is milder than any measured one).
 **When leverage may be reconsidered — all four, together:**
 
 1. The trough window (§2) has **closed**, and
-2. price has held **≥ +40% above the window's lowest print for ≥ 8 weeks**
-   (a markup-phase confirmation, not a bounce — the June 2026 bounce hit
-   +23.7% and resolved nothing), and
+2. **the markup confirmation has fired** — BTC closing **≥ +30% above the
+   RUNNING cycle low and holding above that line for 8 consecutive weeks**
+   (§42; constant revised 0.40 → 0.30 on measurement). The trigger is
+   measured off the *running* low, so it falls with any new low and never
+   requires guessing where the bottom is; **any close back below resets the
+   clock to zero.** The 8-week hold is the load-bearing part and is not
+   negotiable — every 4wk/6wk variant tested produced a false positive
+   (2018-03-08 fired at $9,395, then BTC fell to $3,191: a wipeout at 3x).
+   The 30% threshold is inside the noise at n=3 and may be argued with; the
+   hold may not. Watched daily by `homily_cryptocycle.py` (validate [72]),
+   which prints the ₿ CYCLE line in the digest — **a watch, not an
+   authorisation: it reports condition 2 only, and 1/3/4 still bind**, and
 3. the instrument is **BTC only** — ETH is banned at any leverage (§4), and
 4. gross sleeve leverage **≤ 2.0×**, sized so the liquidation price sits
    below the confirmed trough print.
