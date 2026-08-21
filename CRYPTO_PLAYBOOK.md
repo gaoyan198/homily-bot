@@ -69,7 +69,20 @@ Every month, move everything in the engine above **W** into spot. Do it when
 it feels early. That sweep is the entire reason leverage is allowed here
 (§43: worst case 0.07× → 0.96× *while* the median rises).
 
-## Step 5 · Write one line in a log
+## Step 5 · Check the ₿ TARGET line
+
+It reads `✅ ON TRACK` or `⚠️ BEHIND`, and when behind it names the run-rate
+that would fix it. Two things must be set in `contributions.json` for it to
+score anything: `balances.btc_qty` / `ibit_qty` (what you actually hold) and
+`balances.crypto_monthly_usd` (your sleeve run-rate). **Until both are set it
+prints "run-rate NOT SET" and scores nothing — by design.**
+
+The US$1M target needs **S$4,250/mo** and BTC at **$261k (2.1× the last
+peak)** — inside the historical 1.9–3.4× range. At S$5,500/mo it needs 1.6×,
+below the weakest cycle on record. At S$3,000/mo it needs 2.9×, which is
+possible but is betting on a strong cycle.
+
+## Step 6 · Write one line in a log
 
 `date · amount · price · spot or engine`. That is the whole record-keeping
 requirement.

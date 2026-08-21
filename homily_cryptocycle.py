@@ -337,3 +337,64 @@ def stop_price(entry, size, collateral, mstop=MARGIN_STOP):
     if size <= 0:
         return None
     return (size * entry - collateral) / (size * (1 - mstop))
+
+
+# ─────────────────── #154: the $1M target tracker ────────────────────
+# Owner: "i need 1mm by the next bull run." A goal without a feedback loop
+# is a wish, so the digest now prints progress against it every day.
+#
+# Every assumption below is a CONSTANT, not a hidden fudge, because the
+# answer is extremely sensitive to all three and the owner must be able to
+# argue with each one:
+TARGET_USD = 1_000_000.0
+LAST_PEAK = 124753.0            # 2025-10-06, frozen chronology §41
+TARGET_PEAK_MULT = 2.1          # next peak vs last. History: 3.4x then 1.9x.
+                                # 2.1x is INSIDE that range and is the level
+                                # S$4,250/mo needs (§46 path table).
+AVG_COST_ASSUMPTION = 60000.0   # average accumulation price over the sleeve
+STRATEGY_MULT = 1.72            # units vs flat spot DCA (§43/§46, 5x + stop)
+
+
+def target_state(units_held, monthly_usd, asof=None, peak_date=PEAK_NEXT):
+    """-> progress dict, or None when there is nothing to report.
+
+    `units_held` is BTC-equivalent (spot BTC + IBIT), read from the same
+    contributions.json balances the household scorecard uses — never
+    invented here. `monthly_usd` is the owner-set sleeve run-rate; 0 means
+    unset and the line says so rather than guessing."""
+    asof = asof or datetime.date.today()
+    months = max(0, round((peak_date - asof).days / 30.44))
+    peak_px = LAST_PEAK * TARGET_PEAK_MULT
+    need = TARGET_USD / peak_px
+    add = ((monthly_usd * months) / AVG_COST_ASSUMPTION) * STRATEGY_MULT \
+        if monthly_usd else 0.0
+    proj = units_held + add
+    return dict(units=units_held, need=need, months=months, proj=proj,
+                peak_px=peak_px, monthly=monthly_usd,
+                on_track=(proj >= need) if monthly_usd else None,
+                # the peak price the CURRENT path would need to hit $1M
+                implied=(TARGET_USD / proj) if proj > 0 else None,
+                # the run-rate that WOULD get there from here
+                need_monthly=(max(0.0, (need - units_held))
+                              * AVG_COST_ASSUMPTION / STRATEGY_MULT / months)
+                if months else None)
+
+
+def target_line(st, esc=lambda x: x):
+    """-> one ₿ TARGET line, or "" (additive-only)."""
+    if not st:
+        return ""
+    if not st["monthly"]:
+        return (f"₿ <i>TARGET ${TARGET_USD/1e6:.0f}M: {st['units']:.4f} BTC held · "
+                f"need {st['need']:.2f} BTC @ ${st['peak_px']:,.0f} peak · "
+                f"{st['months']}mo left — <b>run-rate NOT SET</b>, so no "
+                f"progress can be scored (set balances.crypto_monthly_usd)</i>")
+    mark = "✅ ON TRACK" if st["on_track"] else "⚠️ BEHIND"
+    gap = ""
+    if not st["on_track"]:
+        gap = (f" — needs <b>${st['need_monthly']:,.0f}/mo</b> "
+               f"(${st['monthly']:,.0f} set)")
+    return (f"₿ <i>TARGET ${TARGET_USD/1e6:.0f}M: {mark} · {st['units']:.4f} BTC now "
+            f"→ {st['proj']:.2f} projected vs {st['need']:.2f} needed · "
+            f"{st['months']}mo left · implied peak ${st['implied']:,.0f} "
+            f"({st['implied']/LAST_PEAK:.1f}× last){gap}</i>")

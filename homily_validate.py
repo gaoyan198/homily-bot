@@ -2978,4 +2978,30 @@ for _a in (datetime.date(2026, 9, 1), datetime.date(2027, 6, 1),
 assert _cc72.regime_block([], None) == "", "#152: no bars -> no block (additive)"
 print("[74] #152/#153 regime board: cycle PRIMARY, 3/3 unanimity, margin stop  PASS")
 
+
+# --- #154: the $1M target tracker — assumptions explicit, never invented ---
+assert _cc72.TARGET_USD == 1_000_000.0 and _cc72.TARGET_PEAK_MULT == 2.1, \
+    "#154: the target and the peak assumption are CONSTANTS the owner can " \
+    "argue with — 2.1x sits inside the historical 1.9-3.4x range"
+_t0 = _cc72.target_state(0.0, 0.0, asof=datetime.date(2026, 8, 21))
+assert _t0["on_track"] is None and "NOT SET" in _cc72.target_line(_t0), \
+    "#154: an unset run-rate must SAY so, never score progress off a guess"
+_tb = _cc72.target_state(0.13, 2359.0, asof=datetime.date(2026, 8, 21))
+assert _tb["on_track"] is False and "BEHIND" in _cc72.target_line(_tb), _tb
+assert _tb["need_monthly"] > 2359.0, \
+    "#154: a BEHIND line must name the run-rate that would fix it"
+_tg = _cc72.target_state(0.13, 6000.0, asof=datetime.date(2026, 8, 21))
+assert _tg["on_track"] is True and "ON TRACK" in _cc72.target_line(_tg)
+# progress must be MONOTONE in both levers, or the tracker is lying
+assert _cc72.target_state(1.0, 3000.0)["proj"] > \
+    _cc72.target_state(0.5, 3000.0)["proj"], "#154: more coins -> more projected"
+assert _cc72.target_state(0.5, 4000.0)["proj"] > \
+    _cc72.target_state(0.5, 3000.0)["proj"], "#154: more per month -> more projected"
+# and it must shrink as the deadline approaches
+assert _cc72.target_state(0.5, 3000.0, asof=datetime.date(2029, 1, 1))["proj"] < \
+    _cc72.target_state(0.5, 3000.0, asof=datetime.date(2027, 1, 1))["proj"], \
+    "#154: less time left -> less projected"
+assert _cc72.target_line(None) == "", "#154: no state -> no text (additive)"
+print("[75] #154 $1M target tracker: explicit assumptions, monotone, honest  PASS")
+
 print("\nAll structural assertions passed.")
