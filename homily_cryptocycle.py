@@ -22,6 +22,18 @@ and holds above that line for HOLD_WKS consecutive weeks.
     $9,395, then BTC fell to $3,191: a wipeout at 3x), every 8wk variant
     produced none across three cycles.
 
+SETTLED BARS ONLY (#150). The 8-week clock is armed and disarmed on SETTLED
+daily closes, never on the in-progress bar. Crypto trades 24/7, so a live
+fetch always returns a provisional last bar whose "close" is just the current
+quote — and on 2026-08-21 that provisional print crossed the trigger intraday
+($75,360 vs a $75,072 trigger) and fell back below it the same day. Reading
+the unsettled bar would have started a 56-day clock on a wick, which is NOT
+the rule §42 measured: the backtest evaluated settled closes throughout. The
+provisional price is still reported (`live_price`) so the digest can show
+where the market is, but it never moves the clock. Compare #106, which marks
+provisional bars rather than dropping them — that is display-only; this one
+gates an irreversible action, so it drops.
+
 The engine ALSO requires CRYPTO_SLEEVE §3's other conditions (trough window
 closed, BTC-only, <= the sanctioned leverage). This line reports the timing
 condition only and says so — it is a WATCH, never an authorisation.
@@ -34,7 +46,8 @@ LAST_PEAK = datetime.date(2025, 10, 6)          # frozen chronology, §41
 TROUGH_WINDOW = (datetime.date(2026, 8, 25), datetime.date(2026, 12, 23))
 
 
-def cycle_state(bars, pct=PCT, hold_wks=HOLD_WKS, since=LAST_PEAK, today=None):
+def cycle_state(bars, pct=PCT, hold_wks=HOLD_WKS, since=LAST_PEAK, today=None,
+                asof=None):
     """bars: ascending [(date, o, h, l, c), ...] daily BTC. -> state dict, or
     None when there is nothing to read.
 
@@ -42,6 +55,12 @@ def cycle_state(bars, pct=PCT, hold_wks=HOLD_WKS, since=LAST_PEAK, today=None):
     can never drift: track the running low, arm on the first close above the
     trigger, disarm on any close back below, fire after hold_wks weeks."""
     w = [b for b in bars if b[0] >= since]
+    if len(w) < 2:
+        return None
+    # #150: the clock reads SETTLED closes only — drop the in-progress bar.
+    asof = asof or datetime.date.today()
+    live = w[-1]
+    w = [b for b in w if b[0] < asof]
     if len(w) < 2:
         return None
     low = w[0][3]
@@ -61,8 +80,11 @@ def cycle_state(bars, pct=PCT, hold_wks=HOLD_WKS, since=LAST_PEAK, today=None):
     dt, o, h, lo, c = w[-1]
     today = today or dt
     trigger = low * (1 + pct)
+    live_px = live[4]
+    provisional = live[0] >= asof
     held = (today - armed).days if armed else 0
-    return dict(price=c, asof=dt, low=low, low_date=low_date, trigger=trigger,
+    return dict(price=c, asof=dt, live_price=live_px, provisional=provisional,
+                low=low, low_date=low_date, trigger=trigger,
                 above=c >= trigger, pct_off_low=(c / low - 1) if low else 0.0,
                 armed_since=armed, held_days=held,
                 need_days=max(0, hold_wks * 7 - held),
@@ -95,9 +117,13 @@ def cycle_line(state, esc=lambda x: x):
                 f"{low} cycle low ({s['low_date']:%Y-%m-%d})")
         tail = (f"needs {trig} ({s['gap_to_trigger']:+.1%}) THEN "
                 f"{HOLD_WKS}wk held; trigger falls with any new low")
+    prov = ""
+    if s.get("provisional") and abs(s["live_price"] - s["price"]) > 1e-9:
+        prov = (f" · live ${s['live_price']:,.0f} (unsettled — the clock reads "
+                f"the {s['asof']:%b %d} close, not the tape)")
     win = ""
     if s["in_trough_window"]:
         win = (f" · 🎯 in the projected trough window "
                f"({TROUGH_WINDOW[0]:%Y-%m-%d}…{TROUGH_WINDOW[1]:%Y-%m-%d}) "
                f"— spot accumulation is HEAVY here")
-    return f"₿ <i>CYCLE: {esc(head)} — {esc(tail)}{win}</i>"
+    return f"₿ <i>CYCLE: {esc(head)} — {esc(tail)}{prov}{win}</i>"

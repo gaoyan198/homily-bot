@@ -2158,8 +2158,13 @@ timing condition only, and CRYPTO_SLEEVE §3's other conditions are unchanged
 and still bind. Additive-only — a failed BTC fetch leaves the digest
 byte-identical.
 
-**Live at time of writing (2026-08-21):** cycle low $57,748 (2026-07-01), BTC
-$75,360, trigger $75,072 — **the signal ARMED today**, 0/56 days held. Any
+**Live at time of writing (2026-08-21) — CORRECTED same day, see #150:** cycle
+low $57,748 (2026-07-01), trigger $75,072. This paragraph first read *"the
+signal ARMED today"* on a provisional intraday print of $75,360. **It had
+not.** That bar was unsettled, it fell back below the trigger the same
+session, and the last SETTLED close (2026-08-19) was $69,266 — 8.4% below the
+trigger. The watch now evaluates settled closes only (#150); the signal is
+**🟠 OFF and has never armed.** Any
 close below $75,072 resets it to zero. Recorded here because a signal that
 arms on the day it ships deserves to be on the record before anyone can claim
 it was fitted afterwards.

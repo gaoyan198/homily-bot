@@ -2880,6 +2880,18 @@ _n72 = _cc72.cycle_state(_bars72([100.0, 50.0, 66.0]), since=_d72)
 assert abs(_n72["trigger"] - 65.0) < 1e-9, \
     "#148: trigger is measured off the RUNNING low, not the first bar"
 assert _n72["low"] == 50.0 and _n72["above"], _n72
+assert _cc72.cycle_state(
+    _bars72([100.0] * 10 + [131.0] * 60), since=_d72,
+    asof=_d72 + datetime.timedelta(days=69))["price"] == 131.0, "sanity"
+_p72 = _bars72([100.0] * 10 + [200.0])          # a wick on the UNSETTLED bar
+_ps72 = _cc72.cycle_state(_p72, since=_d72, asof=_p72[-1][0])
+assert _ps72["armed_since"] is None, \
+    "#150: an in-progress bar must NEVER start the 8wk clock — the 2026-08-21 " \
+    "intraday print crossed the trigger and fell back the same day"
+assert _ps72["live_price"] == 200.0 and _ps72["provisional"], \
+    "#150: the provisional price is still REPORTED, just not acted on"
+assert "unsettled" in _cc72.cycle_line(_ps72), \
+    "#150: the line must say the clock reads the settled close"
 assert _cc72.cycle_line(None) == "", "#148: no state -> no text (additive)"
 assert "watch, not an authorisation" in _cc72.cycle_line(_g72), \
     "#148: a fired line must NOT read as permission to lever"
@@ -2890,6 +2902,6 @@ _src72 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "homily_cryptocycle.py")).read()
 assert "urlopen" not in _src72 and ".record(" not in _src72 and \
     "open(" not in _src72, "#148: the cycle line is pure — no IO"
-print("[72] #148 crypto-cycle watch: 30%/8wk pinned, reset guard, pure .... PASS")
+print("[72] #148/#150 crypto-cycle watch: 30%/8wk, reset guard, SETTLED bars  PASS")
 
 print("\nAll structural assertions passed.")
