@@ -3028,4 +3028,27 @@ for _w in ("BULL", "BEAR", "LEVERAGE", "PERMITTED"):
 assert _cc72.hype_line([]) == "", "#155: no bars -> no line (additive)"
 print("[76] #155 50/50 split: alt half never counted as BTC, HYPE unmanaged  PASS")
 
+
+# --- #157: crypto rides the STOCK BOOK's buy day, and never guesses -------
+assert _cc72.RESERVE_MONTHS == 8, \
+    "#157: §49.2 — deploy a reserve over ~8 months; being EARLY is punished " \
+    "(17.33 BTC at 180d early vs 27.64 on time), being late is not"
+assert _cc72.buyday_line(False, 1000.0, 0.0, 0.7, True) == "", \
+    "#157: nothing prints off buy day (additive-only)"
+_u157 = _cc72.buyday_line(True, 0.0, 0.0, 0.7, True)
+assert "NOT SET" in _u157 and "will not guess" in _u157, \
+    "#157: unset amounts must print the setup instruction, never a number"
+_c157 = _cc72.contribution(1000.0, 8000.0, 0.7, in_window=True)
+assert abs(_c157["alt"] - 300.0) < 1e-9, "#157: the alt leg is monthly x (1-share)"
+assert abs(_c157["reserve"] - 1000.0) < 1e-9, "#157: reserve/8 per month"
+assert abs(_c157["btc"] - (700.0 + 1000.0)) < 1e-9, \
+    "#157: the reserve slice is BTC-ONLY — the window rule is buy-what-is-cheap"
+_o157 = _cc72.contribution(1000.0, 8000.0, 0.7, in_window=False)
+assert _o157["reserve"] == 0.0 and abs(_o157["total"] - 1000.0) < 1e-9, \
+    "#157: outside the window the reserve does NOT deploy"
+assert _cc72.contribution(0.0, 5000.0, 0.7, True) is None, \
+    "#157: no monthly amount -> no order"
+assert "BTC" in _cc72.buyday_line(True, 1000.0, 8000.0, 0.7, True)
+print("[77] #157 crypto buy day: rides the stock buy day, reserve BTC-only  PASS")
+
 print("\nAll structural assertions passed.")

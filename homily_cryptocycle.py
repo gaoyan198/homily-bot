@@ -444,3 +444,49 @@ def hype_line(bars, esc=lambda x: x):
             f"{trough/ath-1:.0%} · only {hist_d//365}y{(hist_d%365)//30}m of "
             f"history, never through a bear — <b>sized by conviction, not by "
             f"evidence</b></i>")
+
+
+# ───────────────── #157: the buy-day contribution line ──────────────────
+# Owner: "my buy day should be same as buy day as my ibkr trad fi stuff."
+# The stock book's buy day is homily_buyday.is_buy_day — the FIRST digest run
+# of a calendar month, not a fixed date. The crypto sleeve rides the same
+# trigger, so there is one buy day and one routine, not two.
+#
+# Amounts are owner-set in contributions.json and NEVER guessed. Unset prints
+# the setup instruction instead of a number, same discipline as the tracker.
+RESERVE_MONTHS = 8      # §49.2: being EARLY is punished, being late is not —
+                        # deploy a reserve over ~8 months, not 4.
+
+
+def contribution(monthly, reserve, btc_share, in_window, months_left=None):
+    """-> (total, btc, alt, reserve_slice). The reserve slice is BTC-only:
+    the trough-window rule is 'buy what is cheap', and on 2026-08-21 BTC was
+    −40% from its high while HYPE was AT its high (CRYPTO_SLEEVE §5)."""
+    if not monthly:
+        return None
+    slice_ = 0.0
+    if reserve and in_window:
+        n = months_left or RESERVE_MONTHS
+        slice_ = reserve / max(1, n)
+    btc = monthly * btc_share + slice_
+    alt = monthly * (1 - btc_share)
+    return dict(total=monthly + slice_, btc=btc, alt=alt, reserve=slice_)
+
+
+def buyday_line(buy_day, monthly, reserve, btc_share, in_window,
+                cur="US$", esc=lambda x: x):
+    """-> the 📌 action line on buy day, "" otherwise (additive-only)."""
+    if not buy_day:
+        return ""
+    if not monthly:
+        return ("📌 <b>CRYPTO BUY DAY</b> <i>— amounts NOT SET, so no order is "
+                "printed. Set balances.crypto_monthly_usd (what you can afford "
+                "every month) and balances.crypto_reserve_usd (cash you already "
+                "hold). Until then this line will not guess.</i>")
+    c = contribution(monthly, reserve, btc_share, in_window)
+    body = (f"send {cur}{c['total']:,.0f} — {cur}{c['btc']:,.0f} BTC "
+            f"+ {cur}{c['alt']:,.0f} HYPE")
+    if c["reserve"]:
+        body += (f" (incl. {cur}{c['reserve']:,.0f} reserve slice, BTC-only, "
+                 f"1 of ~{RESERVE_MONTHS})")
+    return f"📌 <b>CRYPTO BUY DAY</b> — <i>{esc(body)}</i>"

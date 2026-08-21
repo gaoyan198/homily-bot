@@ -2841,3 +2841,25 @@ after an observation phrased strongly enough to read as a recommendation when
 it was scoped to one narrow point (where the *reserve* should go). Flagging the
 scope mismatch immediately, rather than implementing the swing, is what let the
 allocation settle somewhere defensible.
+
+### 49.4 · The crypto sleeve now rides the stock book's buy day (#157, 2026-08-21)
+
+Owner: *"my buy day should be same as buy day as my ibkr trad fi stuff."*
+
+The stock book's buy day is `homily_buyday.is_buy_day` — **the first digest run
+of a calendar month**, stable all day because same-day re-runs do not count.
+It is not a fixed calendar date. The crypto sleeve now reads the same function
+against the same ledger, so there is **one buy day and one routine** rather
+than two schedules to keep in step.
+
+On buy day the digest prints a concrete order; on every other day the line is
+absent. The amounts are owner-set (`crypto_monthly_usd`, `crypto_reserve_usd`,
+`crypto_btc_share`) and **never inferred** — unset prints the setup
+instruction, pinned in [77], the same discipline as the target tracker.
+
+Two rules are encoded in the split of that order, each from a different
+finding: the **alt leg is `monthly × (1 − btc_share)`** (§49.3's 70/30), while
+the **reserve slice is BTC-only** (§49.3 — the window rule is buy-what-is-
+cheap, and HYPE was at its high while BTC sat 40% below its own). The slice is
+`reserve ÷ 8`, not `÷ 4`, per §49.2's early-vs-late asymmetry, and it deploys
+**only inside the trough window** — [77] pins that it is zero outside it.

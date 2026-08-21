@@ -82,6 +82,22 @@ weighting edge, and it costs you nothing you do not already have.
 
 # PART A — WHAT TO DO THIS MONTH
 
+## Step 0 · Wait for BUY DAY — it is the same day as your stock book
+
+The sleeve rides `homily_buyday.is_buy_day`: **the first digest run of a
+calendar month.** Not a fixed date. One buy day, one routine, both books.
+
+On that day the digest prints:
+
+```
+📌 CRYPTO BUY DAY — send US$1,700 — US$1,700 BTC + US$300 HYPE
+   (incl. US$1,000 reserve slice, BTC-only, 1 of ~8)
+```
+
+If your amounts are not set it prints the setup instruction instead of a
+number. **It will not guess.** On every other day of the month this line is
+absent and there is nothing to do.
+
 ## Step 1 · Open the digest. Read the verdict line.
 
 ```
