@@ -2599,3 +2599,71 @@ model the 2.5×/0.4× cycle weighting, so it is conservative during the trough
 window and optimistic after it. Every number inherits §43/§46's n=2 analogs
 and the 1.72× multiple's dependence on the engine actually being switched on —
 which, today, all four gates forbid.
+
+## 48 · #155 the 50/50 BTC/HYPE decision (run 2026-08-21) — the diversification is real, the governance gap is the cost
+
+**Origin.** Owner: *"i am thinking 50/50 with hype, i am long term bullish on
+hype and these are the only 2 coins i will hold."* Then, after this analysis
+was presented in full: *"yes i am keepeing 50/50."* **Recorded as a dated owner
+decision against a contrary recommendation**, same pattern as LEVERAGE.md's
+2026-07-12 line.
+
+**First, ETH is out.** Tested on ending USD per $1 contributed: 100% BTC beat
+70/30 in **both** accumulation-phase analogs (0.85 vs 0.80; 1.84 vs 1.73) and
+in the c3 full cycle (3.13 vs 2.84). ETH's one large win — c2 full cycle, 18.73×
+against BTC's 7.25× — came in the **late markup**, not the accumulation phase.
+So ETH is a Phase-2 question, not a Phase-1 holding, and the §5 split loses it.
+
+**The case FOR 50/50 HYPE is stronger than expected.**
+
+| | HYPE | BTC |
+|---|---|---|
+| since 2024-11-29 | **+1,140.5%** | −20.1% |
+| annualised vol | 115% | 44% |
+| correlation to BTC | **0.48** | — |
+
+And the correlation **does not spike in selloffs**, which is the usual way this
+argument fails: **0.29** on BTC days worse than −3%, **0.03** on days worse than
+−5%. On BTC's ten worst days HYPE fell *less* on six of them, averaging −7.09%
+against BTC's −7.19%. The blend result follows:
+
+| blend | vol | **max drawdown** |
+|---|---|---|
+| 100% BTC | 44% | **53.1%** |
+| 75/25 | 53% | **45.9%** ← lowest |
+| **50/50** | 71% | **48.0%** |
+| 100% HYPE | 115% | 68.4% |
+
+**A monthly-rebalanced 50/50 carried a LOWER max drawdown than 100% BTC.** The
+0.48 correlation is doing real work; HYPE is not a levered BTC clone.
+
+**The case AGAINST is not volatility — it is governance.** Every rule this
+sleeve owns is calibrated on 12 years of BTC across three complete cycles. HYPE
+has **1.7 years and has never seen a bear market**, so the 4-year cycle, the
+trough window, the regime board, the §42 signal and the §46 stop govern
+**nothing** at 50% of the sleeve. That half runs on discretion — which is the
+exact condition the owner described losing money to.
+
+Two further costs, stated once: the leverage venue *is* Hyperliquid, so HYPE
+plus engine collateral concentrates most of the sleeve behind one exchange; and
+the $1M target is BTC-denominated, so halving BTC contributions moves the
+requirement from "BTC at 2.1× its last peak, inside its historical range" to
+"BTC at 2.1× **and** the alt half returning **~8×**."
+
+**Recommendation was 25/75** — lowest measured drawdown, cycle machinery still
+governing three-quarters of the sleeve. **Owner chose 50/50.** That is the
+operative split and the tracker now reflects it.
+
+**What shipped.** `target_state(btc_share=...)` so the BTC-denominated target
+counts only the BTC half — pinned in [76], because a tracker that credits alt
+contributions toward a BTC goal is lying. And a `hype_line` that prints risk
+telemetry only and **renders no verdict**: [76] asserts the words BULL, BEAR,
+LEVERAGE and PERMITTED never appear in it. Inventing a regime for HYPE out of
+1.7 years would be worse than admitting there isn't one.
+
+**Caveats.** 630 common days. HYPE's entire history is one asset's launch
+run inside a single cycle, and +1,140% from a standing start is not evidence
+that it survives a bear — no alt's first cycle ever is. The 0.48 correlation is
+measured over a window in which HYPE rose 12× while BTC fell 20%; that is an
+unusual regime and the correlation should be expected to rise in a genuine
+market-wide liquidation.
