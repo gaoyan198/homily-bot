@@ -2361,3 +2361,43 @@ The 26% markdown-mislabel rate is measured on 35 markdown months. The whipsaw
 rate is 1 flip per 10.1 months with 7/14 runs under 3 months, so the exit gate
 will sometimes delever into a recovery — that cost is real and is the price of
 the 5→1 liquidation reduction.
+
+### 44.1 · Is the 8-week hold still necessary once the regime gates? (2026-08-21)
+
+Owner asked directly. The honest answer is that **the measured optimum moved and
+the recommendation did not**, so both are recorded.
+
+Re-run peak-to-peak with the regime EXIT gate in series, sweeping the hold:
+
+| hold | 2017→2021 (liq) | 2021→2025 (liq) |
+|---|---|---|
+| none | 16.4275 (4) | 4.4762 (0) |
+| 2wk | 16.5732 (2) | 4.4762 (0) |
+| **4wk** | **16.6552 (1)** | **4.3868 (0)** |
+| 6wk | 16.6552 (1) | 4.3868 (0) |
+| **8wk (shipped)** | 16.0561 (1) | 4.0419 (0) |
+| 12wk | 16.3952 (1) | 3.9960 (0) |
+
+**4wk and 6wk beat 8wk in both windows, at identical liquidation counts.** The
+mechanism: the 4wk arm confirms 2018-03-08 — inside the markdown — but is *not*
+liquidated there, because the regime flipped BEAR in 2018-04 and unwound the
+engine to spot first. Both arms ultimately liquidate on the same date
+(2021-05-19). An earlier draft of this section asserted the 4wk arm blew up in
+the 2018 decline; **that was wrong and the trace disproves it.**
+
+**The 8wk hold is nonetheless retained, as a robustness choice rather than a
+measured one, and the distinction is the point.** Of the 25 bear-phase
+episodes (§42.1): 2 survive 4wk, 1 survives 6wk, 0 survive 8wk. The single
+episode that matters is **2018-02-08 (46 days) — and the regime read BULL
+throughout it**, because the 10m SMA still lagged the December peak. So at 4wk
+or 6wk the entry gate opens during a markdown and *nothing but the regime exit
+stands between the engine and the decline*. That worked in the one instance
+history provides. It is a second-order dependency on a gate that flips once
+every 10.1 months with 7/14 runs under 3 months.
+
+**8wk is the only setting where the two gates are independently sufficient
+rather than serially dependent.** The cost is measured and modest: −3.7% and
+−8.5% of ending units across the two windows. Paying that for defence in depth
+on an n=2 return estimate is a judgement call, and is logged as one — a future
+reader with more cycles should revisit it, and if 4wk is adopted then §42.1's
+false-positive table is the thing that must be re-argued, not this paragraph.
