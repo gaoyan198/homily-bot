@@ -47,9 +47,19 @@ No perps, no leverage, no ETH.
 
 **Phase 2 — confirmation fires → switch the engine on.**
 Trigger: **BTC ≥ +30% above the running cycle low, held 8 consecutive weeks**
-(§42), *and* CRYPTO_SLEEVE §3's other three conditions. Then: 3× BTC perp,
-working capital capped at **W = 12 months of contributions**. New money goes
-to the engine; **every month sweep everything above W into spot.**
+(§42), *and* CRYPTO_SLEEVE §3's other three conditions — **note condition 1
+requires the trough window to have CLOSED (2026-12-23), so a confirmation
+arriving in October does not authorise anything until January.** Then: BTC
+perp at **≤3× inside the sweep structure** (§43; ≤2× without it), working
+capital capped at **W = 12 months of contributions**. New money tops up the
+engine; **every month sweep everything above W into spot.**
+
+**You never switch to "leverage only."** The spot pile you already own is
+never touched, and the engine has a hard ceiling — once it is at W, further
+contributions are swept straight through to spot the same month. Routing
+25% vs 100% of new money to the engine moved the result by ~2pp in one
+analog and ~19pp in the other (§43), so it is a second-order dial, not a
+gear change.
 
 **Phase 3 — ~12 months before the projected peak (~2029-10). Sweep to CASH.**
 Same engine, but harvest to USD instead of BTC. This is distribution.

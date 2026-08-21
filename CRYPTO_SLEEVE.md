@@ -71,8 +71,21 @@ but only by assuming this cycle is milder than any measured one).
    which prints the ₿ CYCLE line in the digest — **a watch, not an
    authorisation: it reports condition 2 only, and 1/3/4 still bind**, and
 3. the instrument is **BTC only** — ETH is banned at any leverage (§4), and
-4. gross sleeve leverage **≤ 2.0×**, sized so the liquidation price sits
-   below the confirmed trough print.
+4. the structure is the **harvest engine of §43, not a held levered
+   position** — working capital capped at **W**, everything above W swept to
+   spot monthly — at **≤ 3.0× inside that structure**, or **≤ 2.0× for any
+   structure without the sweep**. This distinction is the whole finding:
+   §41.4 rejected held leverage at 2× and 3× alike (−97% of coins in the
+   losing analog), while §43's swept 3× beat spot DCA in **93% of rolling
+   windows with a 0.96× worst case**. Leverage is permitted here because of
+   the sweep, not despite it. **W is the maximum loss and is the owner's
+   only real sizing decision.**
+
+   *Amended 2026-08-21.* This clause read "≤ 2.0×" from #147 until §43 was
+   written up; `CRYPTO_PLAYBOOK.md` had meanwhile been shipped citing 3×,
+   so the two documents contradicted each other for one day. The cap is now
+   structure-dependent and both files say the same thing. Recorded rather
+   than silently corrected.
 
 Any re-lever is a new dated entry in this file with its own numbers. It
 is not a judgement call made in a strong week.
