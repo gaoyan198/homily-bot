@@ -2920,3 +2920,46 @@ perform.
 A standing question on the day of temptation is weak accountability. It is
 also the only kind available without a data feed, and it is better than a
 commitment made once and never restated.
+
+### 50.2 · The opening book, and the US$3,000 that was called zero (2026-08-21)
+
+Owner: *"14k usd is 5.5k btc 5.5k hype and 3k in usdc."* Recorded:
+`btc_qty` **0.07074** (US$5,500 @ $77,751), `hype_usd` **5500**,
+`crypto_reserve_usd` **3000**.
+
+**Two things the split reveals.**
+
+**1. The book is 50/50, not 70/30.** The invested US$11,000 is exactly half
+BTC, half HYPE — the split from §48, before §49.3 settled on 70/30. The sleeve
+is therefore **+20 points overweight HYPE on day one.**
+
+**No rebalancing sale is required.** Directing the 70/30 monthly buys at the
+existing book closes it on its own:
+
+| after | book split |
+|---|---|
+| 3 months | 58 / 42 |
+| 6 months | 61 / 39 |
+| 12 months | 64 / 36 |
+| 24 months | 67 / 33 |
+
+Contributions alone reach ~70/30 without selling a single coin. Given HYPE sits
+at its all-time high and BTC 40% below its own, selling HYPE to buy BTC today
+would be the correct *direction* at the worst possible relative prices; the
+drift does the same job for free.
+
+**2. The "zero reserve" was not zero.** §50 recorded `crypto_reserve_usd = 0`
+on the owner's statement that they were stretched out. The US$3,000 USDC is
+**21% of the sleeve** — it is precisely the 20% dip buffer proposed earlier and
+rejected in §46 (lost 11 of 15 cells; 6th hold-cash-for-dips failure in this
+repo). Held as a dip fund it is a measured loser. Deployed across the trough
+window it is a measured winner (§49.2: +10.4%/+12.4% over spreading evenly).
+
+It is therefore now booked as the reserve it functionally is, and deploys at
+**US$375/month over ~8 months** — restoring, at small scale, the edge §50 had
+recorded as lost. The buy-day line moves from US$2,359 to **US$2,734** inside
+the window.
+
+**The target does not improve.** With 0.0707 BTC opening and the 30% alt leg,
+$1M implies BTC at **$548,781 (4.4× the last peak)** and ~20× from HYPE. §50's
+conclusion stands and the daily ⚠️ BEHIND line now carries both numbers.
