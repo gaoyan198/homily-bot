@@ -2716,3 +2716,45 @@ outcome — and the buffer is therefore trough-window ammunition, not a dip fund
 **No code changed.** This is a documentation defect in an operating manual the
 owner has said they will follow religiously, which makes it a live risk rather
 than a tidiness issue.
+
+### 49.1 · "W" and "base rate" were never defined — and the stated weighting was arithmetically wrong (2026-08-21)
+
+Owner: *"what is W? what is 0.4 outside?"* Both terms had been used from first
+appearance in `CRYPTO_PLAYBOOK` without ever being defined. Worse, checking the
+arithmetic to write the definition exposed an error in the instruction itself.
+
+**The error.** Part A said to contribute **"2.5× base rate"** inside the trough
+window and **"0.4× base rate"** outside. That is not what the backtest does.
+The 2.5 and 0.4 are **weights normalised across the window's 4 months and the
+33 that follow**, so the correct scale factor is `base × 37 ÷ (2.5×4 + 0.4×33)
+= base × 1.595`, and the window contribution is `2.5 × scale`, not
+`2.5 × base`:
+
+| base rate | "2.5× base rate" says | **actually required** | under-contribution |
+|---|---|---|---|
+| S$2,000/mo | S$5,000 | **S$7,974** | −37% |
+| S$3,000/mo | S$7,500 | **S$11,961** | −37% |
+| S$4,250/mo | S$10,625 | **S$16,945** | −37% |
+| S$5,500/mo | S$13,750 | **S$21,929** | −37% |
+
+A reader following the instruction literally would have **under-contributed by
+37% during the single highest-value stretch of the plan** — the four months
+§41.6 measured as worth +22.2% / +14.4% in coins — and then over-contributed
+afterwards, which is the weighting inverted at the margin.
+
+**The definitions, now in a new Part 0.** *Base rate* is the AVERAGE monthly
+budget across the sleeve's 37 months, not this month's cheque. *W* is the
+maximum money allowed inside the leveraged account at any time and therefore
+the maximum loss; the engine is BTC-only so W is denominated in the BTC half
+of contributions (12 months of that leg = S$25,500 at a S$4,250 base). Both
+are given as **dollar tables** rather than multipliers, because the multiplier
+form is what produced the error.
+
+**Related, and now stated where it belongs:** the window needs ~S$67,800
+against ~S$17,000 of salary over those four months, so the ~S$50,800 gap must
+come from existing cash. That was the real answer to the owner's 20%-USDC
+question and it had only ever been said in conversation.
+
+**No code changed.** Both defects were in prose that the owner had said they
+would follow religiously, and both would have produced wrong actions rather
+than wrong understanding.
