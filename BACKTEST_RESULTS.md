@@ -2963,3 +2963,133 @@ the window.
 **The target does not improve.** With 0.0707 BTC opening and the 30% alt leg,
 $1M implies BTC at **$548,781 (4.4× the last peak)** and ~20× from HYPE. §50's
 conclusion stands and the daily ⚠️ BEHIND line now carries both numbers.
+
+---
+
+## 51 · #159 entry lateness by TIER — when our tiers reached his bands (2026-08-25)
+
+`homily_entrylag_backtest.py` · `danny_entry_claims.json` · validate [79].
+**Measurement study. Nothing shipped, no threshold moved, no R10 slot.**
+
+§5p found the number on one name — his PLTR band was $110–135 and #13's
+ledger printed CAUTION for 19 straight sessions inside it, reaching ⭐ only
+at $179.01. This measures the method across every dated, priced band
+attributed to him anywhere in §5k/§5l/§5m/§5n/§5o/§5p: **9 claims, 6
+scorable**, transcribed verbatim with source and URL so the owner can check
+each row.
+
+### 51.0 · The fix that had to come first (R6)
+
+The live digest runs in SGT morning, so the newest **complete** US session is
+the previous calendar day. Checked against #13's own `close` column: **every
+one of the 29 PLTR ledger rows is computed from the bar of D−1, 29/29, none
+from bar D.** A replay reading bar D would therefore have been auditing
+arithmetic the engine never ran — the #130/#138 test-vs-live failure mode,
+caught before anything was built on it.
+
+With `replay()` reading D−1 and taking a **trailing 5-year window** (not a
+prefix, which shortens the series and inflates conviction's `age` points on
+older dates), the replay reproduces the forward ledger **143/143 exactly** —
+state, score, tier *and* the failed-gate list, across every claim ticker the
+ledger covers. That lock is asserted in validate [79] and is what lets the
+rest of this section be read as the engine's own behaviour rather than a
+reconstruction of it.
+
+### 51.1 · The corpus is retrospective — all of it
+
+**0 of 9 claims are contemporaneous.** Every band in the repo was named after
+price had already left it: the four §5o volatility-hole zones and the §5p
+PLTR band were published in August 2026 about windows from March 2025 to
+August 2026, and the three 2023 campaign anecdotes (RKLB $5.5, NVDA $15.2,
+PLTR $8.8) reach us only through 2026 retellings with no date at all.
+
+This is a finding, not a gap in collection — five sweeps of his posts have
+now failed to produce one dated, priced entry published *while he was
+entering*. It caps what this or any fidelity study can conclude: these are
+**reachability** numbers, not tradeable-lag numbers. Where our own forward
+ledger independently covers the window (PLTR, and the ledger tickers behind
+the 143/143 lock) the reading is stronger, because those rows were recorded
+before the outcome was known.
+
+### 51.2 · The result
+
+Episodes are derived mechanically and identically for every claim — the last
+contiguous visit to the band before publication, tolerating gaps of ≤10
+sessions — so no window is hand-picked. Prices below are what the **engine**
+saw (the D−1 close) on the day the tier first fired.
+
+| claim | band | WHALE-DIP (2% cap) | ACCUMULATE | BUY-DAY (#125) | ROCKET |
+|---|---|---|---|---|---|
+| PLTR | 110–135 | 2026-05-06 **+24%** | 2026-08-14 **+63%** | **never** | never |
+| RBRK | 49–50 | never | 2026-06-03 **+68%** | **never** | never |
+| HOOD | 66–77 | 2026-05-19 **+17%** | 2026-06-30 **+54%** | **never** | never |
+| GOOGL | 166–174 | 2025-05-20 **+0%** | 2025-07-01 **+6%** | **never** | never |
+| MSFT | 367–400 | 2026-06-22 **+3%** | 2026-08-07 **+36%** | **never** | never |
+| INTC | 25–27 | never | 2025-09-16 **−1%** | 2025-10-21 **+52%** | 2025-09-19 +22% |
+
+(% = the engine-seen close relative to the **bottom** of his band. "never" =
+not reached within 252 sessions of the episode start.)
+
+| tier | reached | median above band low |
+|---|---|---|
+| WHALE-DIP | 4/6 | **+17%** (range +0% … +24%) |
+| ACCUMULATE | 6/6 | +54% (range −1% … +68%) |
+| BUY-DAY (#125) | **1/6** | +52% |
+| ROCKET | 1/6 | +22% |
+
+### 51.3 · Findings
+
+**(a) The tier that is accurate is the tier that cannot spend.** WHALE-DIP
+reached four of six bands at a median of **+17%** above the band low, and on
+GOOGL and MSFT it fired essentially *inside* the band (+0%, +3%). It is
+capped at **2% of account** (§12). On the live book that is roughly
+**US$620**. So the engine is not blind to these entries and never was — §5p's
+"sized out, not blind" reading holds across the corpus, not just on PLTR.
+
+**(b) The money path reached one band in six, and arrived +52% late.** #125
+buy-day eligibility requires CONVICTION tier, which requires a clean sweep of
+all five hard gates. On five of six claims it was **never** eligible within a
+full year of the band. The binding constraint is consistent and it is not
+G4/basis (the "is it cheap" gate) — it is **G2 trend and G3 leader**, which
+by construction cannot be satisfied while a name is where he says he buys.
+This is the same structural point §5p made from one name: *our entry
+condition and his are close to mutually exclusive.*
+
+**(c) ⭐ is not an entry signal — it is a confirmation.** ACCUMULATE reached
+every band (6/6), but at a median **+54%** above the low. The one case where
+it was on time (INTC, −1%) is also the one case where the band episode lasted
+a single session: price passed through so fast that "late" had nowhere to
+happen.
+
+**(d) Three of the four §5o stated weeks fall OUTSIDE the window in which
+price was actually in the stated band** (RBRK, HOOD, MSFT; only GOOGL agrees).
+Reported, not resolved, and deliberately not used to move any window — the
+mechanical rule stands for every claim. It is a live question for #142's
+transcription pass: either the weeks or the bands are being read wrong, or he
+dates a hole by when it *formed* rather than when price sat in it. Until that
+is settled, every §5o-derived zone carries the ambiguity.
+
+### 51.4 · What this is not (frozen, repeated from the module docstring)
+
+- **The claim list is his, and he publishes winners.** This measures lateness
+  against his *published entries only*. It is never evidence his entries were
+  good, and a write-up quoting it as his skill or our failure is wrong on its
+  face.
+- **Every claim is retrospective** (§51.1), so these are reachability
+  statistics.
+- **One of his stated inputs is undisclosed** ("one proprietary indicator I
+  never disclose publicly", §5p). Any gap can be attributed to a term we
+  cannot see, so a large lateness figure does not establish that our
+  construct is wrong.
+- **n = 6.** Six bands, four names' worth of independent market episodes, one
+  of them a single session. Every number above should be read as a direction,
+  not a rate.
+
+### 51.5 · What it feeds
+
+Nothing ships from this session (Part III rule 5). Declared **before** the
+~2026-10 #65/#141 reads so it is not post-hoc, and like #141 it may only ADD
+a prong to those reads, never loosen a pre-registered one. Finding (b) is the
+sharpest input to **#160**: if the fundamental-divergence entry is ever going
+to pay, it has to operate exactly where G2 and G3 are failing — which is the
+one place the current money path is structurally silent.
