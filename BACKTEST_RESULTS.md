@@ -1858,6 +1858,67 @@ mechanism.
 
 ---
 
+### 39.1 · The drift question, asked twice — where the call point actually sits
+
+Owner asked on 2026-08-13 ("if 30% leverage is safe, when drawdown comes our
+leverage becomes 40% right") and again on 2026-08-25 ("this 1.30 — does it
+take into account potential increase into 1.4, 1.5, 1.6 as the market goes
+down?"). §39 answers it in a footnote; asked twice means the footnote is not
+findable, so the arithmetic is written out here. **No new measurement — this
+is §39's own result in different coordinates.**
+
+Borrow once at 1.30× and never touch the loan again (the live `ratchet`
+policy: lever up on 🐂, never sell to delever, debt→0 at 🐻). Debt is fixed
+in dollars, so the ratio climbs on its own:
+
+| market so far | ratio reads | further fall to a call | a FRESH book at that ratio |
+|---|---|---|---|
+| 0% | 1.30× | −69.2% | −69.2% |
+| −20% | 1.41× | −61.5% | −61.5% |
+| −40% | 1.63× | −48.7% | −48.7% |
+| −50% | 1.86× | −38.5% | −38.5% |
+| −60% | 2.36× | −23.1% | −23.1% |
+
+(uniform-drop call boundary d\* = (1−mL)/(L(1−m)) at m = 0.25, LEVERAGE.md §1.)
+
+**The two right-hand columns are identical at every row, and that is the
+whole answer.** A book that drifted to 1.63× and a book that opened at 1.63×
+have exactly the same remaining cushion, because the ratio and the
+maintenance rate jointly determine the call point regardless of how the book
+got there. So yes — the drift is real, and your cushion genuinely shrinks as
+it happens. But it shrinks *along* the single path to the call point that was
+already fixed when you borrowed: **−69.2% from the price you borrowed at, and
+it never moves.** The rising number is the same fact restated, not a second
+risk stacked on the first. That is why §39 calls the drift arithmetic rather
+than a breach.
+
+**What DOES move the call point** — and this is where the caution belongs:
+
+1. **Borrowing again.** Every new dollar of debt re-sets d\* higher. The
+   ladder blocks this by construction (after a drop you are *above* the cap,
+   so no adds are permitted), which is the mechanism, not a nicety.
+2. **The real maintenance rate.** Every number above uses m = 0.25.
+   Concentrated books carry more at IBKR, and the sensitivity is not
+   symmetric across the ladder:
+
+   | m | call at 1.30× | at 1.50× | at 1.62× |
+   |---|---|---|---|
+   | 0.25 | −69.2% | −55.6% | −49.0% |
+   | 0.30 | −67.0% | −52.4% | −45.3% |
+   | 0.40 | −61.5% | −44.4% | −36.2% |
+   | 0.50 | −53.8% | −33.3% | −23.5% |
+
+   At 1.30× the cushion survives even a punitive m = 0.50 (−53.8%). At 1.50×
+   it does not (−33.3%). **The cap level buys far more safety than the
+   maintenance assumption costs** — which is the quantitative case for 1.30
+   over 1.50 that §15 made on paths alone.
+3. **A crash faster than the signal.** The 🐻 rule reads MONTH-END closes. A
+   COVID-speed decline landing mid-month delevers nothing until the month
+   turns. LEVERAGE.md §1 already excludes 1.50× on exactly this ground.
+4. **Resolution.** §39's core-book NAV is monthly, so intramonth lows are
+   invisible and core-arm survival is FLATTERED. Stated, not corrected.
+
+
 ## 40 · #146 does 🐳 have precognition? (run 2026-08-20) — NULL; the tag marks bounces, not news
 
 **Origin.** Owner question after MRNA gapped +84% at the open and closed
