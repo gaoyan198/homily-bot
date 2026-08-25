@@ -172,6 +172,34 @@ UNIVERSE = {
     # run as the RS12/G3 benchmark — that is a different job, and screening
     # the benchmark against itself is what pins its RS12 at exactly 0.0.
     "IWM":"IWM","SMH":"SMH","IGV":"IGV",
+    # ---- CYPH, owner request 2026-08-24 -------------------------------
+    # Cypherpunk Technologies (NASDAQ), the Zcash-treasury company that
+    # used to be Leap Therapeutics. Same inline-documented owner-add
+    # pattern as SPCX/SNDK/NTDOY — no numbered item. It is 👁 FENCED
+    # below, and three things are why:
+    #
+    # (a) The chart is not this company's chart. The series runs back to
+    #     2021-08 at $18.50, but that is the biotech's price history; the
+    #     treasury pivot is recent. Every level the engine draws — POC
+    #     $0.74, add zone $0.73–0.76 — is computed over bars printed by a
+    #     different business.
+    # (b) The engine already says so. corp_action_bar flags 2026-06-05
+    #     (−47% on 30M shares, ~6x normal volume), so #19 suspends its
+    #     levels and #35 will not chart it. That is a dilutive raise, not
+    #     a split, so the bars are NOT adjusted away.
+    # (c) It is far too small and too cheap for the money path. $1.42 a
+    #     share on ~$1.3M/day median dollar volume — three orders of
+    #     magnitude under everything else here, and under both L1 gates
+    #     the mechanical screen uses ($5 price, $50M/day). It scored
+    #     75/PULLBACK on 2026-08-24 failing G2 alone, with RS12 +408pts,
+    #     so a single weekly flip to RED is all that stands between it
+    #     and a CONVICTION buy order. homily_conviction has no price or
+    #     liquidity FLOOR — only G1's $5B/day ceiling — which is the same
+    #     hole the TNA note above describes, from the other end.
+    #
+    # Charts and states cost nothing; an order on a $1.42 name whose
+    # levels the engine itself has suspended is the thing being deferred.
+    "CYPH":"CYPH",
 }
 
 # 👁 OBSERVATION FENCE (owner, 2026-08-17, review 2026-11-17).
@@ -190,7 +218,11 @@ OBSERVE = {tk for tk in UNIVERSE if tk in {
     "AVGO", "AEHR", "LITE", "AAOI", "AXTI", "GOOGL", "NOW", "TEAM", "RBRK",
     "ZETA", "AFRM", "DELL", "RDDT", "CRWV", "IREN", "CIFR", "COIN", "PL",
     "SATL", "ONDS", "OUST", "TMC", "NAK", "ABCL", "OSCR", "LMND", "BB",
-    "NOK", "TE", "P", "IWM", "SMH", "IGV"}}
+    "NOK", "TE", "P", "IWM", "SMH", "IGV",
+    # CYPH (owner, 2026-08-24) — fenced on its own clock, review
+    # 2026-11-24, for the three reasons in the UNIVERSE comment: the
+    # pre-pivot chart, the suspended levels, and $1.3M/day at $1.42.
+    "CYPH"}}
 
 # #64 universe-entry provenance: how each name got into the screen, logged
 # per ledger row so #14's scorecard can split by it (the referee must not
