@@ -376,6 +376,96 @@ roadmap phases — kept here for numbering continuity, referenced as #n.)*
     Closes roadmap item 22 (⚪ arm; the 🟡 variant untested — 🎯 on 🟡
     keeps its existing discretionary framing).
 
+## 5p. Addendum 2026-08-25 — "How I Bet Big on My Highest-Conviction Stocks" → plans #159–162
+
+Owner supplied Danny's post of 2026-08-25 in full. It is a method
+statement in five parts: **(1)** fundamentals — quarterly earnings
+tracked, at least **30% growth sustained over the past two to three
+years**; **(2)** roughly **half the capital is a bet on the CEO**, and
+the business must sit in a near-monopoly, disruptive position; **(3)**
+contrarian timing — enter on a **divergence**, "fundamentals continue to
+improve while technicals look the worst they have ever been"; **(4)**
+**scale into a range** over four to five months, adding weekly, rather
+than chase one price; **(5)** capital discipline — bet big in the right
+names, but **never all-in, always at least 20% cash**.
+
+**A replication probe was run BEFORE any planning** (§5o's method), and
+it is the sharpest material in this addendum, because for once the claim
+is dated, priced, on a name we HOLD, and inside a window our own forward
+ledger already covers. His stated PLTR accumulation band is **$110–135**.
+#13's ledger — recorded live, day by day, not replayed — holds 29 PLTR
+rows across it:
+
+| window | close | what the engine printed |
+|---|---|---|
+| 2026-06-26…30 (§5m) | 113–119 shelf | **🐳 WHALE-DIP fired** — inside his band |
+| 2026-07-09 … 08-04 (19 sessions) | $122–135 | **CAUTION every single day**, conv 5–10, tier `fails`, weekly WHITE, monthly DOWN, **F:2/2 throughout**, G2+G3+G4 failing |
+| 2026-08-05 (earnings gap) | $162.66 | still CAUTION, conv 25 |
+| **2026-08-14** | **$179.01** | **first ⭐ ACCUMULATE**, conv 45 — tier still `fails` on G3 |
+
+Three findings, and they do not point the same way.
+
+**Finding A — the divergence he describes is a thing our ledger
+literally printed, and we labelled it CAUTION.** For 19 consecutive
+sessions PLTR carried `F:2/2` — fundamentals passing — while showing the
+most negative technical reading the engine has (CAUTION, WHITE circle,
+monthly down, price below POC). Fundamentals fine, tape at its worst, is
+precisely his stated entry condition, and our response to it was our
+most negative label. Whether that conjunction is *tradeable* is a
+genuinely open question here: hold-cash-for-dips and dip-affinity have
+now lost six times (#50 · §29/§31 lineage · §41.6 · §46), but **every one
+of those tests conditioned on PRICE alone**. #130 gated an EXIT with F;
+no study in this repo has ever gated an ENTRY with a fundamental
+condition → **#160**.
+
+**Finding B — the lateness is real, and it must be measured per TIER
+rather than as one number.** The money path (⭐ → #125 buy-day
+eligibility) first spoke at **$179.01 — 45% above the bottom of his band
+and 33% above the top of it** — and even there the tier stayed `fails` on
+G3, so #125 would still not have bought it. But the discretionary 🐳
+tier *did* mark the band in June, at the 113–119 shelf. The engine was
+**not blind; it was correctly sized out** — 🐳 is capped at 2% of account
+(§12). That is a different defect from #141's coverage question (can the
+pipeline SEE the name) and deserves its own statistic → **#159**.
+
+**Finding C — his fundamental bar is not the one we compute.** Q (#66)
+scores revenue growth at ≥10% and ≥25% on **latest FY vs prior — a
+one-year window**. A company that grew 30% once and stalled scores
+identically to one that grew 30% for three consecutive years, which is
+the bar he actually states. That axis has never been varied. Honest
+prior, stated before the run: #66 FAILED because ZM/DOCU/ROKU/W were Q1
+on then-stellar fundamentals, and those names had *sustained* growth too
+— so a null is the expected result → **#161**.
+
+**Considered and rejected, or recorded without a study:**
+
+- **"Never go all-in, always maintain at least 20% cash."** This is the
+  **seventh** appearance of hold-cash-for-dips in this repo and the first
+  six all lost (#50 · §29/§31 lineage · §41.6's 20% dip fund, which lost
+  11 of 15 cells · §46 · CRYPTO_PLAYBOOK Part D2). It also contradicts
+  **signed live policy in two directions at once**: §3.5 routes an
+  emptied-pool buy day to the index and **never to cash**, and
+  LEVERAGE.md — owner-signed 2026-07-12 — runs 1.30× in BULL, i.e.
+  *negative* cash. Not re-tested. Recorded so no future session
+  reintroduces it as novel → **#162**.
+- **"Half the capital is a bet on the CEO"** and the **near-monopoly /
+  disruption** test. Nothing in this repo can compute either, and neither
+  carries a falsifier. Permanently out of scope (§7) → **#162**.
+- **"One proprietary indicator I never disclose publicly."** Unfalsifiable
+  by the author's own statement — and it means any replication of his
+  entries is **underdetermined by construction**, because a miss can
+  always be attributed to the hidden term. Recorded as a standing limit
+  on every entry-fidelity item (#142, #159).
+- **"A small position will never deliver financial freedom"** — the
+  bet-big claim. This is a CAP question, already settled at 25% by #92
+  (promoted 2026-07-12 by owner override). Any increase is a
+  selection-class promotion priced by R10; **next free slot 2027-Q3**. No
+  new item.
+- **The PLTR story itself as evidence.** Selection-biased by construction
+  (§5n's standing rule): the post was published after the name reached
+  $175. Only the *method shape* and the *dated band* are usable — and the
+  band is usable only because it was public before the move.
+
 ## 7. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
@@ -385,6 +475,14 @@ proprietary formulas.
 *(Amended 2026-07-12, owner max-return directive: leverage/margin is no
 longer blanket-excluded — it is governed by D-91's regime-gated,
 sleeve-only policy (§8.2, §8.5). Everything else above stands.)*
+
+*(Amended 2026-08-25, §5p/#162: **management and moat quality are
+permanently out of scope** — the "half the capital is a bet on the CEO"
+test and the near-monopoly/industry-revolution test. Nothing in this repo
+computes either, neither carries a falsifier, and an engine that scored
+the character of executives would be inventing a number, not measuring
+one. This is a scope line, not a claim that the judgement is worthless to
+a human making it.)*
 
 ## 8. Roadmap 2026H2 — the full plan (added 2026-07-06, execution deferred)
 
@@ -790,6 +888,10 @@ free number #125):
 | 156 | ~~**CRYPTO_PLAYBOOK engine routine incomplete and MIS-ORDERED**~~ — **FIXED 2026-08-21** (BACKTEST_RESULTS §49). Owner asked whether the engine mechanics were actually written down. They were not, and the audit found a defect worse than the omissions: **Part A had the stop reset as Step 2b, BEFORE the contribution (Step 3) and the sweep (Step 4)**. Correct order is contribute → sweep → re-lever → reset stop; a stop computed before re-levering is stale the instant the position changes, and §46's finding is that a stale stop is one funding cycle from being outrun. The document put the one protective step in the only position where it does nothing. **And the RE-LEVER step was undocumented entirely** — Part A said 'top up to W' and 'sweep above W' but never said the position returns to 3× the remaining equity, so a literal reader would leave the engine at whatever leverage drift had produced. Also missing though all discussed: monthly-vs-quarterly and why monthly wins (the stop reset forces monthly contact anyway), that **the sweep buys BTC not 50/50** (the split governs CONTRIBUTIONS, not the whole book), and a dollar-denominated worked example | S | Part A rewritten as a verdict-routed flow (Step 1 read verdict · Step 2 SPOT path · Step 3 ENGINE routine, four ORDERED sub-steps + worked example · Step 4 the stop, isolated). **New Part D2 'TESTED AND REJECTED'** records nine measured losers so no future session reintroduces them: the 20% dip fund (**6th** hold-cash-for-dips failure here — BTC dipped 20% **23× in 3 years**, lost 11/15 tests, worst −13.6%), dip-levering (stop-outs 1→6), quarterly cadence, fixed-price stops, unswept leverage, ETH in accumulation, alt leverage, majority-vote regime, and the 4wk/6wk hold (flagged as the open judgement call it is). Closes on why the dip fund fails and cycle-weighting works: a price drop tells you nothing (every 6 weeks), the cycle tells you something (3 bottoms, ±47d). **No code changed — a documentation defect in a manual the owner follows religiously is a live risk, not a tidiness issue** · **§49.1 same day**: owner asked *"what is W? what is 0.4 outside?"* — **neither term was ever defined**, and writing the definition exposed an arithmetic error in the instruction: Part A said contribute **"2.5× base rate"** in the trough window, but 2.5/0.4 are weights NORMALISED across 4 window months and 33 after, so the true scale is `base × 37 ÷ (2.5×4+0.4×33) = base × 1.595`. A literal reader would have **under-contributed 37% during the single highest-value stretch of the plan** (S$10,625 vs the required S$16,945 at a S$4,250 base) and over-contributed after — the weighting inverted at the margin. New **Part 0** defines both terms as **dollar tables, not multipliers** (the multiplier form caused the error): base rate = the AVERAGE monthly budget over 37 months; W = max money in the engine = max loss, denominated in the BTC half (12mo = S$25,500 at S$4,250 base). Also states where it belongs that the window needs ~S$67,800 vs ~S$17,000 of salary, so the ~S$50,800 gap needs existing cash — the real answer to the 20%-USDC question, previously only said in conversation · **§49.2, same day — the deeper error §49.1 missed.** Owner: *"what is 16.945k per month coming from? i dont have that much money."* §41.6's weighting normalises a FIXED TOTAL across months; carrying it into the playbook as an instruction silently assumed the owner could front-load 37 months of budget into 4, i.e. that a large reserve existed. §49.1 fixed the multiplier arithmetic but left the instruction denominated in **money the owner has not got** — correcting an unaffordable number to a different unaffordable number. **Correct decomposition: income is FLAT and only the RESERVE is timed.** Re-measured with S$4,250/mo income: deploying a reserve across the 4 window months beats spreading it evenly by **+10.4%/+12.4%** and beats all-up-front by +12.0%/+4.1%; with NO reserve you contribute flat and forgo the edge, which the file now states plainly instead of implying a S$50,800 shortfall the reader must close. Rule is now **`monthly + reserve÷4` in the window, `monthly` after**. Lesson recorded: a backtested WEIGHTING is a claim about allocating a fixed pool; turning it into an INSTRUCTION requires asking where the pool comes from |
 | 157 | ~~**Crypto sleeve rides the stock book's buy day**~~ — **SHIPPED 2026-08-21** (BACKTEST_RESULTS §49.4; `homily_cryptocycle.buyday_line`/`contribution`, validate [77]). Owner: *"my buy day should be same as buy day as my ibkr trad fi stuff."* Reads `homily_buyday.is_buy_day` against the same ledger — **the FIRST digest run of a calendar month** (not a fixed date; stable all day since same-day re-runs do not count) — so there is one buy day and one routine rather than two schedules to keep in step. On buy day the digest prints a concrete order; every other day the line is absent. **Amounts are owner-set and NEVER inferred** — unset prints the setup instruction, pinned in [77], same discipline as the #154 tracker. Two rules encoded in the order split, each from a different finding: the **alt leg is `monthly × (1−btc_share)`** (§49.3's 70/30) while the **reserve slice is BTC-ONLY** (window rule is buy-what-is-cheap; HYPE was at its ATH while BTC sat −40%). Slice is `reserve ÷ 8` not `÷ 4` per §49.2's early-vs-late asymmetry (180d early = 17.33 BTC vs 27.64 on time), and deploys **only inside the trough window** — [77] pins zero outside it | S | Additive-only: absent off buy day, and a missing ledger or unset amount is non-fatal. CRYPTO_PLAYBOOK gains **Step 0** (wait for buy day, it is the same day as the stock book) so the routine starts where it actually starts |
 | 158 | ~~**Sleeve goes LIVE on real numbers + the emergency-fund floor**~~ — **SHIPPED 2026-08-21** (BACKTEST_RESULTS §50/§50.1; `homily_cryptocycle.emergency_line`, validate [78]). Owner set the live config: S$3,000/mo crypto (US$2,359), IBKR stocks cut 3k→2k, **reserve ZERO** (*"i am stretched out"*), 70/30, US$14k already re-entered, and declared the plan FIXED. **Reserve zero removes the largest measured edge in the sleeve** — §41.6's +22.2%/+14.4% and §49.2's +10.4%/+12.4% both come from TIMING A LUMP; with no lump there is nothing to time and the sleeve is plain monthly DCA into the cycle. Legitimate, and the playbook already said so. **The $1M target is NOT reachable on these inputs**: the BTC leg reaches **$446k / $587k / $798k** at 1.9×/2.5×/3.4× peaks, and $1M on the BTC leg alone would need BTC at **$531k = 4.3× the last peak**, above the historical 1.9–3.4× range (HYPE would need ~19×). §47's "reachable at 2.1×" assumed S$4,250/mo, 100% BTC and no alt leg — all three since changed. Tracker will print ⚠️ BEHIND daily and name the closing run-rate; that is the honest output, not a fault. **Recorded, not argued** — $450k–$800k from S$3,000/mo is a very good result, it is simply not $1M | S | **§50.1 the emergency floor**: owner asked to be held accountable for S$15,000. There is no bank feed, so the line **cannot verify and says so on every print — it ASKS**. Buy-day only (the day money moves and the floor is actually at risk), closing with the rule for when they collide: *"If today's crypto buy needs it, the buy is too big — cut the buy, not the floor."* [78] pins that it never claims verification it cannot perform. Weak accountability, and the only kind available without a feed · **§50.2 — opening book recorded**: US$14k = 5.5k BTC / 5.5k HYPE / 3k USDC. Two findings. **(a) The book is 50/50, not the 70/30 target** — +20pts overweight HYPE on day one; **no rebalancing sale needed**, 70/30 monthly buys drift it to 58/42 by month 3 and ~67/33 by month 24, and since HYPE sits at its ATH while BTC is −40%, selling HYPE for BTC today would be the right direction at the worst relative prices. **(b) The 'zero reserve' was not zero** — the US$3,000 USDC is **21% of the sleeve**, i.e. exactly the 20% dip buffer §46 rejected (11/15 cells lost, 6th hold-cash-for-dips failure). Held as a dip fund it is a measured loser; deployed across the trough window it is a measured winner (§49.2). Booked as the reserve it functionally is: **US$375/mo over ~8 months**, buy-day line US$2,359 → **US$2,734** inside the window, restoring at small scale the edge §50 recorded as lost. Target unchanged: $1M implies BTC at **$548,781 = 4.4× last peak** and ~20× from HYPE |
+| 159 | **PROPOSED — entry lateness by TIER: what the engine was saying while he was buying.** §5p's probe found the number on one name and the method is what generalises. His PLTR band was $110–135; #13's forward ledger printed CAUTION for 19 straight sessions inside it and did not reach ⭐ until **$179.01 — +45% on the band's low, +33% on its high** — while the 🐳 tier, capped at 2% of account (§12), *did* mark the 113–119 shelf in June. So the engine is not blind to his entries, it is **sized out of them**, which is a different finding from #141's coverage question and is invisible to any single lateness number. Study: build a committed `danny_entry_claims.json` from every DATED, PRICED accumulation band in §5k/§5l/§5m/§5o/§5p (transcribed verbatim with URL, date and stated band, owner-checkable — the same artifact discipline #142 uses for VH zones), then for each name report, **per tier**, the first date the engine reached it and that date's price relative to the band: 🐳 WHALE-DIP · ⭐ ACCUMULATE · #125 buy-day eligibility (CONVICTION ⭐\|🟢) · 🚀. Output = a lateness distribution per tier plus, for each miss, WHICH gate was the binding constraint | S–M study | **Measurement only — ships nothing and moves no threshold.** Prefer #13 ledger rows over replay wherever the ledger covers the window: those are forward records and cannot be re-fitted. **Declared BEFORE the ~2026-10 #65/#141 reads so it is not post-hoc**, and like #141 it may only ADD a prong, never loosen a pre-registered one. **Frozen honesty clauses, both directions:** (a) the claim list is selected by him, and he publishes winners — this measures LATENESS AGAINST HIS PUBLISHED ENTRIES ONLY and is never evidence his entries were good; (b) §5p's proprietary-indicator note applies — a gap can always be attributed to the term he does not disclose, so a large lateness figure does not establish that our construct is wrong |
+| 160 | **PROPOSED — the fundamental-divergence entry: the first dip test in this repo with a fundamental gate.** His stated ideal entry is a **divergence** — "fundamentals continue to improve while technicals look the worst they have ever been." §5p Finding A shows our own ledger printed exactly that conjunction on PLTR (`F:2/2` across 19 CAUTION/WHITE/monthly-down sessions) and answered it with our most negative label. The reason this is not a seventh rerun of a dead idea: **all six prior losses conditioned on PRICE alone** (#50's shelf/−7%/−14% tranches · §29/§31 lineage · §41.6's dip fund · §46), and #130 gated an EXIT with F but no study has ever gated an ENTRY with one. Study: point-in-time fundamental DELTA (`filed <= asof`, reusing #66's asof machinery and the live `checks_from` so the replay cannot test different arithmetic — R6) × a technical-extreme bucket defined from live engine fields ONLY (state CAUTION + weekly WHITE + close < POC + `pct_in_profit` bottom decile), forward 6m and 12m, both universes plus the hype-2021 control | M study | **PRE-REGISTERED, and a null is the expected outcome — say so before the run.** PASS requires the divergence arm to beat **BOTH** (a) the identical technical bucket with the fundamental condition removed — this is the whole question, and without it the study cannot distinguish the conjunction from plain dip-buying — **AND** (b) plain DCA, at 6m and 12m, on the honest universe, n≥30 events, with the hype-2021 control reported whichever way it lands. Beating only (b) is a NULL: it would just re-find that dips bounce. **Declared limitations, flattering direction named:** F is three coarse checks and Q is a quarterly cache, so "improving" is a blunt instrument; and #66 already failed to separate the 2021 wrecks on as-of-filed fundamentals, which is direct prior evidence against the mechanism. No digest surface ships from the study session (Part III rule 5); a pass buys a study writeup, not a rule |
+| 161 | **PROPOSED — SUSTAINED growth (his ≥30% over 2–3 years) vs Q's one-year window.** §5p Finding C: his fundamental bar is explicitly multi-year, and ours is not. Q (#66) awards +1 at ≥10% and +1 at ≥25% revenue growth on **latest FY vs prior — a single year** — so a company that grew 30% once and stalled scores identically to one that grew 30% for three consecutive years. The multi-year axis has never been varied anywhere in the repo. Cheap: the EDGAR facts are already fetched and cached (`homily_fund` tags, `homily_quality_cache.json`), so this is an arithmetic change over data we hold, not a new data source. Study: add a point-in-time `sustained_growth(ticker, asof, years=3, pct=30)` read-only helper (SIBLING of the frozen `homily_fund`, same pattern #66 used — the engine freeze is untouched), then re-run #66's own wreck-separation replay with the sustained flag substituted for the 1y checks | S–M study | **A null is the expected result and must be pre-committed as such:** #66 failed precisely because ZM/DOCU/ROKU/W were Q1 on then-stellar fundamentals, and those names had sustained growth too — this varies the one axis #66 held fixed, nothing more. PASS requires the sustained flag to separate the 2021 wrecks where the 1y checks demonstrably could not (§14's own pre-committed rule, re-used verbatim so the bar cannot drift). Whatever the verdict, the flag ships **info-only at most**, exactly as #66's Q label did; 💎 buyable state and the thesis-break veto STAY DEAD. Data honesty: pre-2015 EDGAR coverage is thin and 20-F filers use `ifrs-full` tags with different restatement behaviour — report per-name coverage, never silently drop names |
+| 162 | **RECORDED, no study — the two places this post contradicts signed policy, and the two claims that are permanently uncomputable.** Written down so no future session reintroduces any of them as novel; the precedent is CRYPTO_PLAYBOOK Part D2 ("tested and rejected"). **(a) "Never go all-in, always maintain at least 20% cash" is the SEVENTH appearance of hold-cash-for-dips here, and the first six all lost** — #50 (tranches, 0/9 windows) · §29/§31 lineage · §41.6's 20% dip fund (lost 11 of 15 cells; BTC dipped 20% **23 times in 3 years**) · §46 · CRYPTO_PLAYBOOK D2. It further contradicts live signed policy **in two directions at once**: §3.5 routes an emptied-pool buy day to the index and NEVER to cash, and LEVERAGE.md — owner-signed 2026-07-12 — runs 1.30× in BULL, i.e. *negative* cash. The distinction that keeps being re-learned is §41.6's: **a price drop tells you nothing because drops happen constantly; a dated estimator tells you something** — his cash rule has no estimator attached. **(b) "Roughly half the capital is a bet on the CEO"** and the **near-monopoly / industry-revolution** test: no source in this repo computes either, neither carries a falsifier, and character judgements of executives are not something this engine should ever pretend to score. Added to §7 out-of-scope. **(c) "One proprietary indicator I never disclose publicly"** — unfalsifiable by the author's own statement, and it makes every replication of his entries underdetermined by construction; recorded as a standing caveat on #142 and #159. **(d) "A small position will never deliver financial freedom"** is a CAP question already settled at 25% by #92 (owner override, 2026-07-12); any increase is selection-class and priced by R10, **next free slot 2027-Q3** | S | Documentation only — no code, no gate, no R10 slot. The test of this item is that a future session proposing a cash buffer, a CEO-quality score, or a bigger cap finds this row first |
 
 Division of labour adopted 2026-07-06: the planning model writes §8 +
 `DESIGNS.md` + `SPECS.md`; the executing model builds one item per session
