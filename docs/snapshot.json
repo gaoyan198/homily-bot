@@ -1,32 +1,32 @@
 {
   "_v": 1,
-  "date": "2026-08-27",
-  "generated_utc": "2026-08-27T10:43:22+00:00",
+  "date": "2026-08-28",
+  "generated_utc": "2026-08-28T12:20:47+00:00",
   "regime": {
     "label": "BULL",
     "action": "stay invested; adds via \u2b50/\ud83d\ude80 screens; sell trigger = BOTH month-end closes below 10m SMA",
     "detail": {
       "SPY": [
-        766.0800170898438,
+        771.0999755859375,
         704.4609985351562,
-        8.746973740606933,
+        9.459569399775036,
         true
       ],
       "QQQ": [
-        711.3699951171875,
+        721.1099853515625,
         649.9409973144532,
-        9.45147298855713,
+        10.950069057218826,
         true
       ]
     }
   },
   "regime_last_good": {
     "label": "BULL",
-    "asof": "2026-08-27"
+    "asof": "2026-08-28"
   },
   "coverage": {
-    "expected": 35,
-    "have": 35,
+    "expected": 36,
+    "have": 36,
     "missing": [],
     "pct": 100.0
   },
@@ -35,12 +35,12 @@
     {
       "ticker": "SNDK",
       "held": false,
-      "close": 1499.37,
+      "close": 1484.95,
       "state": "ACCUMULATE",
-      "zone_lo": 1442.81,
-      "zone_hi": 1516.42,
+      "zone_lo": 1461.81,
+      "zone_hi": 1536.39,
       "poc": 638.5925,
-      "pct_in_profit": 67.95,
+      "pct_in_profit": 65.95,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 63,
@@ -61,8 +61,8 @@
       "origin": "owner-request",
       "support": [
         [
-          1472.2568,
-          0.5807
+          1491.6443,
+          0.6346
         ],
         [
           1394.7066,
@@ -75,9 +75,9 @@
           0.7178
         ]
       ],
-      "rs12": 3084.59,
-      "rs6": 125.99,
-      "dvol": 21799129559.57,
+      "rs12": 3015.27,
+      "rs6": 115.33,
+      "dvol": 20903125154.2,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
@@ -90,33 +90,34 @@
       "book_pct": null,
       "cap_note": null,
       "rs12_rank": 1,
-      "whale_rank": 5,
+      "whale_rank": 3,
       "rs6_rank": 2
     },
     {
       "ticker": "MU",
       "held": true,
-      "close": 938.4,
+      "close": 935.39,
       "state": "ACCUMULATE",
       "zone_lo": 919.51,
       "zone_hi": 966.42,
       "poc": 938.2754,
-      "pct_in_profit": 71.93,
+      "pct_in_profit": 68.23,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 64,
       "monthly_up": true,
-      "candle": "RED",
+      "candle": "NEUTRAL",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 75,
+      "conv_score": 70,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
-        "G1 size"
+        "G1 size",
+        "G4 basis"
       ],
       "ftag": "F:3/3",
       "origin": "holding",
@@ -127,26 +128,26 @@
         ],
         [
           877.9469,
-          0.6564
+          0.6184
         ]
       ],
       "resistance": [
         [
           1018.7134,
-          0.3562
+          0.3355
         ],
         [
           1058.9324,
-          0.3453
+          0.3253
         ]
       ],
-      "rs12": 686.78,
-      "rs6": 107.76,
-      "dvol": 30447976259.48,
+      "rs12": 683.35,
+      "rs6": 112.76,
+      "dvol": 29049601016.96,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
-        "structure": 15,
+        "structure": 10,
         "vol hole": 5,
         "size/room": 0,
         "age": 5
@@ -154,642 +155,80 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 3,
-      "whale_rank": 7,
-      "rs6_rank": 6
+      "rs12_rank": 2,
+      "whale_rank": 4,
+      "rs6_rank": 3
     },
     {
-      "ticker": "AMD",
+      "ticker": "NBIS",
       "held": true,
-      "close": 480.93,
+      "close": 218.48,
       "state": "ACCUMULATE",
-      "zone_lo": 475.62,
-      "zone_hi": 499.88,
-      "poc": 215.827,
-      "pct_in_profit": 68.89,
+      "zone_lo": 213.35,
+      "zone_hi": 224.23,
+      "poc": 217.7011,
+      "pct_in_profit": 67.1,
       "wk_circle": "RED",
       "wk_score": 3,
-      "wk_weeks": 24,
+      "wk_weeks": 30,
       "monthly_up": true,
-      "candle": "NEUTRAL",
+      "candle": "YELLOW",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 75,
+      "conv_score": 80,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
         "G1 size"
       ],
-      "ftag": "F:3/3",
+      "ftag": "F:2/2",
       "origin": "holding",
       "support": [
         [
-          485.325,
-          0.776
+          217.7011,
+          1.0
         ],
         [
-          251.171,
-          0.4129
+          203.4126,
+          0.4466
         ]
       ],
       "resistance": [
         [
-          511.833,
-          0.844
-        ],
-        [
-          533.923,
-          0.4913
+          260.5666,
+          0.3165
         ]
       ],
-      "rs12": 173.84,
-      "rs6": 116.97,
-      "dvol": 11672973142.1,
+      "rs12": 189.14,
+      "rs6": 95.85,
+      "dvol": 5750317667.87,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
         "structure": 15,
         "vol hole": 5,
         "size/room": 0,
-        "age": 5
+        "age": 10
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 6,
-      "whale_rank": 10,
-      "rs6_rank": 4
-    },
-    {
-      "ticker": "TSM",
-      "held": true,
-      "close": 417.69,
-      "state": "ACCUMULATE",
-      "zone_lo": 409.46,
-      "zone_hi": 430.35,
-      "poc": 417.8127,
-      "pct_in_profit": 64.97,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 65,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 59,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
-      "ftag": "F:3/3",
-      "origin": "holding",
-      "support": [
-        [
-          417.8127,
-          1.0
-        ],
-        [
-          368.8629,
-          0.2781
-        ]
-      ],
-      "resistance": [
-        [
-          431.7984,
-          0.5962
-        ]
-      ],
-      "rs12": 58.7,
-      "rs6": -2.83,
-      "dvol": 4380588226.85,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 15,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 4,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 12,
-      "whale_rank": 14,
-      "rs6_rank": 37
-    },
-    {
-      "ticker": "DDOG",
-      "held": true,
-      "close": 227.67,
-      "state": "ACCUMULATE",
-      "zone_lo": 217.9,
-      "zone_hi": 229.01,
-      "poc": 125.9336,
-      "pct_in_profit": 55.7,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 17,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKOUT",
-      "whale": true,
-      "absorption": true,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 72,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/2",
-      "origin": "holding",
-      "support": [
-        [
-          222.3419,
-          0.4892
-        ],
-        [
-          143.2871,
-          0.4568
-        ]
-      ],
-      "resistance": [
-        [
-          231.9828,
-          0.7943
-        ],
-        [
-          247.4081,
-          0.6887
-        ]
-      ],
-      "rs12": 56.78,
-      "rs6": 95.24,
-      "dvol": 1291696115.32,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 20,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 13,
-      "whale_rank": 3,
-      "rs6_rank": 8
-    },
-    {
-      "ticker": "CDE",
-      "held": false,
-      "close": 21.44,
-      "state": "ACCUMULATE",
-      "zone_lo": 20.8,
-      "zone_hi": 21.86,
-      "poc": 16.2809,
-      "pct_in_profit": 92.54,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 1,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 77,
-      "conv_tier": "CONVICTION",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          21.2201,
-          0.5322
-        ],
-        [
-          18.8579,
-          0.8606
-        ]
-      ],
-      "resistance": [
-        [
-          22.7234,
-          0.0801
-        ],
-        [
-          24.8709,
-          0.0654
-        ]
-      ],
-      "rs12": 56.24,
-      "rs6": -23.82,
-      "dvol": 748794006.6,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 15,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 14,
-      "whale_rank": 15,
-      "rs6_rank": 39
-    },
-    {
-      "ticker": "GOOG",
-      "held": true,
-      "close": 339.1,
-      "state": "ACCUMULATE",
-      "zone_lo": 334.77,
-      "zone_hi": 351.85,
-      "poc": 341.6036,
-      "pct_in_profit": 48.81,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 5,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 45,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G4 basis"
-      ],
-      "ftag": "F:2/2",
-      "origin": "holding",
-      "support": [
-        [
-          341.6036,
-          1.0
-        ],
-        [
-          320.2023,
-          0.4578
-        ]
-      ],
-      "resistance": [
-        [
-          354.9794,
-          0.6141
-        ],
-        [
-          381.7311,
-          0.3095
-        ]
-      ],
-      "rs12": 42.03,
-      "rs6": -2.64,
-      "dvol": 6037314872.07,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 10,
-        "structure": 5,
-        "vol hole": 5,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 17,
-      "whale_rank": 17,
-      "rs6_rank": 36
-    },
-    {
-      "ticker": "AAPL",
-      "held": true,
-      "close": 313.45,
-      "state": "ACCUMULATE",
-      "zone_lo": 304.38,
-      "zone_hi": 319.91,
-      "poc": 310.5917,
-      "pct_in_profit": 83.87,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 22,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": true,
-      "absorption": false,
-      "divergence": true,
-      "shelf_stable": true,
-      "conv_score": 55,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader"
-      ],
-      "ftag": "F:2/3",
-      "origin": "holding",
-      "support": [
-        [
-          310.5917,
-          1.0
-        ],
-        [
-          297.735,
-          0.4993
-        ]
-      ],
-      "resistance": [
-        [
-          330.795,
-          0.2876
-        ],
-        [
-          339.9783,
-          0.1549
-        ]
-      ],
-      "rs12": 17.94,
-      "rs6": 3.4,
-      "dvol": 15496675859.43,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 0,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 21,
-      "whale_rank": 4,
-      "rs6_rank": 33
-    },
-    {
-      "ticker": "QQQ",
-      "held": false,
-      "close": 711.37,
-      "state": "ACCUMULATE",
-      "zone_lo": 679.17,
-      "zone_hi": 713.82,
-      "poc": 717.7506,
-      "pct_in_profit": 70.91,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 21,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 40,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:\u2014",
-      "origin": "owner-request",
-      "support": [
-        [
-          693.0311,
-          0.3209
-        ],
-        [
-          676.5515,
-          0.2098
-        ]
-      ],
-      "resistance": [
-        [
-          717.7506,
-          1.0
-        ]
-      ],
-      "rs12": 4.77,
-      "rs6": 4.52,
-      "dvol": 25602820856.92,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 0,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 23,
-      "whale_rank": 38,
-      "rs6_rank": 32
-    },
-    {
-      "ticker": "CSPX",
-      "held": true,
-      "close": 830.9,
-      "state": "ACCUMULATE",
-      "zone_lo": 817.47,
-      "zone_hi": 859.17,
-      "poc": 805.0232,
-      "pct_in_profit": 92.24,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 21,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 60,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:\u2014",
-      "origin": "holding",
-      "support": [
-        [
-          834.1491,
-          0.4596
-        ],
-        [
-          805.0232,
-          1.0
-        ]
-      ],
-      "resistance": [],
-      "rs12": 0.31,
-      "rs6": 1.59,
-      "dvol": 82884679.9,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 0,
-        "structure": 15,
-        "vol hole": 0,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 25,
-      "whale_rank": 23,
-      "rs6_rank": 35
-    },
-    {
-      "ticker": "NVDA",
-      "held": true,
-      "close": 209.66,
-      "state": "ACCUMULATE",
-      "zone_lo": 206.92,
-      "zone_hi": 217.48,
-      "poc": 211.1457,
-      "pct_in_profit": 72.27,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 9,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 40,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:3/3",
-      "origin": "holding",
-      "support": [
-        [
-          211.1457,
-          1.0
-        ],
-        [
-          201.7404,
-          0.6665
-        ]
-      ],
-      "resistance": [
-        [
-          220.551,
-          0.6488
-        ]
-      ],
-      "rs12": -3.8,
-      "rs6": -3.77,
-      "dvol": 24983245543.12,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 0,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 27,
-      "whale_rank": 25,
-      "rs6_rank": 38
-    },
-    {
-      "ticker": "PLTR",
-      "held": true,
-      "close": 177.5,
-      "state": "ACCUMULATE",
-      "zone_lo": 171.26,
-      "zone_hi": 180.0,
-      "poc": 134.44,
-      "pct_in_profit": 90.66,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 2,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 55,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader"
-      ],
-      "ftag": "F:2/2",
-      "origin": "holding",
-      "support": [
-        [
-          174.76,
-          0.6914
-        ],
-        [
-          166.36,
-          0.2032
-        ]
-      ],
-      "resistance": [],
-      "rs12": -7.63,
-      "rs6": 21.17,
-      "dvol": 7613889712.3,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 30,
-      "whale_rank": 27,
-      "rs6_rank": 21
+      "rs12_rank": 5,
+      "whale_rank": 6,
+      "rs6_rank": 5
     },
     {
       "ticker": "ASML",
       "held": false,
-      "close": 1745.64,
-      "state": "HOLD",
+      "close": 1735.01,
+      "state": "ACCUMULATE",
       "zone_lo": 1659.2,
       "zone_hi": 1743.85,
       "poc": 1761.2585,
-      "pct_in_profit": 63.14,
+      "pct_in_profit": 63.24,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 54,
@@ -800,7 +239,7 @@
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 68,
+      "conv_score": 73,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -828,15 +267,374 @@
           0.2364
         ]
       ],
-      "rs12": 112.34,
-      "rs6": 3.64,
-      "dvol": 2194368667.15,
+      "rs12": 107.99,
+      "rs6": 6.48,
+      "dvol": 2104256261.61,
       "conv_parts": {
         "trend": 25,
         "rel strength": 20,
-        "structure": 5,
+        "structure": 10,
         "vol hole": 5,
         "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 9,
+      "whale_rank": 34,
+      "rs6_rank": 25
+    },
+    {
+      "ticker": "TSM",
+      "held": true,
+      "close": 427.3,
+      "state": "ACCUMULATE",
+      "zone_lo": 409.46,
+      "zone_hi": 430.35,
+      "poc": 417.8127,
+      "pct_in_profit": 79.55,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 65,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 69,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:3/3",
+      "origin": "holding",
+      "support": [
+        [
+          417.8127,
+          1.0
+        ],
+        [
+          368.8629,
+          0.278
+        ]
+      ],
+      "resistance": [
+        [
+          431.7984,
+          0.5959
+        ]
+      ],
+      "rs12": 60.13,
+      "rs6": 1.52,
+      "dvol": 4301533749.02,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 15,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 4,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 14,
+      "whale_rank": 14,
+      "rs6_rank": 31
+    },
+    {
+      "ticker": "AAPL",
+      "held": true,
+      "close": 314.58,
+      "state": "ACCUMULATE",
+      "zone_lo": 304.38,
+      "zone_hi": 319.91,
+      "poc": 310.5917,
+      "pct_in_profit": 86.88,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 22,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": true,
+      "absorption": false,
+      "divergence": true,
+      "shelf_stable": true,
+      "conv_score": 55,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:2/3",
+      "origin": "holding",
+      "support": [
+        [
+          310.5917,
+          1.0
+        ],
+        [
+          297.735,
+          0.4838
+        ]
+      ],
+      "resistance": [
+        [
+          330.795,
+          0.2786
+        ],
+        [
+          339.9783,
+          0.1501
+        ]
+      ],
+      "rs12": 16.85,
+      "rs6": 3.0,
+      "dvol": 14760389974.23,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 22,
+      "whale_rank": 2,
+      "rs6_rank": 29
+    },
+    {
+      "ticker": "QQQM",
+      "held": true,
+      "close": 296.92,
+      "state": "ACCUMULATE",
+      "zone_lo": 289.58,
+      "zone_hi": 304.35,
+      "poc": 295.4856,
+      "pct_in_profit": 80.79,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 21,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 57,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:\u2014",
+      "origin": "holding",
+      "support": [
+        [
+          295.4856,
+          1.0
+        ],
+        [
+          276.8232,
+          0.1628
+        ]
+      ],
+      "resistance": [],
+      "rs12": 5.73,
+      "rs6": 6.19,
+      "dvol": 912015724.31,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 0,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 24,
+      "whale_rank": 23,
+      "rs6_rank": 26
+    },
+    {
+      "ticker": "QQQ",
+      "held": false,
+      "close": 721.11,
+      "state": "ACCUMULATE",
+      "zone_lo": 703.4,
+      "zone_hi": 739.28,
+      "poc": 717.7506,
+      "pct_in_profit": 83.11,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 21,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 45,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:\u2014",
+      "origin": "owner-request",
+      "support": [
+        [
+          717.7506,
+          1.0
+        ],
+        [
+          693.0311,
+          0.3019
+        ]
+      ],
+      "resistance": [],
+      "rs12": 5.7,
+      "rs6": 6.18,
+      "dvol": 24370245921.63,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 0,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 25,
+      "whale_rank": 24,
+      "rs6_rank": 27
+    },
+    {
+      "ticker": "CSPX",
+      "held": true,
+      "close": 833.41,
+      "state": "ACCUMULATE",
+      "zone_lo": 817.47,
+      "zone_hi": 859.17,
+      "poc": 805.0232,
+      "pct_in_profit": 91.88,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 21,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 65,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:\u2014",
+      "origin": "holding",
+      "support": [
+        [
+          834.1491,
+          0.4933
+        ],
+        [
+          805.0232,
+          1.0
+        ]
+      ],
+      "resistance": [],
+      "rs12": -0.38,
+      "rs6": -0.4,
+      "dvol": 81312012.17,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 27,
+      "whale_rank": 26,
+      "rs6_rank": 33
+    },
+    {
+      "ticker": "AMD",
+      "held": true,
+      "close": 476.67,
+      "state": "HOLD",
+      "zone_lo": 246.15,
+      "zone_hi": 258.71,
+      "poc": 215.827,
+      "pct_in_profit": 66.74,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 24,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 65,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size"
+      ],
+      "ftag": "F:3/3",
+      "origin": "holding",
+      "support": [
+        [
+          251.171,
+          0.4129
+        ],
+        [
+          233.499,
+          0.4967
+        ]
+      ],
+      "resistance": [
+        [
+          485.325,
+          0.7765
+        ],
+        [
+          511.833,
+          0.844
+        ]
+      ],
+      "rs12": 165.24,
+      "rs6": 121.57,
+      "dvol": 11171217911.11,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 10,
+        "vol hole": 0,
+        "size/room": 0,
         "age": 5
       },
       "bucket": null,
@@ -847,63 +645,60 @@
       "rs6_rank": null
     },
     {
-      "ticker": "NBIS",
-      "held": true,
-      "close": 213.93,
+      "ticker": "CDE",
+      "held": false,
+      "close": 22.21,
       "state": "HOLD",
-      "zone_lo": 199.34,
-      "zone_hi": 209.51,
-      "poc": 217.7011,
-      "pct_in_profit": 61.73,
+      "zone_lo": 20.8,
+      "zone_hi": 21.86,
+      "poc": 16.2809,
+      "pct_in_profit": 94.67,
       "wk_circle": "RED",
       "wk_score": 3,
-      "wk_weeks": 30,
+      "wk_weeks": 1,
       "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 70,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G4 basis"
-      ],
-      "ftag": "F:2/2",
-      "origin": "holding",
+      "conv_score": 72,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
       "support": [
         [
-          203.4126,
-          0.4636
+          21.2201,
+          0.5564
         ],
         [
-          191.5055,
-          0.6389
+          18.8579,
+          0.8606
         ]
       ],
       "resistance": [
         [
-          217.7011,
-          1.0
+          22.7234,
+          0.0801
         ],
         [
-          260.5666,
-          0.3286
+          24.8709,
+          0.0654
         ]
       ],
-      "rs12": 184.97,
-      "rs6": 90.48,
-      "dvol": 5971096544.26,
+      "rs12": 59.93,
+      "rs6": -28.75,
+      "dvol": 766771082.52,
       "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
-        "structure": 5,
-        "vol hole": 5,
-        "size/room": 0,
-        "age": 10
+        "trend": 20,
+        "rel strength": 15,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 12,
+        "age": 5
       },
       "bucket": null,
       "book_pct": null,
@@ -913,56 +708,57 @@
       "rs6_rank": null
     },
     {
-      "ticker": "QQQM",
+      "ticker": "DDOG",
       "held": true,
-      "close": 292.9,
+      "close": 242.93,
       "state": "HOLD",
-      "zone_lo": 271.29,
-      "zone_hi": 285.13,
-      "poc": 295.4856,
-      "pct_in_profit": 67.83,
+      "zone_lo": 227.34,
+      "zone_hi": 238.94,
+      "poc": 125.9336,
+      "pct_in_profit": 70.38,
       "wk_circle": "RED",
       "wk_score": 3,
-      "wk_weeks": 21,
+      "wk_weeks": 17,
       "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
       "whale": false,
-      "absorption": false,
+      "absorption": true,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 47,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:\u2014",
+      "conv_score": 72,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/2",
       "origin": "holding",
       "support": [
         [
-          276.8232,
-          0.1758
+          231.9828,
+          0.7943
         ],
         [
-          266.6437,
-          0.113
+          222.3419,
+          0.4892
         ]
       ],
       "resistance": [
         [
-          295.4856,
-          1.0
+          247.4081,
+          0.7285
+        ],
+        [
+          253.1926,
+          0.6762
         ]
       ],
-      "rs12": 4.82,
-      "rs6": 4.58,
-      "dvol": 916905968.02,
+      "rs12": 71.48,
+      "rs6": 96.13,
+      "dvol": 1287631901.4,
       "conv_parts": {
         "trend": 25,
-        "rel strength": 0,
-        "structure": 5,
+        "rel strength": 20,
+        "structure": 10,
         "vol hole": 0,
         "size/room": 12,
         "age": 5
@@ -975,14 +771,260 @@
       "rs6_rank": null
     },
     {
+      "ticker": "GOOG",
+      "held": true,
+      "close": 337.71,
+      "state": "HOLD",
+      "zone_lo": 313.8,
+      "zone_hi": 329.81,
+      "poc": 341.6036,
+      "pct_in_profit": 44.32,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 5,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 40,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G4 basis"
+      ],
+      "ftag": "F:2/2",
+      "origin": "holding",
+      "support": [
+        [
+          320.2023,
+          0.4577
+        ],
+        [
+          304.1512,
+          0.3573
+        ]
+      ],
+      "resistance": [
+        [
+          341.6036,
+          1.0
+        ],
+        [
+          354.9794,
+          0.6139
+        ]
+      ],
+      "rs12": 42.02,
+      "rs6": -2.37,
+      "dvol": 6052231780.59,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 10,
+        "structure": 0,
+        "vol hole": 5,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "NVDA",
+      "held": true,
+      "close": 227.98,
+      "state": "HOLD",
+      "zone_lo": 216.14,
+      "zone_hi": 227.17,
+      "poc": 211.1457,
+      "pct_in_profit": 97.65,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 9,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 55,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "holding",
+      "support": [
+        [
+          220.551,
+          0.6783
+        ],
+        [
+          211.1457,
+          1.0
+        ]
+      ],
+      "resistance": [],
+      "rs12": 4.74,
+      "rs6": 10.99,
+      "dvol": 27173593373.17,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "PLTR",
+      "held": true,
+      "close": 185.93,
+      "state": "HOLD",
+      "zone_lo": 171.26,
+      "zone_hi": 180.0,
+      "poc": 134.44,
+      "pct_in_profit": 97.24,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 2,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 50,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "holding",
+      "support": [
+        [
+          174.76,
+          0.6915
+        ],
+        [
+          166.36,
+          0.2032
+        ]
+      ],
+      "resistance": [],
+      "rs12": -5.27,
+      "rs6": 24.31,
+      "dvol": 7822563577.0,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "9992",
+      "held": true,
+      "close": 158.7,
+      "state": "BOTTOMING",
+      "zone_lo": 151.17,
+      "zone_hi": 158.89,
+      "poc": 154.2594,
+      "pct_in_profit": 39.4,
+      "wk_circle": "WHITE",
+      "wk_score": 0,
+      "wk_weeks": 26,
+      "monthly_up": false,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": true,
+      "absorption": true,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 28,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G2 trend",
+        "G3 leader"
+      ],
+      "ftag": "F:\u2014",
+      "origin": "holding",
+      "support": [
+        [
+          154.2594,
+          1.0
+        ],
+        [
+          135.0181,
+          0.0056
+        ]
+      ],
+      "resistance": [
+        [
+          192.7419,
+          0.0986
+        ],
+        [
+          200.9881,
+          0.0968
+        ]
+      ],
+      "rs12": -61.55,
+      "rs6": -43.38,
+      "dvol": 1915797195.53,
+      "conv_parts": {
+        "trend": 0,
+        "rel strength": 0,
+        "structure": 5,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
       "ticker": "ICE",
       "held": false,
-      "close": 161.92,
+      "close": 161.24,
       "state": "BOTTOMING",
-      "zone_lo": 158.0,
-      "zone_hi": 166.06,
+      "zone_lo": 158.82,
+      "zone_hi": 166.93,
       "poc": 155.3469,
-      "pct_in_profit": 83.18,
+      "pct_in_profit": 82.55,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 29,
@@ -1004,8 +1046,8 @@
       "origin": "owner-request",
       "support": [
         [
-          161.224,
-          0.695
+          162.0635,
+          0.7569
         ],
         [
           155.3469,
@@ -1018,9 +1060,9 @@
           0.2179
         ]
       ],
-      "rs12": -29.02,
-      "rs6": -9.41,
-      "dvol": 585887808.22,
+      "rs12": -29.48,
+      "rs6": -12.79,
+      "dvol": 548594849.77,
       "conv_parts": {
         "trend": 10,
         "rel strength": 0,
@@ -1039,12 +1081,12 @@
     {
       "ticker": "TSLA",
       "held": true,
-      "close": 345.82,
+      "close": 354.81,
       "state": "BOTTOMING",
       "zone_lo": 334.84,
       "zone_hi": 351.93,
       "poc": 397.9207,
-      "pct_in_profit": 24.54,
+      "pct_in_profit": 28.17,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 10,
@@ -1054,7 +1096,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
+      "shelf_stable": false,
       "conv_score": 15,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -1069,7 +1111,7 @@
       "support": [
         [
           341.6762,
-          0.4896
+          0.4897
         ],
         [
           328.4422,
@@ -1086,9 +1128,9 @@
           1.0
         ]
       ],
-      "rs12": -20.79,
-      "rs6": -28.26,
-      "dvol": 11332380133.1,
+      "rs12": -19.95,
+      "rs6": -25.62,
+      "dvol": 11280409889.66,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -1105,81 +1147,14 @@
       "rs6_rank": null
     },
     {
-      "ticker": "9992",
-      "held": true,
-      "close": 154.0,
-      "state": "CAUTION",
-      "zone_lo": 151.17,
-      "zone_hi": 158.89,
-      "poc": 154.2594,
-      "pct_in_profit": 18.69,
-      "wk_circle": "WHITE",
-      "wk_score": 0,
-      "wk_weeks": 26,
-      "monthly_up": false,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": true,
-      "absorption": true,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 18,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:\u2014",
-      "origin": "holding",
-      "support": [
-        [
-          154.2594,
-          1.0
-        ],
-        [
-          135.0181,
-          0.0056
-        ]
-      ],
-      "resistance": [
-        [
-          192.7419,
-          0.1001
-        ],
-        [
-          200.9881,
-          0.0982
-        ]
-      ],
-      "rs12": -62.08,
-      "rs6": -48.01,
-      "dvol": 1917768746.17,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 0,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "DRAM",
       "held": true,
-      "close": 56.39,
+      "close": 56.83,
       "state": "CAUTION",
       "zone_lo": 55.14,
       "zone_hi": 57.96,
       "poc": 54.43,
-      "pct_in_profit": 50.06,
+      "pct_in_profit": 52.85,
       "wk_circle": "AMBER",
       "wk_score": 2,
       "wk_weeks": 6,
@@ -1202,7 +1177,7 @@
       "support": [
         [
           56.27,
-          0.6935
+          0.7537
         ],
         [
           54.43,
@@ -1212,16 +1187,16 @@
       "resistance": [
         [
           57.65,
-          0.7674
+          0.804
         ],
         [
           60.41,
           0.5734
         ]
       ],
-      "rs12": 82.57,
-      "rs6": 92.03,
-      "dvol": 2914108512.07,
+      "rs12": 83.87,
+      "rs6": 92.26,
+      "dvol": 2678373649.81,
       "conv_parts": {
         "trend": 0,
         "rel strength": 20,
@@ -1240,12 +1215,12 @@
     {
       "ticker": "SPCX",
       "held": true,
-      "close": 139.63,
+      "close": 140.87,
       "state": "CAUTION",
-      "zone_lo": 133.81,
-      "zone_hi": 140.64,
+      "zone_lo": 136.77,
+      "zone_hi": 143.75,
       "poc": 136.5426,
-      "pct_in_profit": 50.75,
+      "pct_in_profit": 53.31,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 8,
@@ -1269,27 +1244,27 @@
       "origin": "holding",
       "support": [
         [
-          136.5426,
-          1.0
+          139.5629,
+          0.9865
         ],
         [
-          122.4481,
-          0.47
+          136.5426,
+          1.0
         ]
       ],
       "resistance": [
         [
-          141.5764,
-          0.8219
+          158.6911,
+          0.5436
         ],
         [
-          158.6911,
-          0.5441
+          176.8126,
+          0.1672
         ]
       ],
-      "rs12": -33.81,
-      "rs6": -24.36,
-      "dvol": 15330251140.63,
+      "rs12": -33.32,
+      "rs6": -24.94,
+      "dvol": 15408589362.83,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -1308,88 +1283,25 @@
   ],
   "discovery": [
     {
-      "ticker": "AXTI",
-      "held": false,
-      "close": 65.18,
-      "state": "ACCUMULATE",
-      "zone_lo": 63.16,
-      "zone_hi": 66.39,
-      "poc": 64.4517,
-      "pct_in_profit": 44.73,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 72,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:0/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          64.4517,
-          1.0
-        ],
-        [
-          53.7995,
-          0.5333
-        ]
-      ],
-      "resistance": [
-        [
-          72.7368,
-          0.6827
-        ],
-        [
-          77.4711,
-          0.5338
-        ]
-      ],
-      "rs12": 2174.51,
-      "rs6": 47.98,
-      "dvol": 975255051.67,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 25,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 2,
-      "whale_rank": 6,
-      "rs6_rank": 15
-    },
-    {
       "ticker": "INTC",
       "held": false,
-      "close": 88.24,
+      "close": 92.09,
       "state": "ACCUMULATE",
-      "zone_lo": 85.03,
-      "zone_hi": 89.37,
+      "zone_lo": 89.1,
+      "zone_hi": 93.65,
       "poc": 97.1535,
-      "pct_in_profit": 40.18,
+      "pct_in_profit": 45.97,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 54,
       "monthly_up": true,
       "candle": "YELLOW",
-      "vh_status": "INSIDE",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 65,
+      "conv_score": 70,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -1400,32 +1312,97 @@
       "origin": "owner-request",
       "support": [
         [
-          86.7635,
-          0.6534
+          90.9195,
+          0.786
         ],
         [
-          45.2035,
-          0.9788
+          86.7635,
+          0.6561
         ]
       ],
       "resistance": [
         [
-          91.9585,
-          0.6562
-        ],
-        [
           97.1535,
           1.0
+        ],
+        [
+          102.3485,
+          0.9756
         ]
       ],
-      "rs12": 238.87,
-      "rs6": 77.12,
-      "dvol": 10101080880.4,
+      "rs12": 257.35,
+      "rs6": 90.11,
+      "dvol": 9928178548.95,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
         "structure": 5,
-        "vol hole": 5,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 3,
+      "whale_rank": 5,
+      "rs6_rank": 6
+    },
+    {
+      "ticker": "MRVL",
+      "held": false,
+      "close": 241.45,
+      "state": "ACCUMULATE",
+      "zone_lo": 237.43,
+      "zone_hi": 249.54,
+      "poc": 89.2744,
+      "pct_in_profit": 62.55,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 27,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": true,
+      "absorption": false,
+      "divergence": true,
+      "shelf_stable": true,
+      "conv_score": 80,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          242.2749,
+          0.5657
+        ],
+        [
+          220.0651,
+          0.6589
+        ]
+      ],
+      "resistance": [
+        [
+          271.8879,
+          0.5997
+        ],
+        [
+          284.2266,
+          0.6012
+        ]
+      ],
+      "rs12": 204.99,
+      "rs6": 192.28,
+      "dvol": 5303542458.97,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 15,
+        "vol hole": 10,
         "size/room": 0,
         "age": 5
       },
@@ -1433,34 +1410,32 @@
       "book_pct": null,
       "cap_note": null,
       "rs12_rank": 4,
-      "whale_rank": 8,
-      "rs6_rank": 10
+      "whale_rank": 1,
+      "rs6_rank": 1
     },
     {
       "ticker": "LRCX",
       "held": false,
-      "close": 312.88,
+      "close": 318.58,
       "state": "ACCUMULATE",
       "zone_lo": 307.95,
       "zone_hi": 323.66,
       "poc": 314.2354,
-      "pct_in_profit": 60.63,
+      "pct_in_profit": 68.4,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 65,
       "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 78,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
+      "conv_score": 88,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
       "ftag": "F:3/3",
       "origin": "owner-request",
       "support": [
@@ -1470,46 +1445,111 @@
         ],
         [
           297.2129,
-          0.3677
+          0.3469
         ]
       ],
       "resistance": [
         [
           334.6625,
-          0.3992
+          0.3766
         ],
         [
           389.1346,
-          0.3091
+          0.2916
         ]
       ],
-      "rs12": 190.07,
-      "rs6": 14.54,
-      "dvol": 2860277463.29,
+      "rs12": 188.28,
+      "rs6": 21.05,
+      "dvol": 2636154621.45,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
-        "structure": 10,
-        "vol hole": 5,
+        "structure": 15,
+        "vol hole": 10,
         "size/room": 8,
         "age": 5
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 5,
-      "whale_rank": 9,
-      "rs6_rank": 23
+      "rs12_rank": 6,
+      "whale_rank": 7,
+      "rs6_rank": 18
+    },
+    {
+      "ticker": "AMAT",
+      "held": false,
+      "close": 482.36,
+      "state": "ACCUMULATE",
+      "zone_lo": 470.99,
+      "zone_hi": 495.03,
+      "poc": 541.8906,
+      "pct_in_profit": 49.7,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 50,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 69,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G4 basis"
+      ],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          480.6069,
+          0.9113
+        ],
+        [
+          441.6081,
+          0.5281
+        ]
+      ],
+      "resistance": [
+        [
+          508.4631,
+          0.6444
+        ],
+        [
+          541.8906,
+          1.0
+        ]
+      ],
+      "rs12": 173.99,
+      "rs6": 16.22,
+      "dvol": 3755240801.6,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 5,
+        "vol hole": 5,
+        "size/room": 4,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 7,
+      "whale_rank": 8,
+      "rs6_rank": 20
     },
     {
       "ticker": "NOK",
       "held": false,
-      "close": 10.41,
+      "close": 10.59,
       "state": "ACCUMULATE",
       "zone_lo": 10.17,
       "zone_hi": 10.69,
       "poc": 10.3764,
-      "pct_in_profit": 45.22,
+      "pct_in_profit": 48.71,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 1,
@@ -1533,22 +1573,22 @@
         ],
         [
           9.409,
-          0.4572
+          0.4353
         ]
       ],
       "resistance": [
         [
           11.8274,
-          0.2163
+          0.2059
         ],
         [
           12.5529,
-          0.2775
+          0.2642
         ]
       ],
-      "rs12": 119.3,
-      "rs6": 26.41,
-      "dvol": 733005959.18,
+      "rs12": 126.01,
+      "rs6": 28.74,
+      "dvol": 721982754.4,
       "conv_parts": {
         "trend": 20,
         "rel strength": 25,
@@ -1560,30 +1600,84 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 7,
-      "whale_rank": 11,
+      "rs12_rank": 8,
+      "whale_rank": 9,
+      "rs6_rank": 15
+    },
+    {
+      "ticker": "MDB",
+      "held": false,
+      "close": 440.58,
+      "state": "ACCUMULATE",
+      "zone_lo": 420.33,
+      "zone_hi": 441.77,
+      "poc": 322.7756,
+      "pct_in_profit": 96.77,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 5,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 72,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          428.9073,
+          0.2724
+        ],
+        [
+          417.536,
+          0.2758
+        ]
+      ],
+      "resistance": [],
+      "rs12": 84.71,
+      "rs6": 18.43,
+      "dvol": 616036698.39,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 20,
+        "structure": 15,
+        "vol hole": 0,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 10,
+      "whale_rank": 10,
       "rs6_rank": 19
     },
     {
       "ticker": "CRDO",
       "held": false,
-      "close": 226.49,
+      "close": 240.24,
       "state": "ACCUMULATE",
-      "zone_lo": 217.56,
-      "zone_hi": 228.66,
-      "poc": 247.1189,
-      "pct_in_profit": 62.14,
+      "zone_lo": 237.25,
+      "zone_hi": 249.36,
+      "poc": 242.0943,
+      "pct_in_profit": 74.01,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 19,
       "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 77,
+      "conv_score": 82,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -1593,116 +1687,116 @@
       "origin": "owner-request",
       "support": [
         [
-          221.9959,
-          0.8932
+          242.0943,
+          1.0
         ],
-        [
-          191.8484,
-          0.7061
-        ]
-      ],
-      "resistance": [
         [
           232.0451,
-          0.9864
-        ],
-        [
-          247.1189,
-          1.0
+          0.9285
         ]
       ],
-      "rs12": 75.69,
-      "rs6": 72.34,
-      "dvol": 1074107385.17,
+      "resistance": [],
+      "rs12": 79.19,
+      "rs6": 97.39,
+      "dvol": 1055062481.8,
       "conv_parts": {
         "trend": 25,
         "rel strength": 20,
         "structure": 10,
-        "vol hole": 5,
+        "vol hole": 10,
         "size/room": 12,
         "age": 5
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 8,
-      "whale_rank": 12,
-      "rs6_rank": 11
+      "rs12_rank": 11,
+      "whale_rank": 11,
+      "rs6_rank": 4
     },
     {
-      "ticker": "OSCR",
+      "ticker": "SMH",
       "held": false,
-      "close": 31.24,
+      "close": 573.0,
       "state": "ACCUMULATE",
-      "zone_lo": 30.69,
-      "zone_hi": 32.26,
-      "poc": 13.468,
-      "pct_in_profit": 91.52,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 17,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": null,
-      "whale": false,
-      "absorption": true,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 80,
-      "conv_tier": "CONVICTION",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          31.3169,
-          0.7365
-        ],
-        [
-          28.9545,
-          0.807
-        ]
-      ],
-      "resistance": [],
-      "rs12": 66.39,
-      "rs6": 130.13,
-      "dvol": 172785648.19,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 20,
-        "structure": 15,
-        "vol hole": 0,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 9,
-      "whale_rank": 1,
-      "rs6_rank": 1
-    },
-    {
-      "ticker": "ARM",
-      "held": false,
-      "close": 251.06,
-      "state": "ACCUMULATE",
-      "zone_lo": 242.95,
-      "zone_hi": 255.34,
-      "poc": 210.6725,
-      "pct_in_profit": 51.36,
+      "zone_lo": 555.09,
+      "zone_hi": 583.41,
+      "poc": 566.4182,
+      "pct_in_profit": 65.01,
       "wk_circle": "RED",
       "wk_score": 3,
-      "wk_weeks": 1,
+      "wk_weeks": 64,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 77,
+      "conv_score": 74,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:\u2014",
+      "origin": "owner-request",
+      "support": [
+        [
+          566.4182,
+          1.0
+        ],
+        [
+          527.1952,
+          0.2608
+        ]
+      ],
+      "resistance": [
+        [
+          590.9326,
+          0.6659
+        ],
+        [
+          615.447,
+          0.4946
+        ]
+      ],
+      "rs12": 72.85,
+      "rs6": 26.61,
+      "dvol": 4239489196.08,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 20,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 4,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 12,
+      "whale_rank": 12,
+      "rs6_rank": 16
+    },
+    {
+      "ticker": "ARM",
+      "held": false,
+      "close": 255.21,
+      "state": "ACCUMULATE",
+      "zone_lo": 246.27,
+      "zone_hi": 258.83,
+      "poc": 210.6725,
+      "pct_in_profit": 54.47,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 1,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 82,
       "conv_tier": "CONVICTION",
       "gates_ok": true,
       "gates_failed": [],
@@ -1710,8 +1804,8 @@
       "origin": "owner-request",
       "support": [
         [
-          247.9075,
-          0.8699
+          251.2925,
+          0.8952
         ],
         [
           227.5975,
@@ -1724,153 +1818,101 @@
           0.897
         ]
       ],
-      "rs12": 61.66,
-      "rs6": 79.46,
-      "dvol": 1254749980.12,
+      "rs12": 61.11,
+      "rs6": 84.98,
+      "dvol": 1163117779.84,
       "conv_parts": {
         "trend": 20,
         "rel strength": 20,
         "structure": 10,
-        "vol hole": 5,
+        "vol hole": 10,
         "size/room": 12,
         "age": 10
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 10,
+      "rs12_rank": 13,
       "whale_rank": 13,
-      "rs6_rank": 9
-    },
-    {
-      "ticker": "CRWD",
-      "held": false,
-      "close": 189.18,
-      "state": "ACCUMULATE",
-      "zone_lo": 185.38,
-      "zone_hi": 194.84,
-      "poc": 102.282,
-      "pct_in_profit": 80.13,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 16,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": true,
-      "absorption": true,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 73,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:1/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          189.168,
-          0.8687
-        ],
-        [
-          170.4279,
-          0.8465
-        ]
-      ],
-      "resistance": [],
-      "rs12": 60.11,
-      "rs6": 97.18,
-      "dvol": 1627658420.94,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 20,
-        "structure": 15,
-        "vol hole": 0,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 11,
-      "whale_rank": 2,
       "rs6_rank": 7
     },
     {
-      "ticker": "LLY",
+      "ticker": "P",
       "held": false,
-      "close": 1189.41,
+      "close": 99.24,
       "state": "ACCUMULATE",
-      "zone_lo": 1139.8,
-      "zone_hi": 1197.95,
-      "poc": 1207.7477,
-      "pct_in_profit": 79.01,
+      "zone_lo": 95.68,
+      "zone_hi": 100.56,
+      "poc": 74.1427,
+      "pct_in_profit": 82.91,
       "wk_circle": "RED",
       "wk_score": 4,
-      "wk_weeks": 16,
+      "wk_weeks": 6,
       "monthly_up": true,
       "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
+      "vh_status": null,
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 59,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
+      "shelf_stable": true,
+      "conv_score": 70,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
       "ftag": "F:3/3",
       "origin": "owner-request",
       "support": [
         [
-          1163.0623,
-          0.9174
+          97.6339,
+          0.0835
         ],
         [
-          1118.3769,
-          0.7224
+          83.8632,
+          0.3322
         ]
       ],
       "resistance": [
         [
-          1207.7477,
-          1.0
+          104.1142,
+          0.2076
+        ],
+        [
+          109.7845,
+          0.1441
         ]
       ],
-      "rs12": 51.57,
-      "rs6": 4.86,
-      "dvol": 3455099533.63,
+      "rs12": 48.62,
+      "rs6": 37.95,
+      "dvol": 367585524.57,
       "conv_parts": {
-        "trend": 25,
+        "trend": 20,
         "rel strength": 15,
-        "structure": 10,
+        "structure": 15,
         "vol hole": 0,
-        "size/room": 4,
+        "size/room": 15,
         "age": 5
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
       "rs12_rank": 15,
-      "whale_rank": 37,
-      "rs6_rank": 31
+      "whale_rank": 15,
+      "rs6_rank": 14
     },
     {
-      "ticker": "ALAB",
+      "ticker": "SNOW",
       "held": false,
-      "close": 290.3,
+      "close": 329.11,
       "state": "ACCUMULATE",
-      "zone_lo": 279.51,
-      "zone_hi": 293.77,
-      "poc": 123.0764,
-      "pct_in_profit": 55.15,
+      "zone_lo": 320.27,
+      "zone_hi": 336.61,
+      "poc": 237.4481,
+      "pct_in_profit": 95.56,
       "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 19,
+      "wk_score": 4,
+      "wk_weeks": 12,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
@@ -1884,56 +1926,108 @@
       "origin": "owner-request",
       "support": [
         [
-          285.2178,
-          0.6244
+          326.8091,
+          0.4536
         ],
         [
-          204.1471,
-          0.5677
+          267.2351,
+          0.7641
         ]
       ],
-      "resistance": [
-        [
-          327.6834,
-          0.9013
-        ],
-        [
-          339.2649,
-          0.8009
-        ]
-      ],
-      "rs12": 46.13,
-      "rs6": 115.42,
-      "dvol": 1391359580.06,
+      "resistance": [],
+      "rs12": 48.49,
+      "rs6": 77.71,
+      "dvol": 1428168851.63,
       "conv_parts": {
         "trend": 25,
         "rel strength": 15,
-        "structure": 10,
+        "structure": 15,
         "vol hole": 5,
         "size/room": 12,
-        "age": 10
+        "age": 5
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
       "rs12_rank": 16,
       "whale_rank": 16,
-      "rs6_rank": 5
+      "rs6_rank": 8
+    },
+    {
+      "ticker": "LLY",
+      "held": false,
+      "close": 1176.1,
+      "state": "ACCUMULATE",
+      "zone_lo": 1157.32,
+      "zone_hi": 1216.36,
+      "poc": 1180.9365,
+      "pct_in_profit": 75.52,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 16,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 54,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G4 basis"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          1180.9365,
+          1.0
+        ],
+        [
+          1118.3769,
+          0.6985
+        ]
+      ],
+      "resistance": [
+        [
+          1207.7477,
+          0.9668
+        ]
+      ],
+      "rs12": 39.95,
+      "rs6": 2.98,
+      "dvol": 3440827334.29,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 10,
+        "structure": 10,
+        "vol hole": 0,
+        "size/room": 4,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 17,
+      "whale_rank": 17,
+      "rs6_rank": 30
     },
     {
       "ticker": "D05",
       "held": false,
-      "close": 75.65,
+      "close": 76.15,
       "state": "ACCUMULATE",
       "zone_lo": 74.52,
       "zone_hi": 78.32,
       "poc": 57.6073,
-      "pct_in_profit": 91.56,
+      "pct_in_profit": 95.8,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 71,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": null,
       "whale": false,
       "absorption": false,
@@ -1948,7 +2042,7 @@
       "support": [
         [
           76.0409,
-          0.766
+          0.826
         ],
         [
           73.8975,
@@ -1956,9 +2050,9 @@
         ]
       ],
       "resistance": [],
-      "rs12": 38.82,
-      "rs6": 25.2,
-      "dvol": 340591271.45,
+      "rs12": 39.11,
+      "rs6": 26.02,
+      "dvol": 335672662.0,
       "conv_parts": {
         "trend": 25,
         "rel strength": 15,
@@ -1972,17 +2066,71 @@
       "cap_note": null,
       "rs12_rank": 18,
       "whale_rank": 18,
-      "rs6_rank": 20
+      "rs6_rank": 17
+    },
+    {
+      "ticker": "NET",
+      "held": false,
+      "close": 308.23,
+      "state": "ACCUMULATE",
+      "zone_lo": 295.48,
+      "zone_hi": 310.55,
+      "poc": 198.309,
+      "pct_in_profit": 93.9,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 20,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 82,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          301.5065,
+          0.5052
+        ],
+        [
+          284.3069,
+          0.6871
+        ]
+      ],
+      "resistance": [],
+      "rs12": 34.4,
+      "rs6": 64.01,
+      "dvol": 1234764006.93,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 15,
+        "structure": 15,
+        "vol hole": 10,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 19,
+      "whale_rank": 19,
+      "rs6_rank": 10
     },
     {
       "ticker": "ANET",
       "held": false,
-      "close": 202.25,
+      "close": 201.09,
       "state": "ACCUMULATE",
-      "zone_lo": 195.57,
-      "zone_hi": 205.55,
+      "zone_lo": 197.15,
+      "zone_hi": 207.21,
       "poc": 143.0985,
-      "pct_in_profit": 96.06,
+      "pct_in_profit": 94.75,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 20,
@@ -2001,12 +2149,12 @@
       "origin": "owner-request",
       "support": [
         [
-          199.5637,
-          0.234
+          201.177,
+          0.2761
         ],
         [
           193.1106,
-          0.5267
+          0.5268
         ]
       ],
       "resistance": [
@@ -2015,9 +2163,9 @@
           0.264
         ]
       ],
-      "rs12": 31.46,
-      "rs6": 41.08,
-      "dvol": 1520249619.78,
+      "rs12": 28.92,
+      "rs6": 41.93,
+      "dvol": 1505296632.31,
       "conv_parts": {
         "trend": 25,
         "rel strength": 15,
@@ -2029,83 +2177,89 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 19,
-      "whale_rank": 19,
-      "rs6_rank": 16
+      "rs12_rank": 20,
+      "whale_rank": 20,
+      "rs6_rank": 12
     },
     {
-      "ticker": "NET",
+      "ticker": "SATL",
       "held": false,
-      "close": 284.89,
+      "close": 5.31,
       "state": "ACCUMULATE",
-      "zone_lo": 278.62,
-      "zone_hi": 292.84,
-      "poc": 198.309,
-      "pct_in_profit": 83.92,
+      "zone_lo": 5.29,
+      "zone_hi": 5.56,
+      "poc": 5.7825,
+      "pct_in_profit": 42.86,
       "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 20,
+      "wk_score": 3,
+      "wk_weeks": 2,
       "monthly_up": true,
       "candle": "YELLOW",
-      "vh_status": "BREAKOUT",
+      "vh_status": "BREAKDOWN",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 82,
-      "conv_tier": "CONVICTION",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/2",
+      "conv_score": 60,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G4 basis"
+      ],
+      "ftag": "F:1/2",
       "origin": "owner-request",
       "support": [
         [
-          284.3069,
-          0.6871
+          5.3945,
+          0.937
         ],
         [
-          272.0215,
-          0.7706
+          4.5215,
+          0.5715
         ]
       ],
       "resistance": [
         [
-          303.9635,
-          0.4398
+          5.7825,
+          1.0
+        ],
+        [
+          6.4615,
+          0.3654
         ]
       ],
-      "rs12": 24.88,
-      "rs6": 54.72,
-      "dvol": 1213810387.35,
+      "rs12": 20.75,
+      "rs6": 54.0,
+      "dvol": 31346136.82,
       "conv_parts": {
-        "trend": 25,
+        "trend": 20,
         "rel strength": 15,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 12,
+        "structure": 5,
+        "vol hole": 0,
+        "size/room": 15,
         "age": 5
       },
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 20,
-      "whale_rank": 20,
-      "rs6_rank": 13
+      "rs12_rank": 21,
+      "whale_rank": 21,
+      "rs6_rank": 11
     },
     {
       "ticker": "IWM",
       "held": false,
-      "close": 298.93,
+      "close": 299.81,
       "state": "ACCUMULATE",
       "zone_lo": 292.63,
       "zone_hi": 307.56,
       "poc": 298.6025,
-      "pct_in_profit": 91.04,
+      "pct_in_profit": 94.33,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 22,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": "BREAKDOWN",
       "whale": false,
       "absorption": false,
@@ -2127,13 +2281,13 @@
         ],
         [
           285.4474,
-          0.4021
+          0.3758
         ]
       ],
       "resistance": [],
-      "rs12": 9.42,
-      "rs6": 2.34,
-      "dvol": 5263858551.31,
+      "rs12": 8.45,
+      "rs6": 0.72,
+      "dvol": 5144227108.6,
       "conv_parts": {
         "trend": 25,
         "rel strength": 0,
@@ -2145,19 +2299,19 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 22,
-      "whale_rank": 21,
-      "rs6_rank": 34
+      "rs12_rank": 23,
+      "whale_rank": 22,
+      "rs6_rank": 32
     },
     {
       "ticker": "JPM",
       "held": false,
-      "close": 356.5,
+      "close": 354.22,
       "state": "ACCUMULATE",
-      "zone_lo": 349.42,
-      "zone_hi": 367.25,
+      "zone_lo": 340.76,
+      "zone_hi": 358.14,
       "poc": 310.1407,
-      "pct_in_profit": 90.0,
+      "pct_in_profit": 86.9,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 13,
@@ -2178,18 +2332,23 @@
       "origin": "owner-request",
       "support": [
         [
-          356.5542,
-          0.5614
-        ],
-        [
           347.7136,
           0.398
+        ],
+        [
+          332.2424,
+          0.7432
         ]
       ],
-      "resistance": [],
-      "rs12": 2.64,
-      "rs6": 7.57,
-      "dvol": 2073118617.94,
+      "resistance": [
+        [
+          356.5542,
+          0.5908
+        ]
+      ],
+      "rs12": 0.06,
+      "rs6": 4.36,
+      "dvol": 2031954128.59,
       "conv_parts": {
         "trend": 25,
         "rel strength": 0,
@@ -2201,19 +2360,19 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 24,
-      "whale_rank": 22,
+      "rs12_rank": 26,
+      "whale_rank": 25,
       "rs6_rank": 28
     },
     {
       "ticker": "OUST",
       "held": false,
-      "close": 35.87,
+      "close": 36.54,
       "state": "ACCUMULATE",
       "zone_lo": 35.56,
       "zone_hi": 37.37,
       "poc": 45.2036,
-      "pct_in_profit": 42.41,
+      "pct_in_profit": 45.2,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 18,
@@ -2236,7 +2395,7 @@
       "support": [
         [
           36.2846,
-          0.7934
+          0.8343
         ],
         [
           34.0549,
@@ -2253,9 +2412,9 @@
           0.852
         ]
       ],
-      "rs12": -0.95,
-      "rs6": 70.05,
-      "dvol": 125829148.74,
+      "rs12": -2.59,
+      "rs6": 73.68,
+      "dvol": 124375972.45,
       "conv_parts": {
         "trend": 25,
         "rel strength": 5,
@@ -2267,29 +2426,1125 @@
       "bucket": null,
       "book_pct": null,
       "cap_note": null,
-      "rs12_rank": 26,
-      "whale_rank": 24,
-      "rs6_rank": 12
+      "rs12_rank": 28,
+      "whale_rank": 27,
+      "rs6_rank": 9
     },
     {
-      "ticker": "IOT",
+      "ticker": "AMZN",
       "held": false,
-      "close": 39.84,
+      "close": 256.26,
       "state": "ACCUMULATE",
-      "zone_lo": 38.61,
-      "zone_hi": 40.58,
-      "poc": 37.1655,
-      "pct_in_profit": 92.0,
+      "zone_lo": 248.69,
+      "zone_hi": 261.38,
+      "poc": 229.7559,
+      "pct_in_profit": 69.19,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 5,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 50,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          253.7624,
+          0.403
+        ],
+        [
+          246.9034,
+          0.9454
+        ]
+      ],
+      "resistance": [
+        [
+          262.3361,
+          0.9134
+        ],
+        [
+          272.6246,
+          0.5173
+        ]
+      ],
+      "rs12": -8.8,
+      "rs6": 10.79,
+      "dvol": 11373728640.62,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 29,
+      "whale_rank": 28,
+      "rs6_rank": 23
+    },
+    {
+      "ticker": "V",
+      "held": false,
+      "close": 379.66,
+      "state": "ACCUMULATE",
+      "zone_lo": 371.83,
+      "zone_hi": 390.8,
+      "poc": 330.1904,
+      "pct_in_profit": 97.78,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 9,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 63,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:0/1",
+      "origin": "owner-request",
+      "support": [
+        [
+          379.4167,
+          0.1952
+        ],
+        [
+          361.8359,
+          0.857
+        ]
+      ],
+      "resistance": [],
+      "rs12": -11.87,
+      "rs6": 7.89,
+      "dvol": 2543297887.19,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 30,
+      "whale_rank": 29,
+      "rs6_rank": 24
+    },
+    {
+      "ticker": "MSFT",
+      "held": false,
+      "close": 505.06,
+      "state": "ACCUMULATE",
+      "zone_lo": 487.08,
+      "zone_hi": 511.93,
+      "poc": 394.4156,
+      "pct_in_profit": 95.24,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 55,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          497.0216,
+          0.5111
+        ],
+        [
+          482.7708,
+          0.7285
+        ]
+      ],
+      "resistance": [],
+      "rs12": -19.42,
+      "rs6": 13.77,
+      "dvol": 14728193135.9,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 15,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 31,
+      "whale_rank": 30,
+      "rs6_rank": 22
+    },
+    {
+      "ticker": "AFRM",
+      "held": false,
+      "close": 77.49,
+      "state": "ACCUMULATE",
+      "zone_lo": 75.0,
+      "zone_hi": 78.83,
+      "poc": 76.5321,
+      "pct_in_profit": 81.16,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 14,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 70,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          76.5321,
+          1.0
+        ],
+        [
+          65.3301,
+          0.6493
+        ]
+      ],
+      "resistance": [
+        [
+          83.5334,
+          0.3164
+        ],
+        [
+          89.1344,
+          0.0554
+        ]
+      ],
+      "rs12": -21.44,
+      "rs6": 41.23,
+      "dvol": 233216089.57,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 5,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 32,
+      "whale_rank": 31,
+      "rs6_rank": 13
+    },
+    {
+      "ticker": "TOST",
+      "held": false,
+      "close": 35.17,
+      "state": "ACCUMULATE",
+      "zone_lo": 34.18,
+      "zone_hi": 35.92,
+      "poc": 28.1072,
+      "pct_in_profit": 81.88,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 65,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          34.8763,
+          0.6801
+        ],
+        [
+          32.9423,
+          0.2623
+        ]
+      ],
+      "resistance": [
+        [
+          40.6783,
+          0.0358
+        ],
+        [
+          42.1288,
+          0.0427
+        ]
+      ],
+      "rs12": -40.69,
+      "rs6": 14.28,
+      "dvol": 342635264.59,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 15,
+        "vol hole": 5,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 33,
+      "whale_rank": 32,
+      "rs6_rank": 21
+    },
+    {
+      "ticker": "AXON",
+      "held": false,
+      "close": 611.2,
+      "state": "ACCUMULATE",
+      "zone_lo": 595.91,
+      "zone_hi": 626.31,
+      "poc": 393.8191,
+      "pct_in_profit": 85.52,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": null,
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 52,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          608.0671,
+          0.956
+        ],
+        [
+          581.2861,
+          0.6277
+        ]
+      ],
+      "resistance": [],
+      "rs12": -41.37,
+      "rs6": -1.37,
+      "dvol": 540559156.41,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 0,
+        "structure": 15,
+        "vol hole": 0,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": 34,
+      "whale_rank": 33,
+      "rs6_rank": 34
+    },
+    {
+      "ticker": "ABCL",
+      "held": false,
+      "close": 12.4,
+      "state": "HOLD",
+      "zone_lo": 10.58,
+      "zone_hi": 11.12,
+      "poc": 4.0517,
+      "pct_in_profit": 99.84,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 18,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 90,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          10.7932,
+          0.4263
+        ],
+        [
+          9.5832,
+          0.3553
+        ]
+      ],
+      "resistance": [],
+      "rs12": 162.91,
+      "rs6": 232.94,
+      "dvol": 103853001.6,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "AEHR",
+      "held": false,
+      "close": 90.46,
+      "state": "HOLD",
+      "zone_lo": 80.48,
+      "zone_hi": 84.59,
+      "poc": 97.4165,
+      "pct_in_profit": 55.0,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 61,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 75,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G4 basis"
+      ],
+      "ftag": "F:1/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          82.1274,
+          0.7099
+        ],
+        [
+          76.247,
+          0.3505
+        ]
+      ],
+      "resistance": [
+        [
+          95.0643,
+          0.9788
+        ],
+        [
+          97.4165,
+          1.0
+        ]
+      ],
+      "rs12": 228.56,
+      "rs6": 114.82,
+      "dvol": 263523525.83,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 0,
+        "vol hole": 5,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "ALAB",
+      "held": false,
+      "close": 304.09,
+      "state": "HOLD",
+      "zone_lo": 279.51,
+      "zone_hi": 293.77,
+      "poc": 123.0764,
+      "pct_in_profit": 58.24,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 19,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 77,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          285.2178,
+          0.6255
+        ],
+        [
+          192.5656,
+          0.6119
+        ]
+      ],
+      "resistance": [
+        [
+          308.3808,
+          0.5828
+        ],
+        [
+          327.6834,
+          0.9013
+        ]
+      ],
+      "rs12": 49.46,
+      "rs6": 131.45,
+      "dvol": 1338214588.07,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 15,
+        "structure": 5,
+        "vol hole": 10,
+        "size/room": 12,
+        "age": 10
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "AXTI",
+      "held": false,
+      "close": 66.92,
+      "state": "HOLD",
+      "zone_lo": 63.16,
+      "zone_hi": 66.39,
+      "poc": 64.4517,
+      "pct_in_profit": 49.77,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 67,
+      "conv_tier": "STARTER",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:0/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          64.4517,
+          1.0
+        ],
+        [
+          53.7995,
+          0.5318
+        ]
+      ],
+      "resistance": [
+        [
+          72.7368,
+          0.6807
+        ],
+        [
+          77.4711,
+          0.5322
+        ]
+      ],
+      "rs12": 2295.04,
+      "rs6": 67.82,
+      "dvol": 955246936.12,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 25,
+        "structure": 5,
+        "vol hole": 0,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "BB",
+      "held": false,
+      "close": 8.65,
+      "state": "HOLD",
+      "zone_lo": 6.08,
+      "zone_hi": 6.39,
+      "poc": 8.9098,
+      "pct_in_profit": 48.36,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 19,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 80,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G4 basis"
+      ],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          6.2078,
+          0.4185
+        ],
+        [
+          5.3393,
+          0.2466
+        ]
+      ],
+      "resistance": [
+        [
+          8.9098,
+          1.0
+        ],
+        [
+          10.0678,
+          0.3344
+        ]
+      ],
+      "rs12": 106.19,
+      "rs6": 133.98,
+      "dvol": 84926810.08,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 0,
+        "vol hole": 10,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "CRM",
+      "held": false,
+      "close": 252.05,
+      "state": "HOLD",
+      "zone_lo": 237.76,
+      "zone_hi": 249.89,
+      "poc": 185.9939,
+      "pct_in_profit": 94.45,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 1,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 58,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          242.6146,
+          0.2705
+        ],
+        [
+          230.4816,
+          0.1229
+        ]
+      ],
+      "resistance": [
+        [
+          258.7919,
+          0.151
+        ]
+      ],
+      "rs12": -16.56,
+      "rs6": 14.54,
+      "dvol": 2926398188.14,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "CRWD",
+      "held": false,
+      "close": 227.96,
+      "state": "HOLD",
+      "zone_lo": 184.96,
+      "zone_hi": 194.4,
+      "poc": 102.8943,
+      "pct_in_profit": 99.93,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 16,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": true,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 78,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:1/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          188.7349,
+          0.8591
+        ],
+        [
+          171.5668,
+          0.7789
+        ]
+      ],
+      "resistance": [],
+      "rs12": 97.51,
+      "rs6": 126.8,
+      "dvol": 1813182038.38,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 20,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "DELL",
+      "held": false,
+      "close": 472.26,
+      "state": "HOLD",
+      "zone_lo": 431.03,
+      "zone_hi": 453.03,
+      "poc": 119.0971,
+      "pct_in_profit": 96.61,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 26,
       "monthly_up": true,
       "candle": "NEUTRAL",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
+      "shelf_stable": false,
+      "conv_score": 78,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          439.8304,
+          0.5781
+        ],
+        [
+          415.7754,
+          0.7103
+        ]
+      ],
+      "resistance": [],
+      "rs12": 244.28,
+      "rs6": 278.24,
+      "dvol": 2427600955.67,
+      "conv_parts": {
+        "trend": 25,
+        "rel strength": 25,
+        "structure": 10,
+        "vol hole": 5,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "GOOGL",
+      "held": false,
+      "close": 340.65,
+      "state": "HOLD",
+      "zone_lo": 311.45,
+      "zone_hi": 327.34,
+      "poc": 344.9113,
+      "pct_in_profit": 47.71,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 5,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "INSIDE",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 40,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G4 basis"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          317.8054,
+          0.5199
+        ],
+        [
+          304.2525,
+          0.4145
+        ]
+      ],
+      "resistance": [
+        [
+          344.9113,
+          1.0
+        ],
+        [
+          355.7536,
+          0.5804
+        ]
+      ],
+      "rs12": 44.08,
+      "rs6": -1.49,
+      "dvol": 8989732256.86,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 10,
+        "structure": 0,
+        "vol hole": 5,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "HIMS",
+      "held": false,
+      "close": 31.66,
+      "state": "HOLD",
+      "zone_lo": 28.77,
+      "zone_hi": 30.24,
+      "poc": 29.3603,
+      "pct_in_profit": 65.59,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 2,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKDOWN",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 55,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          29.3603,
+          1.0
+        ],
+        [
+          26.4328,
+          0.7253
+        ]
+      ],
+      "resistance": [
+        [
+          34.6298,
+          0.4579
+        ],
+        [
+          50.4383,
+          0.1021
+        ]
+      ],
+      "rs12": -51.03,
+      "rs6": 90.49,
+      "dvol": 398329817.06,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 0,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "HOOD",
+      "held": false,
+      "close": 109.76,
+      "state": "HOLD",
+      "zone_lo": 103.35,
+      "zone_hi": 108.62,
+      "poc": 76.046,
+      "pct_in_profit": 80.78,
+      "wk_circle": "RED",
+      "wk_score": 3,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 58,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          105.456,
+          0.6265
+        ],
+        [
+          100.5544,
+          0.6163
+        ]
+      ],
+      "resistance": [
+        [
+          111.5831,
+          0.4321
+        ],
+        [
+          114.034,
+          0.4421
+        ]
+      ],
+      "rs12": -19.96,
+      "rs6": 25.69,
+      "dvol": 1850055052.83,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "IGV",
+      "held": false,
+      "close": 110.32,
+      "state": "HOLD",
+      "zone_lo": 100.28,
+      "zone_hi": 105.4,
+      "poc": 92.8767,
+      "pct_in_profit": 98.6,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 4,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 62,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:\u2014",
+      "origin": "owner-request",
+      "support": [
+        [
+          102.3311,
+          0.5996
+        ],
+        [
+          98.7857,
+          0.2366
+        ]
+      ],
+      "resistance": [],
+      "rs12": -17.31,
+      "rs6": 21.12,
+      "dvol": 1187568552.45,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "IOT",
+      "held": false,
+      "close": 41.87,
+      "state": "HOLD",
+      "zone_lo": 38.61,
+      "zone_hi": 40.58,
+      "poc": 37.1655,
+      "pct_in_profit": 97.22,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 5,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
       "conv_score": 65,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -2318,988 +3573,15 @@
           0.0044
         ]
       ],
-      "rs12": -4.75,
-      "rs6": 34.08,
-      "dvol": 182928044.46,
+      "rs12": 3.77,
+      "rs6": 32.12,
+      "dvol": 184345880.14,
       "conv_parts": {
         "trend": 20,
         "rel strength": 5,
-        "structure": 15,
-        "vol hole": 5,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 28,
-      "whale_rank": 26,
-      "rs6_rank": 17
-    },
-    {
-      "ticker": "AMZN",
-      "held": false,
-      "close": 260.28,
-      "state": "ACCUMULATE",
-      "zone_lo": 248.69,
-      "zone_hi": 261.38,
-      "poc": 229.7559,
-      "pct_in_profit": 73.02,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 5,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 50,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          253.7624,
-          0.403
-        ],
-        [
-          246.9034,
-          0.9454
-        ]
-      ],
-      "resistance": [
-        [
-          262.3361,
-          0.9132
-        ],
-        [
-          272.6246,
-          0.5173
-        ]
-      ],
-      "rs12": -6.37,
-      "rs6": 12.46,
-      "dvol": 12111908338.43,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 5,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 29,
-      "whale_rank": 39,
-      "rs6_rank": 26
-    },
-    {
-      "ticker": "V",
-      "held": false,
-      "close": 383.9,
-      "state": "ACCUMULATE",
-      "zone_lo": 375.27,
-      "zone_hi": 394.42,
-      "poc": 330.1904,
-      "pct_in_profit": 99.65,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 9,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 68,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:0/1",
-      "origin": "owner-request",
-      "support": [
-        [
-          382.9329,
-          0.1929
-        ],
-        [
-          361.8359,
-          0.857
-        ]
-      ],
-      "resistance": [],
-      "rs12": -9.62,
-      "rs6": 12.03,
-      "dvol": 2570898190.77,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 31,
-      "whale_rank": 28,
-      "rs6_rank": 27
-    },
-    {
-      "ticker": "SHOP",
-      "held": false,
-      "close": 150.29,
-      "state": "ACCUMULATE",
-      "zone_lo": 145.53,
-      "zone_hi": 152.95,
-      "poc": 119.4267,
-      "pct_in_profit": 86.51,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 3,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 58,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          148.496,
-          0.6477
-        ],
-        [
-          136.604,
-          0.1166
-        ]
-      ],
-      "resistance": [
-        [
-          164.352,
-          0.1093
-        ]
-      ],
-      "rs12": -13.62,
-      "rs6": 13.81,
-      "dvol": 1519921299.06,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 5,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 32,
-      "whale_rank": 29,
-      "rs6_rank": 24
-    },
-    {
-      "ticker": "MA",
-      "held": false,
-      "close": 598.47,
-      "state": "ACCUMULATE",
-      "zone_lo": 585.75,
-      "zone_hi": 615.64,
-      "poc": 494.8238,
-      "pct_in_profit": 99.45,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 5,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 58,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          597.7088,
-          0.2338
-        ],
-        [
-          567.9263,
-          0.6
-        ]
-      ],
-      "resistance": [],
-      "rs12": -19.05,
-      "rs6": 6.78,
-      "dvol": 1785339327.47,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 0,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 33,
-      "whale_rank": 30,
-      "rs6_rank": 29
-    },
-    {
-      "ticker": "HOOD",
-      "held": false,
-      "close": 108.54,
-      "state": "ACCUMULATE",
-      "zone_lo": 103.35,
-      "zone_hi": 108.62,
-      "poc": 76.046,
-      "pct_in_profit": 79.38,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 63,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          105.456,
-          0.6265
-        ],
-        [
-          100.5544,
-          0.6163
-        ]
-      ],
-      "resistance": [
-        [
-          111.5831,
-          0.4102
-        ],
-        [
-          114.034,
-          0.4421
-        ]
-      ],
-      "rs12": -20.01,
-      "rs6": 28.89,
-      "dvol": 1902630405.4,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 34,
-      "whale_rank": 31,
-      "rs6_rank": 18
-    },
-    {
-      "ticker": "TEAM",
-      "held": false,
-      "close": 168.47,
-      "state": "ACCUMULATE",
-      "zone_lo": 161.28,
-      "zone_hi": 169.51,
-      "poc": 86.2643,
-      "pct_in_profit": 94.63,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 3,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 62,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          164.5697,
-          0.3048
-        ],
-        [
-          150.3323,
-          0.3635
-        ]
-      ],
-      "resistance": [
-        [
-          189.485,
-          0.0135
-        ],
-        [
-          200.163,
-          0.0184
-        ]
-      ],
-      "rs12": -20.68,
-      "rs6": 119.07,
-      "dvol": 780509314.16,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 5,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 35,
-      "whale_rank": 32,
-      "rs6_rank": 3
-    },
-    {
-      "ticker": "MSFT",
-      "held": false,
-      "close": 496.37,
-      "state": "ACCUMULATE",
-      "zone_lo": 487.08,
-      "zone_hi": 511.93,
-      "poc": 394.4156,
-      "pct_in_profit": 90.63,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 55,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          497.0216,
-          0.4441
-        ],
-        [
-          482.7708,
-          0.7285
-        ]
-      ],
-      "resistance": [],
-      "rs12": -21.32,
-      "rs6": 13.3,
-      "dvol": 16488223000.98,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 10,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 36,
-      "whale_rank": 33,
-      "rs6_rank": 25
-    },
-    {
-      "ticker": "AFRM",
-      "held": false,
-      "close": 76.46,
-      "state": "ACCUMULATE",
-      "zone_lo": 75.0,
-      "zone_hi": 78.83,
-      "poc": 76.5321,
-      "pct_in_profit": 74.68,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 14,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 65,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          76.5321,
-          1.0
-        ],
-        [
-          73.7316,
-          0.9847
-        ]
-      ],
-      "resistance": [
-        [
-          83.5334,
-          0.3777
-        ],
-        [
-          89.1344,
-          0.0661
-        ]
-      ],
-      "rs12": -21.76,
-      "rs6": 48.25,
-      "dvol": 211727639.27,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 5,
-        "structure": 10,
-        "vol hole": 5,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 37,
-      "whale_rank": 34,
-      "rs6_rank": 14
-    },
-    {
-      "ticker": "IGV",
-      "held": false,
-      "close": 102.39,
-      "state": "ACCUMULATE",
-      "zone_lo": 100.28,
-      "zone_hi": 105.4,
-      "poc": 92.8767,
-      "pct_in_profit": 87.34,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 62,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:\u2014",
-      "origin": "owner-request",
-      "support": [
-        [
-          102.3311,
-          0.5995
-        ],
-        [
-          98.7857,
-          0.2366
-        ]
-      ],
-      "resistance": [],
-      "rs12": -24.57,
-      "rs6": 15.56,
-      "dvol": 1138349856.88,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 5,
-        "structure": 15,
-        "vol hole": 5,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 38,
-      "whale_rank": 35,
-      "rs6_rank": 22
-    },
-    {
-      "ticker": "AXON",
-      "held": false,
-      "close": 607.48,
-      "state": "ACCUMULATE",
-      "zone_lo": 595.91,
-      "zone_hi": 626.31,
-      "poc": 393.8191,
-      "pct_in_profit": 82.16,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": null,
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 52,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          608.0671,
-          0.8686
-        ],
-        [
-          581.2861,
-          0.6277
-        ]
-      ],
-      "resistance": [],
-      "rs12": -41.0,
-      "rs6": 5.67,
-      "dvol": 540805468.71,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 0,
-        "structure": 15,
-        "vol hole": 0,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": 39,
-      "whale_rank": 36,
-      "rs6_rank": 30
-    },
-    {
-      "ticker": "ABCL",
-      "held": false,
-      "close": 12.24,
-      "state": "HOLD",
-      "zone_lo": 10.58,
-      "zone_hi": 11.12,
-      "poc": 4.0517,
-      "pct_in_profit": 99.64,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 18,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 90,
-      "conv_tier": "CONVICTION",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          10.7932,
-          0.4263
-        ],
-        [
-          9.5832,
-          0.3553
-        ]
-      ],
-      "resistance": [],
-      "rs12": 168.8,
-      "rs6": 272.59,
-      "dvol": 102445596.59,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
         "structure": 10,
         "vol hole": 10,
         "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "AEHR",
-      "held": false,
-      "close": 91.12,
-      "state": "HOLD",
-      "zone_lo": 80.48,
-      "zone_hi": 84.59,
-      "poc": 97.4165,
-      "pct_in_profit": 55.44,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 61,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 75,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
-      "ftag": "F:1/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          82.1274,
-          0.7233
-        ],
-        [
-          76.247,
-          0.3571
-        ]
-      ],
-      "resistance": [
-        [
-          97.4165,
-          1.0
-        ],
-        [
-          116.2338,
-          0.2395
-        ]
-      ],
-      "rs12": 250.0,
-      "rs6": 108.56,
-      "dvol": 265071509.5,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "AMAT",
-      "held": false,
-      "close": 479.76,
-      "state": "HOLD",
-      "zone_lo": 432.78,
-      "zone_hi": 454.86,
-      "poc": 541.8906,
-      "pct_in_profit": 47.22,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 50,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 64,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          441.6081,
-          0.5281
-        ],
-        [
-          391.4669,
-          0.6149
-        ]
-      ],
-      "resistance": [
-        [
-          491.7494,
-          0.8611
-        ],
-        [
-          508.4631,
-          0.6444
-        ]
-      ],
-      "rs12": 177.24,
-      "rs6": 10.65,
-      "dvol": 3908029741.05,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 4,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "BB",
-      "held": false,
-      "close": 7.79,
-      "state": "HOLD",
-      "zone_lo": 6.08,
-      "zone_hi": 6.39,
-      "poc": 8.9098,
-      "pct_in_profit": 35.1,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 19,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 70,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          6.2078,
-          0.4185
-        ],
-        [
-          5.3393,
-          0.2466
-        ]
-      ],
-      "resistance": [
-        [
-          8.9098,
-          1.0
-        ],
-        [
-          10.0678,
-          0.3344
-        ]
-      ],
-      "rs12": 87.17,
-      "rs6": 116.67,
-      "dvol": 86723186.15,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 20,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "DELL",
-      "held": false,
-      "close": 463.82,
-      "state": "HOLD",
-      "zone_lo": 431.03,
-      "zone_hi": 453.03,
-      "poc": 119.0971,
-      "pct_in_profit": 93.89,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 26,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 78,
-      "conv_tier": "CONVICTION",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          439.8304,
-          0.5781
-        ],
-        [
-          415.7754,
-          0.7103
-        ]
-      ],
-      "resistance": [],
-      "rs12": 237.98,
-      "rs6": 266.3,
-      "dvol": 2442387992.68,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
-        "structure": 10,
-        "vol hole": 5,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "GOOGL",
-      "held": false,
-      "close": 342.0,
-      "state": "HOLD",
-      "zone_lo": 311.45,
-      "zone_hi": 327.34,
-      "poc": 344.9113,
-      "pct_in_profit": 47.69,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 5,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 40,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G4 basis"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          317.8054,
-          0.52
-        ],
-        [
-          304.2525,
-          0.4147
-        ]
-      ],
-      "resistance": [
-        [
-          344.9113,
-          1.0
-        ],
-        [
-          355.7536,
-          0.5806
-        ]
-      ],
-      "rs12": 43.94,
-      "rs6": -1.67,
-      "dvol": 9093089873.76,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 10,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 0,
         "age": 5
       },
       "bucket": null,
@@ -3312,12 +3594,12 @@
     {
       "ticker": "LITE",
       "held": false,
-      "close": 939.03,
+      "close": 956.14,
       "state": "HOLD",
       "zone_lo": 853.81,
       "zone_hi": 897.37,
       "poc": 871.2377,
-      "pct_in_profit": 89.45,
+      "pct_in_profit": 92.29,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 65,
@@ -3326,7 +3608,7 @@
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
-      "divergence": true,
+      "divergence": false,
       "shelf_stable": false,
       "conv_score": 69,
       "conv_tier": "STARTER",
@@ -3345,9 +3627,9 @@
         ]
       ],
       "resistance": [],
-      "rs12": 640.28,
-      "rs6": 18.7,
-      "dvol": 4392076785.91,
+      "rs12": 646.4,
+      "rs6": 28.77,
+      "dvol": 4395368347.46,
       "conv_parts": {
         "trend": 25,
         "rel strength": 25,
@@ -3364,124 +3646,57 @@
       "rs6_rank": null
     },
     {
-      "ticker": "MDB",
+      "ticker": "MA",
       "held": false,
-      "close": 406.11,
+      "close": 591.73,
       "state": "HOLD",
-      "zone_lo": 372.04,
-      "zone_hi": 391.02,
-      "poc": 322.7756,
-      "pct_in_profit": 85.8,
+      "zone_lo": 556.57,
+      "zone_hi": 584.96,
+      "poc": 494.8238,
+      "pct_in_profit": 96.21,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 5,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKOUT",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 67,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          379.6319,
-          0.2682
-        ],
-        [
-          353.099,
-          0.5273
-        ]
-      ],
-      "resistance": [
-        [
-          417.536,
-          0.2645
-        ],
-        [
-          436.4881,
-          0.2354
-        ]
-      ],
-      "rs12": 65.35,
-      "rs6": 17.82,
-      "dvol": 600162216.16,
-      "conv_parts": {
-        "trend": 20,
-        "rel strength": 20,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "MRVL",
-      "held": false,
-      "close": 245.11,
-      "state": "HOLD",
-      "zone_lo": 215.66,
-      "zone_hi": 226.67,
-      "poc": 89.2744,
-      "pct_in_profit": 65.44,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 27,
       "monthly_up": true,
       "candle": "RED",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
-      "divergence": true,
+      "divergence": false,
       "shelf_stable": false,
-      "conv_score": 75,
+      "conv_score": 53,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
-        "G1 size"
+        "G3 leader"
       ],
       "ftag": "F:3/3",
       "origin": "owner-request",
       "support": [
         [
-          220.0651,
-          0.6589
+          567.9263,
+          0.6
         ],
         [
-          207.7264,
-          0.6732
+          540.8513,
+          0.4074
         ]
       ],
       "resistance": [
         [
-          271.8879,
-          0.5997
-        ],
-        [
-          284.2266,
-          0.6012
+          597.7088,
+          0.2338
         ]
       ],
-      "rs12": 216.15,
-      "rs6": 192.02,
-      "dvol": 5095287008.76,
+      "rs12": -20.2,
+      "rs6": 2.88,
+      "dvol": 1726762775.78,
       "conv_parts": {
-        "trend": 25,
-        "rel strength": 25,
+        "trend": 20,
+        "rel strength": 0,
         "structure": 10,
         "vol hole": 10,
-        "size/room": 0,
+        "size/room": 8,
         "age": 5
       },
       "bucket": null,
@@ -3492,55 +3707,107 @@
       "rs6_rank": null
     },
     {
-      "ticker": "P",
+      "ticker": "NOW",
       "held": false,
-      "close": 108.9,
+      "close": 138.43,
       "state": "HOLD",
-      "zone_lo": 102.03,
-      "zone_hi": 107.24,
-      "poc": 74.1427,
-      "pct_in_profit": 91.07,
+      "zone_lo": 124.42,
+      "zone_hi": 130.77,
+      "poc": 102.5612,
+      "pct_in_profit": 93.16,
       "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 6,
+      "wk_score": 3,
+      "wk_weeks": 1,
       "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": null,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 70,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:3/3",
+      "conv_score": 58,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/3",
       "origin": "owner-request",
       "support": [
         [
-          104.1142,
-          0.1634
+          126.9587,
+          0.4175
         ],
         [
-          83.8632,
-          0.3322
+          122.6533,
+          0.4375
+        ]
+      ],
+      "resistance": [],
+      "rs12": -40.8,
+      "rs6": 14.19,
+      "dvol": 2205142846.15,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "OSCR",
+      "held": false,
+      "close": 30.05,
+      "state": "HOLD",
+      "zone_lo": 28.38,
+      "zone_hi": 29.82,
+      "poc": 13.468,
+      "pct_in_profit": 84.3,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 17,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": null,
+      "whale": false,
+      "absorption": true,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 75,
+      "conv_tier": "CONVICTION",
+      "gates_ok": true,
+      "gates_failed": [],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          28.9545,
+          0.807
+        ],
+        [
+          22.13,
+          0.4842
         ]
       ],
       "resistance": [
         [
-          109.7845,
-          0.1243
-        ],
-        [
-          112.2146,
-          0.1268
+          31.3169,
+          0.7584
         ]
       ],
-      "rs12": 63.86,
-      "rs6": 36.93,
-      "dvol": 338930077.39,
+      "rs12": 55.09,
+      "rs6": 107.52,
+      "dvol": 174457411.38,
       "conv_parts": {
-        "trend": 20,
+        "trend": 25,
         "rel strength": 20,
         "structure": 10,
         "vol hole": 0,
@@ -3557,17 +3824,17 @@
     {
       "ticker": "PANW",
       "held": false,
-      "close": 339.31,
+      "close": 382.85,
       "state": "HOLD",
-      "zone_lo": 321.6,
-      "zone_hi": 338.01,
+      "zone_lo": 346.06,
+      "zone_hi": 363.72,
       "poc": 167.3275,
-      "pct_in_profit": 80.73,
+      "pct_in_profit": 97.83,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 16,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": null,
       "whale": false,
       "absorption": false,
@@ -3581,23 +3848,18 @@
       "origin": "owner-request",
       "support": [
         [
-          328.1664,
-          0.3375
-        ],
-        [
-          289.3432,
-          0.3449
-        ]
-      ],
-      "resistance": [
-        [
           353.1241,
           0.523
+        ],
+        [
+          328.1664,
+          0.3375
         ]
       ],
-      "rs12": 63.3,
-      "rs6": 123.16,
-      "dvol": 1984024241.01,
+      "resistance": [],
+      "rs12": 86.97,
+      "rs6": 143.8,
+      "dvol": 2012218339.69,
       "conv_parts": {
         "trend": 25,
         "rel strength": 20,
@@ -3616,17 +3878,17 @@
     {
       "ticker": "RBRK",
       "held": false,
-      "close": 96.13,
+      "close": 107.02,
       "state": "HOLD",
-      "zone_lo": 85.54,
-      "zone_hi": 89.9,
-      "poc": 71.6537,
-      "pct_in_profit": 90.13,
+      "zone_lo": 96.98,
+      "zone_hi": 101.93,
+      "poc": 71.1089,
+      "pct_in_profit": 99.91,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 13,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
@@ -3642,23 +3904,18 @@
       "origin": "owner-request",
       "support": [
         [
-          87.2857,
-          0.5221
+          98.9584,
+          0.5149
         ],
         [
-          82.7263,
-          0.8116
+          87.0229,
+          0.51
         ]
       ],
-      "resistance": [
-        [
-          99.0097,
-          0.5548
-        ]
-      ],
-      "rs12": -11.11,
-      "rs6": 73.19,
-      "dvol": 290752304.87,
+      "resistance": [],
+      "rs12": 4.81,
+      "rs6": 84.52,
+      "dvol": 328229418.19,
       "conv_parts": {
         "trend": 25,
         "rel strength": 5,
@@ -3677,17 +3934,17 @@
     {
       "ticker": "SE",
       "held": false,
-      "close": 119.12,
+      "close": 118.32,
       "state": "HOLD",
       "zone_lo": 112.41,
       "zone_hi": 118.15,
       "poc": 89.3319,
-      "pct_in_profit": 73.06,
+      "pct_in_profit": 72.9,
       "wk_circle": "RED",
       "wk_score": 3,
       "wk_weeks": 3,
       "monthly_up": true,
-      "candle": "NEUTRAL",
+      "candle": "YELLOW",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
@@ -3721,9 +3978,9 @@
           0.0797
         ]
       ],
-      "rs12": -57.05,
-      "rs6": 2.91,
-      "dvol": 571017446.82,
+      "rs12": -58.01,
+      "rs6": -5.77,
+      "dvol": 568123260.77,
       "conv_parts": {
         "trend": 20,
         "rel strength": 0,
@@ -3740,149 +3997,25 @@
       "rs6_rank": null
     },
     {
-      "ticker": "SMH",
+      "ticker": "SHOP",
       "held": false,
-      "close": 555.77,
+      "close": 154.33,
       "state": "HOLD",
-      "zone_lo": 516.65,
-      "zone_hi": 543.01,
-      "poc": 571.3211,
-      "pct_in_profit": 48.5,
+      "zone_lo": 145.53,
+      "zone_hi": 152.95,
+      "poc": 119.4267,
+      "pct_in_profit": 92.71,
       "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 64,
+      "wk_score": 4,
+      "wk_weeks": 3,
       "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 54,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G4 basis"
-      ],
-      "ftag": "F:\u2014",
-      "origin": "owner-request",
-      "support": [
-        [
-          527.1952,
-          0.2797
-        ],
-        [
-          507.5837,
-          0.1975
-        ]
-      ],
-      "resistance": [
-        [
-          571.3211,
-          1.0
-        ],
-        [
-          590.9326,
-          0.7142
-        ]
-      ],
-      "rs12": 69.12,
-      "rs6": 19.3,
-      "dvol": 4432293529.09,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 20,
-        "structure": 0,
-        "vol hole": 0,
-        "size/room": 4,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "SNOW",
-      "held": false,
-      "close": 315.37,
-      "state": "HOLD",
-      "zone_lo": 261.89,
-      "zone_hi": 275.25,
-      "poc": 237.4481,
-      "pct_in_profit": 90.69,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 12,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": true,
-      "shelf_stable": false,
-      "conv_score": 67,
-      "conv_tier": "STARTER",
-      "gates_ok": true,
-      "gates_failed": [],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          267.2351,
-          0.7641
-        ],
-        [
-          237.4481,
-          1.0
-        ]
-      ],
-      "resistance": [
-        [
-          326.8091,
-          0.3903
-        ]
-      ],
-      "rs12": 41.43,
-      "rs6": 75.27,
-      "dvol": 1457420591.18,
-      "conv_parts": {
-        "trend": 25,
-        "rel strength": 15,
-        "structure": 10,
-        "vol hole": 0,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "TOST",
-      "held": false,
-      "close": 36.97,
-      "state": "HOLD",
-      "zone_lo": 34.18,
-      "zone_hi": 35.92,
-      "poc": 28.1072,
-      "pct_in_profit": 94.22,
-      "wk_circle": "RED",
-      "wk_score": 4,
-      "wk_weeks": 4,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 60,
+      "conv_score": 58,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -3892,33 +4025,94 @@
       "origin": "owner-request",
       "support": [
         [
-          34.8763,
-          0.6614
+          148.496,
+          0.6477
         ],
         [
-          32.9423,
-          0.2623
+          136.604,
+          0.1166
         ]
       ],
       "resistance": [
         [
-          40.6783,
-          0.0358
-        ],
-        [
-          42.1288,
-          0.0427
+          164.352,
+          0.1093
         ]
       ],
-      "rs12": -35.46,
-      "rs6": 26.79,
-      "dvol": 330599755.05,
+      "rs12": -11.27,
+      "rs6": 10.08,
+      "dvol": 1506112490.65,
       "conv_parts": {
         "trend": 20,
         "rel strength": 5,
         "structure": 10,
-        "vol hole": 5,
-        "size/room": 15,
+        "vol hole": 10,
+        "size/room": 8,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "TEAM",
+      "held": false,
+      "close": 185.62,
+      "state": "HOLD",
+      "zone_lo": 161.28,
+      "zone_hi": 169.51,
+      "poc": 86.2643,
+      "pct_in_profit": 98.12,
+      "wk_circle": "RED",
+      "wk_score": 4,
+      "wk_weeks": 3,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 62,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G3 leader"
+      ],
+      "ftag": "F:2/2",
+      "origin": "owner-request",
+      "support": [
+        [
+          164.5697,
+          0.3048
+        ],
+        [
+          150.3323,
+          0.3635
+        ]
+      ],
+      "resistance": [
+        [
+          200.163,
+          0.0184
+        ],
+        [
+          217.9597,
+          0.0122
+        ]
+      ],
+      "rs12": -7.83,
+      "rs6": 121.23,
+      "dvol": 817525882.53,
+      "conv_parts": {
+        "trend": 20,
+        "rel strength": 5,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 12,
         "age": 5
       },
       "bucket": null,
@@ -3931,23 +4125,23 @@
     {
       "ticker": "ZETA",
       "held": false,
-      "close": 28.23,
+      "close": 30.22,
       "state": "HOLD",
-      "zone_lo": 23.09,
-      "zone_hi": 24.27,
+      "zone_lo": 28.38,
+      "zone_hi": 29.83,
       "poc": 18.4446,
-      "pct_in_profit": 93.55,
+      "pct_in_profit": 99.87,
       "wk_circle": "RED",
       "wk_score": 4,
       "wk_weeks": 14,
       "monthly_up": true,
       "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
+      "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 75,
+      "conv_score": 80,
       "conv_tier": "CONVICTION",
       "gates_ok": true,
       "gates_failed": [],
@@ -3955,28 +4149,23 @@
       "origin": "owner-request",
       "support": [
         [
-          23.5611,
-          0.2669
+          28.9619,
+          0.3989
         ],
         [
-          21.2871,
-          0.7351
+          28.1091,
+          0.3574
         ]
       ],
-      "resistance": [
-        [
-          28.6776,
-          0.3802
-        ]
-      ],
-      "rs12": 22.74,
-      "rs6": 47.04,
-      "dvol": 242457261.01,
+      "resistance": [],
+      "rs12": 32.4,
+      "rs6": 54.87,
+      "dvol": 252505553.01,
       "conv_parts": {
         "trend": 25,
         "rel strength": 15,
         "structure": 10,
-        "vol hole": 5,
+        "vol hole": 10,
         "size/room": 15,
         "age": 5
       },
@@ -3990,12 +4179,12 @@
     {
       "ticker": "AAOI",
       "held": false,
-      "close": 113.76,
+      "close": 113.28,
       "state": "PULLBACK",
       "zone_lo": 110.48,
       "zone_hi": 116.12,
       "poc": 134.0218,
-      "pct_in_profit": 34.03,
+      "pct_in_profit": 34.02,
       "wk_circle": "AMBER",
       "wk_score": 2,
       "wk_weeks": 1,
@@ -4018,7 +4207,7 @@
       "support": [
         [
           112.7377,
-          0.8762
+          0.9404
         ],
         [
           97.2584,
@@ -4035,9 +4224,9 @@
           0.4102
         ]
       ],
-      "rs12": 346.82,
-      "rs6": 84.62,
-      "dvol": 1665443939.55,
+      "rs12": 331.01,
+      "rs6": 98.53,
+      "dvol": 1652078238.25,
       "conv_parts": {
         "trend": 10,
         "rel strength": 25,
@@ -4054,14 +4243,82 @@
       "rs6_rank": null
     },
     {
+      "ticker": "AVGO",
+      "held": false,
+      "close": 371.54,
+      "state": "PULLBACK",
+      "zone_lo": 361.03,
+      "zone_hi": 379.45,
+      "poc": 379.7372,
+      "pct_in_profit": 43.23,
+      "wk_circle": "AMBER",
+      "wk_score": 2,
+      "wk_weeks": 2,
+      "monthly_up": true,
+      "candle": "YELLOW",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 25,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G1 size",
+        "G2 trend",
+        "G3 leader",
+        "G4 basis"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          368.3999,
+          0.6595
+        ],
+        [
+          338.167,
+          0.4689
+        ]
+      ],
+      "resistance": [
+        [
+          379.7372,
+          1.0
+        ],
+        [
+          417.5283,
+          0.6167
+        ]
+      ],
+      "rs12": 4.74,
+      "rs6": 3.46,
+      "dvol": 7627558238.25,
+      "conv_parts": {
+        "trend": 10,
+        "rel strength": 0,
+        "structure": 0,
+        "vol hole": 10,
+        "size/room": 0,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
       "ticker": "KLAC",
       "held": false,
-      "close": 183.83,
+      "close": 183.77,
       "state": "PULLBACK",
       "zone_lo": 177.86,
       "zone_hi": 186.93,
       "poc": 181.489,
-      "pct_in_profit": 43.42,
+      "pct_in_profit": 43.28,
       "wk_circle": "AMBER",
       "wk_score": 2,
       "wk_weeks": 2,
@@ -4087,22 +4344,22 @@
         ],
         [
           146.1952,
-          0.5743
+          0.5533
         ]
       ],
       "resistance": [
         [
           190.9006,
-          0.6883
+          0.6632
         ],
         [
           207.371,
-          0.5301
+          0.5108
         ]
       ],
-      "rs12": 89.57,
-      "rs6": 8.03,
-      "dvol": 1983415744.41,
+      "rs12": 87.2,
+      "rs6": 8.39,
+      "dvol": 1886128916.91,
       "conv_parts": {
         "trend": 10,
         "rel strength": 15,
@@ -4119,85 +4376,19 @@
       "rs6_rank": null
     },
     {
-      "ticker": "SATL",
-      "held": false,
-      "close": 5.13,
-      "state": "PULLBACK",
-      "zone_lo": 4.43,
-      "zone_hi": 4.66,
-      "poc": 5.7825,
-      "pct_in_profit": 38.13,
-      "wk_circle": "AMBER",
-      "wk_score": 2,
-      "wk_weeks": 1,
-      "monthly_up": true,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 45,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G4 basis"
-      ],
-      "ftag": "F:1/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          4.5215,
-          0.5715
-        ],
-        [
-          3.7455,
-          0.8804
-        ]
-      ],
-      "resistance": [
-        [
-          5.3945,
-          0.9075
-        ],
-        [
-          5.7825,
-          1.0
-        ]
-      ],
-      "rs12": 21.54,
-      "rs6": 48.7,
-      "dvol": 31296893.43,
-      "conv_parts": {
-        "trend": 10,
-        "rel strength": 15,
-        "structure": 0,
-        "vol hole": 0,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "VRT",
       "held": false,
-      "close": 263.81,
+      "close": 269.28,
       "state": "PULLBACK",
       "zone_lo": 258.36,
       "zone_hi": 271.54,
       "poc": 263.6303,
-      "pct_in_profit": 46.27,
+      "pct_in_profit": 48.94,
       "wk_circle": "AMBER",
       "wk_score": 2,
       "wk_weeks": 2,
       "monthly_up": true,
-      "candle": "YELLOW",
+      "candle": "NEUTRAL",
       "vh_status": "BREAKDOWN",
       "whale": false,
       "absorption": false,
@@ -4218,22 +4409,22 @@
         ],
         [
           241.9201,
-          0.565
+          0.5519
         ]
       ],
       "resistance": [
         [
           307.0507,
-          0.8664
+          0.8464
         ],
         [
           350.4711,
-          0.159
+          0.1553
         ]
       ],
-      "rs12": 90.69,
-      "rs6": -10.45,
-      "dvol": 1417797657.39,
+      "rs12": 89.88,
+      "rs6": -8.54,
+      "dvol": 1315262828.06,
       "conv_parts": {
         "trend": 10,
         "rel strength": 15,
@@ -4252,22 +4443,22 @@
     {
       "ticker": "1810",
       "held": false,
-      "close": 27.48,
+      "close": 27.82,
       "state": "BOTTOMING",
-      "zone_lo": 25.72,
-      "zone_hi": 27.03,
+      "zone_lo": 27.46,
+      "zone_hi": 28.86,
       "poc": 28.0161,
-      "pct_in_profit": 31.48,
+      "pct_in_profit": 36.99,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 46,
       "monthly_up": false,
-      "candle": "NEUTRAL",
+      "candle": "RED",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
+      "shelf_stable": true,
       "conv_score": 19,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -4280,27 +4471,27 @@
       "origin": "owner-request",
       "support": [
         [
-          26.2448,
-          0.6638
-        ],
-        [
-          23.1449,
-          0.2739
-        ]
-      ],
-      "resistance": [
-        [
           28.0161,
           1.0
         ],
         [
-          31.5588,
-          0.508
+          26.2448,
+          0.6333
         ]
       ],
-      "rs12": -68.96,
-      "rs6": -35.94,
-      "dvol": 4733513540.56,
+      "resistance": [
+        [
+          31.5588,
+          0.4846
+        ],
+        [
+          35.9871,
+          0.2234
+        ]
+      ],
+      "rs12": -68.55,
+      "rs6": -34.62,
+      "dvol": 4256144547.59,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -4317,16 +4508,82 @@
       "rs6_rank": null
     },
     {
+      "ticker": "ADBE",
+      "held": false,
+      "close": 289.15,
+      "state": "BOTTOMING",
+      "zone_lo": 263.28,
+      "zone_hi": 276.72,
+      "poc": 251.6749,
+      "pct_in_profit": 85.23,
+      "wk_circle": "WHITE",
+      "wk_score": 1,
+      "wk_weeks": 90,
+      "monthly_up": true,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
+      "conv_score": 47,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G2 trend",
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          268.6556,
+          0.6205
+        ],
+        [
+          251.6749,
+          1.0
+        ]
+      ],
+      "resistance": [
+        [
+          302.6169,
+          0.0776
+        ],
+        [
+          353.5589,
+          0.2038
+        ]
+      ],
+      "rs12": -39.37,
+      "rs6": -0.84,
+      "dvol": 1156924001.94,
+      "conv_parts": {
+        "trend": 10,
+        "rel strength": 0,
+        "structure": 10,
+        "vol hole": 10,
+        "size/room": 12,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
       "ticker": "COIN",
       "held": false,
-      "close": 181.78,
+      "close": 190.72,
       "state": "BOTTOMING",
       "zone_lo": 181.05,
       "zone_hi": 190.28,
       "poc": 150.3162,
-      "pct_in_profit": 55.96,
+      "pct_in_profit": 63.47,
       "wk_circle": "WHITE",
-      "wk_score": 0,
+      "wk_score": 1,
       "wk_weeks": 39,
       "monthly_up": false,
       "candle": "RED",
@@ -4334,8 +4591,8 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 28,
+      "shelf_stable": false,
+      "conv_score": 33,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -4347,7 +4604,7 @@
       "support": [
         [
           184.7412,
-          0.5998
+          0.6355
         ],
         [
           170.9712,
@@ -4364,13 +4621,13 @@
           0.0997
         ]
       ],
-      "rs12": -61.16,
-      "rs6": -12.28,
-      "dvol": 1614793212.7,
+      "rs12": -59.02,
+      "rs6": -7.13,
+      "dvol": 1638358488.44,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
-        "structure": 5,
+        "structure": 10,
         "vol hole": 10,
         "size/room": 8,
         "age": 5
@@ -4385,12 +4642,12 @@
     {
       "ticker": "ETHA",
       "held": false,
-      "close": 18.65,
+      "close": 18.87,
       "state": "BOTTOMING",
-      "zone_lo": 18.25,
-      "zone_hi": 19.18,
+      "zone_lo": 18.46,
+      "zone_hi": 19.41,
       "poc": 14.3238,
-      "pct_in_profit": 76.39,
+      "pct_in_profit": 77.65,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 39,
@@ -4401,7 +4658,7 @@
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 52,
+      "conv_score": 57,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -4412,8 +4669,8 @@
       "origin": "owner-request",
       "support": [
         [
-          18.6255,
-          0.3203
+          18.8405,
+          0.4291
         ],
         [
           17.335,
@@ -4421,12 +4678,12 @@
         ]
       ],
       "resistance": [],
-      "rs12": -64.81,
-      "rs6": 7.83,
-      "dvol": 613213073.14,
+      "rs12": -66.65,
+      "rs6": 10.95,
+      "dvol": 652198010.64,
       "conv_parts": {
         "trend": 10,
-        "rel strength": 0,
+        "rel strength": 5,
         "structure": 10,
         "vol hole": 10,
         "size/room": 12,
@@ -4440,76 +4697,14 @@
       "rs6_rank": null
     },
     {
-      "ticker": "GRAB",
-      "held": false,
-      "close": 3.64,
-      "state": "BOTTOMING",
-      "zone_lo": 3.55,
-      "zone_hi": 3.73,
-      "poc": 3.6237,
-      "pct_in_profit": 48.91,
-      "wk_circle": "WHITE",
-      "wk_score": 0,
-      "wk_weeks": 34,
-      "monthly_up": false,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKOUT",
-      "whale": true,
-      "absorption": false,
-      "divergence": true,
-      "shelf_stable": true,
-      "conv_score": 35,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader"
-      ],
-      "ftag": "F:2/2",
-      "origin": "owner-request",
-      "support": [
-        [
-          3.6237,
-          1.0
-        ]
-      ],
-      "resistance": [
-        [
-          4.995,
-          0.1073
-        ],
-        [
-          5.2443,
-          0.1064
-        ]
-      ],
-      "rs12": -47.91,
-      "rs6": -24.65,
-      "dvol": 145222503.77,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 0,
-        "structure": 5,
-        "vol hole": 10,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "IBIT",
       "held": false,
-      "close": 44.46,
+      "close": 45.29,
       "state": "BOTTOMING",
-      "zone_lo": 43.34,
-      "zone_hi": 45.55,
+      "zone_lo": 43.74,
+      "zone_hi": 45.98,
       "poc": 36.3375,
-      "pct_in_profit": 71.8,
+      "pct_in_profit": 76.43,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 41,
@@ -4531,8 +4726,8 @@
       "origin": "owner-request",
       "support": [
         [
-          44.2225,
-          0.4381
+          44.6375,
+          0.4565
         ],
         [
           42.1475,
@@ -4549,9 +4744,9 @@
           0.0645
         ]
       ],
-      "rs12": -49.85,
-      "rs6": 2.22,
-      "dvol": 2081205892.38,
+      "rs12": -49.07,
+      "rs6": 5.91,
+      "dvol": 2152461611.3,
       "conv_parts": {
         "trend": 10,
         "rel strength": 0,
@@ -4570,12 +4765,12 @@
     {
       "ticker": "META",
       "held": false,
-      "close": 576.14,
+      "close": 571.1,
       "state": "BOTTOMING",
       "zone_lo": 557.67,
       "zone_hi": 586.12,
       "poc": 604.4567,
-      "pct_in_profit": 23.37,
+      "pct_in_profit": 20.53,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 42,
@@ -4600,7 +4795,7 @@
       "support": [
         [
           569.0487,
-          0.5194
+          0.5424
         ],
         [
           551.3447,
@@ -4617,9 +4812,9 @@
           0.6378
         ]
       ],
-      "rs12": -43.83,
-      "rs6": -22.82,
-      "dvol": 10119179467.43,
+      "rs12": -44.86,
+      "rs6": -25.38,
+      "dvol": 9416328177.78,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -4638,23 +4833,23 @@
     {
       "ticker": "NTDOY",
       "held": false,
-      "close": 13.84,
+      "close": 13.72,
       "state": "BOTTOMING",
       "zone_lo": 13.49,
       "zone_hi": 14.18,
       "poc": 11.0218,
-      "pct_in_profit": 75.96,
+      "pct_in_profit": 72.55,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 38,
       "monthly_up": false,
-      "candle": "RED",
+      "candle": "NEUTRAL",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 40,
+      "conv_score": 30,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -4666,7 +4861,7 @@
       "support": [
         [
           13.7623,
-          0.4116
+          0.459
         ],
         [
           12.9793,
@@ -4679,15 +4874,81 @@
           0.0954
         ]
       ],
-      "rs12": -60.88,
-      "rs6": -9.94,
-      "dvol": 27180612.38,
+      "rs12": -60.03,
+      "rs6": -14.88,
+      "dvol": 24657699.53,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
         "structure": 10,
-        "vol hole": 10,
+        "vol hole": 0,
         "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "ORCL",
+      "held": false,
+      "close": 151.94,
+      "state": "BOTTOMING",
+      "zone_lo": 146.83,
+      "zone_hi": 154.32,
+      "poc": 145.0747,
+      "pct_in_profit": 48.45,
+      "wk_circle": "WHITE",
+      "wk_score": 0,
+      "wk_weeks": 10,
+      "monthly_up": false,
+      "candle": "RED",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": true,
+      "conv_score": 24,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G2 trend",
+        "G3 leader"
+      ],
+      "ftag": "F:3/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          149.8237,
+          0.8131
+        ],
+        [
+          145.0747,
+          1.0
+        ]
+      ],
+      "resistance": [
+        [
+          166.4452,
+          0.2475
+        ],
+        [
+          180.6922,
+          0.3735
+        ]
+      ],
+      "rs12": -55.23,
+      "rs6": -10.67,
+      "dvol": 3784829394.99,
+      "conv_parts": {
+        "trend": 0,
+        "rel strength": 0,
+        "structure": 5,
+        "vol hole": 10,
+        "size/room": 4,
         "age": 5
       },
       "bucket": null,
@@ -4700,12 +4961,12 @@
     {
       "ticker": "SOFI",
       "held": false,
-      "close": 18.84,
+      "close": 19.18,
       "state": "BOTTOMING",
       "zone_lo": 18.0,
       "zone_hi": 18.92,
       "poc": 18.3663,
-      "pct_in_profit": 74.64,
+      "pct_in_profit": 80.48,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 28,
@@ -4715,7 +4976,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
+      "shelf_stable": false,
       "conv_score": 47,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -4745,9 +5006,9 @@
           0.0228
         ]
       ],
-      "rs12": -48.52,
-      "rs6": -13.44,
-      "dvol": 914788843.2,
+      "rs12": -45.98,
+      "rs6": -12.04,
+      "dvol": 882267950.13,
       "conv_parts": {
         "trend": 10,
         "rel strength": 0,
@@ -4764,24 +5025,90 @@
       "rs6_rank": null
     },
     {
-      "ticker": "UBER",
+      "ticker": "TE",
       "held": false,
-      "close": 78.49,
+      "close": 4.96,
       "state": "BOTTOMING",
-      "zone_lo": 76.82,
-      "zone_hi": 80.74,
-      "poc": 73.5988,
-      "pct_in_profit": 78.48,
+      "zone_lo": 4.88,
+      "zone_hi": 5.13,
+      "poc": 5.9194,
+      "pct_in_profit": 21.47,
       "wk_circle": "WHITE",
-      "wk_score": 1,
-      "wk_weeks": 37,
-      "monthly_up": true,
+      "wk_score": 0,
+      "wk_weeks": 5,
+      "monthly_up": false,
       "candle": "RED",
       "vh_status": "BREAKOUT",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
+      "conv_score": 50,
+      "conv_tier": "fails",
+      "gates_ok": false,
+      "gates_failed": [
+        "G2 trend",
+        "G4 basis"
+      ],
+      "ftag": "F:2/3",
+      "origin": "owner-request",
+      "support": [
+        [
+          4.9843,
+          0.8792
+        ],
+        [
+          4.5835,
+          0.8605
+        ]
+      ],
+      "resistance": [
+        [
+          5.2515,
+          0.895
+        ],
+        [
+          5.9194,
+          1.0
+        ]
+      ],
+      "rs12": 187.23,
+      "rs6": -44.42,
+      "dvol": 158571005.01,
+      "conv_parts": {
+        "trend": 0,
+        "rel strength": 20,
+        "structure": 0,
+        "vol hole": 10,
+        "size/room": 15,
+        "age": 5
+      },
+      "bucket": null,
+      "book_pct": null,
+      "cap_note": null,
+      "rs12_rank": null,
+      "whale_rank": null,
+      "rs6_rank": null
+    },
+    {
+      "ticker": "UBER",
+      "held": false,
+      "close": 76.95,
+      "state": "BOTTOMING",
+      "zone_lo": 72.13,
+      "zone_hi": 75.81,
+      "poc": 73.5988,
+      "pct_in_profit": 69.96,
+      "wk_circle": "WHITE",
+      "wk_score": 1,
+      "wk_weeks": 37,
+      "monthly_up": true,
+      "candle": "NEUTRAL",
+      "vh_status": "BREAKOUT",
+      "whale": false,
+      "absorption": false,
+      "divergence": false,
+      "shelf_stable": false,
       "conv_score": 47,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -4793,12 +5120,12 @@
       "origin": "owner-request",
       "support": [
         [
-          78.3877,
-          0.3715
-        ],
-        [
           73.5988,
           1.0
+        ],
+        [
+          71.5464,
+          0.9097
         ]
       ],
       "resistance": [
@@ -4811,9 +5138,9 @@
           0.1004
         ]
       ],
-      "rs12": -38.08,
-      "rs6": -3.34,
-      "dvol": 1440316543.41,
+      "rs12": -41.13,
+      "rs6": -9.59,
+      "dvol": 1445800752.67,
       "conv_parts": {
         "trend": 10,
         "rel strength": 0,
@@ -4832,23 +5159,23 @@
     {
       "ticker": "0700",
       "held": false,
-      "close": 447.8,
+      "close": 455.2,
       "state": "CAUTION",
       "zone_lo": 433.15,
       "zone_hi": 455.25,
       "poc": 441.9927,
-      "pct_in_profit": 26.53,
+      "pct_in_profit": 35.34,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 28,
       "monthly_up": false,
-      "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
+      "candle": "NEUTRAL",
+      "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 10,
+      "conv_score": 15,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -4865,27 +5192,27 @@
         ],
         [
           380.1959,
-          0.0139
+          0.0137
         ]
       ],
       "resistance": [
         [
           466.7114,
-          0.9659
+          0.9518
         ],
         [
           512.029,
-          0.343
+          0.338
         ]
       ],
-      "rs12": -43.25,
-      "rs6": -26.9,
-      "dvol": 11310695477.0,
+      "rs12": -42.79,
+      "rs6": -23.9,
+      "dvol": 11203172540.55,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
         "structure": 5,
-        "vol hole": 0,
+        "vol hole": 5,
         "size/room": 0,
         "age": 5
       },
@@ -4903,8 +5230,8 @@
       "state": "CAUTION",
       "zone_lo": 76.32,
       "zone_hi": 80.22,
-      "poc": 83.8029,
-      "pct_in_profit": 15.39,
+      "poc": 77.8804,
+      "pct_in_profit": 15.65,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 71,
@@ -4928,22 +5255,22 @@
       "support": [
         [
           77.8804,
-          0.9747
+          1.0
         ]
       ],
       "resistance": [
         [
           83.8029,
-          1.0
+          0.9834
         ],
         [
           91.6996,
-          0.5831
+          0.5735
         ]
       ],
-      "rs12": -58.21,
-      "rs6": -19.93,
-      "dvol": 3490893388.04,
+      "rs12": -58.55,
+      "rs6": -17.25,
+      "dvol": 3386957374.66,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -4960,80 +5287,14 @@
       "rs6_rank": null
     },
     {
-      "ticker": "ADBE",
-      "held": false,
-      "close": 273.47,
-      "state": "CAUTION",
-      "zone_lo": 263.28,
-      "zone_hi": 276.72,
-      "poc": 251.6749,
-      "pct_in_profit": 82.44,
-      "wk_circle": "WHITE",
-      "wk_score": 1,
-      "wk_weeks": 90,
-      "monthly_up": false,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 32,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          268.6556,
-          0.6205
-        ],
-        [
-          251.6749,
-          1.0
-        ]
-      ],
-      "resistance": [
-        [
-          294.1266,
-          0.0884
-        ],
-        [
-          302.6169,
-          0.0776
-        ]
-      ],
-      "rs12": -45.27,
-      "rs6": -5.03,
-      "dvol": 1147779224.83,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 0,
-        "structure": 10,
-        "vol hole": 5,
-        "size/room": 12,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "APP",
       "held": false,
-      "close": 308.11,
+      "close": 312.63,
       "state": "CAUTION",
       "zone_lo": 306.68,
       "zone_hi": 322.32,
       "poc": 312.9339,
-      "pct_in_profit": 6.94,
+      "pct_in_profit": 7.28,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 7,
@@ -5063,16 +5324,16 @@
       "resistance": [
         [
           343.6201,
-          0.6566
+          0.5952
         ],
         [
           392.7181,
-          0.7317
+          0.6634
         ]
       ],
-      "rs12": -52.2,
-      "rs6": -38.03,
-      "dvol": 2473029473.2,
+      "rs12": -54.23,
+      "rs6": -42.2,
+      "dvol": 2383834692.66,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5091,12 +5352,12 @@
     {
       "ticker": "ASTS",
       "held": false,
-      "close": 59.88,
+      "close": 61.44,
       "state": "CAUTION",
-      "zone_lo": 56.32,
-      "zone_hi": 59.2,
+      "zone_lo": 59.56,
+      "zone_hi": 62.59,
       "poc": 69.5636,
-      "pct_in_profit": 15.03,
+      "pct_in_profit": 16.78,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 7,
@@ -5106,7 +5367,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
+      "shelf_stable": true,
       "conv_score": 17,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -5118,6 +5379,10 @@
       "ftag": "F:0/2",
       "origin": "owner-request",
       "support": [
+        [
+          60.771,
+          0.4819
+        ],
         [
           57.4737,
           0.624
@@ -5133,9 +5398,9 @@
           0.7578
         ]
       ],
-      "rs12": -0.82,
-      "rs6": -38.4,
-      "dvol": 762293277.45,
+      "rs12": 0.99,
+      "rs6": -40.82,
+      "dvol": 745211179.48,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5152,82 +5417,14 @@
       "rs6_rank": null
     },
     {
-      "ticker": "AVGO",
-      "held": false,
-      "close": 355.59,
-      "state": "CAUTION",
-      "zone_lo": 331.4,
-      "zone_hi": 348.31,
-      "poc": 379.7372,
-      "pct_in_profit": 31.87,
-      "wk_circle": "AMBER",
-      "wk_score": 2,
-      "wk_weeks": 2,
-      "monthly_up": false,
-      "candle": "YELLOW",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 10,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G1 size",
-        "G2 trend",
-        "G3 leader",
-        "G4 basis"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          338.167,
-          0.4689
-        ],
-        [
-          319.2715,
-          0.3585
-        ]
-      ],
-      "resistance": [
-        [
-          368.3999,
-          0.5945
-        ],
-        [
-          379.7372,
-          1.0
-        ]
-      ],
-      "rs12": 1.18,
-      "rs6": -3.71,
-      "dvol": 7687140613.22,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 0,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 0,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "CAVA",
       "held": false,
-      "close": 67.77,
+      "close": 66.95,
       "state": "CAUTION",
-      "zone_lo": 61.84,
-      "zone_hi": 65.0,
+      "zone_lo": 66.52,
+      "zone_hi": 69.92,
       "poc": 63.1027,
-      "pct_in_profit": 32.97,
+      "pct_in_profit": 33.07,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 6,
@@ -5237,7 +5434,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
+      "shelf_stable": true,
       "conv_score": 35,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -5249,27 +5446,27 @@
       "origin": "owner-request",
       "support": [
         [
-          63.1027,
-          1.0
+          67.8821,
+          0.8829
         ],
         [
-          52.3492,
-          0.1815
+          63.1027,
+          1.0
         ]
       ],
       "resistance": [
         [
-          69.0769,
-          0.8408
-        ],
-        [
           71.4666,
           0.8385
+        ],
+        [
+          79.8304,
+          0.7212
         ]
       ],
-      "rs12": -17.02,
-      "rs6": -32.0,
-      "dvol": 236587665.63,
+      "rs12": -20.95,
+      "rs6": -33.46,
+      "dvol": 232216186.38,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5288,23 +5485,23 @@
     {
       "ticker": "CIFR",
       "held": false,
-      "close": 16.02,
+      "close": 16.77,
       "state": "CAUTION",
-      "zone_lo": 15.56,
-      "zone_hi": 16.36,
-      "poc": 17.1209,
-      "pct_in_profit": 25.34,
+      "zone_lo": 16.54,
+      "zone_hi": 17.38,
+      "poc": 16.8729,
+      "pct_in_profit": 33.11,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 1,
       "monthly_up": false,
-      "candle": "YELLOW",
-      "vh_status": null,
+      "candle": "RED",
+      "vh_status": "INSIDE",
       "whale": true,
       "absorption": true,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 37,
+      "conv_score": 42,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -5315,32 +5512,32 @@
       "origin": "owner-request",
       "support": [
         [
-          15.881,
-          0.9622
+          16.8729,
+          1.0
         ],
         [
-          6.2096,
-          0.1456
+          15.881,
+          0.8299
         ]
       ],
       "resistance": [
         [
-          17.1209,
-          1.0
+          20.3447,
+          0.5602
         ],
         [
-          17.6168,
-          0.9729
+          23.0725,
+          0.411
         ]
       ],
-      "rs12": 120.7,
-      "rs6": -14.66,
-      "dvol": 674604269.79,
+      "rs12": 114.69,
+      "rs6": -10.7,
+      "dvol": 663509949.22,
       "conv_parts": {
         "trend": 0,
         "rel strength": 20,
         "structure": 0,
-        "vol hole": 0,
+        "vol hole": 5,
         "size/room": 12,
         "age": 5
       },
@@ -5354,125 +5551,60 @@
     {
       "ticker": "COST",
       "held": false,
-      "close": 956.12,
+      "close": 934.66,
       "state": "CAUTION",
-      "zone_lo": 936.51,
-      "zone_hi": 984.3,
+      "zone_lo": 863.26,
+      "zone_hi": 907.3,
       "poc": 955.627,
-      "pct_in_profit": 50.92,
+      "pct_in_profit": 22.97,
       "wk_circle": "WHITE",
-      "wk_score": 1,
+      "wk_score": 0,
       "wk_weeks": 8,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "INSIDE",
+      "monthly_up": false,
+      "candle": "YELLOW",
+      "vh_status": "BREAKDOWN",
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 33,
+      "shelf_stable": false,
+      "conv_score": 13,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
         "G2 trend",
-        "G3 leader"
+        "G3 leader",
+        "G4 basis"
       ],
       "ftag": "F:2/3",
       "origin": "owner-request",
       "support": [
+        [
+          880.8781,
+          0.0941
+        ],
+        [
+          857.8785,
+          0.1032
+        ]
+      ],
+      "resistance": [
         [
           955.627,
           1.0
         ],
         [
-          880.8781,
-          0.0941
-        ]
-      ],
-      "resistance": [
-        [
           978.6267,
           0.6124
-        ],
-        [
-          1007.3763,
-          0.4948
         ]
       ],
-      "rs12": -18.42,
-      "rs6": -14.7,
-      "dvol": 1682866954.62,
+      "rs12": -20.98,
+      "rs6": -17.45,
+      "dvol": 1676154687.15,
       "conv_parts": {
-        "trend": 10,
+        "trend": 0,
         "rel strength": 0,
-        "structure": 5,
-        "vol hole": 5,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "CRM",
-      "held": false,
-      "close": 205.62,
-      "state": "CAUTION",
-      "zone_lo": 188.22,
-      "zone_hi": 197.82,
-      "poc": 185.9939,
-      "pct_in_profit": 83.72,
-      "wk_circle": "WHITE",
-      "wk_score": 1,
-      "wk_weeks": 76,
-      "monthly_up": true,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 38,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader"
-      ],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          192.0604,
-          0.918
-        ],
-        [
-          185.9939,
-          1.0
-        ]
-      ],
-      "resistance": [
-        [
-          220.3707,
-          0.0314
-        ],
-        [
-          228.4594,
-          0.1016
-        ]
-      ],
-      "rs12": -36.9,
-      "rs6": -3.33,
-      "dvol": 2335243155.22,
-      "conv_parts": {
-        "trend": 10,
-        "rel strength": 0,
-        "structure": 10,
-        "vol hole": 5,
+        "structure": 0,
+        "vol hole": 0,
         "size/room": 8,
         "age": 5
       },
@@ -5486,12 +5618,12 @@
     {
       "ticker": "CRWV",
       "held": false,
-      "close": 88.01,
+      "close": 86.8,
       "state": "CAUTION",
       "zone_lo": 81.1,
       "zone_hi": 85.24,
-      "poc": 90.4324,
-      "pct_in_profit": 35.41,
+      "poc": 89.1533,
+      "pct_in_profit": 32.21,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 2,
@@ -5515,26 +5647,26 @@
       "support": [
         [
           82.7581,
-          0.6642
+          0.6273
         ],
         [
           80.2,
-          0.6002
+          0.5668
         ]
       ],
       "resistance": [
         [
-          90.4324,
+          89.1533,
           1.0
         ],
         [
           100.6647,
-          0.5273
+          0.498
         ]
       ],
-      "rs12": -25.29,
-      "rs6": -21.31,
-      "dvol": 2922775252.84,
+      "rs12": -25.87,
+      "rs6": -23.55,
+      "dvol": 2847292612.54,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5553,23 +5685,23 @@
     {
       "ticker": "DUOL",
       "held": false,
-      "close": 140.88,
+      "close": 142.86,
       "state": "CAUTION",
       "zone_lo": 128.52,
       "zone_hi": 135.08,
       "poc": 98.8507,
-      "pct_in_profit": 76.11,
+      "pct_in_profit": 75.61,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 55,
       "monthly_up": false,
-      "candle": "NEUTRAL",
+      "candle": "RED",
       "vh_status": "INSIDE",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": false,
-      "conv_score": 40,
+      "conv_score": 35,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -5598,12 +5730,12 @@
           0.183
         ]
       ],
-      "rs12": -76.73,
-      "rs6": 15.07,
-      "dvol": 185877573.67,
+      "rs12": -75.64,
+      "rs6": 9.17,
+      "dvol": 187331447.16,
       "conv_parts": {
         "trend": 0,
-        "rel strength": 5,
+        "rel strength": 0,
         "structure": 10,
         "vol hole": 5,
         "size/room": 15,
@@ -5617,61 +5749,58 @@
       "rs6_rank": null
     },
     {
-      "ticker": "HIMS",
+      "ticker": "GRAB",
       "held": false,
-      "close": 29.83,
+      "close": 3.59,
       "state": "CAUTION",
-      "zone_lo": 28.77,
-      "zone_hi": 30.24,
-      "poc": 29.3603,
-      "pct_in_profit": 55.07,
-      "wk_circle": "RED",
-      "wk_score": 3,
-      "wk_weeks": 2,
+      "zone_lo": 3.55,
+      "zone_hi": 3.73,
+      "poc": 3.6237,
+      "pct_in_profit": 31.24,
+      "wk_circle": "WHITE",
+      "wk_score": 0,
+      "wk_weeks": 34,
       "monthly_up": false,
-      "candle": "NEUTRAL",
-      "vh_status": "BREAKDOWN",
-      "whale": false,
+      "candle": "RED",
+      "vh_status": "INSIDE",
+      "whale": true,
       "absorption": false,
-      "divergence": false,
+      "divergence": true,
       "shelf_stable": true,
-      "conv_score": 40,
+      "conv_score": 25,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
         "G2 trend",
-        "G3 leader"
+        "G3 leader",
+        "G4 basis"
       ],
       "ftag": "F:2/2",
       "origin": "owner-request",
       "support": [
         [
-          29.3603,
+          3.6237,
           1.0
-        ],
-        [
-          26.4328,
-          0.7253
         ]
       ],
       "resistance": [
         [
-          31.7023,
-          0.6831
+          4.995,
+          0.105
         ],
         [
-          34.6298,
-          0.4579
+          5.2443,
+          0.1041
         ]
       ],
-      "rs12": -51.17,
-      "rs6": 77.45,
-      "dvol": 406357317.02,
+      "rs12": -49.05,
+      "rs6": -29.17,
+      "dvol": 143219479.58,
       "conv_parts": {
-        "trend": 10,
-        "rel strength": 5,
-        "structure": 5,
-        "vol hole": 0,
+        "trend": 0,
+        "rel strength": 0,
+        "structure": 0,
+        "vol hole": 5,
         "size/room": 15,
         "age": 5
       },
@@ -5685,12 +5814,12 @@
     {
       "ticker": "IREN",
       "held": false,
-      "close": 39.58,
+      "close": 40.53,
       "state": "CAUTION",
-      "zone_lo": 32.9,
-      "zone_hi": 34.58,
-      "poc": 40.5252,
-      "pct_in_profit": 22.83,
+      "zone_lo": 40.33,
+      "zone_hi": 42.39,
+      "poc": 41.1573,
+      "pct_in_profit": 31.78,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 7,
@@ -5700,7 +5829,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
+      "shelf_stable": true,
       "conv_score": 28,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -5712,27 +5841,27 @@
       "origin": "owner-request",
       "support": [
         [
-          33.5723,
-          0.2547
+          41.1573,
+          1.0
         ],
         [
-          18.4023,
-          0.0404
+          33.5723,
+          0.2357
         ]
       ],
       "resistance": [
         [
-          40.5252,
-          1.0
+          44.9498,
+          0.5057
         ],
         [
-          44.9498,
-          0.5464
+          55.6952,
+          0.3052
         ]
       ],
-      "rs12": 50.63,
-      "rs6": -21.22,
-      "dvol": 1856036063.8,
+      "rs12": 55.45,
+      "rs6": -20.85,
+      "dvol": 1812816385.93,
       "conv_parts": {
         "trend": 0,
         "rel strength": 15,
@@ -5751,12 +5880,12 @@
     {
       "ticker": "LMND",
       "held": false,
-      "close": 53.64,
+      "close": 53.93,
       "state": "CAUTION",
       "zone_lo": 52.15,
       "zone_hi": 54.81,
       "poc": 53.2151,
-      "pct_in_profit": 31.97,
+      "pct_in_profit": 31.75,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 5,
@@ -5796,9 +5925,9 @@
           0.394
         ]
       ],
-      "rs12": -19.79,
-      "rs6": -7.66,
-      "dvol": 63695210.39,
+      "rs12": -20.1,
+      "rs6": -14.71,
+      "dvol": 58973615.51,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5822,7 +5951,7 @@
       "zone_lo": 1.62,
       "zone_hi": 1.7,
       "poc": 1.9759,
-      "pct_in_profit": 41.53,
+      "pct_in_profit": 41.57,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 8,
@@ -5862,9 +5991,9 @@
           0.8706
         ]
       ],
-      "rs12": 78.3,
-      "rs6": 7.13,
-      "dvol": 5850444.98,
+      "rs12": 73.6,
+      "rs6": 4.21,
+      "dvol": 5802424.13,
       "conv_parts": {
         "trend": 10,
         "rel strength": 15,
@@ -5883,12 +6012,12 @@
     {
       "ticker": "NFLX",
       "held": false,
-      "close": 81.46,
+      "close": 79.84,
       "state": "CAUTION",
-      "zone_lo": 79.94,
-      "zone_hi": 84.02,
+      "zone_lo": 76.1,
+      "zone_hi": 79.98,
       "poc": 73.72,
-      "pct_in_profit": 47.85,
+      "pct_in_profit": 44.53,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 41,
@@ -5910,27 +6039,27 @@
       "origin": "owner-request",
       "support": [
         [
-          81.5762,
-          0.5144
-        ],
-        [
           77.6481,
           0.5933
+        ],
+        [
+          73.72,
+          1.0
         ]
       ],
       "resistance": [
         [
-          87.4684,
-          0.3983
+          81.5762,
+          0.5398
         ],
         [
-          93.3606,
-          0.4406
+          87.4684,
+          0.3983
         ]
       ],
-      "rs12": -53.68,
-      "rs6": -12.61,
-      "dvol": 2351090599.43,
+      "rs12": -55.73,
+      "rs6": -18.08,
+      "dvol": 2261152544.93,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -5947,87 +6076,31 @@
       "rs6_rank": null
     },
     {
-      "ticker": "NOW",
-      "held": false,
-      "close": 125.8,
-      "state": "CAUTION",
-      "zone_lo": 124.42,
-      "zone_hi": 130.77,
-      "poc": 102.5612,
-      "pct_in_profit": 84.95,
-      "wk_circle": "WHITE",
-      "wk_score": 1,
-      "wk_weeks": 57,
-      "monthly_up": true,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 38,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader"
-      ],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          126.9587,
-          0.4174
-        ],
-        [
-          122.6533,
-          0.4373
-        ]
-      ],
-      "resistance": [],
-      "rs12": -49.08,
-      "rs6": 9.59,
-      "dvol": 2176150706.15,
-      "conv_parts": {
-        "trend": 10,
-        "rel strength": 0,
-        "structure": 10,
-        "vol hole": 5,
-        "size/room": 8,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "NVO",
       "held": false,
-      "close": 47.19,
+      "close": 46.26,
       "state": "CAUTION",
       "zone_lo": 45.96,
       "zone_hi": 48.3,
       "poc": 46.894,
-      "pct_in_profit": 60.12,
+      "pct_in_profit": 49.54,
       "wk_circle": "WHITE",
-      "wk_score": 1,
+      "wk_score": 0,
       "wk_weeks": 5,
       "monthly_up": false,
-      "candle": "RED",
+      "candle": "NEUTRAL",
       "vh_status": "BREAKDOWN",
-      "whale": true,
+      "whale": false,
       "absorption": false,
-      "divergence": true,
+      "divergence": false,
       "shelf_stable": true,
-      "conv_score": 32,
+      "conv_score": 22,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
         "G2 trend",
-        "G3 leader"
+        "G3 leader",
+        "G4 basis"
       ],
       "ftag": "F:\u2014",
       "origin": "owner-request",
@@ -6037,8 +6110,8 @@
           1.0
         ],
         [
-          45.0101,
-          0.7067
+          41.2425,
+          0.2675
         ]
       ],
       "resistance": [
@@ -6051,13 +6124,13 @@
           0.1051
         ]
       ],
-      "rs12": -32.62,
-      "rs6": 18.73,
-      "dvol": 680388353.99,
+      "rs12": -33.08,
+      "rs6": 16.64,
+      "dvol": 683166052.52,
       "conv_parts": {
         "trend": 0,
         "rel strength": 5,
-        "structure": 10,
+        "structure": 0,
         "vol hole": 0,
         "size/room": 12,
         "age": 5
@@ -6072,23 +6145,23 @@
     {
       "ticker": "ONDS",
       "held": false,
-      "close": 8.22,
+      "close": 8.75,
       "state": "CAUTION",
-      "zone_lo": 7.95,
-      "zone_hi": 8.35,
+      "zone_lo": 8.68,
+      "zone_hi": 9.12,
       "poc": 8.8575,
-      "pct_in_profit": 34.04,
+      "pct_in_profit": 45.15,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 8,
-      "monthly_up": false,
-      "candle": "YELLOW",
+      "monthly_up": true,
+      "candle": "NEUTRAL",
       "vh_status": "INSIDE",
-      "whale": false,
+      "whale": true,
       "absorption": false,
-      "divergence": false,
+      "divergence": true,
       "shelf_stable": true,
-      "conv_score": 32,
+      "conv_score": 47,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -6099,30 +6172,30 @@
       "origin": "owner-request",
       "support": [
         [
-          8.1093,
-          0.734
-        ],
-        [
-          7.6104,
-          0.8482
-        ]
-      ],
-      "resistance": [
-        [
           8.8575,
           1.0
         ],
         [
-          9.2316,
-          0.9385
+          8.1093,
+          0.71
         ]
       ],
-      "rs12": 48.92,
-      "rs6": -31.3,
-      "dvol": 645276597.72,
+      "resistance": [
+        [
+          9.2316,
+          0.9071
+        ],
+        [
+          10.4787,
+          0.5365
+        ]
+      ],
+      "rs12": 55.21,
+      "rs6": -28.73,
+      "dvol": 661775804.63,
       "conv_parts": {
-        "trend": 0,
-        "rel strength": 10,
+        "trend": 10,
+        "rel strength": 15,
         "structure": 0,
         "vol hole": 5,
         "size/room": 12,
@@ -6138,23 +6211,23 @@
     {
       "ticker": "ONON",
       "held": false,
-      "close": 29.23,
+      "close": 28.95,
       "state": "CAUTION",
       "zone_lo": 28.43,
       "zone_hi": 29.88,
       "poc": 31.0357,
-      "pct_in_profit": 2.8,
+      "pct_in_profit": 1.19,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 26,
       "monthly_up": false,
       "candle": "YELLOW",
-      "vh_status": "BREAKDOWN",
+      "vh_status": "INSIDE",
       "whale": true,
       "absorption": true,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 20,
+      "conv_score": 25,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -6167,7 +6240,7 @@
       "support": [
         [
           29.0103,
-          0.2673
+          0.3076
         ]
       ],
       "resistance": [
@@ -6180,81 +6253,15 @@
           0.6505
         ]
       ],
-      "rs12": -56.45,
-      "rs6": -48.45,
-      "dvol": 301222345.77,
+      "rs12": -56.77,
+      "rs6": -51.64,
+      "dvol": 302039006.68,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
         "structure": 0,
-        "vol hole": 0,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
-      "ticker": "ORCL",
-      "held": false,
-      "close": 148.87,
-      "state": "CAUTION",
-      "zone_lo": 142.17,
-      "zone_hi": 149.43,
-      "poc": 145.0747,
-      "pct_in_profit": 43.34,
-      "wk_circle": "WHITE",
-      "wk_score": 0,
-      "wk_weeks": 10,
-      "monthly_up": false,
-      "candle": "RED",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 19,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G3 leader"
-      ],
-      "ftag": "F:3/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          145.0747,
-          1.0
-        ],
-        [
-          130.8277,
-          0.375
-        ]
-      ],
-      "resistance": [
-        [
-          166.4452,
-          0.2475
-        ],
-        [
-          180.6922,
-          0.3735
-        ]
-      ],
-      "rs12": -56.6,
-      "rs6": -9.74,
-      "dvol": 3818436006.04,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 0,
-        "structure": 5,
         "vol hole": 5,
-        "size/room": 4,
+        "size/room": 15,
         "age": 5
       },
       "bucket": null,
@@ -6272,7 +6279,7 @@
       "zone_lo": 19.84,
       "zone_hi": 20.85,
       "poc": 22.7495,
-      "pct_in_profit": 19.57,
+      "pct_in_profit": 19.71,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 5,
@@ -6312,9 +6319,9 @@
           0.9178
         ]
       ],
-      "rs12": 179.16,
-      "rs6": -25.2,
-      "dvol": 113268842.41,
+      "rs12": 182.31,
+      "rs6": -29.81,
+      "dvol": 110619362.02,
       "conv_parts": {
         "trend": 0,
         "rel strength": 20,
@@ -6333,12 +6340,12 @@
     {
       "ticker": "QCOM",
       "held": false,
-      "close": 163.72,
+      "close": 164.78,
       "state": "CAUTION",
       "zone_lo": 160.91,
       "zone_hi": 169.12,
-      "poc": 160.2285,
-      "pct_in_profit": 34.62,
+      "poc": 164.1898,
+      "pct_in_profit": 37.25,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 5,
@@ -6361,26 +6368,26 @@
       "support": [
         [
           164.1898,
-          0.9016
+          1.0
         ],
         [
           160.2285,
-          1.0
+          0.9387
         ]
       ],
       "resistance": [
         [
           173.4327,
-          0.6749
+          0.6334
         ],
         [
           183.996,
-          0.4833
+          0.4537
         ]
       ],
-      "rs12": -13.69,
-      "rs6": 2.3,
-      "dvol": 1665267804.82,
+      "rs12": -15.14,
+      "rs6": 1.87,
+      "dvol": 1605030815.37,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -6399,12 +6406,12 @@
     {
       "ticker": "RBLX",
       "held": false,
-      "close": 37.56,
+      "close": 38.15,
       "state": "CAUTION",
       "zone_lo": 36.49,
       "zone_hi": 38.35,
       "poc": 37.2302,
-      "pct_in_profit": 15.64,
+      "pct_in_profit": 16.03,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 38,
@@ -6433,16 +6440,16 @@
       "resistance": [
         [
           42.6027,
-          0.4183
+          0.3894
         ],
         [
           46.9007,
-          0.5922
+          0.5513
         ]
       ],
-      "rs12": -90.47,
-      "rs6": -55.93,
-      "dvol": 636447448.56,
+      "rs12": -90.27,
+      "rs6": -59.03,
+      "dvol": 594046517.96,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -6461,12 +6468,12 @@
     {
       "ticker": "RDDT",
       "held": false,
-      "close": 155.36,
+      "close": 153.95,
       "state": "CAUTION",
-      "zone_lo": 151.93,
-      "zone_hi": 159.68,
+      "zone_lo": 143.91,
+      "zone_hi": 151.25,
       "poc": 169.36,
-      "pct_in_profit": 36.7,
+      "pct_in_profit": 32.72,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 5,
@@ -6476,7 +6483,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": true,
+      "shelf_stable": false,
       "conv_score": 27,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -6489,27 +6496,27 @@
       "origin": "owner-request",
       "support": [
         [
-          155.0333,
-          0.9363
-        ],
-        [
           146.8467,
           0.8316
+        ],
+        [
+          124.3333,
+          0.09
         ]
       ],
       "resistance": [
         [
-          169.36,
-          1.0
+          157.08,
+          0.9822
         ],
         [
-          177.5467,
-          0.9249
+          169.36,
+          1.0
         ]
       ],
-      "rs12": -49.86,
-      "rs6": -7.31,
-      "dvol": 1457840915.52,
+      "rs12": -50.69,
+      "rs6": -10.68,
+      "dvol": 1373287139.39,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -6528,12 +6535,12 @@
     {
       "ticker": "RKLB",
       "held": false,
-      "close": 66.18,
+      "close": 67.53,
       "state": "CAUTION",
-      "zone_lo": 46.17,
-      "zone_hi": 48.53,
+      "zone_lo": 66.65,
+      "zone_hi": 70.05,
       "poc": 68.0144,
-      "pct_in_profit": 18.67,
+      "pct_in_profit": 22.61,
       "wk_circle": "WHITE",
       "wk_score": 0,
       "wk_weeks": 3,
@@ -6543,7 +6550,7 @@
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
+      "shelf_stable": true,
       "conv_score": 22,
       "conv_tier": "fails",
       "gates_ok": false,
@@ -6556,23 +6563,27 @@
       "origin": "owner-request",
       "support": [
         [
-          47.1143,
-          0.2133
-        ]
-      ],
-      "resistance": [
-        [
           68.0144,
           1.0
         ],
         [
-          80.3085,
-          0.8654
+          47.1143,
+          0.2066
         ]
       ],
-      "rs12": 19.59,
-      "rs6": -16.84,
-      "dvol": 1361553364.49,
+      "resistance": [
+        [
+          80.3085,
+          0.8382
+        ],
+        [
+          97.5204,
+          0.2312
+        ]
+      ],
+      "rs12": 19.46,
+      "rs6": -19.51,
+      "dvol": 1341769274.62,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -6589,91 +6600,25 @@
       "rs6_rank": null
     },
     {
-      "ticker": "TE",
-      "held": false,
-      "close": 4.51,
-      "state": "CAUTION",
-      "zone_lo": 4.49,
-      "zone_hi": 4.72,
-      "poc": 5.9194,
-      "pct_in_profit": 13.58,
-      "wk_circle": "WHITE",
-      "wk_score": 0,
-      "wk_weeks": 5,
-      "monthly_up": false,
-      "candle": "NEUTRAL",
-      "vh_status": "INSIDE",
-      "whale": false,
-      "absorption": false,
-      "divergence": false,
-      "shelf_stable": true,
-      "conv_score": 45,
-      "conv_tier": "fails",
-      "gates_ok": false,
-      "gates_failed": [
-        "G2 trend",
-        "G4 basis"
-      ],
-      "ftag": "F:2/3",
-      "origin": "owner-request",
-      "support": [
-        [
-          4.5835,
-          0.8596
-        ],
-        [
-          4.0492,
-          0.4977
-        ]
-      ],
-      "resistance": [
-        [
-          5.2515,
-          0.895
-        ],
-        [
-          5.9194,
-          1.0
-        ]
-      ],
-      "rs12": 157.83,
-      "rs6": -48.64,
-      "dvol": 167856634.38,
-      "conv_parts": {
-        "trend": 0,
-        "rel strength": 20,
-        "structure": 0,
-        "vol hole": 5,
-        "size/room": 15,
-        "age": 5
-      },
-      "bucket": null,
-      "book_pct": null,
-      "cap_note": null,
-      "rs12_rank": null,
-      "whale_rank": null,
-      "rs6_rank": null
-    },
-    {
       "ticker": "TMC",
       "held": false,
-      "close": 5.01,
+      "close": 5.09,
       "state": "CAUTION",
-      "zone_lo": 4.81,
-      "zone_hi": 5.06,
+      "zone_lo": 4.94,
+      "zone_hi": 5.19,
       "poc": 4.5407,
-      "pct_in_profit": 45.64,
+      "pct_in_profit": 49.86,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 28,
-      "monthly_up": false,
+      "monthly_up": true,
       "candle": "RED",
       "vh_status": "BREAKDOWN",
       "whale": false,
       "absorption": false,
       "divergence": false,
       "shelf_stable": true,
-      "conv_score": 25,
+      "conv_score": 35,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -6684,8 +6629,8 @@
       "origin": "owner-request",
       "support": [
         [
-          4.9127,
-          0.7938
+          5.0367,
+          0.9134
         ],
         [
           4.5407,
@@ -6702,11 +6647,11 @@
           0.5419
         ]
       ],
-      "rs12": -21.55,
-      "rs6": -32.71,
-      "dvol": 29401524.04,
+      "rs12": -26.06,
+      "rs6": -35.34,
+      "dvol": 30822715.22,
       "conv_parts": {
-        "trend": 0,
+        "trend": 10,
         "rel strength": 0,
         "structure": 5,
         "vol hole": 0,
@@ -6723,12 +6668,12 @@
     {
       "ticker": "TMDX",
       "held": false,
-      "close": 92.22,
+      "close": 91.75,
       "state": "CAUTION",
       "zone_lo": 91.13,
       "zone_hi": 95.78,
       "poc": 74.8559,
-      "pct_in_profit": 63.26,
+      "pct_in_profit": 63.07,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 23,
@@ -6751,7 +6696,7 @@
       "support": [
         [
           92.9876,
-          0.2628
+          0.3013
         ],
         [
           88.8034,
@@ -6768,9 +6713,9 @@
           0.179
         ]
       ],
-      "rs12": -40.35,
-      "rs6": -41.17,
-      "dvol": 77510233.64,
+      "rs12": -41.19,
+      "rs6": -44.28,
+      "dvol": 76059280.71,
       "conv_parts": {
         "trend": 0,
         "rel strength": 0,
@@ -6789,23 +6734,23 @@
     {
       "ticker": "ZS",
       "held": false,
-      "close": 170.31,
+      "close": 187.3,
       "state": "CAUTION",
-      "zone_lo": 160.52,
-      "zone_hi": 168.7,
+      "zone_lo": 181.92,
+      "zone_hi": 191.2,
       "poc": 146.8057,
-      "pct_in_profit": 73.99,
+      "pct_in_profit": 86.53,
       "wk_circle": "WHITE",
       "wk_score": 1,
       "wk_weeks": 38,
-      "monthly_up": false,
-      "candle": "YELLOW",
+      "monthly_up": true,
+      "candle": "NEUTRAL",
       "vh_status": null,
       "whale": false,
       "absorption": false,
       "divergence": false,
-      "shelf_stable": false,
-      "conv_score": 30,
+      "shelf_stable": true,
+      "conv_score": 40,
       "conv_tier": "fails",
       "gates_ok": false,
       "gates_failed": [
@@ -6816,29 +6761,29 @@
       "origin": "owner-request",
       "support": [
         [
-          163.7912,
-          0.2755
+          185.6297,
+          0.3735
         ],
         [
-          146.8057,
-          1.0
+          175.9237,
+          0.3613
         ]
       ],
       "resistance": [
         [
-          175.9237,
-          0.3471
+          231.7332,
+          0.0731
         ],
         [
-          185.6297,
-          0.3258
+          243.8657,
+          0.0557
         ]
       ],
-      "rs12": -57.4,
-      "rs6": -1.73,
-      "dvol": 381535825.89,
+      "rs12": -50.87,
+      "rs6": -0.55,
+      "dvol": 397538273.74,
       "conv_parts": {
-        "trend": 0,
+        "trend": 10,
         "rel strength": 0,
         "structure": 10,
         "vol hole": 0,
