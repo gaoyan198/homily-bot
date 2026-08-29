@@ -13,6 +13,7 @@ DOES prove the implementation is mathematically sound and behaves sensibly:
   5. DRAM (Roundhill Memory ETF) read on a DAILY window (too new for weekly).
 """
 
+import pathlib
 from homily_clone import ema, macd, sma, homily_circle, CLOSES
 
 def approx(a, b, tol=1e-9):
@@ -1999,6 +2000,15 @@ open(_tmp52, "w").write(json.dumps(
      "usdsgd": 1.3}))
 _saved52 = _hh.CONTRIB_FILE
 _hh.CONTRIB_FILE = _tmp52
+# The swing sleeve went LIVE 2026-08-17, and `household_block` reads its
+# committed live book straight off disk — so from that date the REAL sleeve
+# equity and margin leaked into this fixture and the assertion below broke
+# on main (caught 2026-08-29 while merging #159/#163). The fixture pins the
+# whole book on purpose; point LIVE_BOOK at a path that does not exist so
+# an unarmed sleeve is what this test measures, exactly as CONTRIB_FILE is
+# already redirected two lines up.
+_savedlb52 = _hh.LIVE_BOOK
+_hh.LIVE_BOOK = pathlib.Path(_tmp52).with_name("no_live_book.json")
 try:
     def _fx52(sym, rng="5y"):
         d = [datetime.date(2026, 6, 30), datetime.date(2026, 7, 31)]
@@ -2016,6 +2026,7 @@ try:
         f"opening-seeded book that rode QQQ must read ≈flat: {_blk!r}"
 finally:
     _hh.CONTRIB_FILE = _saved52
+    _hh.LIVE_BOOK = _savedlb52
 print("[52] #94 household: adjclose counterfactual, leverage, missing nag .. PASS")
 
 # --- 53. #99 ops-readiness: blockers line + one-shot KILL-A proximity -------
