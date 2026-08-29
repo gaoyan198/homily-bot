@@ -59,17 +59,20 @@ WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
          # unconditionally too — so the WATCH entry became a duplicate
          # whose comment ("not (yet) held") had gone false. Removed, not
          # moved: the position itself is the entry now.
-         # SNDK added 2026-08-14 on owner request. Already screened twice
-         # over — universe.json carries it from #65 (origin "screen",
-         # since 2026-07-11, shadow-fenced until the adoption read) and
-         # it is a PROXY_CONSTITUENTS member of DRAM — but neither route
-         # gives it a row of its own. WATCH does, every day, whatever the
-         # state. Note it can never reach 🚀: G1 caps dollar volume at
-         # $5B/day and SNDK trades ~$20B/day, so "fails" on the tier
-         # column is the size gate doing its job, not a fundamentals
-         # problem (F:3/3). Bars come free — DRAM's proxy already fetches
-         # it. Overlap flagged to the owner: DRAM (held) CONTAINS SNDK.
-         "SNDK":"SNDK"}
+         # SNDK GRADUATED 2026-08-25, same pattern as SPCX above: it was
+         # added here 2026-08-14 on owner request because WATCH is the only
+         # list that prints a name in every state, and it is now HELD
+         # (1 sh, holdings.json), where HOLDINGS prints unconditionally
+         # too — so the WATCH entry became a duplicate row whose comment
+         # ("not (yet) held") had gone false. Removed, not moved.
+         # Two notes worth keeping now that it is in the book:
+         #   · it can never reach 🚀 — G1 caps dollar volume at $5B/day and
+         #     SNDK trades ~$20B/day, so "fails" on the tier column is the
+         #     size gate working, not a fundamentals problem (F:3/3);
+         #   · DRAM (also held, 167 sh) CONTAINS SNDK — the overlap was
+         #     flagged to the owner on the 2026-08-14 add and is now a
+         #     real double-count in the AI/semis cluster, not a hypothetical.
+         }
 
 # Too-new listings whose real signal lives in their constituents: screen the
 # members and print a proxy line under the holding's row (DRAM = Roundhill
