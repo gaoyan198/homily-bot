@@ -51,6 +51,13 @@ POSITIONS = homily_positions.load_positions()
 HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
 # Owner-requested names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
+         # SPCX RETURNED 2026-08-25 (owner request). It graduated OFF this
+         # list on 2026-08-17 when it became held, and the position was
+         # sold before 2026-08-25 — leaving it printed NOWHERE, which is
+         # the one state this list exists to prevent. Still cannot reach
+         # ⭐/🔵 until it has 12 monthly bars (listed 2026-06-12, so
+         # ~2027-06); WATCH prints it in every state until then.
+         "SPCX":"SPCX",
          # SPCX GRADUATED 2026-08-17: it was added here 2026-07-31 as an
          # owner request precisely because WATCH is the only list that
          # prints a name in every state, and SPCX cannot reach ⭐/🔵 until
