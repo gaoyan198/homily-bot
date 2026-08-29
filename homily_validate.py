@@ -3064,4 +3064,70 @@ assert "cannot read your bank" in _e158, \
 assert _cc72.emergency_line(0, True) == "", "#158: no floor set -> silent"
 print("[78] #158 emergency floor: buy-day only, asks rather than verifies  PASS")
 
+
+# ---------------------------------------------------------------------------
+# [79] #159 entry-lateness study: the claims artifact is owner-checkable, the
+# tier definitions are the LIVE ones, and the replay reads the bar the live
+# digest reads. That last one is the whole study: #13 ledger rows dated D are
+# computed from the bar of D-1 (SGT morning run), so a replay reading bar D
+# would be measuring different arithmetic from the engine it claims to audit
+# — the #130/#138 failure mode, caught before anything was built on it.
+import homily_entrylag_backtest as _el79
+
+_doc79 = _el79.load_claims()
+assert _doc79["_v"] == 1 and _doc79["claims"], "[79] claims artifact empty"
+for _c79 in _doc79["claims"]:
+    for _k79 in ("id", "ticker", "band_lo", "band_hi", "published", "kind",
+                 "timing", "source", "verbatim"):
+        assert _k79 in _c79, f"[79] {_c79.get('id')}: missing {_k79}"
+    assert _c79["band_lo"] <= _c79["band_hi"], f"[79] {_c79['id']}: band"
+    datetime.date.fromisoformat(_c79["published"])
+    assert _c79["timing"] in ("contemporaneous", "retrospective"), \
+        f"[79] {_c79['id']}: timing must be classified, never blank"
+    # an unscored row must SAY why, so a later session cannot mistake it
+    # for material that was simply skipped
+    assert _c79.get("scored") or _c79.get("unscored_because"), \
+        f"[79] {_c79['id']}: unscored rows carry their reason"
+assert len({_c["id"] for _c in _doc79["claims"]}) == len(_doc79["claims"]), \
+    "[79] duplicate claim id"
+
+# tier definitions are READ from the live modules, never restated here
+_src79 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_entrylag_backtest.py")).read()
+assert "daily_run.whale_dip(" in _src79, \
+    "[79] WHALE-DIP was re-implemented locally — it must read the live rule"
+assert 'conv.tier == "CONVICTION"' in _src79 and '"HOLD"' in _src79, \
+    "[79] #125 buy-day eligibility no longer mirrors star_candidates"
+
+# the load-bearing fix: replay(run_date=D) must read the bar of D-1.
+_d79 = datetime.date(2026, 3, 2)
+_b79 = [(datetime.date(2026, 3, 1) - datetime.timedelta(days=n), 100.0,
+         101.0, 99.0, 100.0 + n * 0.01, 1000) for n in range(400)][::-1]
+_a79 = [b[4] for b in _b79]
+_r79 = _el79.replay("T", _b79, _a79, _b79, _a79, _d79)
+assert _r79 is not None and _r79[0].chips.last == _b79[-1][4], \
+    "[79] replay read the run date's own bar — the live digest cannot"
+assert _el79.replay("T", _b79, _a79, _b79, _a79,
+                    _b79[-1][0]) [0].chips.last == _b79[-2][4], \
+    "[79] replay is not reading D-1 consistently"
+
+# trailing window, not a prefix: an old as-of must still see ~5 years, or
+# conviction's `age` component is quietly inflated on every historical row
+_t79, _ = _el79.trailing(_b79, _a79, _b79[-1][0])
+assert _t79[0][0] >= datetime.date(_b79[-1][0].year - 5, 1, 1), \
+    "[79] trailing() returned a prefix, not a trailing window"
+
+# episode derivation is mechanical: LAST visit before publication, gaps
+# tolerated, and nothing after the publication date can be selected
+_e79 = [(datetime.date(2026, 1, 5) + datetime.timedelta(days=n), 0, 0, 0,
+         px, 0) for n, px in enumerate([50, 20, 20, 50, 50, 20, 20, 20])]
+_ep79 = _el79.band_episode(_e79, 10, 30, datetime.date(2026, 1, 20))
+assert _ep79 and _ep79[0] == _e79[1][0] and _ep79[1] == _e79[7][0], \
+    f"[79] episode must span the gap-tolerant last visit, got {_ep79}"
+assert _el79.band_episode(_e79, 10, 30, _e79[1][0]) is None, \
+    "[79] episode selected bars at/after the publication date"
+print("[79] #159 entry lateness: claims artifact, live tier defs, D-1 replay, "
+      "trailing window  PASS")
+
+
 print("\nAll structural assertions passed.")
