@@ -3462,4 +3462,54 @@ print("[81] #114 fetch failover: Yahoo dead → Nasdaq/vault serve with the sour
       "line, breaker, 404-immune, warn-never-halt, no state on a foreign day  PASS")
 
 
+# [82] #117 R-2029 verdict freeze — the three-fork rule (§3), the R-2036
+# binding read (§4) and the #71 band method are a checked artifact: any
+# drift from the pinned hashes fails the build, the fork clauses must stand
+# verbatim, and a re-pin without a same-day PRD §8.5 note naming #117 is
+# refused. Negative-tested: a one-word edit to the rule, a dropped clause,
+# and a touched band constant must each be caught.
+import homily_verdict as _hv82
+_frz82 = _hv82.load()
+_dr82 = _hv82.drift()
+assert not _dr82, "[82] VERDICT FREEZE DRIFTED — " + " | ".join(_dr82) + \
+    " — a deliberate change is `python homily_verdict.py --repin` + a PRD " \
+    "§8.5 note dated that day naming #117"
+assert _hv82.prd_note_dated(_frz82["pinned"]), \
+    f"[82] pin {_frz82['pinned']} has no same-day PRD §8.5 note naming #117"
+assert _frz82["forks"] == list(_hv82.FORKS) and len(_frz82["forks"]) >= 12
+_md82 = open(_hv82.ROADMAP, encoding="utf-8").read()
+_flat82 = _hv82._flat(_md82)
+for _f82 in _hv82.FORKS:
+    assert _f82 in _flat82, f"[82] fork clause gone from ROADMAP: {_f82}"
+# negative: an edit inside the rule text changes the hash; one outside does not
+with _tf80.TemporaryDirectory() as _d82:
+    _p82 = os.path.join(_d82, "ROADMAP.md")
+    _prev82 = _hv82.ROADMAP
+    try:
+        _hv82.ROADMAP = _p82
+        open(_p82, "w").write(_md82.replace("HOLD & CHEAPEN", "HOLD AND CHEAPEN"))
+        _c82 = _hv82.compute()
+        assert _c82["r2029_sha256"] != _frz82["r2029_sha256"] and \
+            "**(b) Edge inside the band → HOLD & CHEAPEN.**" in _c82["forks_missing"]
+        assert _hv82.drift(_frz82, _c82), "[82] edited rule not reported"
+        open(_p82, "w").write(_md82.replace("## 0. The honest starting point",
+                                            "## 0. The honest starting-point"))
+        assert _hv82.compute()["r2029_sha256"] == _frz82["r2029_sha256"], \
+            "[82] an edit OUTSIDE the rule must not trip the pin"
+        open(_p82, "w").write(_md82.replace("no window-shopping the start date", ""))
+        assert "no window-shopping the start date" in _hv82.compute()["forks_missing"]
+    finally:
+        _hv82.ROADMAP = _prev82
+import homily_bootstrap as _hb82
+_prevB82 = _hb82.BLOCK
+try:
+    _hb82.BLOCK = 7
+    assert _hv82.drift(_frz82, _hv82.compute()), "[82] a moved band constant not caught"
+finally:
+    _hb82.BLOCK = _prevB82
+assert not _hv82.drift(), "[82] freeze must be intact after the negative tests"
+print("[82] #117 verdict freeze: R-2029 + R-2036 text, fork clauses, #71 band "
+      "method pinned; drift fails, re-pin needs a dated §8.5 note  PASS")
+
+
 print("\nAll structural assertions passed.")
