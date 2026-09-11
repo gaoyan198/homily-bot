@@ -976,8 +976,10 @@ def build_digest(flex_notes=None):
         if fn:
             dataqa.append(fn)
         try:
+            # #114: the second opinion is the vault's frozen Yahoo tape
+            # (Stooq retired — it serves a JS challenge now, PRD §8.5)
             an = homily_data.agreement_note(spy_bars,
-                                            homily_data.stooq_daily("SPY"))
+                                            homily_data.vault_daily("SPY"))
             if an:
                 dataqa.append(an)
         except Exception:
@@ -987,6 +989,11 @@ def build_digest(flex_notes=None):
         vn = homily_vault.note(today)
         if vn:
             dataqa.append(vn)
+        # #114: the day any name was not served by Yahoo, say which source,
+        # what it means, and that no state is written (see `foreign` below)
+        fn114 = homily_data.failover_note(today, bars_by_symbol=all_bars)
+        if fn114:
+            dataqa.append(fn114)
     except Exception as e:
         print(f"[data-qa] skipped: {e}")
     # #88: top-3 turnover — how fragile the buy-day's point-in-time ⭐ set is
@@ -1027,6 +1034,11 @@ def build_digest(flex_notes=None):
                   for tk, bs in all_bars.items() if tk not in suspect}
     except Exception as e:
         print(f"[breakout] skipped: {e}")
+    # #114: a run where any name came off a fallback source is a FOREIGN
+    # tape day — the digest sends, but nothing that feeds a verdict is
+    # written (ledger, snapshot, refine-J, alerts, dashboard). One flag,
+    # read from the source registry; the #114 data-QA line above says so.
+    foreign = bool(homily_data.SOURCES)
     # #66: sticky quality tier, quarterly-cached EDGAR read + 3y RS from the
     # bars already fetched. Info-only label; quality_tag never raises.
     spy_cl = [b[4] for b in spy_bars]
@@ -1035,7 +1047,8 @@ def build_digest(flex_notes=None):
         return homily_quality.quality_tag(
             tk, [b[4] for b in bars] if bars else None, spy_cl)
     digest = render_digest(sigs, disco, proxy, regime,
-                           daily_refine(bars_map=all_bars), errs,
+                           daily_refine(bars_map=None if foreign else all_bars),
+                           errs,
                            today, suspect=suspect, positions=POSITIONS,
                            buyday=buyday, bearready=bearready, gaps=gaps,
                            breadth_read=br, conc=conc, cross_book=cross_book,
@@ -1049,7 +1062,7 @@ def build_digest(flex_notes=None):
     # BEFORE record() overwrites it, so a quiet day sends no second message.
     alert = ""
     try:
-        if states:
+        if states and not foreign:            # #114: no diff on a foreign tape
             alert = homily_alerts.format_alerts(
                 homily_alerts.build_alerts(states, regime, today), today)
     except Exception as e:
@@ -1075,8 +1088,12 @@ def build_digest(flex_notes=None):
     # corruption is caught hard by the validate gate (check [17]) that #16
     # runs BEFORE this step in CI.
     try:
-        homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
-                             origins=ORIGINS, buyday=buyplan, shadow=shadow)
+        foreign = foreign or bool(homily_data.SOURCES)   # shadow screen ran since
+        if foreign:                           # #114: not a reference row
+            print("[ledger] skipped: foreign tape day (#114), nothing written")
+        else:
+            homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
+                                 origins=ORIGINS, buyday=buyplan, shadow=shadow)
     except Exception as e:
         print(f"[ledger] skipped: {e}")
     # #36/#83 nightly boards from the just-written snapshot + ledger + this
@@ -1087,9 +1104,12 @@ def build_digest(flex_notes=None):
     try:
         if os.path.exists(homily_dashboard.BOARD_FULL):
             os.unlink(homily_dashboard.BOARD_FULL)
-        homily_dashboard.write_dashboard(bars_map=all_bars)
-        homily_dashboard.write_dashboard(homily_dashboard.BOARD_FULL,
-                                         bars_map=all_bars, full=True)
+        if foreign:                           # #114: committed artifact, skip
+            print("[dashboard] skipped: foreign tape day (#114)")
+        else:
+            homily_dashboard.write_dashboard(bars_map=all_bars)
+            homily_dashboard.write_dashboard(homily_dashboard.BOARD_FULL,
+                                             bars_map=all_bars, full=True)
     except Exception as e:
         print(f"[dashboard] skipped: {e}")
     # #35 chart cards: top-3 actionable names rendered from the bars the

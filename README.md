@@ -117,7 +117,7 @@ discretionary, ≤2% of account, same monthly budget, 10%/name hard cap
 ## Files
 | File | Role |
 |---|---|
-| `homily_data.py` | Daily OHLCV fetch (Yahoo v8, key-free) + weekly/monthly resample |
+| `homily_data.py` | Daily OHLCV fetch (Yahoo v8, key-free) + weekly/monthly resample. #114 failover chain: Yahoo → Nasdaq historical (US names, no dividend adjustment) → #113 vault (stale), per symbol, only on hard failure, source recorded; a breaker declares Yahoo down after 5 transport failures. The day any name is not Yahoo the digest prints a `📡 SOURCE` line and writes NO ledger/snapshot/refine/alert/dashboard state — a foreign tape is not a reference row. Stooq (#60's second source) retired 2026-09-11: it serves a JS challenge now; #60's daily SPY check reads the vault instead |
 | `homily_chips.py` | Chip/cost-distribution engine: decayed volume-at-price → POC, support/resistance peaks |
 | `homily_danny.py` | Composite state machine: monthly trend × weekly circle × daily candle × chip context × volatility hole |
 | `homily_vol.py` | Volatility-hole detector: vol-collapse cluster → zone, breakout/breakdown/inside |

@@ -913,6 +913,30 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #114 shipped WITHOUT Stooq — the
+planned alternate source is already dead, and #60 had been dead with it.**
+The row said "promote #60's Stooq cross-check to an ordered fallback".
+Probing it first: every Stooq CSV URL now returns an HTML page running a
+SHA-256 proof-of-work in JavaScript before it will serve, which means
+`stooq_daily` has raised on every daily run for some weeks and the #60
+agreement line — optional by design — simply stopped appearing, with no
+signal that it had. Two decisions, both recorded rather than improvised:
+(1) the challenge was NOT solved — it is trivially solvable, and building
+that in would be anti-bot circumvention for a source that has clearly
+chosen not to serve scripts; (2) the chain shipped is Yahoo → Nasdaq's own
+historical endpoint (key-free, US names, ~10 years, no dividend
+adjustment) → the #113 vault (stale, any vaulted name). #60's daily SPY
+check is re-pointed at the vault: today's Yahoo tape vs our frozen copy of
+Yahoo's tape catches a silent rewrite the day it happens, with no third
+party in the loop. Stooq's parser stays in the file, documented as
+retired, so validate [60] still pins it and the day CSV returns it is a
+one-line re-enable. Unverified: whether GitHub's runner IPs reach
+api.nasdaq.com (the owner's machine does). If they do not, the chain is
+effectively Yahoo → vault, and the source line will say so on the day.
+This is the ROADMAP §4 assume-decay list firing early — the *second*
+source died before the first, and the plan only noticed because #114 went
+to build on it.
+
 **2026-09-11 (planning era, execution) · #113 shipped as base+delta, not
 the "monthly compressed snapshot" the ROADMAP row says.** Sizing first: a
 full snapshot of the 199 symbols the daily run and harnesses touch is ~23 MB gzipped
