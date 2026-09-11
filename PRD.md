@@ -913,6 +913,36 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #113 shipped as base+delta, not
+the "monthly compressed snapshot" the ROADMAP row says.** Sizing first: a
+full snapshot of the 199 symbols the daily run and harnesses touch is ~23 MB gzipped
+(bit-exact, full listing history), and git retains every deleted blob, so
+the literal design — twelve full snapshots a year with four kept — would
+grow the clone by ~270 MB/yr for the "last 4" retention to mean nothing.
+That directly breaks #115 (cold start from a fresh clone) and #118(b) (the
+daily run from any box). Shipped shape: **one base per year, frozen and
+never rewritten** (that IS the row's "one frozen per year"), plus a
+**self-contained monthly delta** carrying everything since the base for
+every symbol — ~1 KB the month the base is written, growing to a few MB
+by year end — with the last four deltas kept. Restore reads newest delta +
+its base. Two honest limits recorded with it: (1) adjusted closes are
+bit-exact only until a dividend lands after the base, after which the base
+adj series is rescaled by the factor measured on the overlap (~1e-7
+relative, invisible at any printed precision; raw bars stay bit-exact
+always); (2) the vault holds only names the CURRENT book/universe touches,
+so a name dropped from the universe stops accruing history at the next
+base — the frozen bases keep what was there. The restore drill FAILED on
+its first run and passed on the second: the failure was scope, not codec —
+the first symbol set was "everything the digest fetches", and a published
+backtest (core4) draws on UNIV_B names the digest never touches, so its
+engine-picked arms silently diverged when those fetches died. Fixed by
+registering every harness's universe constants in the vault and pinning
+the registry with a reflective scan in validate [80], so a new harness
+universe cannot go unvaulted quietly (ROADMAP §5 row). One operational note: the first full fetch took 8
+minutes of wall time under Yahoo throttling (21 s CPU), which is why the
+CI step carries `timeout-minutes: 20` + `continue-on-error` and runs before
+the digest rather than inside it.
+
 **2026-07-25 (planning era, execution) · #118(c) shipped and it BREAKS #118's
 own "no standing infra, no new secrets kept live" clause — deliberately,
 scoped, recorded here rather than reinterpreted quietly.** The owner asked

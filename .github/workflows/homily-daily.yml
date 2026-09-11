@@ -33,6 +33,17 @@ jobs:
       - name: Self-test — gates the send (keeps the algo honest)
         run: python homily_validate.py
 
+      # #113 bars vault: the monthly tape snapshot (idempotent — writes only
+      # when the year's base or the month's delta is missing, so most days
+      # this is a 1-second no-op). Runs BEFORE the digest so the day a delta
+      # finds Yahoo rewrote history, the digest's data-QA footer says so the
+      # same morning. continue-on-error: a vault that cannot write today
+      # retries tomorrow and must never delay or redden the digest (R4).
+      - name: Bars vault — monthly snapshot (idempotent, never fatal)
+        continue-on-error: true
+        timeout-minutes: 20
+        run: python homily_vault.py
+
       - name: Run daily Homily digest + auto-refine
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -72,6 +83,9 @@ jobs:
           git add docs/dashboard.html 2>/dev/null || true
           # #32 (R8): a Flex-synced book must be committed the day it syncs
           git add holdings.json 2>/dev/null || true
+          # #113 (R8): the bars vault — base/delta/manifest, plus the
+          # deletions prune makes (git add -A on the directory)
+          git add -A vault 2>/dev/null || true
           git commit -m "daily refine $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
 
