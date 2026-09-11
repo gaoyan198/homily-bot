@@ -60,6 +60,13 @@ jobs:
           # Unset = no sync, holdings.json stays the manual fallback.
           IBKR_FLEX_TOKEN: ${{ secrets.IBKR_FLEX_TOKEN }}
           IBKR_FLEX_QUERY: ${{ secrets.IBKR_FLEX_QUERY }}
+          # #118(a) alternate delivery (repo VARIABLE, dormant when unset):
+          # "file:<dir>" routes the digest + charts + documents to a
+          # file-drop instead of Telegram. On a runner that only makes
+          # sense pointed inside the repo (then add the path to the commit
+          # step); the real use is a box running this job from cron (#118b)
+          # with a synced folder.
+          HOMILY_DELIVERY: ${{ vars.HOMILY_DELIVERY }}
         run: python daily_run.py
 
       - name: Commit refined champion + log
