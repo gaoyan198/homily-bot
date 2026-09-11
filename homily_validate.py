@@ -3608,4 +3608,44 @@ print("[84] #118(a) alternate delivery: file-drop bundle, no network, "
       "falls through to Telegram when unset, workflow + runbook wired  PASS")
 
 
+# [85] #116 complexity budget — every top-level module is live (derived by
+# import from an entry point), or registered as tool / gate / pending
+# (dated read) / null (archive_by); pending reads cannot rot past 90 days,
+# nulls cannot outlive their archive date, and the module COUNT may not
+# exceed the cap set the day the registry was written — raising it takes a
+# same-day PRD §8.5 note naming #116. Negative-tested on a synthetic
+# registry: an unregistered module, a stale pending read, an overdue null
+# and a breached cap must each surface.
+import homily_budget as _hb85
+_reg85 = _hb85.load()
+_rows85, _prob85 = _hb85.census(datetime.date.today(), _reg85)
+assert not _prob85, "[85] COMPLEXITY BUDGET — " + " | ".join(_prob85)
+assert _hb85.prd_note_dated(_reg85["cap_set"]), \
+    f"[85] cap set {_reg85['cap_set']} has no same-day PRD §8.5 note naming #116"
+_live85 = {m for m, st, *_ in _rows85 if st == "live"}
+assert {"daily_run", "homily_data", "homily_vault", "homily_ledger"} <= _live85
+assert "homily_multiwindow_backtest" not in _live85, "[85] a harness is not live"
+assert "homily_ribbon_backtest" in _live85, "[85] daily_run imports it"
+_by85 = {}
+for _m85, _st85, *_ in _rows85:
+    _by85.setdefault(_st85, set()).add(_m85)
+assert "UNCLASSIFIED" not in _by85 and set(_by85) <= set(_hb85.STATUSES) | {"live"}
+assert len(_rows85) == len(_hb85.modules()) <= _reg85["cap"]
+# negative: synthetic registry against a synthetic census date
+_fake85 = json.loads(json.dumps(_reg85))
+_fake85["registry"].pop("homily_accum_backtest")
+_fake85["registry"]["homily_selection_backtest"]["read"] = "2026-01-01"
+_fake85["registry"]["homily_poc_backtest"]["archive_by"] = "2026-01-01"
+_fake85["cap"] = 10
+_, _p85 = _hb85.census(datetime.date(2026, 9, 11), _fake85)
+assert any("homily_accum_backtest: not live and not in the registry" in x for x in _p85)
+assert any("homily_selection_backtest: pending read 2026-01-01" in x for x in _p85)
+assert any("homily_poc_backtest: closed null past archive_by" in x for x in _p85)
+assert any("exceeds the cap 10" in x for x in _p85)
+print(f"[85] #116 complexity budget: {len(_rows85)} modules ≤ cap {_reg85['cap']}, "
+      f"{len(_by85.get('live', ()))} live · {len(_by85.get('gate', ()))} gate · "
+      f"{len(_by85.get('pending', ()))} pending · {len(_by85.get('null', ()))} null "
+      f"(archive by {_reg85['first_prune']})  PASS")
+
+
 print("\nAll structural assertions passed.")
