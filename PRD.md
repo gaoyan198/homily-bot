@@ -913,6 +913,28 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #116 mechanics built in
+September; the prune itself stays July's.** The row is a July cadence
+riding #40, but its rule ("every module holds one of {live consumer ·
+dated pending read · archive}") had nothing enforcing it, so the first
+prune would have been a judgment call over 89 files. Built now:
+`homily_budget.py` derives *live* from the import graph (45 modules
+reachable from daily_run / vault / weekly / chart / gambit), and
+`module_budget.json` classifies the other 45 — 5 tools, 23 gates of
+record (harnesses a live rule or promotion rests on, re-run each July),
+3 pending dated reads (#24 selection 2026-10-01; #79 distribution tag
+and #105 breakout tag, both PASSED gates with ships queued, to ship or
+close by 2026-12-31), and **13 closed nulls with `archive_by
+2027-07-31`** — validate [85] fails the build the day one is still
+top-level after that. Two things recorded rather than done: (1) the cap
+is set at **90**, today's count including the census tool itself, which
+is a +1 the row would otherwise have asked a note for — this is that
+note; (2) `gate` is a fourth status the row's three-way rule did not
+name — a PASSED harness is neither pending nor archivable, it is the
+reproducibility artifact for a live rule, and archiving it would make
+#40's July re-run unreproducible. Classification is the author's read of
+BACKTEST_RESULTS; the July session re-reads it before moving anything.
+
 **2026-09-11 (planning era, execution) · #118(a)+(b) drilled as ONE run,
 and (a) is file-drop only.** The row asks for one drill each. The honest
 drill is a scheduler that is not GitHub running the job end to end
