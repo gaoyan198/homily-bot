@@ -136,6 +136,7 @@ nags for the ones the owner has said should be on.
 | `BUY_BUDGET_USD` | variable | daily | buy-day copilot dark | monthly cash budget, USD, whole number |
 | `SRS_COVERS_INDEX` | variable | daily | index leg funded from the same budget | `true` when SRS is the index leg (PRD §9.4) |
 | `MARGIN_ZERO` | variable | both | swing sleeve unarmed; monthly rehearsal nags | owner sets it when the core book carries no margin (PLAYBOOK §6); read by `gambit/live_run.py` too |
+| `HOMILY_DELIVERY` | variable (or plain env on a box) | daily | Telegram is the channel | #118a alternate delivery: `file:<dir>` writes the digest + charts + documents as one HTML bundle per day into `<dir>` and never touches Telegram that run. Meant for a box running the job from cron with a synced folder (§7); dormant when unset |
 
 ```
 gh secret set TELEGRAM_BOT_TOKEN   -b'<token>'
@@ -169,11 +170,49 @@ silently broken run is exactly what stops it (PRD §8.5, 2026-07-25). Do
 not add a keep-alive commit — it is a ToS violation and validate [68]
 rejects it.
 
-To run the daily job on any other box (ROADMAP #118b — the scheduler can
-die): `cd homily-bot && python3 homily_validate.py && python3 daily_run.py
-&& git add -A && git commit -m "daily refine $(date -u +%F)" && git push`
-with the `TELEGRAM_*` (and optionally Flex / budget) environment set.
-That is the whole job; the YAML adds only the watchdog ping.
+**Running the daily job from any other box** (ROADMAP #118b — the
+scheduler can die). The job is one shell line; the YAML adds only the
+watchdog ping:
+
+```
+cd /path/to/homily-bot && git pull -q && python3 homily_validate.py && python3 daily_run.py \
+  && git add -A && git commit -qm "daily refine $(date -u +%F)" && git push -q
+```
+
+with `TELEGRAM_*` (or `HOMILY_DELIVERY=file:<synced folder>` for the
+#118a channel), and optionally the Flex/budget variables, in the
+environment. Cron, Mon–Fri 09:00 local:
+
+```
+0 9 * * 1-5  HOMILY_DELIVERY=file:$HOME/Dropbox/homily  /bin/sh -c 'cd $HOME/homily-bot && git pull -q && python3 homily_validate.py && python3 daily_run.py && git add -A && git commit -qm "daily refine $(date -u +%F)" && git push -q' >> $HOME/homily-cron.log 2>&1
+```
+
+macOS launchd (`~/Library/LaunchAgents/com.homily.daily.plist`, then
+`launchctl load` it):
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.homily.daily</string>
+  <key>ProgramArguments</key><array>
+    <string>/bin/sh</string><string>-c</string>
+    <string>cd $HOME/homily-bot && git pull -q && python3 homily_validate.py && python3 daily_run.py && git add -A && git commit -qm "daily refine $(date -u +%F)" && git push -q</string>
+  </array>
+  <key>EnvironmentVariables</key><dict>
+    <key>HOMILY_DELIVERY</key><string>file:/Users/you/Dropbox/homily</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StandardOutPath</key><string>/Users/you/homily-launchd.log</string>
+  <key>StandardErrorPath</key><string>/Users/you/homily-launchd.log</string>
+</dict></plist>
+```
+
+Both were drilled for real on 2026-09-11 (one launchd-fired run delivering
+through the file-drop, then unloaded — nothing left standing; PRD §8.5).
+The `git push` needs a credential on the box; without it the run still
+delivers, and the state commit waits for the next push from anywhere.
 
 ## 8 · Reading order (when you need to understand, not just run)
 

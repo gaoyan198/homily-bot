@@ -43,6 +43,7 @@ import homily_household
 import homily_ops
 import homily_bearish
 import homily_vault
+import homily_deliver
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -1142,6 +1143,10 @@ def chunks(text, limit=4000):
 
 
 def send(text):
+    """Digest text → Telegram, or the #118a alternate sink when
+    HOMILY_DELIVERY is set (file-drop; Telegram never touched that run)."""
+    if homily_deliver.active():
+        return homily_deliver.send(text)
     tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
     if not (tok and chat):
         print(text); print("\n[no TELEGRAM_* env — printed only]"); return
@@ -1173,6 +1178,8 @@ def send_photo(png, caption):
     """#35: sendPhoto via hand-rolled multipart/form-data (stdlib only).
     Caption is plain text (≤1024 per Telegram); a failed photo is logged and
     dropped — the text digest already carried the information."""
+    if homily_deliver.active():                  # #118a alternate channel
+        return homily_deliver.send_photo(png, caption)
     tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
     if not (tok and chat):
         print(f"[chart rendered, {len(png)} bytes — no TELEGRAM_* env, "
@@ -1202,6 +1209,8 @@ def send_photo(png, caption):
 def send_document(path, caption):
     """#36: sendDocument (same multipart pattern as send_photo); the
     dashboard file lands in the chat, one tap to open, works offline."""
+    if homily_deliver.active():                  # #118a alternate channel
+        return homily_deliver.send_document(path, caption)
     tok, chat = os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
     if not (tok and chat):
         print(f"[document {os.path.basename(path)} ready — no TELEGRAM_* "

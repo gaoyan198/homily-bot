@@ -3555,4 +3555,57 @@ print("[83] #115 COLD_START.md: secrets inventory complete, scripts exist, "
       "rehearsal flag real, Flex expiry synced, drill log dated  PASS")
 
 
+# [84] #118(a) alternate delivery — with HOMILY_DELIVERY=file:<dir> the three
+# senders write ONE self-contained bundle per day and never touch the
+# network; unset, they fall through to the Telegram path unchanged (no
+# token → printed). The workflow passes the variable; COLD_START lists it.
+import homily_deliver as _hdl84
+import urllib.request
+_prevE84 = os.environ.get(_hdl84.ENV)
+_prevU84 = urllib.request.urlopen
+def _noNet84(*a, **k):
+    raise AssertionError("[84] file-drop delivery touched the network")
+with _tf80.TemporaryDirectory() as _d84:
+    try:
+        os.environ[_hdl84.ENV] = f"file:{_d84}"
+        urllib.request.urlopen = _noNet84
+        assert _hdl84.active() and _hdl84.sink() == ("file", _d84)
+        _day84 = datetime.date(2026, 9, 11)
+        _p84 = _hdl84.send("<b>digest</b> <pre>x</pre>", day=_day84)
+        _hdl84.send_photo(b"\x89PNG-fake", "NVDA ⭐ caption", day=_day84)
+        _doc84 = os.path.join(_d84, "src.html"); open(_doc84, "w").write("<p>board</p>")
+        _hdl84.send_document(_doc84, "📊 dashboard", day=_day84)
+        assert os.path.basename(_p84) == "digest_2026-09-11.html"
+        _b84 = open(_p84, encoding="utf-8").read()
+        assert _b84.count("<meta charset") == 1 and "<b>digest</b>" in _b84 and \
+            "data:image/png;base64," in _b84 and "NVDA ⭐ caption" in _b84 and \
+            "href='src.html'" in _b84 and _b84.index("<b>digest</b>") < \
+            _b84.index("data:image"), _b84[:300]
+        assert open(os.path.join(_d84, "latest.html")).read() == _b84
+        assert os.path.exists(os.path.join(_d84, "src.html"))
+        # through daily_run's own senders, same sink, still no network
+        daily_run.send("<i>via daily_run</i>")
+        assert "via daily_run" in open(os.path.join(_d84, "latest.html")).read()
+        # unset → Telegram path; with no token it prints and touches nothing
+        os.environ.pop(_hdl84.ENV)
+        for _k84 in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
+            assert not os.getenv(_k84), "[84] validate must not run with Telegram env"
+        assert not _hdl84.active()
+        daily_run.send("<i>telegram path, no token</i>")
+    finally:
+        urllib.request.urlopen = _prevU84
+        if _prevE84 is None:
+            os.environ.pop(_hdl84.ENV, None)
+        else:
+            os.environ[_hdl84.ENV] = _prevE84
+_wf84 = open(os.path.join(_wfdir83, "homily-daily.yml")).read()
+assert "HOMILY_DELIVERY: ${{ vars.HOMILY_DELIVERY }}" in _wf84, "[84] workflow"
+assert _wf84.index("HOMILY_DELIVERY") < _wf84.index("run: python daily_run.py")
+_dr84 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "daily_run.py")).read()
+assert _dr84.count("if homily_deliver.active():") == 3, "[84] all three senders"
+print("[84] #118(a) alternate delivery: file-drop bundle, no network, "
+      "falls through to Telegram when unset, workflow + runbook wired  PASS")
+
+
 print("\nAll structural assertions passed.")
