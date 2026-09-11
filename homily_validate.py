@@ -3141,4 +3141,194 @@ print("[79] #159 entry lateness: claims artifact, live tier defs, D-1 replay, "
       "trailing window  PASS")
 
 
+# [80] #113 bars vault — the restore path is the whole item, so the test IS
+# a restore: a synthetic tape is vaulted (base + delta), the network is a
+# function that raises, and fetch_series must serve the vault bit-exact
+# through the same contract every engine reads. Also pinned: the silent-
+# rewrite detector (split → full re-vault; dividend → rescale, not rewrite),
+# the settled-sessions rule, the coverage floor, prune, and the CI wiring.
+import homily_vault as _hv80
+import tempfile as _tf80
+
+def _tape80(sym, n, start, step, today):
+    """Synthetic float32-exact bars ending the session BEFORE `today`."""
+    bars, adj = [], []
+    d = today - datetime.timedelta(days=1)
+    px = start + step * n
+    while len(bars) < n:
+        if d.weekday() < 5:
+            c = _hv80._f32(px)
+            bars.append((d, _hv80._f32(px * 0.99), _hv80._f32(px * 1.02),
+                         _hv80._f32(px * 0.98), c, d.toordinal() % 9973))
+            adj.append(_hv80._f32(c * 0.9))
+            px -= step
+        d -= datetime.timedelta(days=1)
+    return bars[::-1], adj[::-1]
+
+_t80 = datetime.date(2026, 9, 1)
+_syms80 = ["AAA", "BBB", "SPY"]
+_tapes80 = {s: _tape80(s, 1500, 10.0 * (i + 1), 0.01, _t80)
+            for i, s in enumerate(_syms80)}
+_now80 = [_t80]                      # the fake fetch's clock
+
+def _fetch80(sym, rng="max"):
+    if sym not in _tapes80:
+        raise ValueError("dead")
+    b, a = _tapes80[sym]
+    # a live partial bar dated TODAY rides along, as an Asian name's would
+    return b + [(_now80[0], 1.0, 1.0, 1.0, 1.0, 5)], a + [1.0]
+
+with _tf80.TemporaryDirectory() as _dir80:
+    # codec: 9 significant digits round-trip float32 prices bit-exact
+    _b, _a = _tapes80["AAA"]
+    _rb, _ra = _hv80.decode(_hv80.encode(_b, _a))
+    assert _rb == _b and _ra == _a, "[80] codec is not bit-exact"
+
+    # month 1: base + delta written, settled-sessions rule dropped the
+    # partial bar, second call is a no-op
+    _n1 = _hv80.snapshot(_t80, _fetch80, _dir80, _syms80)
+    assert any("wrote base-2026" in x for x in _n1) and \
+        any("wrote delta-2026-09" in x for x in _n1), _n1
+    assert "nothing to do" in _hv80.snapshot(_t80, _fetch80, _dir80,
+                                             _syms80)[0], "[80] not idempotent"
+    _rb, _ra = _hv80.read_series("AAA", "max", _dir80)
+    assert _rb == _b and _ra == _a, "[80] base restore is not bit-exact"
+    assert _rb[-1][0] < _t80, "[80] a partial (today) bar was vaulted"
+
+    # restore THROUGH homily_data with the network dead: the switch is the
+    # whole restore procedure, nothing downstream can tell
+    def _dead80(*a, **k):
+        raise AssertionError("[80] vault mode touched the network")
+    _prev80 = os.environ.get("HOMILY_BARS_SOURCE")
+    _prevdir80 = _hv80.VAULT_DIR
+    try:
+        os.environ["HOMILY_BARS_SOURCE"] = "vault"
+        _hv80.VAULT_DIR = _dir80
+        _vb, _va = homily_data.fetch_series("SPY", rng="5y", opener=_dead80)
+        _sb, _sa = _tapes80["SPY"]
+        assert _vb == _sb[-len(_vb):] and _va == _sa[-len(_va):] and \
+            _vb[0][0] >= datetime.date(2021, 9, 1) and \
+            _vb[0][0] <= datetime.date(2021, 9, 3), \
+            "[80] 5y window off the vault as-of date"
+        assert len(homily_data.fetch_daily("SPY", rng="5d", opener=_dead80)) == 5
+        try:
+            homily_data.fetch_series("ZZZ", rng="max", opener=_dead80)
+            assert False, "[80] unknown symbol must fail like a dead fetch"
+        except KeyError:
+            pass
+    finally:
+        _hv80.VAULT_DIR = _prevdir80
+        if _prev80 is None:
+            os.environ.pop("HOMILY_BARS_SOURCE", None)
+        else:
+            os.environ["HOMILY_BARS_SOURCE"] = _prev80
+
+    # month 2: new bars → delta carries ONLY what is after the base; a
+    # dividend on BBB rescales adj (not a rewrite); a split on AAA changes
+    # raw closes in the base window → full history re-vaulted + flagged
+    _t80b = datetime.date(2026, 10, 1)
+    _grown = {s: _tape80(s, 1522, 10.0 * (i + 1), 0.01, _t80b)
+              for i, s in enumerate(_syms80)}
+    _ab, _aa = _grown["AAA"]
+    _grown["AAA"] = ([(d, o / 2, h / 2, l / 2, c / 2, v) for d, o, h, l, c, v
+                      in _ab], [x / 2 for x in _aa])                # 2:1 split
+    _bb, _ba = _grown["BBB"]
+    _grown["BBB"] = (_bb, [_hv80._f32(x * 0.995) for x in _ba])     # dividend
+    _tapes80.update(_grown)
+    _now80[0] = _t80b
+    _n2 = _hv80.snapshot(_t80b, _fetch80, _dir80, _syms80)
+    assert any("wrote delta-2026-10" in x and "1 rewritten" in x
+               and "1 dividend-rescaled" in x for x in _n2), _n2
+    assert any("REWROTE history" in x and "AAA" in x for x in _n2), _n2
+    _m80 = _hv80._manifest(_dir80)["files"]["delta-2026-10.json.gz"]
+    assert _m80["rewrites"] == ["AAA"] and _m80["full"] == ["AAA"], _m80
+    assert _hv80.note(_t80b, _dir80).startswith("vault: Yahoo REWROTE"), \
+        "[80] digest note missing on the rewrite day"
+    assert _hv80.note(_t80b + datetime.timedelta(days=1), _dir80) == "", \
+        "[80] rewrite note must print once, not all month"
+    _rb, _ra = _hv80.read_series("AAA", "max", _dir80)
+    assert _rb == _grown["AAA"][0], "[80] split name must restore full fresh"
+    _rb, _ra = _hv80.read_series("BBB", "max", _dir80)
+    assert _rb == _grown["BBB"][0], "[80] base+delta splice lost bars"
+    assert max(abs(x / y - 1) for x, y in zip(_ra, _grown["BBB"][1])) < 1e-6, \
+        "[80] dividend rescale not applied to the base adj series"
+    _sp = _hv80._doc(_dir80, "delta-2026-10.json.gz")["symbols"]["SPY"]
+    assert not _sp["full"] and len(_sp["d"]) == 22, \
+        "[80] delta must carry only bars after the base"
+
+    # coverage floor: a mostly-dead fetch writes nothing and says so
+    _dead_tape = dict(_tapes80); _tapes80.clear(); _tapes80["SPY"] = _dead_tape["SPY"]
+    _now80[0] = datetime.date(2026, 11, 2)
+    _n3 = _hv80.snapshot(datetime.date(2026, 11, 2), _fetch80, _dir80, _syms80)
+    assert "not written" in _n3[0] and "AAA" in _n3[0], _n3
+    _tapes80.update(_dead_tape)
+
+    # prune: 4 deltas kept, bases never touched
+    for _d80 in (datetime.date(2026, 11, 2), datetime.date(2026, 12, 2),
+                 datetime.date(2027, 1, 4)):
+        _now80[0] = _d80
+        _hv80.snapshot(_d80, _fetch80, _dir80, _syms80)
+    _now80[0] = datetime.date(2027, 2, 1)
+    _n5 = _hv80.snapshot(_now80[0], _fetch80, _dir80, _syms80)
+    assert any("pruned delta-2026-10" in x for x in _n5), _n5   # 09 went last month
+    _files80 = sorted(os.listdir(_dir80))
+    assert "base-2026.json.gz" in _files80 and "base-2027.json.gz" in _files80 \
+        and "delta-2026-09.json.gz" not in _files80 \
+        and sum(f.startswith("delta-") for f in _files80) == 4, _files80
+    _ok, _bad = _hv80.check(_dir80)
+    assert _ok == 3 and not _bad, (_ok, _bad)
+
+# the registry of backtest universes is complete: every module-level list/
+# tuple of ticker-shaped strings in a committed harness must be vaulted, or
+# the drill's "reproduce a published backtest" is a lie for that harness
+# (the 2026-09-11 drill failed on exactly this). Reflective scan, on the
+# SOURCE, so a harness with import-time work is still covered.
+import ast as _ast80, glob as _glob80, re as _re80
+_tk80 = _re80.compile(r"^[A-Z0-9]{1,6}([.\-][A-Z]{1,3})?$")
+_words80 = {"HOLD", "FREEZE", "EITHER", "BOTH", "ROCKET", "SELL", "BUY", "DCA",
+            "RED", "WHITE", "BLUE", "CASH", "INDEX", "NONE", "ALL", "SPY",
+            "QQQ", "PASS", "FAIL", "NULL", "BULL", "BEAR", "UP", "DOWN"}
+_reg80 = {(m, a) for m, attrs in _hv80.BACKTEST_UNIVERSES for a in attrs}
+_vaulted80 = _hv80.backtest_symbols()
+for _f80 in sorted(_glob80.glob(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "homily_*backtest*.py"))):
+    _mod80 = os.path.basename(_f80)[:-3]
+    for _node80 in _ast80.parse(open(_f80).read()).body:
+        if not isinstance(_node80, _ast80.Assign) or \
+                not isinstance(_node80.value, (_ast80.List, _ast80.Tuple)):
+            continue
+        _vals80 = [e.value for e in _node80.value.elts
+                   if isinstance(e, _ast80.Constant) and isinstance(e.value, str)]
+        if len(_vals80) < 3 or len(_vals80) != len(_node80.value.elts):
+            continue
+        if not all(_tk80.match(v) for v in _vals80) or \
+                sum(v in _words80 for v in _vals80) > len(_vals80) // 2:
+            continue                                   # a mode list, not tickers
+        for _t80 in _node80.targets:
+            if isinstance(_t80, _ast80.Name):
+                assert (_mod80, _t80.id) in _reg80, \
+                    f"[80] {_mod80}.{_t80.id} looks like a ticker universe but " \
+                    "is not in homily_vault.BACKTEST_UNIVERSES — the vault " \
+                    "cannot reproduce that harness"
+                assert set(_vals80) <= _vaulted80
+assert {"SNAP", "U", "BYND", "DKNG"} <= _vaulted80, "[80] UNIV_B not vaulted"
+
+# CI wiring (R8): the step runs BEFORE the digest, never fatal, and the
+# directory is committed with its deletions
+_wf80 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          ".github", "workflows", "homily-daily.yml")).read()
+assert "run: python homily_vault.py" in _wf80, "[80] vault step missing"
+assert _wf80.index("python homily_vault.py") < _wf80.index("python daily_run.py"), \
+    "[80] vault must snapshot before the digest reads its note"
+_step80 = _wf80[_wf80.index("Bars vault"):_wf80.index("python homily_vault.py")]
+assert "continue-on-error: true" in _step80 and "timeout-minutes" in _step80, \
+    "[80] vault step can redden or stall the digest"
+assert "git add -A vault" in _wf80, "[80] vault not committed (R8)"
+assert "homily_vault.note(" in open(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "daily_run.py")).read(), \
+    "[80] digest never surfaces the rewrite note"
+print("[80] #113 bars vault: bit-exact restore via fetch_series with the network "
+      "dead, rewrite/dividend detector, coverage floor, prune, CI wiring  PASS")
+
+
 print("\nAll structural assertions passed.")

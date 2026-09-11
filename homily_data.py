@@ -4,7 +4,7 @@ Daily OHLCV fetch + weekly/monthly resample. Pure stdlib (urllib), key-free
 Yahoo v8 chart API — same pattern as daily_run's weekly fetch, but daily bars
 so the chip (cost-distribution) engine has volume-at-price to work with.
 """
-import json, ssl, time, random, datetime, urllib.request
+import os, json, ssl, time, random, datetime, urllib.request
 
 # #17 fetch hardening: rotate the two Yahoo chart hosts and retry with
 # exponential backoff + jitter, so a transient 5xx / rate-limit blip doesn't
@@ -56,6 +56,12 @@ def fetch_series(symbol, rng="2y", *, opener=urllib.request.urlopen):
     quote. Names without an adjclose block (or with a null in it) fall back to
     the raw close, i.e. to the pre-#18 behaviour.
     """
+    # #113 restore path: HOMILY_BARS_SOURCE=vault serves the committed bars
+    # vault instead of the network — same contract, same rng windows (cut
+    # relative to the vault's as-of date). Nothing downstream can tell.
+    if os.getenv("HOMILY_BARS_SOURCE", "").lower() == "vault":
+        import homily_vault
+        return homily_vault.read_series(symbol, rng)
     data = _fetch_json(symbol, rng, opener=opener)
     res = data["chart"]["result"][0]
     gran = (res.get("meta") or {}).get("dataGranularity")

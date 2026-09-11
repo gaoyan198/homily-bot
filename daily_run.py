@@ -42,6 +42,7 @@ import homily_cryptocycle
 import homily_household
 import homily_ops
 import homily_bearish
+import homily_vault
 
 # IBKR holding -> Yahoo symbol: lives in holdings.json (schema _v:2, #27) so
 # book changes are a one-line edit (last synced from live IBKR positions
@@ -981,6 +982,11 @@ def build_digest(flex_notes=None):
                 dataqa.append(an)
         except Exception:
             pass                      # second source is strictly optional
+        # #113: the bars vault's silent-rewrite detector — prints only on
+        # the day a monthly delta found Yahoo re-adjusting base history
+        vn = homily_vault.note(today)
+        if vn:
+            dataqa.append(vn)
     except Exception as e:
         print(f"[data-qa] skipped: {e}")
     # #88: top-3 turnover — how fragile the buy-day's point-in-time ⭐ set is
