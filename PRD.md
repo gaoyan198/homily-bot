@@ -913,6 +913,27 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #118(a)+(b) drilled as ONE run,
+and (a) is file-drop only.** The row asks for one drill each. The honest
+drill is a scheduler that is not GitHub running the job end to end
+through a channel that is not Telegram, so both prongs were exercised by
+a single launchd-fired run: `com.homily.drill118` loaded with a
+StartCalendarInterval two minutes out, fired at 17:07:04 SGT in a fresh
+clone, `homily_validate.py` green, `daily_run.py` delivered digest + 3
+charts + dashboard + full board + the #15 alert into a file-drop
+directory as one 57 KB HTML bundle, then `launchctl unload` + plist
+removed — nothing standing, no secret created, satisfying the row's
+"no standing infra" clause as written for (a)/(b). Email was deliberately
+not built: SMTP needs a credential kept live, which that clause forbids,
+and the file-drop into a synced folder is the cheaper channel with the
+same reach. Two limits recorded: the drill ran on the owner's Mac with
+the owner's Python, not a bare box (a Linux cron run is the same one
+line, in COLD_START §7, untested); and the `git push` half of the job
+was left out of the drill command on purpose — a throwaway clone must not
+push ledger rows to origin. Gambit's weekly Telegram send is an inline
+script in `gambit-weekly.yml`, not behind `homily_deliver`; the sleeve's
+channel death is therefore NOT covered by this drill.
+
 **2026-09-11 (planning era, execution) · #115's first drill was run by
 the author, which the gate says it should not be.** The row's test is a
 session with NO prior context; the session that wrote `COLD_START.md`
