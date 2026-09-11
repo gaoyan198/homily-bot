@@ -3331,4 +3331,135 @@ print("[80] #113 bars vault: bit-exact restore via fetch_series with the network
       "dead, rewrite/dividend detector, coverage floor, prune, CI wiring  PASS")
 
 
+# [81] #114 fetch failover chain — the canned outage IS the gate: Yahoo dead
+# → the run completes on a fallback with the source line printed; the
+# breaker stops paying 3×20 s per name once Yahoo is declared down; a 404
+# on a delisted name never trips it; non-US names fall through to the
+# vault; nothing served → the original error; disagreement vs the vault's
+# tape WARNS and never halts (R4); and daily_run writes no verdict-feeding
+# state on a foreign-tape day (R1).
+import urllib.error as _ue81
+_hd81 = homily_data
+_hd81.reset_breaker()
+_prevB81, _prevR81 = _hd81.BACKOFF, _hd81.JITTER
+_hd81.BACKOFF = _hd81.JITTER = 0.0
+_calls81 = {"yahoo": 0, "nasdaq": 0}
+_nas81 = json.dumps({"data": {"tradesTable": {"rows": [
+    {"date": "09/10/2026", "close": "$218.36", "volume": "105,768,000",
+     "open": "$220.525", "high": "$220.99", "low": "$217.20"},
+    {"date": "09/09/2026", "close": "$223.67", "volume": "99,000,000",
+     "open": "$222.00", "high": "$225.00", "low": "$221.00"},
+    {"date": "09/08/2026", "close": "N/A", "volume": "N/A",
+     "open": "N/A", "high": "N/A", "low": "N/A"}]}}}).encode()
+_dead81 = {"mode": "timeout"}
+
+class _R81:
+    def __init__(self, b): self._b = b
+    def read(self): return self._b
+    def __enter__(self): return self
+    def __exit__(self, *a): return False
+
+def _open81(req, timeout=None, context=None):
+    host = req.full_url.split("/")[2]
+    if "yahoo" in host:
+        _calls81["yahoo"] += 1
+        if _dead81["mode"] == "404":
+            raise _ue81.HTTPError(req.full_url, 404, "nf", {}, None)
+        raise _ue81.URLError("timed out")
+    if host == _hd81.NASDAQ_HOST:
+        _calls81["nasdaq"] += 1
+        if "assetclass=stocks" in req.full_url:
+            return _R81(_nas81)
+        raise _ue81.HTTPError(req.full_url, 404, "nf", {}, None)
+    raise AssertionError(f"[81] unexpected host {host}")
+
+try:
+    # Yahoo dead → Nasdaq serves; parsed oldest-first, N/A row dropped,
+    # adj == raw close; source recorded
+    _b81, _a81 = _hd81.fetch_series("NVDA", rng="5y", opener=_open81)
+    assert [b[0].isoformat() for b in _b81] == ["2026-09-09", "2026-09-10"], _b81
+    assert _b81[-1][4] == 218.36 and _b81[-1][5] == 105768000 and _a81 == \
+        [b[4] for b in _b81], _b81
+    assert _hd81.SOURCES["NVDA"] == ("nasdaq", datetime.date(2026, 9, 10))
+    assert _calls81["yahoo"] == _hd81.RETRIES, "[81] retries not spent first"
+    # the breaker: BREAKER consecutive transport failures → Yahoo skipped
+    # entirely for the rest of the process
+    for _i in range(_hd81.BREAKER - 1):
+        _hd81.fetch_series("AMD", rng="5y", opener=_open81)
+    _y81 = _calls81["yahoo"]
+    _hd81.fetch_series("AMD", rng="5y", opener=_open81)
+    assert _calls81["yahoo"] == _y81, "[81] breaker open but Yahoo still called"
+    # a delisted name's 404 is the symbol's problem: never counts
+    _hd81.reset_breaker(); _calls81["yahoo"] = 0
+    _dead81["mode"] = "404"
+    for _i in range(_hd81.BREAKER + 2):
+        _hd81.fetch_series("NVDA", rng="5y", opener=_open81)
+    assert _calls81["yahoo"] == (_hd81.BREAKER + 2) * _hd81.RETRIES, \
+        "[81] 404s tripped the breaker"
+    _dead81["mode"] = "timeout"
+    # non-US name: no Nasdaq tape; no vault either → the ORIGINAL error
+    _hd81.reset_breaker()
+    _prevF81 = _hd81.FALLBACKS
+    _hd81.FALLBACKS = (("nasdaq", _hd81.nasdaq_series),)
+    try:
+        _hd81.fetch_series("0700.HK", rng="5y", opener=_open81)
+        assert False, "[81] must raise when nothing serves"
+    except _ue81.URLError:
+        pass
+    assert "0700.HK" not in _hd81.SOURCES
+    # …and WITH a vault holding it → served stale, source says vault + date
+    with _tf80.TemporaryDirectory() as _dir81:
+        _t81 = datetime.date(2026, 9, 1)
+        _tapes80.clear(); _tapes80["0700.HK"] = _tape80("0700.HK", 300, 50.0, 0.1, _t81)
+        _now80[0] = _t81
+        _hv80.snapshot(_t81, _fetch80, _dir81, ["0700.HK"])
+        _hv80.VAULT_DIR = _dir81
+        _hd81.FALLBACKS = _prevF81
+        try:
+            _hd81.SOURCES["NVDA"] = ("nasdaq", datetime.date(2026, 9, 10))
+            _vb81, _ = _hd81.fetch_series("0700.HK", rng="5y", opener=_open81)
+            assert _vb81 == _tapes80["0700.HK"][0], "[81] vault fallback tape"
+            assert _hd81.SOURCES["0700.HK"] == ("vault", _vb81[-1][0])
+            # the digest line: counts, names, meaning, agreement vs vault,
+            # the no-state sentence; disagreement warns, never raises
+            _ln81 = _hd81.failover_note(
+                datetime.date(2026, 9, 11), bars_by_symbol={"NVDA": _b81},
+                vault_daily=lambda s: [(datetime.date(2026, 9, 10), 200.0)])
+            assert _ln81.startswith("📡 SOURCE: Yahoo failed for 2 names") and \
+                "Nasdaq served 1 (NVDA)" in _ln81 and "adj = raw close" in _ln81 \
+                and "vault served 1 (0700.HK)" in _ln81 and "STALE, as-of " \
+                f"{_vb81[-1][0].isoformat()}" in _ln81 and "1 DISAGREE" in _ln81 \
+                and "NVDA 2026-09-10" in _ln81 and "No ledger/snapshot" in _ln81, \
+                _ln81
+            _ok81 = _hd81.failover_note(
+                datetime.date(2026, 9, 11), bars_by_symbol={"NVDA": _b81},
+                vault_daily=lambda s: [(datetime.date(2026, 9, 10), 218.36)])
+            assert "1 OK" in _ok81 and "DISAGREE" not in _ok81, _ok81
+        finally:
+            _hv80.VAULT_DIR = _prevdir80
+    assert _hd81.failover_note(sources={}) == "", "[81] line must be silent on a Yahoo day"
+finally:
+    _hd81.BACKOFF, _hd81.JITTER = _prevB81, _prevR81
+    _hd81.FALLBACKS = _prevF81
+    _hd81.reset_breaker()
+
+# daily_run: the line reaches the data-QA footer, and every verdict-feeding
+# write is behind the foreign flag — pinned on source, and re-read after
+# the shadow screen (the last fetch before the ledger)
+_dr81 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "daily_run.py")).read()
+assert "homily_data.failover_note(today, bars_by_symbol=all_bars)" in _dr81
+assert "foreign = bool(homily_data.SOURCES)" in _dr81
+assert "daily_refine(bars_map=None if foreign else all_bars)" in _dr81
+assert "if states and not foreign:" in _dr81
+assert "foreign = foreign or bool(homily_data.SOURCES)" in _dr81 and \
+    _dr81.index("foreign = foreign or bool") > _dr81.index("shadow = [(s, c)") \
+    and _dr81.index("foreign = foreign or bool") < _dr81.index("homily_ledger.record(sigs")
+assert _dr81.count("foreign tape day (#114)") == 2, "[81] ledger + dashboard gates"
+assert "homily_data.vault_daily(\"SPY\")" in _dr81 and \
+    "homily_data.stooq_daily(" not in _dr81, "[81] #60 must read the vault, not Stooq"
+print("[81] #114 fetch failover: Yahoo dead → Nasdaq/vault serve with the source "
+      "line, breaker, 404-immune, warn-never-halt, no state on a foreign day  PASS")
+
+
 print("\nAll structural assertions passed.")
