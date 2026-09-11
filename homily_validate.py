@@ -3512,4 +3512,47 @@ print("[82] #117 verdict freeze: R-2029 + R-2036 text, fork clauses, #71 band "
       "method pinned; drift fails, re-pin needs a dated §8.5 note  PASS")
 
 
+# [83] #115 cold-start runbook — COLD_START.md is the succession document,
+# so the things it promises are pinned to the tree: every secret/variable
+# the workflows read is in its inventory, every script it tells the
+# operator to run exists, the buy-day rehearsal flag it depends on is real,
+# the Flex expiry it warns about matches ROADMAP §6, the pytest requirement
+# it discovered is stated, and the drill log has at least one dated row.
+_cs83 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "COLD_START.md"), encoding="utf-8").read()
+_wfdir83 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        ".github", "workflows")
+_names83 = set()
+for _f83 in os.listdir(_wfdir83):
+    _names83 |= set(_re80.findall(r"(?:secrets|vars)\.([A-Z_]+)",
+                                  open(os.path.join(_wfdir83, _f83)).read()))
+_names83 -= {"GITHUB_TOKEN"}
+for _n83 in sorted(_names83):
+    assert f"`{_n83}`" in _cs83, f"[83] COLD_START §6 is missing {_n83}"
+for _script83 in set(_re80.findall(r"python3? (\S+\.py)", _cs83)):
+    _script83 = _script83.strip("`")
+    assert os.path.exists(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), _script83)) or \
+        os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "gambit", _script83)), \
+        f"[83] COLD_START names a script that does not exist: {_script83}"
+assert "--rehearse" in _cs83 and '"--rehearse" in sys.argv' in open(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "homily_buyday.py")).read(), "[83] rehearsal flag"
+assert "pytest" in _cs83 and "pip install pytest" in open(os.path.join(
+    _wfdir83, "gambit-weekly.yml")).read(), "[83] the one non-stdlib need"
+_exp83 = _re80.search(r"\*\*(\d{4}-\d{2}-\d{2})\*\* \| \*\*IBKR Flex token EXPIRES",
+                      open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "ROADMAP.md"), encoding="utf-8").read())
+assert _exp83 and f"expires {_exp83.group(1)}" in _cs83, \
+    "[83] Flex expiry date in COLD_START does not match ROADMAP §6"
+assert "HOMILY_BARS_SOURCE=vault" in _cs83 and "--drill" in _cs83, "[83] restore path"
+_log83 = _cs83[_cs83.index("| Date | Runner | Result |"):]
+assert len(_re80.findall(r"^\| \d{4}-\d{2}-\d{2} \|", _log83, _re80.M)) >= 1, \
+    "[83] drill log has no dated row"
+assert "every failure patches THIS file" in _cs83
+print("[83] #115 COLD_START.md: secrets inventory complete, scripts exist, "
+      "rehearsal flag real, Flex expiry synced, drill log dated  PASS")
+
+
 print("\nAll structural assertions passed.")

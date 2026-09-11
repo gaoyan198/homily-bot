@@ -297,7 +297,42 @@ def buyday_block(states, positions, regime, day, *, yahoo=None, observe=(),
     return render(p, day, swing_skim_this_month(day)), p
 
 
+def rehearse(budget, day=None, snapshot=None):
+    """#115 cold-start drill: render the buy-day sheet from the COMMITTED
+    snapshot's states — no fetch, no ledger read, nothing written (no
+    basket CSV). Proves the money path runs on a fresh clone any day of the
+    month; the sheet it prints is a rehearsal on last-run states, never an
+    order sheet. -> (rendered block, plan)."""
+    import json
+    snapshot = snapshot or homily_ledger.SNAPSHOT
+    with open(snapshot) as f:
+        snap = json.load(f)
+    day = day or datetime.date.fromisoformat(snap["date"])
+    states = list(snap.get("holdings", [])) + list(snap.get("discovery", []))
+    positions = homily_positions.load_positions()
+    label = (snap.get("regime") or {}).get("label") or "MIXED"
+    srs = os.getenv("SRS_COVERS_INDEX", "").lower() in ("1", "true", "yes", "on")
+    # the SAME fence + symbol map the live call passes (daily_run:779) —
+    # a rehearsal that skips the 👁 fence would print a name money cannot
+    # touch (CYPH did, first try)
+    import daily_run
+    p = plan(budget, states, positions, label, srs_covers_index=srs,
+             yahoo={**daily_run.HOLDINGS, **daily_run.WATCH, **daily_run.UNIVERSE},
+             observe=daily_run.OBSERVE)
+    return render(p, day), p
+
+
 if __name__ == "__main__":
+    import sys
+    if "--rehearse" in sys.argv:
+        args = [a for a in sys.argv[1:] if a != "--rehearse"]
+        budget = float(args[0]) if args else float(os.getenv("BUY_BUDGET_USD", "") or 0)
+        if budget <= 0:
+            raise SystemExit("usage: homily_buyday.py --rehearse <BUY_BUDGET_USD>")
+        block, p = rehearse(budget)
+        print(f"REHEARSAL — sheet from docs/snapshot.json states, nothing "
+              f"written, not an order sheet\n{block}")
+        raise SystemExit(0)
     rows = homily_ledger._read_rows()
     today = homily_ledger.run_date()
     print(f"today {today} · buy day: {is_buy_day(today, rows)} · "

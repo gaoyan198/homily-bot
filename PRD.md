@@ -913,6 +913,22 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #115's first drill was run by
+the author, which the gate says it should not be.** The row's test is a
+session with NO prior context; the session that wrote `COLD_START.md`
+had all of it. Running the drill anyway was the right call — a runbook
+written from imagination would have missed all four findings the real
+clone produced (pytest; local state writes; no buy-day sheet off-cycle;
+uncommitted tree) — but it proves the *mechanics* work, not that the
+*document* is sufficient for a stranger. So the row is marked BUILT +
+FIRST DRILL, not PASSED, and the 2027-07 run by a context-free session
+(protocol in COLD_START §10) is the first drill that counts against the
+gate. One scope addition recorded here: `homily_buyday.py --rehearse` is
+new code on the money path's module, added because the drill could not
+otherwise produce the sheet the row demands; it reads the committed
+snapshot, applies the live 👁 fence and symbol map, prints, and writes
+nothing — no basket CSV, no ledger, nothing an order routine could read.
+
 **2026-09-11 (planning era, execution) · #117 pinned — R-2029 AND R-2036,
 not §3 alone, and the "#71 implementation" is D-39's machinery.** The row
 said "band method pinned to the committed #71 implementation (hash)". #71
