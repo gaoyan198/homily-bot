@@ -1,0 +1,34 @@
+{
+ "_comment": "R-2029/R-2036 verdict rules + #71 band method, pinned (#117). Re-pin ONLY with `python homily_verdict.py --repin` AND a PRD \u00a78.5 note dated the same day naming #117; validate [82] enforces both.",
+ "_v": 1,
+ "band_constants": {
+  "BLOCK": 6,
+  "N_RESAMPLES": 10000,
+  "PCTS": [
+   5,
+   25,
+   50,
+   75,
+   95
+  ],
+  "SEED": 39
+ },
+ "band_method_sha256": "fc48788271bd1496a905574106405ff220a45e07ea8800651a0ee517330d1053",
+ "forks": [
+  "**(a) Edge above the band \u2192 SCALE.**",
+  "**(b) Edge inside the band \u2192 HOLD & CHEAPEN.**",
+  "**(c) Edge below \u2212band \u2192 DEMOTE TO DISCIPLINE MODE.**",
+  "the buy-day copilot routes 100% to the index leg",
+  "\u2b50/tiers/ranks go info-only",
+  "the swing sleeve winds down at its next KILL/verdict boundary",
+  "cash sleeve only, since-inception",
+  "any change to the method before this read voids the read",
+  "demotion is not deletion",
+  "fork (b) collapses into (c)**",
+  "No re-benchmarking",
+  "no window-shopping the start date"
+ ],
+ "pinned": "2026-09-11",
+ "r2029_sha256": "8c144a2530a0e51261c52a16817d6abf9947e2e8b0cd050c86fd25208ebdc220",
+ "r2036_sha256": "9cb42879738b5b9e14de2e97a8daa13291901c96d2b6226f2b8354da6eaa9cee"
+}

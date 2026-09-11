@@ -913,6 +913,27 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-09-11 (planning era, execution) · #117 pinned — R-2029 AND R-2036,
+not §3 alone, and the "#71 implementation" is D-39's machinery.** The row
+said "band method pinned to the committed #71 implementation (hash)". #71
+(the scorecard power line) is not built yet — it is the ~2026-10 item that
+ships with the #14 scorecard — but its method IS committed: PRD #71 and
+D-39 both fix it as `homily_bootstrap.py`'s circular block bootstrap
+(block 6, 10,000 resamples, seed 39, paired draws), which #71 "reuses
+rather than re-derives". So the pin is on the SOURCE of those five
+functions and four constants, which is stricter than a file hash (a
+docstring edit elsewhere in the file does not trip it; a change to the
+arithmetic does). Second deviation: §4's R-2036 paragraph is pinned with
+§3's. The 2036 read is "the same three forks … but fork (b) collapses
+into (c)" and "no re-benchmarking, no window-shopping" — leaving that one
+clause of the same rule editable while freezing the 2029 half would be a
+hole shaped exactly like the re-shopping the item exists to prevent.
+Mechanics: `verdict_freeze.json` (hashes + the fork clauses verbatim),
+validate [82] recomputes on every run; a deliberate change is
+`python homily_verdict.py --repin` PLUS a §8.5 note dated the same day
+naming #117 — [82] checks for both, so the re-pin cannot be quiet. This
+entry is that note for the first pin.
+
 **2026-09-11 (planning era, execution) · #114 shipped WITHOUT Stooq — the
 planned alternate source is already dead, and #60 had been dead with it.**
 The row said "promote #60's Stooq cross-check to an ordered fallback".
