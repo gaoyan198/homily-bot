@@ -1211,7 +1211,9 @@ scale in when the price dips, seems counterintuitive to buy when the price
 hasnt retraced. But i will respect the data."* PRD §8.3 row 50 had
 pre-registered the shape (avg-cost + MOIC vs single-add and DCA, both
 universes); the rest of the rule was frozen in
-`homily_tranche_backtest.py`'s docstring before the first run — deadline
+`homily_tranche_backtest.py`'s docstring (archived 2026-09-26 to
+`docs/archive/` when #165's strength-side ladder took its slot; run it
+with `PYTHONPATH=.`) before the first run — deadline
 6m primary, 3m/12m sensitivity explicitly non-promotable (the #86 clause).
 
 Arms, $1/name/month, identical cash on identical dates so only the SHAPE
@@ -3158,7 +3160,7 @@ one place the current money path is structurally silent.
 ## 52 · #143 the descending blue ribbon, measured against its base rate (run 2026-09-26) — NULL; the conjunction works on the winners' universe and not on the control
 
 Claim under test (PRD §5o/§5q, DESIGNS D-143): Danny's bottom call is
-"volatility hole + descending blue ribbon", and it is also stage 1 of his
+"volatility hole + descending blue ribbon", and it is also stage 1 of Danny's
 §5q confirmation ladder. Rule frozen in `homily_ribbon_backtest.py`
 (#143 block) before the first run: ribbon on COMPLETED weekly closes
 (blue ⇔ EMA10 < EMA30, descending ⇔ EMA30 falling w/w); VH APPEARS ⇔ the
@@ -3207,16 +3209,16 @@ DEFINITION (validate [86]) because #165 and #167 need a fixed meaning of
 "descending blue" and "ribbon flip" — never as evidence that the ribbon
 times bottoms. #165's stage 1 therefore enters with a measured,
 unflattering prior: on the control, "VH + descending blue" is roughly a
-coin-flip week. Caveats: our VH is an approximation that has missed his
+coin-flip week. Caveats: our VH is an approximation that has missed Danny's
 published holes five times (#142, §5q Finding B), so this is a test of
-OUR construct of his stage 1; and the A-side result is precisely the kind
+OUR construct of Danny's stage 1; and the A-side result is precisely the kind
 of number that must never be quoted without the B-side next to it.
 **NOTHING SHIPPED** beyond the primitive — no digest surface, no engine
 edit.
 
 ## 53 · #167 volatility-hole polarity by ribbon colour (run 2026-09-26) — NULL, and backwards: the "topping" label marks the BEST forward returns
 
-Claim under test (PRD §5q, his IBIT weekly post 2026-09-07): holes "with
+Claim under test (PRD §5q, Danny's IBIT weekly post 2026-09-07): holes "with
 the red ribbons signaled topping … with the blue ribbon hinted at early
 bottoming". We label a hole's polarity with a 20-bar price lookback
 (`trend_before`); §5q's probe showed the two labellings disagree on 35%
@@ -3233,8 +3235,8 @@ default run is byte-identical to before, so §3 still reproduces).
 
 | fwd60 | A current: n | mean | win | B hype-2021: n | mean | win |
 |---|---|---|---|---|---|---|
-| his BOTTOM — BLUE-BREAKOUT | 377 | +6.6% | 55% | 498 | +2.8% | 48% |
-| his TOP — RED-BREAKDOWN | 544 | **+14.5%** | 69% | 339 | **+4.5%** | 50% |
+| Danny's BOTTOM — BLUE-BREAKOUT | 377 | +6.6% | 55% | 498 | +2.8% | 48% |
+| Danny's TOP — RED-BREAKDOWN | 544 | **+14.5%** | 69% | 339 | **+4.5%** | 50% |
 | BLUE-BREAKDOWN | 401 | +7.2% | 56% | 589 | +1.4% | 44% |
 | RED-BREAKOUT | 688 | +13.9% | 70% | 345 | +3.8% | 51% |
 | ours — DOWN-BREAKOUT | 336 | +10.3% | 63% | 382 | +3.2% | 48% |
@@ -3248,17 +3250,17 @@ NEGATIVE (−7.8pt A, −1.7pt B) against `trend_before`'s −1.4pt / +1.2pt ✗
 
 **The reading.** The ribbon colour at resolution sorts events by TREND,
 and trend persists: red-ribbon events beat blue-ribbon events whichever
-way the hole resolved (A: +14.5%/+13.9% vs +6.6%/+7.2%). His "top" is
+way the hole resolved (A: +14.5%/+13.9% vs +6.6%/+7.2%). Danny's "top" is
 the best cell in universe A and the best in B. That is the same fact
 the rest of this repo keeps measuring — strength beats dip-affinity
-(§35, §52) — seen through his polarity rule. §3's standing finding
+(§35, §52) — seen through Danny's polarity rule. §3's standing finding
 (breakdowns are not a sell signal in these names) is now re-labelled as
-surviving his polarity rule too, and `danny_signal` keeps printing
+surviving Danny's polarity rule too, and `danny_signal` keeps printing
 topping as a note, never a veto. The polarity source does not change.
 
 **Reported, not gated — false breakdowns.** Of BLUE-ribbon holes that
 broke DOWN, **78% (A, 328/422) and 70% (B, 435/618)** closed back above
-the zone's upper boundary within 65 sessions — his IBIT "false breakdown
+the zone's upper boundary within 65 sessions — Danny's IBIT "false breakdown
 to shake out weaker retail" is common on our construct. Caveat before
 anyone quotes it: a daily hole is a narrow band (a few percent), so a
 return above it within three months is not rare for ANY narrow band; the
@@ -3266,14 +3268,14 @@ number shows our walker's disarm-on-first-resolution discards a frequent
 event, not that the event is informative. It is evidence for #145's H1
 as a mechanic, nothing more.
 
-Caveats: our hole is an approximation that has missed his published
-holes five times (#142); his IBIT read is weekly, this is daily holes
+Caveats: our hole is an approximation that has missed Danny's published
+holes five times (#142); Danny's IBIT read is weekly, this is daily holes
 with a weekly ribbon (the same pairing the §5q probe measured). **NOTHING
 SHIPPED.**
 
-## 54 · #166 the weekly red-candle ignition with his confirm/negate rule (run 2026-09-26) — NULL; the confirm rule carries information, the event does not beat an ordinary week on the control
+## 54 · #166 the weekly red-candle ignition with Danny's confirm/negate rule (run 2026-09-26) — NULL; the confirm rule carries information, the event does not beat an ordinary week on the control
 
-Claim under test (PRD §5q): his red candle is an EVENT with a published
+Claim under test (PRD §5q): Danny's red candle is an EVENT with a published
 rule — "the price must surpass the high point of the red candle; a close
 below the low would negate" (ROOT 2024-07-09) — read on WEEKLY bars (AMD
 "five bullish red candles" 2026-09-25; IBRX 2026-09-19/23). Rule frozen
@@ -3300,17 +3302,17 @@ Prongs: A (a) ✓ (b) ✓ (c) ✓ · B **(a) ✗ at 12w (+4.3% vs +5.2%)**, 26w 
 · B (b) ✓ · B (c) ✓. **NULL — item CLOSED as a signal.**
 
 **The reading — two findings, pointing different ways.**
-1. **His confirm/negate rule is real information.** On both universes a
+1. **Danny's confirm/negate rule is real information.** On both universes a
    confirmed ignition beat a negated/pending one at both horizons (B: +4.3%
    vs +1.9% at 12w, +15.5% vs +9.4% at 26w). Waiting for the close above
    the candle's high sorts the good ignitions from the bad. It is the first
-   piece of his candle method in this repo to separate anything.
+   piece of Danny's candle method in this repo to separate anything.
 2. **But the event itself is not an edge.** In A a confirmed ignition beats
    an ordinary week by under a point at 12w; on the control it LOSES to an
    ordinary week at 12w. The confirm rule separates red candles from each
    other without lifting them above the market.
 
-**The cell #165 inherits.** His stage 2 is specifically "a red candle
+**The cell #165 inherits.** Danny's stage 2 is specifically "a red candle
 inside a descending blue ribbon". Confirmed, on the control, that cell is
 the WORST row in the table: **−5.1% at 12 weeks, 36% win**, against +5.2%
 for any week — while confirmed ignitions in any OTHER ribbon did +10.0%.
@@ -3326,3 +3328,77 @@ known 2025-05-16 at $117.17. On a 7× winner every ignition confirms.
 
 **Feeds #165:** stage 2 = the CONFIRMED week, as a definition only.
 **NOTHING SHIPPED.**
+
+## 55 · #165 the confirmation ladder (run 2026-09-26) — NULL by a hair; it IS insurance against false starts, and the premium is small but not zero
+
+Claim under test (PRD §5q; AMD 2026-09-25 "add size as the setup
+confirms" + the 2026-08-06 30/25/25/20 split, unverified and frozen):
+deploying a campaign in four confirmation stages beats going all-in at
+the first signal. Rule frozen in `homily_ladder_backtest.py`'s docstring
+before the run: S1 two ways, BOTH must pass (VH = #143's CONJ week; RIB =
+blue+descending ribbon onset) · S2 = #166 CONFIRMED week · S3 = weekly
+close above the heaviest overhead chip shelf (prior week's 504-session
+profile) · S4 = ribbon turns red; independent triggers; undeployed
+tranches wait in QQQ; one campaign per name per 52 weeks; 10 bps per
+trade; 10y, 58 names, vault tape. PASS iff, for both S1 definitions, n ≥
+30 per universe, ladder mean MOIC ≥ 0.97 × lump-at-S1 on both universes
+at 26w and 52w, ladder P10 ≥ lump-S1 P10 + 0.05 on B at both horizons,
+and ladder > QQQ on at least one universe at both horizons. This module
+took `homily_tranche_backtest.py`'s place (#50 archived, §30 pointer
+updated) — census stays 90.
+
+**S1 = RIB (ribbon onset — the powered version), MOIC per $1:**
+
+| arm | A (136): 26w | 52w | 52w P10 | B (109): 26w | 52w | 52w P10 |
+|---|---|---|---|---|---|---|
+| **LADDER 30/25/25/20** | 1.199 | **1.381** | 0.622 | 1.133 | 1.290 | **0.414** |
+| LUMP at S1 | 1.234 | **1.426** | 0.579 | 1.148 | 1.315 | **0.305** |
+| LUMP at S2 ("wait for one confirmation") | 1.184 | 1.369 | 0.683 | 1.125 | 1.276 | 0.421 |
+| LUMP at S4 (ribbon flip) | 1.183 | 1.351 | 0.739 | 1.147 | 1.303 | 0.474 |
+| QQQ only | 1.116 | 1.203 | 0.841 | 1.122 | 1.201 | 0.741 |
+
+False starts (S1 with no S2 inside 26w): A 20%, B 22%.
+
+**S1 = VH (Danny's stated stage 1, on our detector):** A 25 campaigns (< 30),
+ladder 1.509 / 2.050 vs lump-S1 1.612 / 2.197 at 26w/52w; B 54 campaigns,
+ladder 1.159 / 1.309 vs lump-S1 1.125 / 1.296, 52w P10 0.457 vs 0.281;
+false starts A 0%, B 28%.
+
+Prongs — RIB: (n) ✓ · **(a) ✗ at A 52w only: 1.381 against a required
+1.383 (0.97 × 1.426)**, the other three cells ✓ · (b) ✓ (B P10 +0.18 at
+26w, +0.11 at 52w) · (c) ✓. VH: **(n) ✗ (A = 25)** · **(a) ✗ (A 26w and
+52w, −6% and −7% relative)** · (b) ✓ · (c) ✓. **NULL — item CLOSED.** The
+RIB miss is 0.002 MOIC in one of four cells; the rule was written so that
+a miss is a miss, and it is recorded as one, not re-tuned into a pass.
+
+**The reading — the mechanism is exactly what §5q predicted.**
+1. **It insures.** On the hype-2021 control, where a fifth of first
+   signals are false starts, the ladder's worst decile after a year kept
+   **$4,140 of every $10,000** against **$3,050** all-in at stage 1 (RIB);
+   **$4,570 vs $2,810** in the VH version. That is the payout.
+2. **The premium is small and real.** On the current-winners universe the
+   ladder gave up ~3% of the average outcome after a year ($13,810 vs
+   $14,260 per $10,000 on RIB; ~7% on VH, where early stages bought the
+   bottoms of names that went straight up).
+3. **It never beats simply not buying for protection.** QQQ's worst decile
+   on the control kept $7,410 per $10,000 — more insurance than any
+   staging of a stock that is still falling. The ladder is a way to hold
+   the name with less regret, not a way to avoid its risk.
+4. **"Wait for one confirmation" is NOT the simpler answer** — LUMP-S2
+   did not beat the ladder on both universes at both horizons.
+
+Unregistered observations, recorded so nobody quotes them as findings:
+LUMP-S4 (all-in on the ribbon flip) had the best stock-arm P10 on B at
+both horizons and the best B mean in the VH version — a post-hoc cell,
+not a test. S3 filled in ~100% of campaigns, usually within weeks of S1:
+the heaviest of the (at most two) nearest overhead shelves is often
+close, so our "momentum bar cleared" is a weak confirmation; Danny's longest
+bar is likely a different, higher object (#142's fidelity caveat again).
+
+**What it feeds.** Nothing ships (Part III rule 5), and nothing should:
+a failed non-inferiority prong means the ladder cannot be sold as free.
+The honest owner-level summary is PLAYBOOK-grade, not engine-grade — **on
+names that may still be wrecks, staging in costs a few percent on average
+and roughly halves the damage in the worst cases** — which is a behaviour
+choice the owner can make with their own buys, recorded here with its
+price, not a rule this repo promotes.
