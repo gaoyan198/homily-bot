@@ -60,6 +60,19 @@ WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
          # ⭐/🔵 until it has 12 monthly bars (listed 2026-06-12, so
          # ~2027-06); WATCH prints it in every state until then.
          "SPCX":"SPCX",
+         # CRCL added 2026-09-26 (owner request). Circle, the USDC issuer.
+         # Owner's thesis, in their words: the more AI agents there are, the
+         # more bullish for stablecoins — agents allowed to transact for
+         # users will all need them, so CRCL is a primary beneficiary.
+         # WATCH, not UNIVERSE, so it prints in every state (UNIVERSE only
+         # surfaces ⭐/🔵). WATCH cannot carry the 👁 fence ([71] forbids
+         # it), so it is buy-eligible the day it earns CONVICTION ⭐|🟢 and
+         # a top-3 RS12 rank — on the add day it was nowhere near: CAUTION,
+         # conv 22 `fails` (G2 trend · G3 leader · G4 basis), RS12 −49 vs
+         # SPY, $89, below a 92–98 volatility-hole breakdown. Next buy
+         # day's picks unchanged. Already in universe.json as a #65
+         # screen name; naming it here makes its origin owner-request.
+         "CRCL":"CRCL",
          # SPCX GRADUATED 2026-08-17: it was added here 2026-07-31 as an
          # owner request precisely because WATCH is the only list that
          # prints a name in every state, and SPCX cannot reach ⭐/🔵 until
