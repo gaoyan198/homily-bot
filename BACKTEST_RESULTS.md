@@ -3213,3 +3213,60 @@ OUR construct of his stage 1; and the A-side result is precisely the kind
 of number that must never be quoted without the B-side next to it.
 **NOTHING SHIPPED** beyond the primitive — no digest surface, no engine
 edit.
+
+## 53 · #167 volatility-hole polarity by ribbon colour (run 2026-09-26) — NULL, and backwards: the "topping" label marks the BEST forward returns
+
+Claim under test (PRD §5q, his IBIT weekly post 2026-09-07): holes "with
+the red ribbons signaled topping … with the blue ribbon hinted at early
+bottoming". We label a hole's polarity with a 20-bar price lookback
+(`trend_before`); §5q's probe showed the two labellings disagree on 35%
+of events, so the re-cut was not redundant. Rule frozen in
+`homily_vol_backtest.py`'s #167 block before the run: the §3 walker
+(first resolution of each armed daily hole, live `find_hole`), 5y daily,
+universes A + B (58 names), vault tape; ribbon = `ribbon_state` (#143) on
+weekly closes through the resolution day; bottom arm BLUE-BREAKOUT vs top
+arm RED-BREAKDOWN, against the incumbent DOWN-BREAKOUT vs UP-BREAKDOWN;
+PASS iff on BOTH universes (a) RED-BREAKDOWN fwd60 < base, (b) the ribbon
+separates bottom from top by more than `trend_before` does, (c) n ≥ 30
+per cell. Reproduce: `python homily_vol_backtest.py --polarity` (the
+default run is byte-identical to before, so §3 still reproduces).
+
+| fwd60 | A current: n | mean | win | B hype-2021: n | mean | win |
+|---|---|---|---|---|---|---|
+| his BOTTOM — BLUE-BREAKOUT | 377 | +6.6% | 55% | 498 | +2.8% | 48% |
+| his TOP — RED-BREAKDOWN | 544 | **+14.5%** | 69% | 339 | **+4.5%** | 50% |
+| BLUE-BREAKDOWN | 401 | +7.2% | 56% | 589 | +1.4% | 44% |
+| RED-BREAKOUT | 688 | +13.9% | 70% | 345 | +3.8% | 51% |
+| ours — DOWN-BREAKOUT | 336 | +10.3% | 63% | 382 | +3.2% | 48% |
+| ours — UP-BREAKDOWN | 615 | +11.7% | 64% | 489 | +2.0% | 45% |
+| BASE (every day) | 40,391 | +9.4% | 59% | 32,596 | +1.9% | 47% |
+
+Prongs: (a) RED-BREAKDOWN is ABOVE base on both universes (+14.5% vs
++9.4%; +4.5% vs +1.9%) ✗ · (b) the ribbon's bottom−top separation is
+NEGATIVE (−7.8pt A, −1.7pt B) against `trend_before`'s −1.4pt / +1.2pt ✗
+· (c) every cell n ≥ 330 ✓. **NULL — item CLOSED.**
+
+**The reading.** The ribbon colour at resolution sorts events by TREND,
+and trend persists: red-ribbon events beat blue-ribbon events whichever
+way the hole resolved (A: +14.5%/+13.9% vs +6.6%/+7.2%). His "top" is
+the best cell in universe A and the best in B. That is the same fact
+the rest of this repo keeps measuring — strength beats dip-affinity
+(§35, §52) — seen through his polarity rule. §3's standing finding
+(breakdowns are not a sell signal in these names) is now re-labelled as
+surviving his polarity rule too, and `danny_signal` keeps printing
+topping as a note, never a veto. The polarity source does not change.
+
+**Reported, not gated — false breakdowns.** Of BLUE-ribbon holes that
+broke DOWN, **78% (A, 328/422) and 70% (B, 435/618)** closed back above
+the zone's upper boundary within 65 sessions — his IBIT "false breakdown
+to shake out weaker retail" is common on our construct. Caveat before
+anyone quotes it: a daily hole is a narrow band (a few percent), so a
+return above it within three months is not rare for ANY narrow band; the
+number shows our walker's disarm-on-first-resolution discards a frequent
+event, not that the event is informative. It is evidence for #145's H1
+as a mechanic, nothing more.
+
+Caveats: our hole is an approximation that has missed his published
+holes five times (#142); his IBIT read is weekly, this is daily holes
+with a weekly ribbon (the same pairing the §5q probe measured). **NOTHING
+SHIPPED.**
