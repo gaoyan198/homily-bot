@@ -4,14 +4,14 @@
 =============================================================================
 
 Our candle is a daily STATE (PRD §2: close vs EMA10 + MACD-hist, printed in
-the ledger's `candle` column). His red candle is an EVENT with a published
+the ledger's `candle` column). Danny's red candle is an EVENT with a published
 operational rule we had never used — "to confirm a bullish trend, the price
 must surpass the high point of the red candle; a close below the low would
-negate" (ROOT, 2024-07-09) — and his 2026 posts read it on WEEKLY bars (AMD's
+negate" (ROOT, 2024-07-09) — and Danny's 2026 posts read it on WEEKLY bars (AMD's
 "five bullish red candles", 2026-09-25; IBRX's "red candle together with the
 descending blue ribbon marked the trend reversal", 2026-09-23). The daily
 triple-red run already ran NULL (#108, BACKTEST_RESULTS §22); the untested
-axes are the weekly timeframe and his confirm/negate rule, nothing else.
+axes are the weekly timeframe and Danny's confirm/negate rule, nothing else.
 This module displaced `homily_triplered_backtest.py` to docs/archive/ in the
 same commit (census at cap, #116).
 
@@ -30,7 +30,7 @@ RULE — FROZEN BEFORE THE FIRST RUN (do not renegotiate after numbers):
   would use the outcome to pick the entry. Horizons 4 / 12 / 26 weeks.
   BASE = every post-warmup week, same universe. Ribbon at ignition
   (`ribbon_state`, #143: blue+descending vs not) is REPORTED as a split —
-  his stage 2 is "a red candle inside a blue ribbon" — never gated.
+  Danny's stage 2 is "a red candle inside a blue ribbon" — never gated.
   Universes A (current) and B (hype-2021 control), overlap in both.
 
   VERDICT (pre-registered): PASS iff, on BOTH universes,

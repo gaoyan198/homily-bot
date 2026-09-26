@@ -43,7 +43,7 @@ def fwd_ret(closes, i, n):
 
 
 # ---------------------------------------------------------------------------
-# #167 · VH POLARITY by ribbon colour (PRD §5q, his IBIT post 2026-09-07:
+# #167 · VH POLARITY by ribbon colour (PRD §5q, Danny's IBIT post 2026-09-07:
 # holes "with the red ribbons signaled topping … with the blue ribbon
 # hinted at early bottoming"). `python homily_vol_backtest.py --polarity`;
 # the default run above is untouched so §3's July re-run still reproduces.
@@ -64,14 +64,14 @@ def fwd_ret(closes, i, n):
 #   Forward 20d / 60d from the event close; BASE = every day, same names.
 #
 #   VERDICT (pre-registered): PASS iff, on BOTH universe A and B,
-#     (a) mean fwd60(RED-BREAKDOWN) < mean fwd60(BASE)   — his tops are
+#     (a) mean fwd60(RED-BREAKDOWN) < mean fwd60(BASE)   — Danny's tops are
 #         real tops (would overturn §3: breakdowns preceded ABOVE-baseline
 #         returns, which is why topping is a note and never a veto), AND
 #     (b) fwd60 separation bottom − top under RIBBON > the same under
 #         TREND, AND
 #     (c) n ≥ 30 in each of the four cells used, per universe.
 #   Anything else = NULL: §3's finding stands and is re-labelled as
-#   surviving his polarity rule too. A PASS ships nothing here (Part III
+#   surviving Danny's polarity rule too. A PASS ships nothing here (Part III
 #   rule 5) — `danny_signal`'s polarity source would switch in its own
 #   Phase-C session with an engine_freeze re-pin.
 #   Reported, not gated: the FALSE-BREAKDOWN rate — a BREAKDOWN from a

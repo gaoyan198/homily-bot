@@ -58,11 +58,11 @@ RED_MEDIAN_RUN_W = 8
 #   (ref_win 60, max_age 52 — #77's weekly settings) returns a hole whose
 #   cluster ends AT t (age 0) and no hole cluster ended in the prior
 #   MAX_GAP weeks (a growing cluster is one event, not several). This is
-#   his stage-1 "a volatility hole appears", not its later resolution.
+#   Danny's stage-1 "a volatility hole appears", not its later resolution.
 #   Arms, per week t: CONJ = VH appears + blue + descending · VH-ONLY =
 #   VH appears, not (blue+descending) · RIB-ONLY = blue + descending, no
 #   VH appearing · NEITHER · BASE = every week (unconditional).
-#   Horizons: 6 / 13 / 26 weeks (his "6 weeks to 6 months").
+#   Horizons: 6 / 13 / 26 weeks (Danny's "6 weeks to 6 months").
 #   Universes: A (current) and B (hype-2021 control) per
 #   homily_strategy_backtest, overlap names counted in both; ALL = union.
 #

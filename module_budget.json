@@ -138,6 +138,13 @@
    "record": "BACKTEST_RESULTS §26",
    "note": "IPO↓ tag ships (ipo_ref.json); survivorship caveat on the record"
   },
+  "homily_ladder_backtest": {
+   "status": "null",
+   "of": "#165",
+   "record": "BACKTEST_RESULTS §55",
+   "archive_by": "2027-07-31",
+   "note": "confirmation ladder; imports homily_redcandle_backtest (#166) — archive the two together"
+  },
   "homily_levdrift_backtest": {
    "status": "gate",
    "of": "#138",
@@ -253,12 +260,6 @@
    "record": "BACKTEST_RESULTS §16/§16b",
    "note": "§5.2 clock 12→8wk (SHIPPED)"
   },
-  "homily_tranche_backtest": {
-   "status": "null",
-   "of": "#50",
-   "record": "BACKTEST_RESULTS §30",
-   "archive_by": "2027-07-31"
-  },
   "homily_validate": {
    "status": "tool",
    "of": "R5",
@@ -313,6 +314,13 @@
    "record": "BACKTEST_RESULTS §22",
    "date": "2026-09-26",
    "displaced_by": "#166 (one in, one out at cap 90)"
+  },
+  "homily_tranche_backtest": {
+   "to": "docs/archive/homily_tranche_backtest.py",
+   "of": "#50",
+   "record": "BACKTEST_RESULTS §30",
+   "date": "2026-09-26",
+   "displaced_by": "#165 (one in, one out at cap 90)"
   }
  }
 }

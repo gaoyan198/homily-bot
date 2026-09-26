@@ -112,7 +112,7 @@ what is fun to build:
 * *2028–2031 (standing machinery, #120–122):* the **annual selection
   bake-off** (#120) turns #24's one-off harness into the permanent July
   fixture every new ranking idea must enter and win — an F:n/m ranker,
-  the #66 Q label, whale level, whatever Danny teaches next. (His
+  the #66 Q label, whale level, whatever Danny teaches next. (Danny's
   2026-09 lesson is a SIZING one, not a ranking one — #165's
   confirmation ladder — so it enters through its own gate and, if it
   passes, pays the same R10 selection price.) The
