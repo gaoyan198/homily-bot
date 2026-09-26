@@ -932,7 +932,7 @@ sub-week spells register as 1w — but the gap to 13w is unambiguous.
 
 ## 22 · #108 triple-red continuation (run 2026-07-18) — NULL, and mildly the wrong sign
 
-`homily_triplered_backtest.py` (PRD §5l — IBRX Feb 2026 "Triple Red
+`homily_triplered_backtest.py` — **archived 2026-09-26 to `docs/archive/`** (displaced by #166's weekly successor under the #116 cap; run it from the repo root with `PYTHONPATH=. python docs/archive/homily_triplered_backtest.py`) — (PRD §5l — IBRX Feb 2026 "Triple Red
 (Bullish) candles remain in force"). Event = a daily-RED run (live
 `daily_candle` semantics, one-pass R6 prefix equality, spot-checked
 against the real prefix call) first reaching 3; fwd 5/10/20d vs the
@@ -3270,3 +3270,59 @@ Caveats: our hole is an approximation that has missed his published
 holes five times (#142); his IBIT read is weekly, this is daily holes
 with a weekly ribbon (the same pairing the §5q probe measured). **NOTHING
 SHIPPED.**
+
+## 54 · #166 the weekly red-candle ignition with his confirm/negate rule (run 2026-09-26) — NULL; the confirm rule carries information, the event does not beat an ordinary week on the control
+
+Claim under test (PRD §5q): his red candle is an EVENT with a published
+rule — "the price must surpass the high point of the red candle; a close
+below the low would negate" (ROOT 2024-07-09) — read on WEEKLY bars (AMD
+"five bullish red candles" 2026-09-25; IBRX 2026-09-19/23). Rule frozen
+in `homily_redcandle_backtest.py`'s docstring before the run: the §2
+candle rule on completed weekly bars; ignition = first RED week after a
+non-RED one; within 8 weeks the first close above the ignition HIGH =
+CONFIRMED, below its LOW = NEGATED, else PENDING; **every forward return
+measured from the week the status became known**, never from the
+ignition week; 10y, 58 names, vault tape; PASS iff on BOTH universes
+CONFIRMED > BASE and > NEGATED+PENDING at 12w and 26w, n ≥ 30. This
+module took `homily_triplered_backtest.py`'s place (archived, §22
+pointer updated) — the census stays at 90.
+
+| cell | A: n (26w) | 12w | 26w | B: n (26w) | 12w | 26w |
+|---|---|---|---|---|---|---|
+| **CONFIRMED** | 551 | +9.8% | +22.4% | 376 | **+4.3%** | +15.5% |
+| NEGATED | 192 | +7.6% | +19.4% | 198 | +2.6% | +11.2% |
+| NEGATED + PENDING | 210 | +7.4% | +19.6% | 219 | +1.9% | +9.4% |
+| CONFIRMED · in blue+descending ribbon | 125 | +8.2% | +29.0% | 142 | **−5.1%** (36% win) | +9.1% |
+| CONFIRMED · other ribbon | 426 | +10.3% | +20.5% | 234 | +10.0% | +19.3% |
+| BASE (every week) | 13,326 | +9.0% | +20.6% | 9,922 | **+5.2%** | +11.7% |
+
+Prongs: A (a) ✓ (b) ✓ (c) ✓ · B **(a) ✗ at 12w (+4.3% vs +5.2%)**, 26w ✓
+· B (b) ✓ · B (c) ✓. **NULL — item CLOSED as a signal.**
+
+**The reading — two findings, pointing different ways.**
+1. **His confirm/negate rule is real information.** On both universes a
+   confirmed ignition beat a negated/pending one at both horizons (B: +4.3%
+   vs +1.9% at 12w, +15.5% vs +9.4% at 26w). Waiting for the close above
+   the candle's high sorts the good ignitions from the bad. It is the first
+   piece of his candle method in this repo to separate anything.
+2. **But the event itself is not an edge.** In A a confirmed ignition beats
+   an ordinary week by under a point at 12w; on the control it LOSES to an
+   ordinary week at 12w. The confirm rule separates red candles from each
+   other without lifting them above the market.
+
+**The cell #165 inherits.** His stage 2 is specifically "a red candle
+inside a descending blue ribbon". Confirmed, on the control, that cell is
+the WORST row in the table: **−5.1% at 12 weeks, 36% win**, against +5.2%
+for any week — while confirmed ignitions in any OTHER ribbon did +10.0%.
+In A the same cell is weaker at 12w (+8.2% vs +9.0%) and strong at 26w
+(+29.0%), the winners-universe pattern §52 already named. This is the
+same fact #167 found from the other side: a blue ribbon marks names still
+falling, and a red candle inside it is, on the names that did not recover,
+a bull trap more often than an ignition.
+
+AMD context (§5q; not evidence): all four 2025–26 ignitions CONFIRMED —
+the first, 2025-05-09 at $102.84 inside a blue+descending ribbon, became
+known 2025-05-16 at $117.17. On a 7× winner every ignition confirms.
+
+**Feeds #165:** stage 2 = the CONFIRMED week, as a definition only.
+**NOTHING SHIPPED.**
