@@ -3648,4 +3648,32 @@ print(f"[85] #116 complexity budget: {len(_rows85)} modules ≤ cap {_reg85['cap
       f"(archive by {_reg85['first_prune']})  PASS")
 
 
+
+# [86] #143 ribbon primitive — `ribbon_state` (blue ⇔ EMA10<EMA30 on weekly
+# closes, descending ⇔ EMA30 below its prior-week value) and the shared
+# completed-week OHLCV resampler. #165/#166/#167 build on both, so their
+# semantics are pinned on fixtures here, offline. homily_clone stays frozen
+# (engine_freeze covers it); the primitive only reads its `ema`.
+from homily_ribbon_backtest import ribbon_state as _rs86
+from homily_data import weekly_ohlcv as _wo86
+assert _rs86([float(x) for x in range(1, 31)]) is None, "[86] needs 32 weeks"
+_up86 = _rs86([float(x) for x in range(1, 60)])
+_dn86 = _rs86([float(x) for x in range(60, 1, -1)])
+assert _up86[0] is False and _up86[1] is False and _up86[2] > 0, "[86] rising"
+assert _dn86[0] is True and _dn86[1] is True and _dn86[2] < 0, "[86] falling"
+# a rebound above EMA30 after a decline: EMA30 turns up while EMA10 is still
+# under it = blue but NOT descending (the two conditions are independent)
+_x86 = [float(x) for x in range(60, 1, -1)] + [30.0] * 2
+_xs86 = _rs86(_x86)
+assert _xs86[0] is True and _xs86[1] is False, "[86] blue without descent"
+_d86 = [datetime.date(2026, 9, 7) + datetime.timedelta(days=k)
+        for k in (0, 1, 2, 3, 4, 7, 8, 9, 10, 11, 14)]
+_b86 = [(d, 10 + i, 12 + i, 9 + i, 11 + i, 100) for i, d in enumerate(_d86)]
+_w86 = _wo86(_b86)
+assert len(_w86) == 2, "[86] running week dropped"
+assert _w86[0] == (datetime.date(2026, 9, 11), 10, 16, 9, 15, 500), _w86[0]
+assert _w86[1][1] == 15 and _w86[1][4] == 20 and _w86[1][0] == _d86[9]
+print("[86] #143 ribbon primitive: blue/descending/slope on fixtures, blue "
+      "without descent, completed-week OHLCV drops the running week  PASS")
+
 print("\nAll structural assertions passed.")

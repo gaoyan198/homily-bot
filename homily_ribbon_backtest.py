@@ -25,9 +25,11 @@ Two questions, decision rules pre-committed here before the run:
 Open (right-censored) spells are excluded from the distribution and
 counted separately — including them would bias run lengths short.
 """
-from homily_clone import homily_circle
-from homily_data import fetch_daily, weekly_closes
+import sys
+from homily_clone import homily_circle, ema
+from homily_data import fetch_daily, weekly_closes, weekly_ohlcv
 from homily_strategy_backtest import UNIV_A, UNIV_B
+from homily_vol import find_hole, MAX_GAP, VOL_WIN
 
 WARMUP_W = 40          # weeks before the 30w SMA/regime engine is credible
 
@@ -35,6 +37,142 @@ WARMUP_W = 40          # weeks before the 30w SMA/regime engine is credible
 # median completed weekly-RED spell, both universes combined. daily_run
 # reads this for the info-only base-rate suffix on RED rows.
 RED_MEDIAN_RUN_W = 8
+
+
+# ---------------------------------------------------------------------------
+# #143 · the descending-blue-ribbon primitive + the conjunction study
+# (PRD §5o/§8.3 #143, DESIGNS D-143). Lives here, not in a new module:
+# the census is at its cap (#116) and this is #82's harness, the ribbon's
+# existing home. `homily_clone` stays FROZEN — this only reads its `ema`.
+#
+# RULE — FROZEN BEFORE THE FIRST RUN (do not renegotiate after numbers):
+#
+#   Ribbon (Danny's colours; red ribbon = mid-term uptrend, blue =
+#   protracted downtrend): on weekly closes, blue ⇔ EMA10 < EMA30;
+#   descending ⇔ EMA30 below its prior-week value; slope = EMA30 w/w
+#   change. The same definition §5o measured (blue 48.6%, blue+descending
+#   45.0% of 13,028 weekly observations); the run re-publishes both.
+#   Bars: COMPLETED weekly OHLCV (`homily_data.weekly_ohlcv`) from 10y
+#   daily; decision at week t's close, forward return from that close.
+#   VH APPEARS at week t ⇔ live `find_hole` on the weekly prefix
+#   (ref_win 60, max_age 52 — #77's weekly settings) returns a hole whose
+#   cluster ends AT t (age 0) and no hole cluster ended in the prior
+#   MAX_GAP weeks (a growing cluster is one event, not several). This is
+#   his stage-1 "a volatility hole appears", not its later resolution.
+#   Arms, per week t: CONJ = VH appears + blue + descending · VH-ONLY =
+#   VH appears, not (blue+descending) · RIB-ONLY = blue + descending, no
+#   VH appearing · NEITHER · BASE = every week (unconditional).
+#   Horizons: 6 / 13 / 26 weeks (his "6 weeks to 6 months").
+#   Universes: A (current) and B (hype-2021 control) per
+#   homily_strategy_backtest, overlap names counted in both; ALL = union.
+#
+#   VERDICT (pre-registered): PASS iff
+#     (i)  n(CONJ events with a 26w forward) ≥ 30 on ALL, and
+#     (ii) on BOTH universe A and universe B, at BOTH 6w and 26w, mean
+#          fwd(CONJ) > mean fwd of each of VH-ONLY, RIB-ONLY and BASE.
+#   The PRD row says "on the honest universe"; requiring both universes is
+#   the STRICTER reading, chosen here before the run (a gate may tighten
+#   before a read, never loosen after). Anything else = NULL: the ribbon
+#   stays a score component and #165/#167 use the primitive only as a
+#   definition, never as evidence that it times bottoms. No digest
+#   surface ships from the study session (Part III rule 5).
+# ---------------------------------------------------------------------------
+RIB_FAST, RIB_SLOW = 10, 30
+VH_REF_W, VH_AGE_W = 60, 52
+CONJ_FWD_W = (6, 13, 26)
+
+
+def ribbon_state(weekly_closes):
+    """-> (blue, descending, slope) at the LAST weekly close, or None when
+    there is too little history. Read-only; `homily_clone.ema` unchanged."""
+    if len(weekly_closes) < RIB_SLOW + 2:
+        return None
+    fast, slow = ema(weekly_closes, RIB_FAST), ema(weekly_closes, RIB_SLOW)
+    slope = slow[-1] / slow[-2] - 1
+    return fast[-1] < slow[-1], slow[-1] < slow[-2], slope
+
+
+def vh_appears(wk_bars):
+    """Week indices where a NEW weekly hole cluster first prints (frozen
+    rule above). Point-in-time: prefix calls only."""
+    out, last_end = [], None
+    for i in range(VH_REF_W + VOL_WIN + 5, len(wk_bars)):
+        h = find_hole(wk_bars[:i + 1], ref_win=VH_REF_W, max_age=VH_AGE_W)
+        if h is None:
+            continue
+        end = i - h.age
+        if h.age == 0 and (last_end is None or end - last_end > MAX_GAP):
+            out.append(i)
+        last_end = end
+    return out
+
+
+def conjunction_rows(wk_bars):
+    """[(arm, {h: fwd})] for every week with a defined ribbon."""
+    cl = [b[4] for b in wk_bars]
+    app = set(vh_appears(wk_bars))
+    rows = []
+    for i in range(VH_REF_W + VOL_WIN + 5, len(cl)):
+        st = ribbon_state(cl[:i + 1])
+        if st is None:
+            continue
+        blue, desc, _ = st
+        rib, vh = blue and desc, i in app
+        arm = ("CONJ" if vh and rib else "VH-ONLY" if vh else
+               "RIB-ONLY" if rib else "NEITHER")
+        fw = {h: cl[i + h] / cl[i] - 1 for h in CONJ_FWD_W if i + h < len(cl)}
+        rows.append((arm, blue, fw))
+    return rows
+
+
+def conjunction_study():
+    univ_all = UNIV_A + [n for n in UNIV_B if n not in UNIV_A]
+    per, dead = {}, []
+    for sym in univ_all:
+        try:
+            per[sym] = conjunction_rows(weekly_ohlcv(fetch_daily(sym, rng="10y")))
+        except Exception:
+            dead.append(sym)
+    groups = {"A current": [s for s in UNIV_A if s in per],
+              "B hype-2021": [s for s in UNIV_B if s in per],
+              "ALL": [s for s in univ_all if s in per]}
+    avg = lambda xs: sum(xs) / len(xs) if xs else float("nan")
+    win = lambda xs: 100 * sum(x > 0 for x in xs) / len(xs) if xs else float("nan")
+    allrows = [r for s in groups["ALL"] for r in per[s]]
+    nb = sum(1 for _, b, _ in allrows if b)
+    nbd = sum(1 for a, _, _ in allrows if a in ("CONJ", "RIB-ONLY"))
+    print(f"#143 descending-blue-ribbon conjunction — {len(groups['ALL'])} "
+          f"names, 10y weekly (completed bars)"
+          + (f"; unfetchable: {', '.join(dead)}" if dead else ""))
+    print(f"base rates over {len(allrows):,} weekly obs: blue "
+          f"{100 * nb / len(allrows):.1f}% · blue+descending "
+          f"{100 * nbd / len(allrows):.1f}%  (§5o measured 48.6% / 45.0%)")
+    means = {}
+    for g, syms in groups.items():
+        rows = [r for s in syms for r in per[s]]
+        print(f"\n{g}")
+        print(f"  {'arm':<9}" + "".join(f"{'n':>7}{str(h) + 'w':>8}{'win':>6}"
+                                        for h in CONJ_FWD_W))
+        for arm in ("CONJ", "VH-ONLY", "RIB-ONLY", "NEITHER", "BASE"):
+            sel = [fw for a, _, fw in rows if arm == "BASE" or a == arm]
+            line = f"  {arm:<9}"
+            for h in CONJ_FWD_W:
+                xs = [fw[h] for fw in sel if h in fw]
+                means[(g, arm, h)] = (avg(xs), len(xs))
+                line += f"{len(xs):>7}{avg(xs) * 100:>7.1f}%{win(xs):>5.0f}%"
+            print(line)
+    n_conj = means[("ALL", "CONJ", 26)][1]
+    beats = {(g, h): all(means[(g, "CONJ", h)][0] > means[(g, o, h)][0]
+                         for o in ("VH-ONLY", "RIB-ONLY", "BASE"))
+             for g in ("A current", "B hype-2021") for h in (6, 26)}
+    ok = n_conj >= 30 and all(beats.values())
+    print(f"\nVerdict (pre-registered): n(CONJ, 26w) on ALL = {n_conj} "
+          f"({'≥' if n_conj >= 30 else '<'} 30); CONJ beats VH-ONLY, "
+          "RIB-ONLY and BASE —")
+    for (g, h), b in beats.items():
+        print(f"  {g:<12} {h:>2}w  {'yes' if b else 'NO'}")
+    print(f"-> {'PASS' if ok else 'NULL'}")
+    return ok
 
 
 def circles(tk, wk):
@@ -74,7 +212,9 @@ def fmt(d):
             f"mean {d['mean']:.1f}w") if d else "n=0"
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "--conjunction" in sys.argv:
+    conjunction_study()
+elif __name__ == "__main__":
     univ_all = UNIV_A + [n for n in UNIV_B if n not in UNIV_A]
     per_univ = {"A current": [], "B hype-2021": []}
     open_runs, dead = 0, []

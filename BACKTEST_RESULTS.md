@@ -3154,3 +3154,62 @@ a prong to those reads, never loosen a pre-registered one. Finding (b) is the
 sharpest input to **#160**: if the fundamental-divergence entry is ever going
 to pay, it has to operate exactly where G2 and G3 are failing — which is the
 one place the current money path is structurally silent.
+
+## 52 · #143 the descending blue ribbon, measured against its base rate (run 2026-09-26) — NULL; the conjunction works on the winners' universe and not on the control
+
+Claim under test (PRD §5o/§5q, DESIGNS D-143): Danny's bottom call is
+"volatility hole + descending blue ribbon", and it is also stage 1 of his
+§5q confirmation ladder. Rule frozen in `homily_ribbon_backtest.py`
+(#143 block) before the first run: ribbon on COMPLETED weekly closes
+(blue ⇔ EMA10 < EMA30, descending ⇔ EMA30 falling w/w); VH APPEARS ⇔ the
+live `find_hole` on the weekly prefix (ref 60 / max_age 52, #77's
+settings) prints a new cluster ending that week; arms CONJ · VH-ONLY ·
+RIB-ONLY · NEITHER · BASE; forward 6/13/26 weeks from the week's close;
+10y daily → weekly, 58 names, vault tape (as-of 2026-09); PASS iff n(CONJ)
+≥ 30 on ALL and CONJ beats VH-ONLY, RIB-ONLY and BASE on BOTH universes
+at BOTH 6w and 26w. (The row said "on the honest universe"; both was the
+stricter reading, fixed before the run.) Reproduce:
+`python homily_ribbon_backtest.py --conjunction`.
+
+**Base rates re-published:** over 20,810 weekly observations, blue
+**40.0%**, blue + descending **34.5%** — lower than §5o's 48.6% / 45.0%,
+because this is a 10-year window (2016–2026 is mostly uptrend) where §5o
+used 5 years. Either way, roughly one week in three carries the filter.
+
+| arm | A current: n | 6w | 26w | B hype-2021: n | 6w | 26w |
+|---|---|---|---|---|---|---|
+| **CONJ** (VH appears + blue + descending) | 36 | **+10.0%** | **+47.4%** | 94 | **+1.8%** | **+11.1%** |
+| VH-ONLY | 201 | +5.6% | +18.4% | 129 | +1.1% | +9.3% |
+| RIB-ONLY | 3,401 | +4.2% | +20.8% | 4,198 | +0.6% | +2.0% |
+| NEITHER | 9,328 | +4.5% | +21.1% | 5,211 | +3.7% | +16.3% |
+| BASE (every week) | 12,966 | +4.5% | +21.1% | 9,632 | **+2.3%** | +10.1% |
+
+Verdict prongs: n = 123 ≥ 30 ✓ · A 6w ✓ · A 26w ✓ · **B 6w ✗ (+1.8% vs
++2.3% base)** · B 26w ✓ (by one point). **NULL — item CLOSED as a
+signal.**
+
+**The reading, in the direction the data points.** On the current-winners
+universe the conjunction looks spectacular (+47% at six months against
++21%, 81% win rate) — on 36 events drawn from names chosen because they
+became winners. On the hype-2021 control, where the same setup had to
+survive names that did NOT recover, it is indistinguishable from any
+week at six weeks and a point better at six months. Strong in A and flat
+in B is the survivorship signature this repo keeps finding (§31, §35):
+the setup marks the bottoms of stocks that were going to recover anyway.
+The ribbon half alone is worse than useless on the control (RIB-ONLY
++2.0% at 26w vs +10.1% base): a descending blue ribbon marks a name that
+keeps falling far more often than a bottom. Across ALL names the
+conjunction does not even beat the hole alone at 6w/13w (+3.5% vs +3.9%,
++6.7% vs +7.3%).
+
+**What stands and what it feeds.** `ribbon_state` ships as a read-only
+DEFINITION (validate [86]) because #165 and #167 need a fixed meaning of
+"descending blue" and "ribbon flip" — never as evidence that the ribbon
+times bottoms. #165's stage 1 therefore enters with a measured,
+unflattering prior: on the control, "VH + descending blue" is roughly a
+coin-flip week. Caveats: our VH is an approximation that has missed his
+published holes five times (#142, §5q Finding B), so this is a test of
+OUR construct of his stage 1; and the A-side result is precisely the kind
+of number that must never be quoted without the B-side next to it.
+**NOTHING SHIPPED** beyond the primitive — no digest surface, no engine
+edit.
