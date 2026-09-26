@@ -312,6 +312,24 @@ def monthly_closes(bars):
     return resample(bars, lambda d: (d.year, d.month))
 
 
+def weekly_ohlcv(bars):
+    """Daily 6-tuples -> COMPLETED weekly 6-tuples (date = last session,
+    o first, h max, l min, c last, v sum). The running week is dropped: a
+    study bar must be a completed bar (#77's convention, shared here so the
+    §5q studies #143/#165/#166 don't import from a closed-null harness)."""
+    out, cur = [], None
+    for d, o, h, l, c, v in bars:
+        k = d.isocalendar()[:2]
+        if k != cur:
+            out.append([d, o, h, l, c, v])
+            cur = k
+        else:
+            b = out[-1]
+            b[0], b[2], b[3], b[4] = d, max(b[2], h), min(b[3], l), c
+            b[5] += v
+    return [tuple(b) for b in out[:-1]]
+
+
 if __name__ == "__main__":
     bars = fetch_daily("NVDA")
     print(f"NVDA: {len(bars)} daily bars, "
