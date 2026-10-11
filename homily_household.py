@@ -135,7 +135,11 @@ def counterfactual(flows, qqq_by_month):
 #: is a one-line entry here plus the `<key>_qty` field in contributions.json
 #: — deliberately data, not another branch in book_value (#128c: btc and
 #: ibit had already grown one copy-pasted block each).
-MARKED_SLEEVES = {"btc": "BTC-USD", "ibit": "IBIT"}
+# 2026-10-12: hype + zec added. hype_usd had sat in contributions.json since
+# 2026-08-21 but no code read it, so HYPE was silently MISSING from net
+# worth — a typed key is only counted if it is a sleeve here or alt_usd.
+MARKED_SLEEVES = {"btc": "BTC-USD", "ibit": "IBIT",
+                  "hype": "HYPE32196-USD", "zec": "ZEC-USD"}
 
 
 def _marked_value(bal, prices, key, symbol):
