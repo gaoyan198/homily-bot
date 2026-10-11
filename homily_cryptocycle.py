@@ -474,8 +474,13 @@ def contribution(monthly, reserve, btc_share, in_window, months_left=None):
 
 
 def buyday_line(buy_day, monthly, reserve, btc_share, in_window,
-                cur="US$", esc=lambda x: x):
-    """-> the 📌 action line on buy day, "" otherwise (additive-only)."""
+                cur="US$", esc=lambda x: x, hype_share=None):
+    """-> the 📌 action line on buy day, "" otherwise (additive-only).
+
+    `hype_share` (2026-10-12): None = the whole non-BTC leg is HYPE (the
+    08-21 70/30 plan). Set, HYPE gets monthly x hype_share and the remainder
+    prints as the owner's own alt pick — the owner chooses the coin, so the
+    line names an amount, never a coin."""
     if not buy_day:
         return ""
     if not monthly:
@@ -484,8 +489,14 @@ def buyday_line(buy_day, monthly, reserve, btc_share, in_window,
                 "every month) and balances.crypto_reserve_usd (cash you already "
                 "hold). Until then this line will not guess.</i>")
     c = contribution(monthly, reserve, btc_share, in_window)
-    body = (f"send {cur}{c['total']:,.0f} — {cur}{c['btc']:,.0f} BTC "
-            f"+ {cur}{c['alt']:,.0f} HYPE")
+    body = f"send {cur}{c['total']:,.0f} — {cur}{c['btc']:,.0f} BTC "
+    if hype_share is None:
+        body += f"+ {cur}{c['alt']:,.0f} HYPE"
+    else:
+        hype = monthly * hype_share
+        body += f"+ {cur}{hype:,.0f} HYPE"
+        if c["alt"] - hype > 0.5:
+            body += f" + {cur}{c['alt'] - hype:,.0f} alt of your choice"
     if c["reserve"]:
         body += (f" (incl. {cur}{c['reserve']:,.0f} reserve slice, BTC-only, "
                  f"1 of ~{RESERVE_MONTHS})")

@@ -3067,6 +3067,12 @@ assert _o157["reserve"] == 0.0 and abs(_o157["total"] - 1000.0) < 1e-9, \
 assert _cc72.contribution(0.0, 5000.0, 0.7, True) is None, \
     "#157: no monthly amount -> no order"
 assert "BTC" in _cc72.buyday_line(True, 1000.0, 8000.0, 0.7, True)
+# 2026-10-12 owner DCA: BTC 1250 / HYPE 1250 / alt 500 of 3000 — the alt
+# slice must print separately, never be labelled HYPE
+_l157h = _cc72.buyday_line(True, 3000.0, 0.0, 1250 / 3000, False,
+                           hype_share=1250 / 3000)
+assert "1,250 BTC" in _l157h and "1,250 HYPE" in _l157h \
+    and "500 alt of your choice" in _l157h, _l157h
 print("[77] #157 crypto buy day: rides the stock buy day, reserve BTC-only  PASS")
 
 
