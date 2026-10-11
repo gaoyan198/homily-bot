@@ -115,6 +115,16 @@ and it is never the reason to add risk.
   fixed until the December review (§6); it is not re-opened on new
   information.**
 
+  **2026-10-12 — owner moved the monthly split anyway: S$1,250 BTC / S$1,250
+  HYPE / S$500 alt of the owner's choice (≈42/42/17 of S$3,000).** Offered
+  the alternative (back to 70/30, the S$500 alt slice to an index fund) and
+  declined it: "im good with current". Recorded as the live plan
+  (`crypto_btc_share` = `crypto_hype_share` = 1250/3000 in contributions.json;
+  the buy-day line prints the alt slice as an amount, never a coin). This is
+  the fifth revision of the split, and the first to add an unnamed alt
+  sleeve, which no part of this document has studied. **Take it to the
+  December review (§6) as an open item, not as settled.**
+
   **Why 70/30 is defensible.** It sits one point from the 75/25 the evidence
   recommended, and it keeps most of the measured diversification: HYPE's
   correlation to BTC is **0.48** and does NOT spike in selloffs (0.29 on BTC
