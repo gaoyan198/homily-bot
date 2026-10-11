@@ -1903,7 +1903,14 @@ assert "BTC price fetch failed" in _hh.render(
 
 # #128c: the SAME machinery marks IBIT — a second sleeve must need no new
 # branch, only a MARKED_SLEEVES entry + the <key>_qty field
-assert _hh.MARKED_SLEEVES == {"btc": "BTC-USD", "ibit": "IBIT"}
+assert _hh.MARKED_SLEEVES == {"btc": "BTC-USD", "ibit": "IBIT",
+                             "hype": "HYPE32196-USD", "zec": "ZEC-USD"}
+# 2026-10-12: a typed hype_usd must COUNT (it was silently dropped for
+# ~7 weeks because no sleeve read it)
+_c_hype = _hh.book_value(_pos52, _px52, _live52,
+                         dict(_bal52, hype_usd=500.0), fx=_fx52)
+assert _c_hype["crypto"] == 500.0 and _c_hype["crypto_manual"] == 500.0, \
+    _c_hype
 _bal128c = dict(_bal52, btc_qty=2.0, ibit_qty=10.0, ibit_usd=100.0,
                 alt_usd=250.0)
 _c128c = _hh.book_value(_pos52,
