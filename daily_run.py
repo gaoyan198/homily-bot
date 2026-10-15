@@ -224,6 +224,25 @@ UNIVERSE = {
     #
     # Charts and states cost nothing; an order on a $1.42 name whose
     # levels the engine itself has suspended is the thing being deferred.
+    #
+    # OWNER THESIS (stated 2026-10-15, to be judged at the 2026-11-24
+    # fence review). "It is the best holding company for Zcash; in a
+    # crypto bull run Zcash should run." Two claims: (1) ZEC rises in a
+    # bull run; (2) CYPH is the best vehicle for that move. (2) is the
+    # testable one — a treasury stock trades at a premium/discount to
+    # its coin holdings, so it can beat ZEC on the way up and lose to it
+    # on the way down, and it adds dilution + management risk the coin
+    # does not carry.
+    #   Position at statement: 2000 sh @ $3.42 avg (six buys 09-23..10-08,
+    #   each lower: 3.80/3.96/3.34/3.13/3.21/2.80), close $2.62 on
+    #   2026-10-14 (−23%, ~8% of the stock book vs the 10% cap), bought
+    #   while the account ran 1.35x (over the 1.30 BULL cap).
+    #   WORKING: ZEC up and CYPH up at least as much.
+    #   BROKEN:  ZEC up and CYPH lags or falls -> the stock is not the
+    #            better vehicle; own ZEC directly in the crypto sleeve.
+    #   SELL:    the company sells its ZEC, or issues stock well below
+    #            the value of its holdings.
+    #   Until review: hold, no adds (fence + leverage over cap).
     "CYPH":"CYPH",
 }
 
