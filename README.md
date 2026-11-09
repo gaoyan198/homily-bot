@@ -195,6 +195,11 @@ distance uses m=25% and IBKR charges concentrated books more, so a real call
 comes sooner. Until 2026-11-09 the only loan reminder was silenced by the
 `MARGIN_ZERO` flag while the loan more than doubled (PRD §5r).
 
+On the buy day (or the household Monday) a 🧺 line (#179) shows the index
+sleeve's share of the book against PLAYBOOK §7's 50% and a loan-first
+routing **alternative** in months. Honesty note: it assumes no returns and
+it changes nothing; the printed sheet is the sheet.
+
 ## When to sell — market regime 🐂/🐻 (priced tail insurance)
 Per-stock trend-selling loses (see backtests); the month-end 10m-SMA rule on
 SPY **and** QQQ (both below = 🐻 BEAR, both above = 🐂 BULL) survives — as

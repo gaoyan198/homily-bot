@@ -3851,4 +3851,29 @@ assert "urlopen" not in _src90 and "open(" not in _src90, "[90] pure"
 print("[90] #169 measured ⚖️ line: loan always shown, paydown/call math, "
       "rolled-SMA if-closed label, Flex gross covers every row  PASS")
 
+# [91] #179 Bucket-A floor line — the share reads `bucket: "A"` only, the
+# routing is loan-first then A (PLAYBOOK §7's order), the line goes quiet at
+# target with no loan, and it is APPENDED after the sheet (never edits it).
+_hp91 = homily_positions
+_pos91 = {"QQQM": {"shares": 10, "bucket": "A"}, "CSPX": {"shares": 2,
+          "bucket": "A"}, "NVDA": {"shares": 20}, "9992": {"shares": 100,
+          "bucket": "A", "currency": "HKD"}}
+assert _hp91.bucket_a_value(_pos91, {"QQQM": 270.0, "CSPX": 800.0,
+                                     "NVDA": 190.0, "9992": 150.0}) == 4300.0
+_r91 = _hp91.bucket_a_route(4312.0, 57761.0, 16572.0, 2325.0)
+assert _r91["months_loan"] == 8 and _r91["months_a"] == 22, _r91
+assert abs(_r91["share"] - 0.0747) < 1e-3
+assert _hp91.bucket_a_route(10.0, 100.0, 5.0, 0.0)["months_loan"] is None
+assert _hp91.bucket_a_line(50.0, 100.0, 0.0, 1000.0) == "", "at target"
+_l91 = _hp91.bucket_a_line(4312.0, 57761.0, 16572.0, 2325.0)
+assert "7.5%" in _l91 and "≈8 mo" in _l91 and "≈22 more mo" in _l91 and \
+    "info only" in _l91, _l91
+assert "no BUY_BUDGET_USD" in _hp91.bucket_a_line(10.0, 100.0, 0.0, 0.0)
+_src91 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "daily_run.py")).read()
+assert 'buyday = f"{buyday}\\n{ba}"' in _src91, \
+    "[91] the line must be appended after the sheet, never woven into it"
+print("[91] #179 Bucket-A floor: A-only share, loan-first routing, quiet at "
+      "target, appended after the sheet  PASS")
+
 print("\nAll structural assertions passed.")

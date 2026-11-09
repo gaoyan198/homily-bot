@@ -298,7 +298,7 @@ SKIP_CLASS = {
     "coverage": "SAFETY", "swing": "SAFETY", "leverage": "SAFETY",
     "cryptocycle": "SAFETY", "data-qa": "SAFETY", "bearish": "SAFETY",
     "alerts": "SAFETY", "ledger": "SAFETY", "vault": "SAFETY",
-    "ops": "DISPLAY", "hype": "DISPLAY", "lens": "DISPLAY",
+    "ops": "DISPLAY", "bucket-a": "DISPLAY", "hype": "DISPLAY", "lens": "DISPLAY",
     "dips": "DISPLAY", "turnover": "DISPLAY", "provisional": "DISPLAY",
     "breakout": "DISPLAY", "shadow": "DISPLAY", "dashboard": "DISPLAY",
     "chart": "DISPLAY", "week-diff": "DISPLAY",
@@ -807,6 +807,23 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     return "\n".join(lines)
 
 
+def bucket_a_line_now(sigs):
+    """#179 IO shell: A value from holdings × today's closes, book from Flex
+    gross (every position) else the tracked book, loan typed in
+    contributions.json, budget from BUY_BUDGET_USD."""
+    px = {s.ticker: s.chips.last for s, _c, _y in sigs}
+    a = homily_positions.bucket_a_value(POSITIONS, px)
+    book = homily_flex.ACCOUNT.get("gross_usd") or (
+        homily_positions.stock_book_value(POSITIONS, px) + a)
+    bal = (homily_household.load_contributions() or {}).get("balances") or {}
+    try:
+        budget = float(os.getenv("BUY_BUDGET_USD", "") or 0)
+    except ValueError:
+        budget = 0.0
+    return homily_positions.bucket_a_line(
+        a, book, float(bal.get("margin_loan_usd") or 0.0), budget, esc=esc)
+
+
 def measured_leverage(regime_label, sigs, today):
     """#169 IO shell: gross from IBKR Flex (every position, fenced names
     included) else holdings×closes (labelled partial); loan from
@@ -933,6 +950,18 @@ def build_digest(flex_notes=None):
             esc=esc)
     except Exception as e:
         _skipped("household", e)
+    # #179: the Bucket-A floor + paydown-first routing line rides the two
+    # monthly money moments (buy day, household Monday). Info-only, its own
+    # tag so a failure here never costs the sheet or the scorecard.
+    try:
+        if buyday or household:
+            ba = bucket_a_line_now(sigs)
+            if ba and buyday:
+                buyday = f"{buyday}\n{ba}"
+            elif ba:
+                household = f"{household}\n{ba}"
+    except Exception as e:
+        _skipped("bucket-a", e)
     # #69/#24: month-start promotions block — the frozen rs12-top3 window
     # read (promised through the 2026-10-01 read) + the rolling demotion
     # check for promoted entries. Same first-run-of-month test as the

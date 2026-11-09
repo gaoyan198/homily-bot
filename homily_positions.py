@@ -194,3 +194,52 @@ def cap_demotion_line(positions, prices, highs):
             f". Per promotions.json the {CAP_PCT:.0f}% cap REVERTS to 10% "
             "in the next session — mandatory, not a discussion; this line "
             "prints until the revert lands.")
+
+
+# --- #179 Bucket-A floor + paydown-first routing, made visible -------------
+# PLAYBOOK §7 already fixes the order of the monthly money: margin paydown
+# first ("this outranks investing"), then 50% Bucket A / 50% ⭐. §5r found
+# the book at 7.5% A with a S$21k loan and a funding plan that routes
+# neither. Info-only: this prints the gap and a paydown → A → stocks
+# ALTERNATIVE beside the real sheet; it changes no sheet and no default.
+A_TARGET = 0.50
+
+
+def bucket_a_value(positions, prices):
+    return sum(p["shares"] * prices[tk] for tk, p in (positions or {}).items()
+               if p.get("bucket") == "A" and tk in prices
+               and p.get("currency", "USD") == "USD")
+
+
+def bucket_a_route(a_usd, book_usd, loan_usd, monthly_usd):
+    """-> {"share", "months_loan", "months_a"} for routing the monthly IBKR
+    budget loan-first, then all to A until A is 50% of the book. Ignores
+    returns on purpose (a schedule, not a forecast). months_* None when the
+    budget is 0."""
+    import math
+    share = a_usd / book_usd if book_usd > 0 else 0.0
+    if monthly_usd <= 0:
+        return {"share": share, "months_loan": None, "months_a": None}
+    m_loan = math.ceil(max(0.0, loan_usd) / monthly_usd)
+    gap = max(0.0, (book_usd - a_usd) - a_usd)   # A must equal the rest
+    return {"share": share, "months_loan": m_loan,
+            "months_a": math.ceil(gap / monthly_usd)}
+
+
+def bucket_a_line(a_usd, book_usd, loan_usd, monthly_usd, esc=lambda x: x):
+    """-> the 🧺 line, or "" when the book is already at target with no loan."""
+    r = bucket_a_route(a_usd, book_usd, loan_usd, monthly_usd)
+    if r["share"] >= A_TARGET - 1e-9 and loan_usd <= 0:
+        return ""
+    k = lambda x: f"US${x / 1000:,.1f}k"
+    head = (f"🧺 <b>Bucket A (index) {r['share']:.1%} of the book vs the "
+            f"{A_TARGET:.0%} PLAYBOOK §7 split</b>"
+            + (f" · margin loan {k(loan_usd)} (paydown outranks investing)"
+               if loan_usd > 0 else ""))
+    if r["months_loan"] is None:
+        return head + " · <i>no BUY_BUDGET_USD set — no routing shown</i>"
+    alt = (f"alternative routing of {k(monthly_usd)}/mo: loan cleared in "
+           f"≈{r['months_loan']} mo, then all to A → 50% in ≈"
+           f"{r['months_a']} more mo (no returns assumed)")
+    return (f"{head}\n　<i>{esc(alt)} — info only; the sheet above is "
+            "unchanged and your funding plan stands until you change it</i>")
