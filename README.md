@@ -88,6 +88,14 @@ printed inside the block itself. It changes no DCA, buy-day, or copilot
 output (validate [55] asserts the render is byte-identical without it);
 its only job is context at the moment of a manual or margin decision.
 
+If a **safety** section (regime-gated sheets, the ⚖️ leverage line, bear
+tells, household, ledger, …) crashes, a ⚠️ **SAFETY BLOCK FAILED TODAY**
+line names it directly under the title and the CI run goes red after the
+digest is sent (#181). Honesty note: before 2026-11-09 a crashed section
+simply vanished, and its absence read like "nothing to report". A day
+without the ⚠️ line still means only that no section *raised*; it does not
+prove every section had fresh data.
+
 Rocket and discovery rows also carry `Q1/Q2/Q3` — a sticky quality tier
 (quarterly EDGAR read + 3y RS, frozen between refreshes,
 `homily_quality.py`, #66). It is a LABEL and nothing more: its gate
