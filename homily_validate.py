@@ -3689,4 +3689,33 @@ assert _w86[1][1] == 15 and _w86[1][4] == 20 and _w86[1][0] == _d86[9]
 print("[86] #143 ribbon primitive: blue/descending/slope on fixtures, blue "
       "without descent, completed-week OHLCV drops the running week  PASS")
 
+# [87] #168 no masked failures — a CI `run:` block that pipes into `tee` must
+# set pipefail, or a crash exits 0 through tee and the job goes green (the
+# 2026-11-07 gambit live run died that way and lost the week). Scans every
+# workflow; a fixture without pipefail must be caught (negative test).
+import glob as _g87
+import re as _re87
+def _tee_without_pipefail87(text):
+    """-> list of offending lines: a step's run block piping to tee with no
+    `set -o pipefail` (or `shell: bash`, which GitHub runs with -o pipefail)
+    in the same step."""
+    bad = []
+    for step in _re87.split(r"\n\s*- (?:name|uses):", text):
+        if _re87.search(r"\|\s*tee\b", step) and \
+                "set -o pipefail" not in step and \
+                not _re87.search(r"shell:\s*bash\b", step):
+            bad += [l.strip() for l in step.splitlines()
+                    if _re87.search(r"\|\s*tee\b", l)]
+    return bad
+for _f87 in sorted(_g87.glob(".github/workflows/*.yml")):
+    _bad87 = _tee_without_pipefail87(open(_f87).read())
+    assert not _bad87, f"[87] {_f87}: tee without pipefail: {_bad87}"
+_fx87 = "steps:\n  - name: a\n    run: python x.py | tee out.txt\n"
+assert _tee_without_pipefail87(_fx87), "[87] negative fixture not caught"
+assert not _tee_without_pipefail87(
+    "steps:\n  - name: a\n    run: |\n      set -o pipefail\n"
+    "      python x.py | tee out.txt\n"), "[87] pipefail fixture flagged"
+print("[87] #168 workflows: every `| tee` step sets pipefail (negative-tested)"
+      "  PASS")
+
 print("\nAll structural assertions passed.")
