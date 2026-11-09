@@ -200,6 +200,14 @@ sleeve's share of the book against PLAYBOOK §7's 50% and a loan-first
 routing **alternative** in months. Honesty note: it assumes no returns and
 it changes nothing; the printed sheet is the sheet.
 
+On the household Monday a 📒 SCORECARD (#171) compares three books on the
+same dated dollars since 2026-07-10: the bot's buy sheets, your actual
+fills (`owner_fills.csv`), and your buys never sold, each against QQQ, plus
+a rule check on every buy (on/off-sheet, 👁-fenced, paused). Honesty note:
+one crash quarter decides nothing; stocks are marked without dividends and
+QQQ with them; the fills file is exported by hand until the Flex query
+gains a Trades section, and the block says when it is stale.
+
 ## When to sell — market regime 🐂/🐻 (priced tail insurance)
 Per-stock trend-selling loses (see backtests); the month-end 10m-SMA rule on
 SPY **and** QQQ (both below = 🐻 BEAR, both above = 🐂 BULL) survives — as

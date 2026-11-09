@@ -41,6 +41,7 @@ import homily_swing
 import homily_leverage
 import homily_cryptocycle
 import homily_household
+import homily_scorecard
 import homily_ops
 import homily_bearish
 import homily_vault
@@ -298,7 +299,7 @@ SKIP_CLASS = {
     "coverage": "SAFETY", "swing": "SAFETY", "leverage": "SAFETY",
     "cryptocycle": "SAFETY", "data-qa": "SAFETY", "bearish": "SAFETY",
     "alerts": "SAFETY", "ledger": "SAFETY", "vault": "SAFETY",
-    "ops": "DISPLAY", "bucket-a": "DISPLAY", "hype": "DISPLAY", "lens": "DISPLAY",
+    "ops": "DISPLAY", "bucket-a": "DISPLAY", "scorecard": "DISPLAY", "hype": "DISPLAY", "lens": "DISPLAY",
     "dips": "DISPLAY", "turnover": "DISPLAY", "provisional": "DISPLAY",
     "breakout": "DISPLAY", "shadow": "DISPLAY", "dashboard": "DISPLAY",
     "chart": "DISPLAY", "week-diff": "DISPLAY",
@@ -950,6 +951,16 @@ def build_digest(flex_notes=None):
             esc=esc)
     except Exception as e:
         _skipped("household", e)
+    # #171/#176/#180: the BOT/OWNER/NO-SELL scorecard rides the household
+    # Monday (first Monday of the month) — the north-star read, info-only.
+    try:
+        if household:
+            sc = homily_scorecard.block({**HOLDINGS, **WATCH, **UNIVERSE},
+                                        OBSERVE, today, esc=esc)
+            if sc:
+                household = f"{household}\n\n{sc}"
+    except Exception as e:
+        _skipped("scorecard", e)
     # #179: the Bucket-A floor + paydown-first routing line rides the two
     # monthly money moments (buy day, household Monday). Info-only, its own
     # tag so a failure here never costs the sheet or the scorecard.

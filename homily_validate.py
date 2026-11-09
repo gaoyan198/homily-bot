@@ -3876,4 +3876,54 @@ assert 'buyday = f"{buyday}\\n{ba}"' in _src91, \
 print("[91] #179 Bucket-A floor: A-only share, loan-first routing, quiet at "
       "target, appended after the sheet  PASS")
 
+# [92] #171/#176/#180 scorecard — BOT fills reproduce the committed sheets,
+# the owner fills reconcile to a live IBKR share count, sells mirror into the
+# QQQ twin, OWNER − NO-SELL is exactly the sell decisions, and the #180
+# labels never call a no-sheet month a breach.
+import homily_scorecard as _sc92
+_ord92 = _sc92.load_orders()
+assert _ord92 and all(q > 0 for v in _ord92.values() for _, q in v)
+_first92, _ = _sc92.ledger_index()
+_bars92 = {s: [(datetime.date(2026, 8, 1) + datetime.timedelta(days=k),
+                100.0, 100.0) for k in range(120)]
+           for v in _ord92.values() for s, _ in v}
+_ev92 = _sc92.bot_events(_ord92, _first92, _bars92)
+assert sorted((e[1], e[2]) for e in _ev92) == sorted(
+    (s, q) for m, v in _ord92.items() if m in _first92 for s, q in v), \
+    "[92] BOT book must reproduce every committed sheet line"
+assert all(e[0] >= _first92[e[0].strftime("%Y-%m")] for e in _ev92)
+# live reconciliation: CYPH was opened entirely after inception; IBKR showed
+# 2,140 sh on 2026-11-08 — the fills file must sum to exactly that
+_f92 = _sc92.load_fills()
+assert abs(sum(f["qty"] if f["side"] == "BUY" else -f["qty"]
+               for f in _f92 if f["symbol"] == "CYPH") - 2140.0) < 1e-9
+# arithmetic on a toy tape: buy 10 @100, sell 5 @150; stock ends 120,
+# QQQ flat at 100 → OWNER = 5*120 + 750 = 1350, NO-SELL = 1200
+_d92 = [datetime.date(2026, 8, 3) + datetime.timedelta(days=k)
+        for k in range(5)]
+_tb92 = {"T": [(d, 100.0, c) for d, c in zip(_d92, (100, 110, 150, 130,
+                                                       120))]}
+_q92 = [(d, 100.0, 100.0) for d in _d92]
+_fx92 = [{"date": _d92[0], "symbol": "T", "side": "BUY", "qty": 10.0,
+          "price": 100.0, "currency": "USD"},
+         {"date": _d92[2], "symbol": "T", "side": "SELL", "qty": 5.0,
+          "price": 150.0, "currency": "USD"},
+         {"date": _d92[1], "symbol": "9992", "side": "SELL", "qty": 1.0,
+          "price": 1.0, "currency": "HKD"}]
+_eo92, _sk92 = _sc92.owner_events(_fx92)
+_en92, _ = _sc92.owner_events(_fx92, buys_only=True)
+_so92 = _sc92.summarize(_sc92.book_path(_eo92, _tb92, _q92, _d92))
+_sn92 = _sc92.summarize(_sc92.book_path(_en92, _tb92, _q92, _d92))
+assert _sk92 == 1 and abs(_so92["value"] - 1350.0) < 1e-9 and \
+    abs(_sn92["value"] - 1200.0) < 1e-9, (_so92, _sn92)
+assert abs(_so92["qqq"] - 1000.0) < 1e-9 and abs(_sn92["qqq"] - 1000.0) < 1e-9
+_lab92 = _sc92.label_buys(_fx92, {"2026-09": [("T", 1.0)]}, {}, {"T"})
+assert _lab92[0][1]["on_sheet"] is None and not _lab92[0][1]["fenced"], \
+    "[92] a no-sheet month / pre-fence date must not count as a breach"
+assert "no-sheet months" in _sc92.render(
+    {"BOT": _so92, "OWNER": _so92, "NO-SELL": _sn92},
+    _sc92.label_pnl(_lab92, _tb92, _q92, _d92[-1]), 1, _lab92, _d92[-1])
+print("[92] #171 scorecard: BOT = committed sheets, CYPH fills = IBKR 2,140, "
+      "sell mirroring + NO-SELL arithmetic, no-sheet ≠ breach  PASS")
+
 print("\nAll structural assertions passed.")
