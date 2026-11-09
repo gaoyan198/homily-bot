@@ -3759,4 +3759,50 @@ assert _wf88.index("git push") < _wf88.index("Safety-block check (#181)") \
 print("[88] #181 silent failures: every skip classified, SAFETY → ⚠️ under the "
       "title + post-commit red, DISPLAY byte-identical  PASS")
 
+# [89] #177 forward ledger — the contemporaneous label is DERIVED, never
+# typed: add_claim refuses a caller-supplied timing, labels by the 3-day
+# capture rule, keeps §51's corpus closed (forward rows never enter run()),
+# and forward_read stays "insufficient" below its min-n gate.
+_doc89 = {"claims": []}
+_base89 = {"id": "x", "ticker": "AAA", "band_lo": 10, "band_hi": 11,
+           "published": "2026-11-02", "kind": "support-level",
+           "url": "https://x.com/dannycheng2022/status/1",
+           "verbatim": "v", "provenance": "search-snippet"}
+try:
+    _el79.add_claim(_doc89, dict(_base89, timing="contemporaneous"))
+    raise AssertionError("[89] caller-supplied timing accepted")
+except ValueError:
+    pass
+_r89 = _el79.add_claim(_doc89, dict(_base89, captured="2026-11-05"))
+assert _r89["timing"] == "contemporaneous" and _r89["forward"] \
+    and _r89["scored"] is False, _r89
+_r89b = _el79.add_claim(_doc89, dict(_base89, id="y", captured="2026-11-06"))
+assert _r89b["timing"] == "retrospective", "[89] 4 days late is not live"
+for _bad89 in (dict(_base89, id="z", band_lo=12),
+               dict(_base89, id="x"),
+               dict(_base89, id="w", provenance="vibes"),
+               dict(_base89, id="v", captured="2026-11-01")):
+    try:
+        _el79.add_claim(_doc89, _bad89)
+        raise AssertionError(f"[89] accepted bad row {_bad89['id']}")
+    except ValueError:
+        pass
+_q89 = {datetime.date(2026, 11, 5) + datetime.timedelta(days=k): 100.0 + k
+        for k in range(300)}
+_rows89, _v89 = _el79.forward_read(_doc89, {"AAA": dict(_q89)}, _q89)
+assert len(_rows89) == 1 and _v89 == "insufficient", (_rows89, _v89)
+assert abs(_rows89[0][63]) < 1e-12, "[89] identical paths must read 0 excess"
+_src89 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_entrylag_backtest.py")).read()
+assert 'c.get("scored") and not c.get("forward")' in _src89, \
+    "[89] §51 replay no longer excludes forward rows"
+for _c89 in _el79.load_claims()["claims"]:
+    if _c89.get("forward"):
+        _gap89 = (datetime.date.fromisoformat(_c89["captured"])
+                  - datetime.date.fromisoformat(_c89["published"])).days
+        assert (_c89["timing"] == "contemporaneous") == \
+            (_gap89 <= _el79.CAPTURE_DAYS), f"[89] {_c89['id']}: timing lies"
+print("[89] #177 forward ledger: timing derived (3-day rule), bad rows "
+      "refused, §51 corpus closed, min-n gate holds  PASS")
+
 print("\nAll structural assertions passed.")

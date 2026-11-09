@@ -67,6 +67,24 @@ directions, per the #159 gate):
       wrong.
 
 Ships nothing. No threshold moves, no digest surface, no R10 slot.
+
+#177 FORWARD LEDGER (2026-11-09, same file — census at cap). The corpus
+above is 0/9 contemporaneous, so it can only ever say "reachable", never
+"tradeable". #177 starts capturing his priced calls AS THEY ARE POSTED:
+
+    python3 homily_entrylag_backtest.py --add-claim '<json>'
+    python3 homily_entrylag_backtest.py --forward
+
+`add_claim` DERIVES `timing` and never accepts it from the caller:
+contemporaneous iff `captured - published <= CAPTURE_DAYS`, else
+retrospective — so the label that gives a row its value cannot be typed
+in by hand. Captured rows carry `forward: true` and `scored: false`: §51's
+lateness replay above stays byte-reproducible on its frozen corpus, and
+the forward read below is the only thing that scores them, from the
+CAPTURE-date close (the first price we could have acted on), never from
+his publication price. No gate until FORWARD_MIN_N contemporaneous rows
+each have FORWARD_MIN_SESSIONS of history; before that `--forward` prints
+"insufficient" and no number. §51.4's honesty clauses (a)-(c) apply.
 """
 import os
 import json
@@ -87,6 +105,83 @@ GAP_SESSIONS = 10     # band-visit gap tolerance when deriving an episode
 SCAN_SESSIONS = 252   # how far past the visit to keep looking for a tier
 
 TIERS = ("WHALE-DIP", "ACCUMULATE", "BUY-DAY", "ROCKET")
+
+
+CAPTURE_DAYS = 3            # #177: published -> captured, or retrospective
+FORWARD_H = (63, 126, 252)  # ~3/6/12 months, sessions
+FORWARD_MIN_N = 10
+FORWARD_MIN_SESSIONS = 126
+_REQ177 = ("id", "ticker", "band_lo", "band_hi", "published", "kind", "url",
+           "verbatim", "provenance")
+
+
+def add_claim(doc, claim, today=None):
+    """#177: validate + append one captured claim to `doc` (mutates it).
+    `timing` is derived here — a caller-supplied value is rejected."""
+    if "timing" in claim:
+        raise ValueError("timing is derived from published/captured, "
+                         "never supplied")
+    for k in _REQ177:
+        if claim.get(k) in (None, ""):
+            raise ValueError(f"{claim.get('id')}: missing {k}")
+    if claim["provenance"] not in ("search-snippet", "owner-supplied",
+                                   "fetched"):
+        raise ValueError(f"{claim['id']}: unknown provenance")
+    if any(c["id"] == claim["id"] for c in doc["claims"]):
+        raise ValueError(f"{claim['id']}: duplicate id")
+    lo, hi = float(claim["band_lo"]), float(claim["band_hi"])
+    if not 0 < lo <= hi:
+        raise ValueError(f"{claim['id']}: band")
+    pub = datetime.date.fromisoformat(claim["published"])
+    cap = datetime.date.fromisoformat(
+        claim.get("captured") or (today or datetime.date.today()).isoformat())
+    if cap < pub:
+        raise ValueError(f"{claim['id']}: captured before published")
+    row = dict(claim, band_lo=lo, band_hi=hi, captured=cap.isoformat(),
+               timing=("contemporaneous" if (cap - pub).days <= CAPTURE_DAYS
+                       else "retrospective"),
+               forward=True, scored=False)
+    row.setdefault("unscored_because",
+                   "#177 forward-ledger row — scored by forward_read() from "
+                   "the capture date, not by §51's lateness replay")
+    doc["claims"].append(row)
+    return row
+
+
+def forward_read(doc, series, qqq):
+    """#177: forward returns from the capture-date close vs QQQ, for
+    contemporaneous forward rows. `series`/`qqq`: {date: close}. Returns
+    (rows, verdict) — verdict is "insufficient" until the min-n gate."""
+    def at(cl, d, k=0):
+        ks = sorted(cl)
+        i = next((j for j, x in enumerate(ks) if x >= d), None)
+        if i is None or i + k >= len(ks):
+            return None
+        return cl[ks[i + k]]
+    rows = []
+    for c in doc["claims"]:
+        if not (c.get("forward") and c["timing"] == "contemporaneous"):
+            continue
+        cl = series.get(c["ticker"])
+        if not cl:
+            continue
+        d = datetime.date.fromisoformat(c["captured"])
+        p0, q0 = at(cl, d), at(qqq, d)
+        r = {"id": c["id"]}
+        for h in FORWARD_H:
+            p1, q1 = at(cl, d, h), at(qqq, d, h)
+            r[h] = (None if None in (p0, p1, q0, q1)
+                    else (p1 / p0 - 1) - (q1 / q0 - 1))
+        rows.append(r)
+    ripe = [r for r in rows if r[FORWARD_H[1]] is not None]
+    verdict = ("insufficient" if len(ripe) < FORWARD_MIN_N else "readable")
+    return rows, verdict
+
+
+def save_claims(doc, path=CLAIMS):
+    with open(path, "w") as fh:
+        json.dump(doc, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
 
 
 def load_claims(path=CLAIMS):
@@ -189,7 +284,10 @@ def sessions_between(bars, d0, d1):
 
 def run(verbose=True):
     doc = load_claims()
-    scored = [c for c in doc["claims"] if c.get("scored")]
+    # #177 forward rows are scored:false by construction; the explicit
+    # filter keeps §51's frozen corpus closed even if one is mis-edited
+    scored = [c for c in doc["claims"]
+              if c.get("scored") and not c.get("forward")]
     sbars, sadj = fetch_series("SPY", rng="10y")
     series, out = {}, []
 
@@ -319,5 +417,38 @@ def _report(doc, out, lock):
           "never a verdict on his entries or ours.")
 
 
-if __name__ == "__main__":
+def _cli(argv):
+    if argv[:1] == ["--add-claim"]:
+        doc = load_claims()
+        row = add_claim(doc, json.loads(argv[1]))
+        save_claims(doc)
+        print(f"[#177] added {row['id']} ({row['timing']}, captured "
+              f"{row['captured']})")
+        return
+    if argv[:1] == ["--forward"]:
+        doc = load_claims()
+        tks = {c["ticker"] for c in doc["claims"] if c.get("forward")
+               and c["timing"] == "contemporaneous"}
+        ser = {}
+        for tk in tks | {"QQQ"}:
+            bars, _ = fetch_series(tk, rng="2y")
+            ser[tk] = {b[0]: b[4] for b in bars}
+        qqq = ser.pop("QQQ")
+        rows, verdict = forward_read(doc, ser, qqq)
+        ripe = sum(1 for r in rows if r[FORWARD_H[1]] is not None)
+        print(f"[#177] contemporaneous rows: {len(rows)} · with "
+              f"{FORWARD_MIN_SESSIONS}+ sessions forward: {ripe} · "
+              f"verdict: {verdict}")
+        if verdict == "readable":
+            for h in FORWARD_H:
+                xs = sorted(r[h] for r in rows if r[h] is not None)
+                if xs:
+                    print(f"  {h}d excess vs QQQ: median "
+                          f"{xs[len(xs) // 2]:+.1%} (n={len(xs)})")
+        return
     run()
+
+
+if __name__ == "__main__":
+    import sys
+    _cli(sys.argv[1:])

@@ -18,7 +18,13 @@
     "`scored` rows carry a band and a publication date and enter the",
     "statistics. Unscored rows are retrospective anecdotes with no usable",
     "date (his 2023 campaigns, reached only through 2026 retellings); they",
-    "are recorded so a later session does not mistake them for new material."
+    "are recorded so a later session does not mistake them for new material.",
+    "",
+    "#177 (2026-11-09): rows with forward:true are the FORWARD ledger —",
+    "timing is DERIVED by add_claim (contemporaneous iff captured within",
+    "CAPTURE_DAYS of published) and they are scored only by forward_read(),",
+    "never by §51's replay. The three §5r rows are retrospective (captured",
+    "7+ days late) and are recorded, not scored."
   ],
   "claims": [
     {
@@ -144,6 +150,57 @@
       "source": "PRD §5l table",
       "url": "https://x.com/dannycheng2022/status/2044688709438886203",
       "verbatim": "PLTR $8.8 x150k+ sh, 2023"
+    },
+    {
+      "id": "naut-2026-11-02",
+      "ticker": "NAUT",
+      "band_lo": 2.72,
+      "band_hi": 2.72,
+      "published": "2026-11-02",
+      "kind": "support-level",
+      "url": "https://x.com/dannycheng2022",
+      "provenance": "search-snippet",
+      "source": "PRD §5r fifth sweep — search-engine summary; no status URL surfaced (profile URL given instead)",
+      "verbatim": "[search-engine paraphrase, not his words] must hold the $2.72 momentum bar, with downside risk toward $2.28 and upside resistance near $3.40 and $4.30",
+      "captured": "2026-11-09",
+      "timing": "retrospective",
+      "forward": true,
+      "scored": false,
+      "unscored_because": "#177 forward-ledger row — scored by forward_read() from the capture date, not by §51's lateness replay"
+    },
+    {
+      "id": "sofi-2026-11-02",
+      "ticker": "SOFI",
+      "band_lo": 14.0,
+      "band_hi": 14.0,
+      "published": "2026-11-02",
+      "kind": "vol-hole-bottom",
+      "url": "https://x.com/dannycheng2022",
+      "provenance": "search-snippet",
+      "source": "PRD §5r fifth sweep — search-engine summary; no status URL surfaced (profile URL given instead)",
+      "verbatim": "[search-engine paraphrase, not his words] after a volatility hole marked a recent bottom around $14, the stock started picking up momentum",
+      "captured": "2026-11-09",
+      "timing": "retrospective",
+      "forward": true,
+      "scored": false,
+      "unscored_because": "#177 forward-ledger row — scored by forward_read() from the capture date, not by §51's lateness replay"
+    },
+    {
+      "id": "ibit-2026-10-04",
+      "ticker": "IBIT",
+      "band_lo": 48.04,
+      "band_hi": 48.04,
+      "published": "2026-10-04",
+      "kind": "resistance-level",
+      "url": "https://x.com/dannycheng2022/status/2106767178599133237",
+      "provenance": "search-snippet",
+      "source": "PRD §5r fifth sweep — search-engine summary of the status page",
+      "verbatim": "[search-engine paraphrase] the longest momentum bar at $48.04 was identified as the near-term resistance, with a clear break above that level expected to open the next leg higher",
+      "captured": "2026-11-09",
+      "timing": "retrospective",
+      "forward": true,
+      "scored": false,
+      "unscored_because": "#177 forward-ledger row — scored by forward_read() from the capture date, not by §51's lateness replay"
     }
   ]
 }
