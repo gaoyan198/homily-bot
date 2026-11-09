@@ -442,6 +442,223 @@ def conditioner_main():
               " item closes")
 
 
+# =============================================================================
+# §5r ARMS — #172 look-through cluster cap · #183 volatility-scaled momentum
+# =============================================================================
+# PRE-REGISTERED 2026-11-09, written into this file BEFORE `--5r` first ran;
+# nothing below may change after the run to move a verdict (Part III r6).
+#
+# Incumbent: rs12-top3 (the live selector), equal split of the month's $1.
+# `run_alloc` must reproduce run_selected(pick_rs(3)) to 1e-12 MOIC on every
+# read window, or the run is VOID.
+#
+#   cluster50 (#172, PRIMARY) / cluster35 (reported, never selected):
+#     clusters = connected components of corr ≥ 0.70 on 120 sessions of
+#     daily returns over the investable set (this month's candidates ∪ names
+#     held). A ranked candidate whose cluster already holds ≥ X% of the
+#     STOCK book (index leg excluded) gets no new money; the slot goes DOWN
+#     the rank list; if fewer than 3 survive, their share goes to the index
+#     leg (never cash). Adds only; nothing is ever sold.
+#   volscale (#183): the same top-3, weights ∝ 1/σ60 (daily, annualised),
+#     and total stock exposure × min(1, σ_target / σ_basket) where σ_basket
+#     = realised σ of the equal-weight basket of this month's picks over the
+#     prior 126 sessions and σ_target = 1.5 × QQQ's realised σ over the same
+#     126 sessions (frozen: "up to 1.5× index risk, de-risk above"). The
+#     remainder buys the index leg (SPY in this harness).
+#
+# GATES (universe B; READ = 2020→2025, 2021→2026, 2016→2026):
+#   PASS ⇔ (a) MOIC ≥ 0.97 × incumbent on all 3 read windows AND
+#          (b) MaxDD better by ≥ 5 pts on 2016→2026 (B·10y) AND
+#          (c) on the hype-2021 control window (2021→2026) MOIC ≥ incumbent's
+#              AND MaxDD no worse.
+#   #172 is judged on cluster50 alone. Universe A is printed as hindsight
+#   context, never a verdict. Any FAIL → NULL.
+
+def _rets(bars, d, n):
+    px = [b[4] for b in bars if b[0] <= d][-(n + 1):]
+    return [px[i] / px[i - 1] - 1 for i in range(1, len(px))]
+
+
+def _corr(a, b):
+    k = min(len(a), len(b))
+    if k < 30:
+        return 0.0
+    a, b = a[-k:], b[-k:]
+    ma, mb = sum(a) / k, sum(b) / k
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if va <= 0 or vb <= 0:
+        return 0.0
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / (va * vb) ** 0.5
+
+
+def _sigma(rets):
+    if len(rets) < 20:
+        return None
+    m = sum(rets) / len(rets)
+    return (sum((r - m) ** 2 for r in rets) / (len(rets) - 1)) ** 0.5 \
+        * 252 ** 0.5
+
+
+def _components(names, rets, thr=0.70):
+    parent = {n: n for n in names}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            if _corr(rets[a], rets[b]) >= thr:
+                parent[find(a)] = find(b)
+    return {n: find(n) for n in names}
+
+
+def run_alloc(cache, data, spy, win, index_bars, alloc):
+    """run_selected's accounting with a state-aware allocator:
+    alloc(d, rows, hold_vals) -> {name: weight}, Σ ≤ 1; the rest buys the
+    index leg. -> (MOIC, CAGR, MaxDD)."""
+    months = [spy[i][0] for i in month_first_idx(spy)][1:]
+    months = [m for m in months if win[0] <= m <= win[1]]
+    cash = paid = core = 0.0
+    hold = {}
+    nav, unit_val, units = [], 1.0, 0.0
+    for d in months:
+        ipx = (close_on(index_bars, d) or 0) if index_bars else 0
+        hv = {n: sh * (close_on(data[n], d) or 0) for n, sh in hold.items()}
+        val = cash + core * ipx + sum(hv.values())
+        if units > 0:
+            unit_val = val / units
+        nav.append(unit_val)
+        cash += 1.0
+        paid += 1.0
+        units += 1.0 / unit_val
+        w = alloc(d, cache[d], hv)
+        spent = 0.0
+        if w and cash > 0:
+            budget = cash
+            for n, wt in w.items():
+                px = close_on(data[n], d)
+                if px and wt > 0:
+                    hold[n] = hold.get(n, 0) + budget * wt * (1 - COST) / px
+                    spent += budget * wt
+            cash -= spent
+        if index_bars and ipx > 0 and cash > 1e-12:
+            core += cash * (1 - COST) / ipx
+            cash = 0.0
+    d_end = win[1]
+    eipx = (close_on(index_bars, d_end) or 0) if index_bars else 0
+    final = (cash + core * eipx
+             + sum(sh * (close_on(data[n], d_end) or 0)
+                   for n, sh in hold.items()))
+    unit_val = final / units
+    nav.append(unit_val)
+    yrs = len(months) / 12
+    cagr = (nav[-1] / nav[0]) ** (1 / yrs) - 1
+    mdd = min(nav[j] / max(nav[:j + 1]) - 1 for j in range(1, len(nav)))
+    return final / paid, cagr, mdd
+
+
+def alloc_top3(d, rows, hv):
+    picks = pick_rs(3)(rows)
+    return {n: 1.0 / len(picks) for n in picks} if picks else {}
+
+
+def alloc_cluster(data, cap):
+    def f(d, rows, hv):
+        ranked = [n for n, _, _ in sorted(rows, key=lambda r: -r[1])]
+        book = sum(hv.values())
+        held = [n for n, v in hv.items() if v > 0]
+        names = list(dict.fromkeys(ranked + held))
+        rets = {n: _rets(data[n], d, 120) for n in names}
+        comp = _components(names, rets)
+        load = {}
+        for n in held:
+            load[comp[n]] = load.get(comp[n], 0.0) + hv[n]
+        picks = [n for n in ranked
+                 if book <= 0 or load.get(comp[n], 0.0) < cap * book][:3]
+        return {n: 1.0 / 3 for n in picks}
+    return f
+
+
+def alloc_volscale(data, spy_like):
+    def f(d, rows, hv):
+        picks = pick_rs(3)(rows)
+        if not picks:
+            return {}
+        r60 = {n: _sigma(_rets(data[n], d, 60)) for n in picks}
+        inv = {n: 1.0 / s for n, s in r60.items() if s}
+        if not inv:
+            return {n: 1.0 / len(picks) for n in picks}
+        tot = sum(inv.values())
+        w = {n: v / tot for n, v in inv.items()}
+        rs = {n: _rets(data[n], d, 126) for n in picks}
+        k = min(len(v) for v in rs.values())
+        basket = [sum(rs[n][-k:][i] for n in picks) / len(picks)
+                  for i in range(k)] if k else []
+        sb = _sigma(basket)
+        sq = _sigma(_rets(spy_like, d, 126))
+        scale = 1.0 if not (sb and sq) else min(1.0, 1.5 * sq / sb)
+        return {n: wt * scale for n, wt in w.items()}
+    return f
+
+
+def main_5r():
+    spy = fetch_daily("SPY", rng="max")
+    qqq = fetch_daily("QQQ", rng="max")
+    all_months = [spy[i][0] for i in month_first_idx(spy)][1:]
+    span = [m for m in all_months
+            if WINDOWS[0][0] <= m <= WINDOWS[-1][1]]
+    read = sorted(B_READ)
+    hype = (datetime.date(2021, 7, 1), datetime.date(2026, 7, 1))
+    tenyr = (datetime.date(2016, 7, 1), datetime.date(2026, 7, 1))
+    arms = (("incumbent", alloc_top3),)
+    verdict = {}
+    for tag, names in (("B", UNIV_B), ("A", UNIV_A)):
+        data, dead = {}, []
+        for n in names:
+            try:
+                data[n] = fetch_daily(n, rng="max")
+            except Exception:
+                dead.append(n)
+        live = [n for n in names if n in data]
+        print(f"\n{'='*74}\n§5r selection arms — universe {tag}"
+              + ("" if tag == "B" else " (HINDSIGHT, context only)")
+              + (f"  (dead: {', '.join(dead)})" if dead else "")
+              + f"\n{'='*74}", flush=True)
+        cache = build_month_cache(live, data, spy, span)
+        allocs = (("incumbent", alloc_top3),
+                  ("cluster50", alloc_cluster(data, 0.50)),
+                  ("cluster35", alloc_cluster(data, 0.35)),
+                  ("volscale", alloc_volscale(data, qqq)))
+        for w0, w1 in read:
+            ref = run_selected(cache, data, spy, (w0, w1), spy, pick_rs(3))
+            res = {k: run_alloc(cache, data, spy, (w0, w1), spy, f)
+                   for k, f in allocs}
+            drift = abs(ref[0] - res["incumbent"][0])
+            line = f"  [{w0.year}→{w1.year}]"
+            for k, _ in allocs:
+                m, _, dd = res[k]
+                line += f"  {k} {m:5.2f} dd{dd*100:4.0f}%"
+            print(line + (f"  (regression {drift:.1e})"
+                          if drift < 1e-12 else "  ⚠ VOID"), flush=True)
+            if drift >= 1e-12:
+                return
+            if tag == "B":
+                verdict[(w0, w1)] = res
+    print(f"\n{'='*74}\n§5r PRE-REGISTERED VERDICTS (universe B)\n{'='*74}")
+    for arm, item in (("cluster50", "#172"), ("volscale", "#183")):
+        a = all(verdict[w][arm][0] >= 0.97 * verdict[w]["incumbent"][0]
+                for w in verdict)
+        b = verdict[tenyr][arm][2] >= verdict[tenyr]["incumbent"][2] + 0.05
+        c = (verdict[hype][arm][0] >= verdict[hype]["incumbent"][0]
+             and verdict[hype][arm][2] >= verdict[hype]["incumbent"][2])
+        print(f"  {item} {arm}: (a) MOIC ≥0.97× on all reads {a} · (b) B·10y"
+              f" MaxDD +5pt {b} · (c) hype-2021 not worse {c} → "
+              + ("PASS" if a and b and c else "NULL"))
+
+
 # in __main__: `--conditioner` branches here before the committed main()
 
 
@@ -449,5 +666,7 @@ if __name__ == "__main__":
     import sys
     if "--conditioner" in sys.argv:
         conditioner_main()          # #87, flag-gated
+    elif "--5r" in sys.argv:
+        main_5r()                   # #172/#183, flag-gated
     else:
         main()

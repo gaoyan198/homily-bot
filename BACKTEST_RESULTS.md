@@ -3470,3 +3470,50 @@ Caveats that travel: lump-sum paths (no contributions, so #175's
 paydown-from-contributions mechanism cannot appear), monthly core NAV,
 m=25% (IBKR charges concentrated books more), survivorship in universe B
 on absolute numbers (§16b stands for the QQQ bar).
+
+## 57 · §5r selection arms — #172 look-through cluster cap · #183 volatility-scaled momentum (run 2026-11-09) — both NULL; vol-scaling is real insurance at a real price
+
+`python homily_selection_backtest.py --5r`. Rules and gates were frozen in
+the file's §5r block before the run. `run_alloc` reproduces the
+incumbent's `run_selected(pick_rs(3))` to ≤1.8e-15 on every window.
+Money-weighted MOIC on a $1/month DCA · MaxDD of the unit NAV.
+
+**Universe B (the hype-2021 control, the verdict):**
+
+| window | rs12-top3 (live) | cluster50 #172 | cluster35 | volscale #183 |
+|---|---|---|---|---|
+| 2016→2026 | **2.84** · −76% | 2.34 · −72% | 2.18 · −70% | 2.48 · −69% |
+| 2020→2025 | **1.89** · −74% | 1.71 · −67% | 1.65 · −68% | 1.70 · **−57%** |
+| 2021→2026 | **1.82** · −67% | 1.70 · −58% | 1.70 · −60% | 1.68 · **−46%** |
+
+Universe A (hindsight, context only): incumbent 10.24/2.55/3.48;
+cluster50 9.76/2.46/3.01; volscale 7.12/2.32/3.03 at −51/−45/−39% vs
+−57/−53/−47%.
+
+**Verdicts, exactly as pre-registered:**
+
+* **#172 cluster cap (X=50%) — NULL on all three prongs.** It costs 6–18%
+  of MOIC on every read window, and buys only 4 pts of B·10y MaxDD (needs
+  5) and 9 pts on the hype window, where MOIC still falls. Capping the
+  correlated cluster sends the money down the rank list into weaker
+  momentum names; in this universe the cluster IS where the momentum is.
+  X=35% is worse on MOIC everywhere. The owner's #164 line (AI
+  concentration as a deliberate bet) stands: this prices it, and the
+  price of diversifying away from it is measured as higher than the
+  drawdown it saves.
+* **#183 volatility-scaled momentum — NULL on (a) and (c), PASS on (b).**
+  It is the strongest drawdown control any selection arm here has shown:
+  B MaxDD −46% vs −67% on the 2021→2026 hype window and −57% vs −74% on
+  2020→2025, with −7 pts on B·10y. The cost is 8–13% of terminal MOIC on
+  B (1.68 vs 1.82, 1.70 vs 1.89, 2.48 vs 2.84), outside the 0.97×
+  non-inferiority band. The literature's crash-protection effect is
+  visible, and on a long-only 3-name DCA it costs more than on a
+  long-short decile book.
+
+**What this means for the live book.** Neither rule ships. The selector's
+drawdown (−67…−76% on the honest universe) is the measured price of its
+selection edge, and both tested ways to buy that drawdown down cost more
+return than the gates allowed. #183's numbers are the owner's best priced
+option if a smaller drawdown is ever worth ~10% of terminal wealth: that
+is a preference, not a test result, and it would come back as an owner
+decision recorded the way #164 was. It is not a promotion.
