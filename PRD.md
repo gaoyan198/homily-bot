@@ -629,6 +629,269 @@ edits, zero golden re-pins, zero R10 slots. The sweep's yield: one
 priced behaviour choice (§55) and one piece of Danny's method that carries
 information (§54's confirm rule).
 
+## 5r. Addendum 2026-11-08 — crash post-mortem + fifth sweep (window: §5q's 2026-09-26 → today) → plans #168–173
+
+Owner, 2026-11-08: *"this bot has deviated from its original purpose i
+feel. Our goal is to generate alpha but recently during this crash our
+portfolio is suffering more, what went wrong?"* Answered from the live
+account (IBKR read-only, 2026-11-08), the committed buy-day sheets
+(`docs/orders_2026-*.csv`), the GAMBIT books and CI logs, BEFORE any Danny
+post was read, so the sweep could not shape the diagnosis.
+
+**The crash.** QQQ peaked 759.66 on 2026-10-06 and closed 656.10 on
+11-06 (**−13.6%**); the 11-05 session alone took the Nasdaq-100 into
+correction on a global chip/memory sell-off (MU −36.6%, SMH −25.8%,
+SNDK −51%, Roundhill DRAM ETF −35% since 10-07; SPY only −5.4%). Regime
+banner still 🐂 BULL: QQQ sits 3.8% under its 10m SMA intramonth, SPY
+0.4% above, and the rule reads month-end closes of BOTH.
+
+**Finding A: the account fell about twice as far as the index.**
+Time-weighted return (IBKR PA, SGD): **1M −24.6% vs QQQ −13.4%** ·
+**YTD −30.8% vs QQQ +6.8%**. Decomposition of the 1M loss:
+
+| Layer | Return | What it adds |
+|---|---|---|
+| QQQ | −13.4% | the market |
+| current stock book, unlevered (today's shares, 10-07 → 11-06) | −18.9% | concentration: −5.5 pts |
+| account NAV at 1.40× gross | ≈ −25% | margin: ≈ −6 pts |
+
+The memory/AI-semis cluster (DRAM · AMD · SNDK · NVDA) is **US$8.7k of
+the US$13.5k unlevered loss (64%)**; DRAM alone −US$3.9k. DRAM contains
+MU, SNDK and SK Hynix, so the memory exposure is counted twice (#164
+recorded the double-count on 2026-08-25; nothing acted on it).
+
+**Finding B: the signed guardrails were printed and not followed.**
+* **Margin on the core book.** PLAYBOOK §6 says *"zero on the core book.
+  Always."* and LEVERAGE.md §4 grandfathered the 2026-07-10 legacy loan
+  (S$9.8k) as **shrink-only**. Live 2026-11-08: loan **S$21.2k, gross
+  1.40× against a 1.30 BULL cap**. It grew, it was never paid down, and it
+  funds exactly the book §2 bans "by arithmetic". **And the bot stopped
+  saying so:** `homily_leverage.leverage_line` keys its shrink-only
+  reminder off the `MARGIN_ZERO` repo variable, set 2026-08-17 to arm
+  GAMBIT LIVE, and never reads the actual loan. Since that day the daily
+  ⚖️ line has been silent about a loan that more than doubled. At least the fourth
+  time the account has printed above the cap (1.43× 2026-07-16 · 1.34× at
+  #127 · 1.35× 2026-10-14 · 1.40× now).
+* **Fenced name.** CYPH: 2,140 sh (US$6.1k, the book's second-largest
+  line) bought across seven orders 09-23 → 10-26, all inside the 👁
+  observation fence. The last 140 sh were bought AFTER daily_run.py
+  recorded "Until review: hold, no adds" (2026-10-15).
+* **Paused names.** DRAM adds continued after the engine printed
+  monthly-not-up / pause.
+
+**Finding C: the bot's sheets and the owner's trades barely overlap, and
+following the bot would NOT have helped.** 90 days of IBKR fills: 137 (incl.
+FX), about US$50k of buys across 25 symbols. The bot's buy-day sheets named
+ALAB + DDOG (Aug), CRWD + DDOG + SNOW (Sep), MRVL + LRCX + AMAT (Oct).
+The owner bought ~US$750 of DDOG and nothing else on the sheets. But
+priced from the sheet date to 11-06, the sheets did **worse**:
+
+| Sheet | Names | Return | QQQ, same window |
+|---|---|---|---|
+| Aug | ALAB / DDOG | −40.6% / −34.6% | −6.3% |
+| Sep | CRWD / DDOG / SNOW | +0.9% / −20.0% / −13.7% | −7.3% |
+| Oct | MRVL / LRCX / AMAT | −47.3% / −41.1% / −37.1% | −11.6% |
+
+The GAMBIT paper book (S1-pure, the same momentum family) went
+**US$21,120 → US$11,436 (−46% from its high)**, holding MU, SNDK, STX,
+DELL and LITE. **The bot did not break; it behaved as tested.** §5i and
+§16b already state it: the engine carries **2–3× the index drawdown**
+(B·10y −62% vs QQQ −34%) and does **not** beat QQQ on the 10y honest
+control (2.69 vs 2.86). The rs12-top3 selector buys the strongest
+trend, the strongest trend in 2026 was AI capex and memory, and a
+momentum book is long that one trade whether a human or the sheet
+picks it. The only measured above-QQQ path in the repo is still
+**regime-gated 1.30× QQQ itself** (§15). It is not what the account
+holds.
+
+**Finding D: the one place with stops cut the damage about 4×.** GAMBIT
+LIVE (US$3,000 contributed, stops/TPs mandatory per A5) was at
+US$2,632 on 10-30 (**−12%**). Its stops took STX, WDC and SNDK out on
+10-15 and 10-30 while the stop-free paper twin fell −46%. n=1 crash, one
+sleeve, small money: an observation, not evidence. It is still the only
+live A/B the repo has.
+
+**Finding E: LIVE DEFECT. The live sleeve went dark the week it
+mattered.** The 2026-11-07 CI run crashed in `gambit/live_run.py`
+(`ValueError: unknown event 'ROTATE'`): `gambit_live._exit` writes the
+pending order's `reason` as the journal `event`, and ROTATE (and KILL,
+which is the kill-switch liquidation path) is not in
+`gambit_journal.EVENTS`. The step runs as `python live_run.py | tee …`
+without `pipefail`, so the job reported **success** and committed only
+the paper files. Consequences: no Monday sheet for 2026-11-09; the
+10-30 ROTATE orders (sell BE · buy LITE/DELL) never settled; **MU closed
+656.39 on 11-05 below its 747.82 stop with no STOP printed**. The book
+was not saved, so a fixed re-run replays cleanly → **#168, P0**.
+
+**Finding F: the referee was never built.** §9.0 makes live excess
+return vs QQQ-DCA the system's single success metric, and #14 (the
+scorecard that measures it) was scheduled for ~2026-10. It does not
+exist. The October sessions went to #143/#165/#166/#167 (four
+Danny-signal studies, four NULLs) and to CYPH/crypto bookkeeping. §8.0
+ranks entry-timing refinements (R4) as the **smallest** lever and
+execution (R0) and portfolio shape (R3) above it. Five sweeps (§5k–§5q)
+produced ~20 items. Yield: one priced behaviour choice (§55) and one
+informative rule (§54). **This is the drift the owner feels: the bot
+became a Danny-replication lab, while the decisions that moved the money
+this month (margin, cluster size, off-sheet buys) had no teeth and no
+scoreboard.**
+
+### Fifth sweep: Danny's posts 2026-09-26 → 2026-11-08
+
+Collection honesty as §5k–§5q: X answers status URLs with 402, so
+everything came through search snippets and summaries. **No post from
+the crash days (11-04 → 11-06) surfaced**, so his read of this sell-off
+is not known here.
+
+| Post | Claim | Disposition |
+|---|---|---|
+| [2026-10-04 · IBIT weekly](https://x.com/dannycheng2022/status/2106767178599133237) | "two volatility holes did different jobs": red ribbon = cycle top, blue ribbon = early bottom, then a choppy retest | The polarity rule again. **#167 ran it: NULL and backwards** (§53). No action |
+| [2026-09-24 · SMCI daily](https://x.com/dannycheng2022/status/2103032186450726934) | "How to use my indicators to buy and accumulate": VH + descending blue ribbon, then momentum bars $29 / $30 / … | The §5q ladder. **#165 ran it: NULL by a hair** (§55). No action |
+| [2026-09-23 · HOOD daily](https://x.com/dannycheng2022/status/2102761022390141430) | "Focus on the leader!" | Leader = rs12 rank, already the selector (§4/#24). HOOD since: −27% from 10-01. No action |
+| 2026-11-02 · SOFI / NAUT daily (no status URL) | VH marked the SOFI bottom ~$14; NAUT "must hold the $2.72 momentum bar" | Unpriced bands on non-universe names; not scorable (§51 rule). No action |
+| [2026-10-25 · "Screenshot is the best proof!"](https://x.com/dannycheng2022/status/2114184439098204331) | largest positions PLTR and AMD; Portfolio 2 is **PLTR only, avg ≈ $17, no additions since**, up >1,000%; "long-term investing and proper stock selection matter more than trading in and out" | **The one post that matters for this addendum.** See below |
+| [2026-04-16 · leverage](https://x.com/dannycheng2022/status/2044688709438886203) (pre-window, mined in §5l) | "I don't always use leverage, only when whales hand us massive discounts": NVDA $15.2, PLTR $8.8 (2023) | Re-read against Finding B. See below |
+
+**What his posts actually say about this month.** Danny is not dodging
+crashes with his indicators; he rides them **from a cost basis the
+crash cannot reach** (PLTR at ≈$17 against ≈$160 today; a −50% move still
+leaves him up ~4.7×). He bought his leverage in the 2022–23 BEAR at
+"massive discounts", holds 2–3 names, and does not trade in and out.
+The account did the inverse on every axis:
+
+| Axis | Danny (his own posts) | This account (IBKR, 90 days) |
+|---|---|---|
+| When margin is taken | at massive discounts, after a bear | at all-time highs, 🐂 BULL, S$9.8k → S$21.2k |
+| Names | 2–3 core (PLTR, AMD, NVDA) | 15 held, 25 traded in 90 days |
+| Turnover | "no additions" on Portfolio 2; long-term | 137 fills (incl. FX); round trips in TSM, ARM, APP, MU, LRCX, DDOG, NBIS, INTC, NOK, LITE |
+| Cost basis vs price | far below | above price on 11 of 15 lines |
+
+Buying his **current** holdings at **today's** prices with margin does not
+copy his trade. His edge, as he describes it, is entry price and time in
+the position, and neither can be copied backwards. This is not new
+(PRD §2 row "Leverage: deliberately NOT copied"; #86 NULL; #162 (a)).
+What is new is that this month's loss came from ignoring it.
+
+**The sweep's yield is zero new signals, and that is the finding.** Every
+method post in the window is a variant already tested and closed. The
+sixth sweep is therefore folded into #173's moratorium rather than
+scheduled.
+
+**Considered and rejected:**
+* **"Cut everything on a crash / add a faster sell signal."** §36: the
+  monthly rule already fires about once per 15 months with a 2–16%
+  premium most times. A daily stock-selling trigger would multiply the
+  whipsaws. The defensible fast lever is the **loan**, not the stocks
+  (#170).
+* **"Follow the bot's sheets more strictly."** Finding C: the sheets did
+  worse this quarter. Execution discipline matters for the GUARDRAILS
+  (margin, fence, caps), not for copying a momentum list.
+* **"Buy the dip with margin like Danny 2023."** §1's 🐻 row and #86 are
+  signed and measured; a −13.6% QQQ drawdown inside a BULL label is not
+  a "massive discount" by any rule this repo has tested.
+
+### Follow-up 2026-11-09: what Danny's latest posts still teach (portfolio shape, not chart signals) → #174–178
+
+Owner, 2026-11-09: *"so what improvements can we make? add in future
+plans based on danny's latest posts."* The fifth sweep's chart claims
+are all already tested (above). His **behaviour** claims are not, and
+they sit on §8.0's bigger levers (R0 execution, R3 portfolio shape)
+rather than R4. #173's moratorium is scoped to chart constructs and does
+not cover them. Five testable lessons, each pinned to its post:
+
+| Lesson (his words) | Post | What we do the opposite of today | Item |
+|---|---|---|---|
+| "I don't always use leverage, only when whales hand us massive discounts" | [2026-04-16](https://x.com/dannycheng2022/status/2044688709438886203), restated by the 10-25 screenshot | LEVERAGE.md lets the most margin run in 🐂 BULL (1.30×), i.e. at highs | **#174** |
+| PLTR "bought and held since avg ≈$17, no additions": the crash eats gains, not principal | [2026-10-25](https://x.com/dannycheng2022/status/2114184439098204331) | the account borrows against a book that is **US$7.9k under water** (IBKR unrealized, 2026-11-08) | **#175** |
+| "long-term investing and proper stock selection matter more than trading in and out" | [2026-10-25](https://x.com/dannycheng2022/status/2114184439098204331) | 137 fills in 90 days. **Pre-check cuts against the quote:** the US$16.5k sold since 08-11 has since fallen a further US$4.0k (QQQ on the same dollars: −US$1.6k), so the sells **helped** this window and the damage came from the re-buys. The claim needs measuring, not adopting | **#176** |
+| bottom calls published WHILE price is in the band (SOFI ~$14 · NAUT "hold $2.72" · IBIT "$48.04 the line") | 2026-11-02 / [2026-10-04](https://x.com/dannycheng2022/status/2106767178599133237) | #159's corpus is **0/9 contemporaneous**. This crash is the first chance to capture calls live, and it cannot be backfilled later | **#177** |
+| memory names: "charting … until we see a clear trend reversal"; his own table had MU at 6.4× forward P/E | [2026-05 forward-P/E post](https://x.com/dannycheng2022/status/2052028266979164451) | memory is held under never-sell, and §5.2's F-gate cannot fire on a cyclical at peak earnings (low P/E, strong F) | **#178** |
+
+Rejected again, recorded: "concentrate in 2–3 names like he does".
+§5g's engineered core-4 lost to emergent concentration (−68% vs −30%
+MaxDD); his concentration is an OUTCOME of cheap entries growing, which
+Bucket B already models. #172 prices the cluster side of the same
+question.
+
+### Second follow-up 2026-11-09: gaps the crash exposed that no Danny post covers → #179–183
+
+Owner, 2026-11-09: *"ok what else can we add?"* Each item comes from a
+number measured in this addendum, not from a new idea bank:
+
+* **The index half is missing.** PLAYBOOK §7 says investable money goes
+  **50% Bucket A / 50% ⭐ routine**, after **"margin paydown (until zero,
+  this outranks investing)"**. Live: Bucket A (QQQM + CSPX) is **US$4.3k
+  of a US$57.8k book = 7.5%**, the loan is S$21.2k, and the 2026-10-12
+  funding plan routes S$2,000/mo to four fixed stocks and nothing to A or
+  to paydown. At the declared 50/50 the month's unlevered loss would have
+  been about −16% instead of −18.9%; with no loan, about −16% instead of
+  about −25% → **#179**.
+* **Rule-breaking trades are invisible.** Finding B's off-sheet buys were
+  found by hand from 137 IBKR fills. Nothing reconciles fills against the
+  rules the bot prints → **#180**.
+* **Silent failures are systemic, not one bug.** #168's `| tee` is one
+  case. `daily_run.py` has **28 `[x] skipped` paths** inside 35
+  `except Exception` blocks, and the ⚖️ leverage line is one of them; the
+  vault step runs `continue-on-error`. A safety block can vanish from the
+  digest with nothing but a CI log line → **#181**.
+* **No playbook for the state we are in.** PLAYBOOK §4 triggers only on
+  🐻. Nothing tells the owner what to do when QQQ is −13.6% and the
+  banner still reads 🐂, which is when the off-sheet adds happened
+  → **#182**.
+* **The selector has no momentum-crash defence.** This month is the
+  textbook case: momentum books crash in panic states (Daniel & Moskowitz
+  2016, *"Momentum crashes"*), and scaling momentum exposure by its own
+  recent volatility roughly halves the crash risk (Barroso &
+  Santa-Clara 2015, *"Momentum has its moments"*). Never tested here
+  (grep: zero hits) → **#183**.
+
+**Margin-call distance, so the risk is not overstated:** at IBKR's
+actual maintenance today (S$19.05k on S$74.1k gross ≈ 25.7%) the account
+is called at a **uniform −61% drop** in every position. The loan is a
+return drag and a policy breach, not an imminent call. #169 prints this
+number daily.
+
+Considered and NOT added: **hard stops on the core book.** Already priced
+in GAMBIT: S1-stopped cut drawdown to −9…−13% but cleared **0 of 3**
+windows against QQQ (gambit/BACKTEST_RESULTS, KILL_MEMO). Finding D's
+live −12% vs −46% matches that backtest; it does not overturn it.
+**An earnings calendar** (AMD fell −17% on its 11-05 print): no evidence
+here that skipping earnings windows adds return, and every name reports
+four times a year. Recorded, not planned.
+
+*Order and budget (re-cut again 2026-11-09, after #179–183):* **#168 + #181 (one
+integrity session) → #177 → #169 (+margin-call distance) + #179 → #171 (+#176)
++ #180 → #175 + #174 → #170 → #172 → #183 → #178; #173 is
+documentation and lands with this addendum; #182 is written in the
+first execution session.** The first re-cut, kept for the record:  **#168 → #177 → #169 → #171 (+#176 rider) →
+#175 + #174 (one session, one harness) → #170 → #172 → #178; #173 is
+documentation and lands with this addendum.** #177 jumps the queue
+because contemporaneous capture expires: a claim not logged within days
+of posting can only ever be retrospective. #168 is a live-money
+defect (P0, same-day). #169 and #171 are measurement and display:
+info-only, no engine edit, no R10 slot. #170 and #172 are pre-registered
+STUDIES that extend existing harnesses (`homily_levdrift_backtest.py`,
+`homily_selection_backtest.py`), so the census stays at 90/90. #171
+needs one new reader module and pays one-out by archiving a dated null
+early (§55's `homily_ladder_backtest.py` is NOT eligible: it is the
+gate-of-record for #165; the candidate is named in #171's row).
+
+**Owner decisions this addendum cannot make (stated, not argued):**
+1. **Leverage today.** To get back under the 1.30 cap: reduce gross by
+   ≈S$5.4k (≈US$4.2k). If November closes 🐂/⚖️ MIXED (QQQ is below
+   now): the cap is 1.15, ≈S$13.3k. If it closes 🐻 BEAR, or to obey
+   PLAYBOOK §6 / LEVERAGE §2 as signed: the whole S$21.2k. PLAYBOOK §4
+   step 1 is "margin first", and the loan is HKD-denominated (memory
+   2026-09-25).
+2. **CYPH** at the 2026-11-17/24 fence review, judged by the thesis's own
+   test (ZEC −8% / CYPH −14% since 09-30, so far reading BROKEN-direction).
+3. **DRAM + SNDK**: decide whether the memory exposure is meant to be
+   counted twice.
+4. **GAMBIT live**: IBKR's 90-day fills show none of the sleeve's
+   08-24 entries (BE, MU, SNDK, STX, WDC). Confirm whether the sleeve
+   runs in another account or whether its sheets were never executed.
+   #168's re-run sheet is only useful if someone executes it.
+
 ## 7. Out of scope
 
 Leverage/margin signals; options; SOXL; auto-trading via IBKR; copying his
@@ -1060,6 +1323,22 @@ free number #125):
 | 165 | ~~**The confirmation ladder: "add plates as the strength shows".**~~ — **RAN 2026-09-26, NULL by a hair, CLOSED** (BACKTEST_RESULTS §55, `homily_ladder_backtest.py`, rule frozen in the docstring first; `homily_tranche_backtest.py` archived in the same commit — census stays 90). Ribbon-onset S1: ladder fails non-inferiority in ONE of four cells — A 52w MOIC 1.381 vs required 1.383 (0.97 × lump-S1 1.426); VH S1: A n=25 < 30 and −6/−7% vs lump-S1. What it IS: insurance — on the hype-2021 control the worst decile after a year kept $4,140 per $10k vs $3,050 all-in (RIB; VH $4,570 vs $2,810), for a ~3% average premium on winners (RIB). QQQ-only still insured far better (P10 $7,410). "Wait for one confirmation" (LUMP-S2) did NOT dominate. Nothing ships; recorded as a priced behaviour choice. Original: **PROPOSED — the confirmation ladder: "add plates as the strength shows".** (§5q, AMD 2026-09-25 + the 2026-08-06 bottom-timing post.) Danny's sizing rule deploys a campaign in four stages — **30% at stage 1 (VH + descending blue ribbon) · +25% at stage 2 (a red-candle ignition) · +25% at stage 3 (close above the longest overhead momentum bar) · +20% at stage 4 (ribbon reversal blue→red)** — weights frozen as HIS (unverified search-summary source, §5q; **2026-09-26 owner: not a Patreon subscriber and not planning to be — the split stays unverified and frozen as written, and the tag travels with every result**). It is the first sizing rule here that adds on STRENGTH: #50 added on weakness and lost 0/9, and dip-affinity has lost to strength five times (§35). §5q Finding C priced it on AMD: ladder 5.08× vs lump-at-S1 4.44× and lump-at-first-red-candle 6.12× — and even with a perfect stage 1 it gives up 19% vs lumping at the low. That give-up is an insurance premium that pays only on FALSE STARTS, which a winner's retrospective cannot contain, so the study's real subject is the stage-1 false-start rate. Study: point-in-time campaigns opened when S1 fires on a name the incumbent rule would already buy (the ladder never selects, #24/#120 do); fixed dollar budget per campaign; **undeployed tranches sit in QQQ (the §3.5 index leg, never cash) and are swept at the horizon**; arms = ladder · lump at S1 · lump at S2 · lump at S4 · QQQ-only on the same flows. Stages: S1 run twice, with our VH and ribbon-only (#142's fidelity caveat); S2 = #166's CONFIRMED ignition; S3 = the bare shelf-break (⤴ WITHOUT 🐳 — never tested alone, measured here as a stage, not tagged); S4 = #143's `ribbon_state` flip. Report the false-start rate (S1 fires, no S2 within 26w) per universe. **Module budget: new `homily_ladder_backtest.py` + archive `homily_tranche_backtest.py` (#50, the dip-side inverse; pointer BACKTEST_RESULTS §30 stays) in the same commit — done** | M study | **PRE-REGISTERED, no strong prior either way.** Money-weighted MOIC at 26w and 52w on BOTH universe A and the hype-2021 control B. PASS requires (a) ladder MOIC ≥ 0.97× lump-at-S1 on both universes at both horizons (non-inferior), AND (b) the ladder's 10th-percentile campaign beats lump-at-S1's by ≥5 pts on B (it must insure where false starts live), AND (c) the ladder beats QQQ-only on at least one universe (§9.0 — a ladder that loses to the index everywhere is NULL whatever (a)/(b) say). If lump-at-S2 dominates the ladder on both universes the finding is published as **"wait for one confirmation"** and THAT is what a promotion session would propose instead. Weight sensitivity is reported, never selected. Promotion is a sizing change = selection-class under R10 (next free slot 2027-Q3); info-only ladder-stage tag first. Depends on #143 + #166 |
 | 166 | ~~**The weekly red-candle ignition, with Danny's own confirm/negate rule.**~~ — **RAN 2026-09-26, NULL, CLOSED as a signal** (BACKTEST_RESULTS §54, `homily_redcandle_backtest.py`, rule frozen in the docstring first; `homily_triplered_backtest.py` archived to `docs/archive/` in the same commit — census stays 90). Two findings: (1) **Danny's confirm/negate rule carries information** — confirmed ignitions beat negated/pending on both universes at 12w and 26w (B: +4.3% vs +1.9%; +15.5% vs +9.4%), the first piece of Danny's candle method here to separate anything; (2) **the event is not an edge** — on the hype-2021 control a confirmed ignition LOSES to an ordinary week at 12w (+4.3% vs +5.2%). Danny's exact stage 2 (confirmed red candle inside a descending blue ribbon) is the WORST control cell: −5.1% at 12w, 36% win, vs +10.0% for confirmed ignitions in any other ribbon. #165 uses the CONFIRMED week as its stage-2 definition only. Original: **PROPOSED — the weekly red-candle ignition, with Danny's own confirm/negate rule.** Our candle is a daily STATE (§2: close vs EMA10 + MACD-hist) printed in the ledger's `candle` column; Danny's red candle is an EVENT with a published operational rule we have never used — *"to confirm a bullish trend, the price must surpass the high point of the red candle; a close below the low would negate"* (ROOT 2024-07-09). Danny's 2026 posts read it on WEEKLY bars (AMD's "five bullish red candles"; IBRX's "red candle together with the descending blue ribbon marked the trend reversal"). §5q Finding A: our weekly proxy fired 4× on AMD 2025-26 with 12w mean +49% vs the stock's +33% base — n=4 on a hand-picked winner, i.e. nothing yet. Definitions frozen: weekly RED = the §2 rule on COMPLETED weekly bars; ignition = first RED week after ≥1 non-RED week; **CONFIRMED** = a later weekly close above the ignition week's HIGH before any weekly close below its LOW, within 8 weeks; **NEGATED** = the reverse; else PENDING. Forward returns measured from the CONFIRMATION week (no look-ahead), fwd 4/12/26w vs the unconditional weekly base rate, split by ribbon at ignition (blue+descending vs red). **Module budget: new `homily_redcandle_backtest.py` + archive `homily_triplered_backtest.py` (#108, the daily red-run predecessor; pointer BACKTEST_RESULTS §22 stays) in the same commit — done** | S–M study | **A null is plausible and said so now**: #108 (daily triple-red) ran below baseline everywhere and #82's ribbon conditioning was null; the untested axes are the weekly timeframe and Danny's confirm/negate rule, nothing else. PASS requires CONFIRMED ignitions to beat the base rate at 12w AND 26w on both universes (n≥30 per cell) AND to beat NEGATED+PENDING ignitions (else the confirm rule adds nothing and the event is just "the weekly candle"). PASS feeds #165's stage 2 and may ship an info-only weekly-ignition mark in its own session; it gates no money |
 | 167 | ~~**Volatility-hole POLARITY by ribbon colour (the IBIT rule).**~~ — **RAN 2026-09-26, NULL — and backwards, CLOSED** (BACKTEST_RESULTS §53, `homily_vol_backtest.py --polarity`, rule frozen in the #167 block first, default run byte-identical). Danny's TOP cell (RED-ribbon BREAKDOWN) had the BEST fwd60 in both universes: +14.5% vs +9.4% base (A, n=544), +4.5% vs +1.9% (B, n=339); Danny's BOTTOM cell (BLUE BREAKOUT) trailed base in A (+6.6%). The ribbon sorts by trend and trend persists — strength beats dip-affinity again. §3 stands, now surviving Danny's polarity rule; topping stays a note. False breakdowns 78%/70% of BLUE-hole breakdowns (reported, narrow-band caveat; #145 H1 mechanic only). Original: **PROPOSED — volatility-hole POLARITY by ribbon colour (the IBIT rule).** Danny's 2026-09-07 IBIT post labels each hole by the ribbon it forms in: *"with the red ribbons signaled topping … with the blue ribbon hinted at early bottoming."* We label polarity with a 20-bar price lookback (`homily_vol.trend_before`), and §5q's agreement probe shows the two labellings **disagree on 35.0% of 3,583 daily-VH resolution events** (58 names × 5y; forward returns deliberately not computed). This is the one re-cut that could overturn a standing result: the committed event study (BACKTEST_RESULTS §3) found breakdowns followed by ABOVE-baseline returns in these names, which is why `danny_signal` prints topping as a note and never a veto. Study: an added `--polarity` arm on `homily_vol_backtest.py` (default output byte-identical, so §3's July re-run still reproduces) splitting resolution events by weekly ribbon colour at resolution instead of `trend_before`, both universes, fwd 20/60d. Also COUNT Danny's "false breakdown" — a BREAKDOWN from a blue-ribbon hole followed by a close back above the same zone's upper boundary within 13 weeks — and report its rate as evidence for #145's H1 (our walker disarms a zone on first resolution, so it discards exactly this event). **Module budget: no new file** | S study | PASS requires (a) the RED-ribbon BREAKDOWN arm below the unconditional baseline at fwd60 on BOTH universes, AND (b) the ribbon split separating the bottoming-breakout arm from the topping-breakdown arm by more than the `trend_before` split does, on both universes, n≥30 per cell. PASS → `danny_signal`'s polarity source switches in its own Phase-C session with an `engine_freeze.json` re-pin and golden diffs eyeballed; the topping note may become a CAUTION input only through a separate pre-registered item. NULL → §3's finding stands and is re-labelled as surviving Danny's polarity rule too. #142's fidelity caveat travels with either verdict. Depends on #143 |
+| 168 | **P0 LIVE DEFECT — GAMBIT live runner crashes on any ROTATE/KILL sell, and CI reports success.** (§5r Finding E.) `gambit_live._exit` writes `reason` into the journal `event` column; `gambit_journal.EVENTS` has no ROTATE or KILL, so the first live rotation (BE, proposed 2026-10-30) raised `ValueError` in `append_rows` on 2026-11-07, before `save_snapshot`. `gambit-weekly.yml` runs `python live_run.py \| tee …` with no `pipefail`, so the step and the job went green and only the paper files were committed. **The same crash sits on the kill-switch path** (`check_kill` → `pending … "KILL"` → `_exit`), so KILL-A could never have liquidated. Fix: sells settled from `pending` journal as `event=FILL`, `side=SELL`, `reason_code=<reason>` (the paper journal's existing convention: `FILL,BE,SELL,…,ROTATE`); stops/TPs/TRAIL/TIME/REGIME keep their own event names. Add `set -o pipefail` to every `\| tee` step in both workflows. Then re-run `live_run.py --as-of 2026-11-06` locally (the book was never saved, so the replay is clean) to produce the missed sheet: settle the 10-30 ROTATE orders at the 11-02 open, take MU's STOP on 11-05, and commit book + journal | S | **Gate:** (a) pytest case: `live_step` with pending SELL reasons {ROTATE, KILL, TIME, REGIME} appends a hash-valid journal; (b) homily validate case: every workflow step piping to `tee` sets `pipefail` (negative-tested on a fixture YAML); (c) the 11-06 replay prints a STOP row for MU and FILL rows for BE/LITE/DELL; (d) `gambit_validate` + `homily_validate` green. Bug fix, not a behaviour change: no engine edit, no R10 slot |
+| 169 | **The ⚖️ line reads the real loan, every day.** (§5r Finding B.) Replace `leverage_line`'s `MARGIN_ZERO`-keyed reminder with the measured state: account gross ÷ net liq from the same Flex/IBKR numbers #94/#127 already reconcile (≈1.40× today), printed beside (i) the ladder cap for the current label, (ii) the **"if the month closed today"** cap computed from the same frozen `sma10_state` inputs (QQQ below / SPY above → ⚖️ 1.15× now), and (iii) the PLAYBOOK §6 core-book target of 0. When gross > cap, print the paydown in dollars ("≈S$5.4k to 1.30×; ≈S$13.3k to 1.15×; S$21.2k to zero"). `MARGIN_ZERO` keeps its one job (arming GAMBIT LIVE) and stops being a truth source for the loan. Stale-data rule: a Flex read older than 3 weekdays prints "loan unknown since <date>", never silence. **+2026-11-09:** also print the uniform drop to a margin call at IBKR's reported maintenance (≈ −61% today), so the line shows a policy breach without overstating solvency risk | S | **Info-only display; gates nothing.** validate case: (a) gross > cap renders the paydown sentence with the right dollars on fixtures; (b) `MARGIN_ZERO=true` with a non-zero loan still prints the loan; (c) the "if today" cap is computed by the frozen regime engine (no reimplementation, R6). Goldens re-pinned deliberately, text-only diff; README honesty line. Not a sell signal: the owner decides; the line just makes the signed rule impossible to miss |
+| 170 | **PROPOSED STUDY — the intramonth loan brake: switch the LOAN, not the stocks.** (§5r rejected-list: a daily stock-selling trigger multiplies §36's whipsaws; the loan is the cheap lever.) Arm: the account runs the §1 ladder as signed, PLUS whenever QQQ closes a DAY below its 10m SMA (completed months + today's close, the §36-fixed construction), gross drifts to ≤1.00× by paying the loan down from the index leg first, and re-levers only when the month-end rule reads 🐂 again. Incumbent: the month-end ladder as signed. Run inside `homily_levdrift_backtest.py` (an arm on the gate-of-record harness for §39; no new module) on QQQ and on the honest core book, 1999→2026, base + stress financing | M study | **PRE-REGISTERED.** PASS requires all of: (a) worst equity/position improves by ≥0.05 on the core book; (b) MOIC ≥0.97× incumbent on all three §15 read windows; (c) brake fires ≤4×/yr on average (whipsaw count and the financing it saves both reported). FAIL on any → NULL, recorded. The honest prior is weak: §18/#87 found that "standing down in hostile months saves nothing" for SELECTION. This tests EXPOSURE, a different lever, and is allowed to fail the same way. Promotion would amend LEVERAGE.md = owner signature, never automatic |
+| 171 | **BUILD #14 NOW — the live scorecard, with a three-book execution-gap split.** (§5r Finding F; §9.0's success metric, due ~2026-10 and never built.) On the same dated cash flows since 2026-07-10: **(1) BOT**: every buy-day sheet as printed (`docs/orders_*.csv`, filled at the next session's open); **(2) OWNER**: the actual IBKR fills (Flex trades); **(3) QQQ-DCA**. Report TWR, MaxDD and worst rolling month per book, plus the two gaps that matter: BOT−QQQ (*does the system have alpha?*) and OWNER−BOT (*is the behaviour gap positive or negative?*). Preliminary hand count (§5r Finding C) has the BOT book behind QQQ and the OWNER book behind both; the build must reproduce or refute that, not assume it. Monthly digest block on the first Monday, next to #94. Carries #71's noise band, #85's epoch split and #64's origin split as already specified. **Module budget: new `homily_scorecard.py` + archive `homily_whalelevel_backtest.py` (#109 NULL, §24) early, in the same commit**; census stays 90 | M | **Measurement infra: no gate, no promotion, no R10 slot.** validate: (a) BOT book reproduces the committed order CSVs exactly (share counts, dates); (b) OWNER book reconciles to IBKR net liq within 1% at three dated checkpoints; (c) QQQ-DCA uses adjclose (#18). First read is descriptive only (inside #71's band, nothing moves). It is the referee that #170, #172 and every future item cites |
+| 172 | **PROPOSED STUDY — a look-through THESIS-CLUSTER cap on adds.** (§5r Finding A; #164 recorded the 73.5% AI exposure as an owner decision but nothing measures what it costs.) The 10%/25% caps are per-NAME; nothing caps a cluster, and ETF holdings are not looked through (DRAM ⊃ MU/SNDK/Hynix). Arm: at each buy-day, a name whose correlation cluster (rolling 120d return correlation ≥0.7, single-linkage on the investable set; ETFs expanded by published top weights, as `daily_run.PROXY_CONSTITUENTS` already does for DRAM) already holds ≥X% of the stock book gets no new money, which goes down the rank list or to the §3.5 index leg. **Adds only; never a forced sell.** X ∈ {35, 50} reported, never selected post-hoc: X=50 is the frozen primary. Inside `homily_selection_backtest.py` as a flag-gated arm (#87's pattern), universe B + hype-2021 control | M study | **PRE-REGISTERED.** PASS requires: (a) MOIC ≥0.97× rs12-top3 incumbent on all three universe-B read windows; (b) MaxDD improves ≥5 pts on B·10y; (c) not worse than incumbent on the hype-2021 control. Distinct from #87 (that conditioner switched selection by REGIME; this caps by CORRELATION at all times). PASS = info-only cluster-cap tag first, promotion R10 (next free 2027-Q3). Owner's #164 line stands either way: this prices the bet; it does not overrule it |
+| 173 | **RECORDED — research discipline: a Danny-signal moratorium until #171's first read.** (§5r Finding F.) Five sweeps, ~20 items, one priced behaviour choice and one informative rule; the fifth sweep (§5r) produced zero untested claims. Until #171 has printed its first monthly read: no new study of a Danny chart construct (VH, ribbon, candle, momentum bar, whale level). **Scope (2026-11-09):** the moratorium covers chart CONSTRUCTS only; his portfolio-behaviour claims (when to borrow, cost basis, turnover, cycle exits) are R0/R3 levers and are planned as #174–178. Sweeps are logged as a dated disposition table only (§5r format), and only a DATED, PRICED, CONTEMPORANEOUS claim may open an item. The `docs/danny_take.json` daily prose continues (a reader, not research). Session priority is §8.0's order, enforced: R0 execution, R1 integrity, R3 portfolio shape, then R2, and R4 last | S | Documentation only — no code, no gate. The test of this row is that the next session proposing a VH/ribbon/candle variant finds it first and cites #171's read, or stops |
+| 174 | **PROPOSED STUDY — counter-cyclical leverage: borrow at discounts, not at highs.** (§5r follow-up; Danny 2026-04-16 + 2026-10-25.) LEVERAGE.md's ladder is pro-cyclical: the most margin (1.30×) runs in 🐂, which is when prices are highest. Arm: **1.00× in 🐂/⚖️ by default; lever to ≤1.30× only in the 12 months after a 🐻 spell ends (§38's EITHER-above re-entry) AND while QQQ is still ≥15% below its prior all-time high; delever to 1.00× when either condition lapses.** §1's 🐻 row is untouched (margin to zero at onset), so the one solvency rule §39 found load-bearing still binds; the arm never levers INTO a falling market, only at the turn. Run as an arm in `homily_levdrift_backtest.py` (QQQ + honest core book, 1999→2026, base + stress financing), same session as #175 | M study | **PRE-REGISTERED.** Report MOIC, MaxDD, worst equity/position, months levered and financing paid vs (i) the signed ladder (`ratchet`) and (ii) unlevered. PASS = MOIC ≥ signed ladder on ≥2 of 3 §15 read windows AND worst equity/position no worse. **Honest prior: likely FAIL on MOIC**, because levered months fall from ~70% of history to a few dozen, and §15's edge came from staying levered through long bulls. A FAIL that halves the drawdown is still published as a priced trade-off for the owner. A PASS amends LEVERAGE.md = owner signature, never automatic |
+| 175 | **PROPOSED STUDY — the house-money loan cap: borrow only against gains.** (§5r follow-up; Danny 2026-10-25: a low cost basis means a crash eats gains, not principal.) Rule: **the margin loan may never exceed the core book's unrealized gain** (market value − cost basis, from the same Flex numbers #169 reads); when gains shrink below the loan, new contributions repay it before buying anything, with no forced sale outside the 🐻 row. Today it reads **allowed loan = 0** (book unrealized ≈ −US$7.9k against a S$21.2k loan). Arm in `homily_levdrift_backtest.py` beside #174, cost basis tracked per contribution | M study | **PRE-REGISTERED.** PASS = worst equity/position improves ≥0.05 on the core book AND MOIC ≥0.97× signed ladder on all three read windows. If PASS: an info-only "house-money headroom" figure joins #169's ⚖️ line first; promotion = LEVERAGE.md amendment by owner signature. Distinct from #170 (#170 switches the loan on MARKET state; this caps it on the BOOK'S OWN cushion) |
+| 176 | **RIDER on #171 — a NO-SELL fourth book: does trading in and out cost us?** (§5r follow-up; Danny 2026-10-25.) #171 gains a fourth book on the same flows: every OWNER buy kept, no sells ever. OWNER − NO-SELL is the measured price of turnover; a round-trip count and realized-P&L line print beside it. **The pre-check runs against the quote** (sells since 08-11 avoided US$4.0k of further loss vs QQQ's US$1.6k), so the rider must report the sign it finds, not the one Danny predicts. No new module (inside `homily_scorecard.py`) | S | Measurement only, no gate. validate: NO-SELL reproduces OWNER exactly on a fixture with zero sells |
+| 177 | **Contemporaneous Danny-claims capture, starting NOW (the crash is the window).** (§5r follow-up; #159 Finding (e): 0/9 contemporaneous.) Extend the #112 routine: on each run, log every Danny post that names a ticker AND a price band or level within 3 days of publication into `danny_entry_claims.json` with `timing: "contemporaneous"`, `captured` date, URL and verbatim text (search-snippet provenance flagged, as §5k). This sweep's priced posts (NAUT 2026-11-02: hold $2.72, resistance $3.40/$4.30; IBIT 2026-10-04: $48.04) are already outside the 3-day rule and are logged as `retrospective`; the first contemporaneous rows come from the next routine run. Scoring extends `homily_entrylag_backtest.py`: forward 3/6/12m vs QQQ, and vs OUR engine's state/tier on the same name and date | S build · ongoing | **Measurement; no gate until n ≥10 contemporaneous claims with ≥6 months forward.** Honesty clauses carried from §51.4: he publishes winners; snippets can be incomplete. This item is the ONLY route by which a Danny chart claim may reopen a study under #173 |
+| 178 | **PROPOSED STUDY — a cycle exit for commodity-cycle names (memory · storage · semicap).** (§5r follow-up; Danny's memory post: "until we see a clear trend reversal".) Never-sell was measured on a growth book. Memory is a commodity cycle whose P/E is lowest at PEAK earnings, so §5.2's fundamental gate cannot fire at the top, and DRAM/SNDK/MU were 64% of this month's loss. Arm: names tagged CYCLICAL (owner-maintained `sector` label in holdings.json, the D-29 pattern; ETFs via `PROXY_CONSTITUENTS`) exit on the frozen MONTHLY trend turning not-up and re-enter on monthly-up; everything else unchanged. History: MU, AMAT, LRCX, KLAC, WDC, STX on Yahoo from 1999 (≈4 memory cycles) | M study | **PRE-REGISTERED.** PASS = exit arm MOIC ≥ hold AND MaxDD better by ≥10 pts, in ≥3 of 4 cycles. **Loud caveat travels:** survivorship (Qimonda, Elpida and Spansion are not on Yahoo, which flatters HOLD) and n≈4 cycles, so a PASS is a direction, not a rate. PASS = info-only "cycle exit" tag first; promotion R10 (next free 2027-Q3). Uses only the frozen monthly engine, so no #173 conflict |
+| 179 | **Bucket-A floor + paydown-first routing, made visible.** (§5r 2nd follow-up.) PLAYBOOK §7 already fixes the order: margin paydown first, then 50% Bucket A / 50% ⭐. The buy-day block and #94's household block gain one line: **Bucket A share of the invested book (7.5% today) vs the 50% target, the loan, and the months to fix both** if the monthly IBKR budget goes paydown → A → stocks, e.g. "≈S$3,000/mo: loan cleared ≈7 months, then A reaches 50% in ≈N months". The buy-day sheet routes `BUY_BUDGET_USD` in that order **only as a printed alternative beside the current sheet**; the owner's 2026-10-12 funding plan stays in force until the owner changes it | S | **Info-only; gates nothing.** validate: (a) the share uses `bucket: "A"` from holdings.json (no new classification); (b) the routing arithmetic on fixtures (loan > 0 → 100% to paydown; loan 0 and A < 50% → A first); (c) the existing sheet is byte-identical with the line on/off. Goldens additive-only. Changing the default routing = an owner decision recorded in contributions.json, never a code default |
+| 180 | **Rule-breach reconciliation: every fill checked against the rules the bot printed that day.** (§5r Finding B; the measured half of #171's OWNER−BOT gap.) Weekly (rides the Saturday run, Flex trades): each BUY fill is labelled ON-SHEET / OFF-SHEET and flagged if, on that date, the name was 👁 fenced, paused (monthly not up / WHITE), above its add-cap, or bought while gross leverage exceeded the ladder cap. The running P&L of flagged vs unflagged buys prints monthly. Hand-count to reproduce: CYPH 7 fenced buys (US$7.2k), DRAM adds while paused, and buys placed while gross was above the cap (≥1.35× from 2026-10-14 per daily_run's CYPH note; earlier dates read from Flex, not assumed) | S–M | **Measurement only, no gate; judges no trade.** validate: the labeller reproduces the §5r hand-count on the committed 2026-08 → 11 fills; a fixture fill on a fenced name is flagged; an on-sheet buy is not. Lives inside `homily_scorecard.py` (#171), no new module |
+| 181 | **Silent-failure audit: a safety block may not vanish quietly.** (§5r 2nd follow-up; generalises #168's `pipefail` fix.) Classify `daily_run.py`'s 28 `skipped` paths into SAFETY (regime banner · ⚖️ leverage · bear tells · household · GAMBIT live status · fetch coverage) and DISPLAY. Any SAFETY skip prints a ⚠️ line at the **top** of the digest naming the block and the exception class, and fails the healthcheck ping (#118c) while the digest still sends. DISPLAY skips are counted in the footer. The `continue-on-error` vault step gets the same ⚠️ treatment | S | **Integrity (R1); no behaviour change.** validate: (a) every `except` path in daily_run is classified (an unclassified path fails); (b) forcing a SAFETY block to raise yields the ⚠️ line and a non-zero health status on a fixture run; (c) goldens unchanged when nothing raises. Lands in the same session as #168 |
+| 182 | **PLAYBOOK §4b: what to do in a drawdown while the banner still reads 🐂.** (§5r 2nd follow-up.) Documentation, written from rules that already exist and adding no new ones: (1) no stock sales (§4: only 🐻 triggers); (2) **no new margin, and contributions pay down any loan above the cap first** (§6/§7, LEVERAGE §4); (3) no buys of 👁-fenced or paused names, and none off the sheet (#180 will show them); (4) the buy-day sheet runs as normal; (5) read the "if the month closed today" cap (#169) so a month-end ⚖️/🐻 is not a surprise; (6) the expected cost of doing nothing is stated in dollars (§36: the signal fires after the index is already −6…−15%). HOW_TO_READ gets a pointer | S | Documentation only; no code, no gate. Written in the first execution session (no build step). The test is that the owner can act on it with no other file open |
+| 183 | **PROPOSED STUDY — volatility-scaled momentum: size the rs12-top3 buys by inverse realised volatility.** (§5r 2nd follow-up; Barroso & Santa-Clara 2015, Daniel & Moskowitz 2016.) Arm: the buy-day budget split across the selected names in proportion to 1/σ(60d), with total stock-leg exposure scaled by target-σ ÷ the selector's own trailing 6-month realised σ (capped at 1.0, so it can only de-risk; the remainder goes to the §3.5 index leg, never cash). Flag-gated arm in `homily_selection_backtest.py` (#87's pattern), universe B + hype-2021 control. Target σ frozen in the docstring before the run | M study | **PRE-REGISTERED.** PASS = MOIC ≥0.97× incumbent on all three universe-B read windows AND MaxDD better by ≥5 pts on B·10y AND not worse on the hype control. The literature result is on long-short decile portfolios, not a 3-name long-only DCA, so a NULL here is plausible and is published as such. PASS = info-only sizing tag first; promotion = selection-class R10 (next free 2027-Q3) |
 
 Division of labour adopted 2026-07-06: the planning model writes §8 +
 `DESIGNS.md` + `SPECS.md`; the executing model builds one item per session
