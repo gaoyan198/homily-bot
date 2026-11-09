@@ -105,6 +105,36 @@ def parse_positions(xml_text):
     return out
 
 
+# #169: the account's gross position value as IBKR marks it, from the SAME
+# XML (every OpenPosition, fenced/untracked names like CYPH included — the
+# holdings.json book is deliberately incomplete). Set by auto_sync; empty when
+# Flex is unconfigured or failed. The loan is NOT in this query (no Cash
+# Report section), so the ⚖️ line pairs this with the owner-typed loan.
+ACCOUNT = {}
+
+
+def parse_gross(xml_text):
+    """-> {"gross_usd", "asof", "n"} from <OpenPosition positionValue ×
+    fxRateToBase>, converted base→USD with a USD row's own fxRateToBase.
+    None when the fields or a USD row are missing (older fixtures)."""
+    root = ET.fromstring(xml_text)
+    base, usd_rate, asof, n = 0.0, None, None, 0
+    for p in root.iter("OpenPosition"):
+        pv, fx = p.get("positionValue"), p.get("fxRateToBase")
+        if pv in (None, "") or fx in (None, ""):
+            return None
+        base += float(pv) * float(fx)
+        n += 1
+        if (p.get("currency") or "").strip() == "USD":
+            usd_rate = float(fx)
+        asof = asof or p.get("reportDate")
+    if not n or not usd_rate:
+        return None
+    if asof and len(asof) == 8:
+        asof = f"{asof[:4]}-{asof[4:6]}-{asof[6:]}"
+    return {"gross_usd": base / usd_rate, "asof": asof, "n": n}
+
+
 def sync(flex_positions, holdings_path=HOLDINGS_FILE):
     """Update shares/cost of known symbols in holdings.json; never add,
     never delete, never touch owner-owned fields. -> list of diff lines
@@ -149,7 +179,13 @@ def auto_sync(holdings_path=HOLDINGS_FILE, *, fetch=fetch_flex):
     if not (token and query):
         return []
     try:
-        flex = parse_positions(fetch(token, query))
+        xml_text = fetch(token, query)
+        try:                                     # #169: never fatal to sync
+            ACCOUNT.clear()
+            ACCOUNT.update(parse_gross(xml_text) or {})
+        except Exception:
+            ACCOUNT.clear()
+        flex = parse_positions(xml_text)
         return sync(flex, holdings_path)
     except Exception as e:
         return [f"Flex sync failed ({e}) — using yesterday's committed book"]

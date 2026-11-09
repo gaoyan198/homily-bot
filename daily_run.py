@@ -17,6 +17,7 @@ from homily_danny import danny_signal
 from homily_conviction import conviction
 from homily_fund import fund_tag
 from homily_regime import market_regime
+import homily_regime
 from homily_refine import daily_refine
 from homily_corp import corp_action_bar, suspended_note
 from homily_ribbon_backtest import RED_MEDIAN_RUN_W
@@ -806,6 +807,38 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
     return "\n".join(lines)
 
 
+def measured_leverage(regime_label, sigs, today):
+    """#169 IO shell: gross from IBKR Flex (every position, fenced names
+    included) else holdings×closes (labelled partial); loan from
+    contributions.json with its typed date; the if-closed-today label from
+    the frozen engine's own monthly closes. -> the measured ⚖️ line."""
+    bal = (homily_household.load_contributions() or {}).get("balances") or {}
+    loan = float(bal.get("margin_loan_usd") or 0.0)
+    asof = bal.get("margin_loan_asof")
+    if homily_flex.ACCOUNT.get("gross_usd"):
+        gross = homily_flex.ACCOUNT["gross_usd"]
+    else:
+        px = {s.ticker: s.chips.last for s, _c, _y in sigs}
+        gross = sum(p["shares"] * px[tk] for tk, p in POSITIONS.items()
+                    if tk in px and p.get("currency", "USD") == "USD")
+        asof = (asof or "undated") + "; gross PARTIAL — no Flex today, " \
+            "fenced/untracked names missing"
+    if asof and asof[:4].isdigit():
+        age = (today - datetime.date.fromisoformat(asof[:10])).days
+        note = f"typed {asof} ({age}d old)" if age > 0 else f"typed {asof}"
+    else:
+        note = f"typed, {asof or 'undated'} — add margin_loan_asof"
+    series = {}
+    for sym in ("SPY", "QQQ"):
+        m = homily_regime.fetch_monthly(sym)
+        series[sym] = ([c for _, c in homily_regime.completed_months(m)],
+                       m[-1][1])
+    return homily_leverage.measured_line(
+        regime_label, gross, loan,
+        if_label=homily_leverage.if_closed_today(series),
+        loan_note=note, esc=esc)
+
+
 def build_digest(flex_notes=None):
     """IO shell: fetch everything the digest needs, then hand it to the pure
     render_digest(). The network/clock/state-mutating calls live ONLY here."""
@@ -959,6 +992,9 @@ def build_digest(flex_notes=None):
             mz = os.getenv("MARGIN_ZERO", "").lower() in (
                 "1", "true", "yes", "on")
             lev = homily_leverage.leverage_line(regime.label, mz, esc=esc)
+            ml = measured_leverage(regime.label, sigs, today)
+            if ml:
+                lev = f"{lev}\n{ml}" if lev else ml
     except Exception as e:
         _skipped("leverage", e)
     # #148 (CRYPTO_SLEEVE.md): the crypto-cycle leverage watch. Pure compute

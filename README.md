@@ -184,6 +184,17 @@ the 🐻 protocol). Borrowed dollars may fund only gate-passed swing entries
 measured −59…−76% paths sit inside the margin-call boundary at any constant
 ≥1.25×.
 
+Under it, a **measured** ⚖️ line (#169) prints every day a loan exists:
+gross = IBKR's own Flex position values (every position, fenced names
+included) against the loan typed in `contributions.json` (with its date and
+age), the dollars to sell to get under the current cap and under the cap the
+month would carry **if it closed today**, and the uniform fall that would
+trigger a margin call. Honesty note: the Flex query has no cash section, so
+the loan is owner-typed and can be stale (its age is printed); the call
+distance uses m=25% and IBKR charges concentrated books more, so a real call
+comes sooner. Until 2026-11-09 the only loan reminder was silenced by the
+`MARGIN_ZERO` flag while the loan more than doubled (PRD §5r).
+
 ## When to sell — market regime 🐂/🐻 (priced tail insurance)
 Per-stock trend-selling loses (see backtests); the month-end 10m-SMA rule on
 SPY **and** QQQ (both below = 🐻 BEAR, both above = 🐂 BULL) survives — as
