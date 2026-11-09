@@ -3517,3 +3517,39 @@ return than the gates allowed. #183's numbers are the owner's best priced
 option if a smaller drawdown is ever worth ~10% of terminal wealth: that
 is a preference, not a test result, and it would come back as an owner
 decision recorded the way #164 was. It is not a promotion.
+
+## 58 · #178 cycle exit for memory / storage / semicap (run 2026-11-09) — NULL, 1 of 4 busts; the trend exit is drawdown insurance that loses money
+
+`python homily_cycle_backtest.py`. Rules were frozen in the module
+docstring before the run. MU · AMAT · LRCX · KLAC · WDC · STX, equal
+dollars, adjclose; EXIT sells a name to 0% cash when the frozen
+`monthly_up` (homily_danny's own rule) turns false at a month-end, and
+re-buys when it turns true; 10 bps per trade.
+
+| bust window | n | HOLD MOIC · MaxDD | EXIT MOIC · MaxDD | gate (MOIC ≥ and DD +10pt) |
+|---|---|---|---|---|
+| C1 2000→2003 | 5 | 1.16 · −68% | 0.74 · −67% | fail |
+| C2 2007→2010 | 6 | 0.92 · −64% | **1.35 · −20%** | **pass** |
+| C3 2018→2021 | 6 | 3.05 · −36% | 1.99 · −26% | fail |
+| C4 2022→today | 6 | 4.35 · −52% | 4.26 · −41% | fail (MOIC −2%) |
+
+Rolling 5y windows (robustness): EXIT ≥ HOLD on MOIC in **7 of 22**, and
+EXIT's MaxDD is better in nearly every one (typically −20…−32% vs
+−33…−68%).
+
+**Verdict: NULL (1/4).** The exit wins only where the cycle turned into a
+market crash (2007→2010, the GFC). Everywhere else the monthly signal is
+late on the way down and later on the way back up, and the re-entry costs
+more than the drawdown it saved: 2000→2003 −36%, 2018→2021 −35%, and
+every 2009–2012-start window gave up a third to a half of the recovery.
+That is the per-stock form of §36's finding about the index rule, and it
+agrees with README's standing "per-stock trend-selling loses".
+Survivorship (no Qimonda/Elpida/Spansion) flatters HOLD, so the true
+gap is somewhat smaller, but not 3 cycles' worth.
+
+**For the live book:** DRAM/SNDK/MU stay under the existing rules (the
+engine's monthly-not-up state already pauses ADDS on them; that
+behaviour is measured-safe and unchanged). Exiting them on the same
+signal is not supported. The concentration that made them 64% of
+October's loss is an owner decision (#164) and a sizing question, not a
+missing sell rule.

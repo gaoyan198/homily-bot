@@ -77,6 +77,7 @@ BACKTEST_UNIVERSES = (
     ("homily_danny_backtest", ("TICKERS",)),
     ("homily_vol_backtest", ("TICKERS",)),
     ("homily_core4_backtest", ("DANNY4",)),
+    ("homily_cycle_backtest", ("NAMES",)),          # #178, §58
 )
 
 
