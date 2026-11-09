@@ -3805,4 +3805,50 @@ for _c89 in _el79.load_claims()["claims"]:
 print("[89] #177 forward ledger: timing derived (3-day rule), bad rows "
       "refused, §51 corpus closed, min-n gate holds  PASS")
 
+# [90] #169 the ⚖️ line reads the real loan — MARGIN_ZERO can no longer
+# silence it (§5r Finding B), the paydown dollars are the arithmetic of a
+# sale that repays the loan, the "if the month closed today" label rolls the
+# 10m SMA forward with the live close, and Flex gross covers every position.
+_hl90 = homily_leverage
+assert "shrink-only" not in _hl90.leverage_line("BULL", True)
+_m90 = _hl90.measured_line("BULL", 57761.0, 16572.0, if_label="MIXED",
+                           loan_note="typed 2026-11-08")
+assert "1.40×" in _m90 and "OVER the 1.30× BULL cap" in _m90, _m90
+assert "≈US$4.2k to reach it" in _m90 and "MIXED cap 1.15× → ≈US$10.4k" \
+    in _m90 and "US$16.6k" in _m90, _m90
+assert abs(_hl90.paydown_to(74076, 21244, 1.30) - 5394.4) < 0.5
+assert abs(_hl90.call_drop(100.0, 30.0, 0.25) - 0.6) < 1e-9
+assert _hl90.call_drop(100.0, 0.0) is None
+assert "within the 1.30× BULL cap" in _hl90.measured_line("BULL", 100.0, 10.0)
+assert "no margin loan" in _hl90.measured_line("BULL", 100.0, 0.0)
+assert _hl90.measured_line("???", 100.0, 10.0) == ""
+assert "loan US$16.6k" in _hl90.measured_line("BULL", 0.0, 16572.0) and \
+    "gross unavailable" in _hl90.measured_line("BULL", 0.0, 16572.0), \
+    "[90] a failed gross read must not silence the loan"
+# rolling SMA: live 105 vs completed [200] + [100]*9: the stale SMA (110)
+# says below; rolled forward the oldest month (200) drops out and
+# (900 + 105) / 10 = 100.5 says above
+assert _hl90.if_closed_today({"QQQ": ([200.0] + [100.0] * 9, 105.0),
+                              "SPY": ([100.0] * 10, 99.0)}) == "MIXED"
+assert _hl90.if_closed_today({"QQQ": ([100.0] * 10, 90.0),
+                              "SPY": ([100.0] * 10, 90.0)}) == "BEAR"
+assert _hl90.if_closed_today({"QQQ": ([100.0] * 3, 90.0)}) is None
+_x90 = ('<FlexQueryResponse><FlexStatements><FlexStatement><OpenPositions>'
+        '<OpenPosition symbol="AAA" currency="USD" position="10" '
+        'positionValue="1000" fxRateToBase="1.28" reportDate="20261106"/>'
+        '<OpenPosition symbol="9992" currency="HKD" position="100" '
+        'positionValue="7800" fxRateToBase="0.164"/>'
+        '</OpenPositions></FlexStatement></FlexStatements>'
+        '</FlexQueryResponse>')
+_g90 = homily_flex.parse_gross(_x90)
+assert _g90["n"] == 2 and _g90["asof"] == "2026-11-06" and \
+    abs(_g90["gross_usd"] - (1000 * 1.28 + 7800 * 0.164) / 1.28) < 1e-6
+assert homily_flex.parse_gross(_x90.replace(' positionValue="1000"', '')) \
+    is None, "[90] a row without positionValue must not half-count"
+_src90 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "homily_leverage.py")).read()
+assert "urlopen" not in _src90 and "open(" not in _src90, "[90] pure"
+print("[90] #169 measured ⚖️ line: loan always shown, paydown/call math, "
+      "rolled-SMA if-closed label, Flex gross covers every row  PASS")
+
 print("\nAll structural assertions passed.")
