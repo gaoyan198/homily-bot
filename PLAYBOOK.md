@@ -208,6 +208,45 @@ malfunction; D-63's −1 pt/yr cost already includes every one of them.
 
 ---
 
+## 4b · Falling hard while the banner still reads 🐂 (#182)
+
+**When this applies:** the market is down 10–20% from its top, the news
+is loud, and the digest still says 🐂 BULL or ⚖️ MIXED. This is exactly
+where November 2026 put us (QQQ −13.6% from the 10-06 peak, banner 🐂)
+and exactly when the costly mistakes happened: margin adds above the cap,
+buys of 👁-fenced names, buys of paused names, none of them on the sheet
+(PRD §5r). Nothing below is new. Every line is a rule that already
+exists elsewhere in this file; this section just puts them in one place
+for the day you need them.
+
+1. **Sell no stock because the market is falling.** Only 🐻 triggers §4,
+   and §5's three trim rules are the only per-stock sells. A red week is
+   not a trigger.
+2. **No new margin. If the ⚖️ line says OVER the cap, contributions pay
+   the loan down before buying anything** (§6, §7: "margin paydown
+   outranks investing"; LEVERAGE.md §4: shrink-only). The ⚖️ line prints
+   the dollars.
+3. **No buys of 👁-fenced names, paused names (monthly not up / ⚪), or
+   anything not on the sheet.** The fence and the pause are the rules
+   working; a crash does not lift them.
+4. **Run the buy-day sheet as normal** on the 1st. If it routes to the
+   index, buy the index. The sheet already knows the regime.
+5. **Read "if the month closed today" on the ⚖️ line** (#169). If it says
+   ⚖️ MIXED or 🐻 BEAR, the cap drops at month-end. Get under the lower
+   cap before then, from contributions or by selling, so month-end is
+   not a forced sale.
+6. **Know what doing nothing costs, in advance:** the 🐻 signal fires
+   after the index is already 6–15% down (§4), so the first −15% is
+   never avoided. The protection is against the −40…−80% middle. Sitting
+   through the first leg is the plan, not a failure of it.
+
+What this section is NOT: a buy-the-dip instruction. Hold-cash-for-dips
+and dip-adds have lost every time they were measured here (#50, #86,
+§41.6, §46). The money that arrives this month goes where §3 sends it,
+crash or no crash.
+
+---
+
 ## 5 · Trim rules — the ONLY three reasons to sell a stock in a bull market
 
 1. **Size, not earned:** a position bought (not grown) above 25% of the
