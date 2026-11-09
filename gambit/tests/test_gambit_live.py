@@ -317,3 +317,60 @@ def test_kill_watch_silent_when_healthy_or_unarmed():
     b2["equity"] = 100.0
     gl.kill_watch(b2, D("2026-09-20"), [])
     assert b2["warned_80"] is None
+
+
+def test_pending_sells_journal_with_valid_events(tmp_path):
+    """#168: every pending-sell reason settles into a journal the hash
+    chain accepts. ROTATE/KILL crashed append_rows on 2026-11-07 (the
+    reason was written as the event) and the whole live week was lost."""
+    import gambit_journal as gj
+    for reason in ("ROTATE", "KILL", "TIME", "REGIME"):
+        s = {"AAA": mk_series(BARS)}
+        book, paper = armed_book(s)
+        _, rows = advance(book, paper, s, "AAA", "2026-07-13")
+        assert "AAA" in book["positions"]
+        book["pending"] = [{"side": "SELL", "sym": "AAA", "reason": reason}]
+        book["last_decision"] = "2026-07-13"
+        paper2 = dict(paper, last_decision="2026-07-13", pending=[])
+        _, rows2 = gl.live_step(book, paper2, s, s["AAA"], "BULL",
+                                D("2026-07-17"), margin_zero=True)
+        sells = [r for r in rows2 if r.get("side") == "SELL"]
+        assert sells and all(r["event"] in gj.EVENTS for r in sells), reason
+        assert sells[0]["reason_code"] == reason
+        assert "AAA" not in book["positions"]
+        j = tmp_path / f"j_{reason}.csv"
+        gj.append_rows(j, rows + rows2)          # must not raise
+        ok, _ = gj.verify(j)
+        assert ok
+
+
+def test_kill_liquidation_journals_end_to_end(tmp_path):
+    """#168: the kill switch's liquidation path, through the journal."""
+    import gambit_journal as gj
+    s = {"AAA": mk_series(BARS)}
+    book, paper = armed_book(s)
+    _, r1 = advance(book, paper, s, "AAA", "2026-07-17")
+    book["cash"] -= 1500.0
+    _, r2 = advance(book, paper, s, "AAA", "2026-07-20")
+    assert book["killed"] and book["pending"]
+    paper2 = dict(paper, last_decision="2026-07-20", pending=[])
+    book["last_decision"] = "2026-07-20"
+    _, r3 = gl.live_step(book, paper2, s, s["AAA"], "BULL",
+                         D("2026-07-24"), margin_zero=True)
+    assert not book["positions"], "KILL must liquidate"
+    j = tmp_path / "kill.csv"
+    gj.append_rows(j, r1 + r2 + r3)
+    assert gj.verify(j)[0]
+
+
+def test_every_event_literal_is_a_journal_event():
+    """#168: a static guard — any "event": "<X>" literal the live module can
+    emit must be accepted by the journal (SKIM wasn't, ROTATE/KILL leaked
+    through reasons). Catches the next one at test time, not at 08:28 UTC
+    on a Saturday."""
+    import re
+    from pathlib import Path
+    import gambit_journal as gj
+    src = Path(gl.__file__).read_text()
+    lits = set(re.findall(r'"event":\s*"([A-Z]+)"', src))
+    assert lits and lits <= gj.EVENTS, lits - gj.EVENTS

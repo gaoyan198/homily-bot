@@ -28,8 +28,10 @@ COLUMNS = ["date", "event", "symbol", "side", "qty", "price", "stop", "tp",
            "notes"]
 _ALL = COLUMNS + ["row_sha"]
 GENESIS = "0" * 64
+# SKIM (#95's quarterly profit bank) was emitted by gambit_live but missing
+# here — latent until the first profitable quarter; caught by #168's test.
 EVENTS = {"SCAN", "PROPOSE", "FILL", "STOP", "TP", "TRAIL", "TIME",
-          "REGIME", "SKIP"}
+          "REGIME", "SKIP", "SKIM"}
 
 
 def _canon(row):

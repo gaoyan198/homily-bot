@@ -40,7 +40,11 @@ jobs:
 
       - name: Advance the paper book one week
         working-directory: gambit
-        run: python weekly_run.py | tee "$RUNNER_TEMP/weekly_digest.txt"
+        # #168: pipefail — without it a crash is masked by tee's exit 0
+        # (the 2026-11-07 live run died green and lost the week).
+        run: |
+          set -o pipefail
+          python weekly_run.py | tee "$RUNNER_TEMP/weekly_digest.txt"
 
       # #93 (Amendment A5): the LIVE overlay — mirrors the paper decisions
       # under the LEVERAGE.md ladder with stops/TPs and kill checks, and
@@ -52,6 +56,7 @@ jobs:
         env:
           MARGIN_ZERO: ${{ vars.MARGIN_ZERO }}
         run: |
+          set -o pipefail
           python live_run.py | tee -a "$RUNNER_TEMP/weekly_digest.txt"
 
       - name: Send weekly ♟️ digest to Telegram (skipped if secrets unset)

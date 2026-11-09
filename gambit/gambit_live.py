@@ -90,8 +90,10 @@ def _gross(book, series, d):
     return g
 
 
-def _exit(book, sym, frac, px, when, reason, rows):
-    """Sell `frac` of the position at px; realize P&L against basis."""
+def _exit(book, sym, frac, px, when, reason, rows, event=None):
+    """Sell `frac` of the position at px; realize P&L against basis.
+    `event` is the journal event (defaults to `reason`: STOP/TP/TIME/...);
+    `reason` always lands in reason_code."""
     p = book["positions"][sym]
     qty = p["qty"] * frac
     basis = p["basis"] * frac
@@ -100,7 +102,7 @@ def _exit(book, sym, frac, px, when, reason, rows):
     book["cash"] += proceeds
     book["realized"].append({"date": _iso(when), "sym": sym,
                              "reason": reason, "pnl": pnl})
-    rows.append({"date": _iso(when), "event": reason, "symbol": sym,
+    rows.append({"date": _iso(when), "event": event or reason, "symbol": sym,
                  "side": "SELL", "qty": f"{qty:.6g}", "price": f"{px:.6g}",
                  "reason_code": reason, "notes": f"pnl {pnl:+.2f}"})
     if frac >= 1.0 - 1e-9:
@@ -150,7 +152,14 @@ def settle(book, series, cal, regime_label, as_of, rows):
         i = ser.idx_at(fill) if ser else None
         if i is None or ser.dates[i] != fill:
             continue
-        _exit(book, sym, 1.0, ser.bars[i][1], fill, prop["reason"], rows)
+        # #168: a pending sell's reason (ROTATE, KILL, ...) is not always a
+        # journal event — gj.append_rows rejects it and the whole week is
+        # lost (2026-11-07). Exit-type reasons keep their own event; the
+        # rest journal as FILL with the reason in reason_code, the paper
+        # journal's convention (FILL,BE,SELL,…,ROTATE).
+        ev = prop["reason"] if prop["reason"] in gj.EVENTS else "FILL"
+        _exit(book, sym, 1.0, ser.bars[i][1], fill, prop["reason"], rows,
+              event=ev)
     L = LADDER.get(regime_label, 1.0)
     eq = _equity(book, series, fill)
     target = eq * L / N
