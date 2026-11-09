@@ -61,7 +61,8 @@ from homily_strategy_backtest import UNIV_B
 from homily_bear_backtest import GRIND_UNIV, _fetch, run_mode
 from homily_leverage_backtest import (FIN_BASE, FIN_STRESS, LADDER_LS,
                                       M_MAINT, POLICIES, d_star,
-                                      regime_by_month, run_arm)
+                                      month_end_closes, month_key,
+                                      regime_by_month, run_arm, target)
 
 WINDOWS_B = [(datetime.date(2021, 7, 22), datetime.date(2026, 7, 21), "5y"),
              (datetime.date(2016, 7, 22), datetime.date(2026, 7, 21), "10y")]
@@ -209,5 +210,244 @@ def main():
               + ("within tolerance" if ok else "ratchet WORSE by >5pt"))
 
 
+# =============================================================================
+# §5r ARMS — #174 counter-cyclical · #175 house-money · #170 intramonth brake
+# =============================================================================
+# PRE-REGISTERED 2026-11-09, written into this file BEFORE `--5r` first ran.
+# Rules and gates copied from PRD #170/#174/#175 (2026-11-08/09); nothing
+# below may be edited after the run to change a verdict (Part III rule 6).
+#
+# Incumbent: the SIGNED ladder as LEVERAGE.md runs it = `ratchet` at 1.30
+# (lever up on 🐂, MIXED drifts with no new margin, 🐻 debt → 0, never
+# sell). `run_policy("ratchet")` must reproduce run_arm(policy="ratchet",
+# L=1.30) to 1e-12 on every path or the whole --5r run is VOID.
+#
+#   counter (#174)  1.00× by default; lever to ≤1.30× only in the 12 months
+#                   after a 🐻 spell ends (first non-🐻 month = re-entry,
+#                   §38 EITHER-above) AND while QQQ (adj) is ≥15% below its
+#                   prior all-time high at the month start; when either
+#                   lapses, delever to 1.00× (sell + repay). 🐻 row intact.
+#   house   (#175)  the ladder, but new borrowing on a 🐂 month only up to
+#                   the house money H = max(0, equity − capital) (capital =
+#                   1.0, the lump sum); MIXED no new margin; 🐻 debt → 0;
+#                   no forced sale when H shrinks (no contributions exist in
+#                   a lump-sum path, so the loan drifts — as the spec says).
+#   brake   (#170)  the ladder, PLUS on any QQQ day whose close is below the
+#                   ROLLED 10m SMA ((9 completed month-ends + today)/10),
+#                   delever to 1.00× at that close; re-lever only at a month
+#                   start whose label is 🐂. On the MONTHLY core-book path the
+#                   intramonth fire is invisible: a fire in month k−1 delevers
+#                   at the start of month k only if k's label is not 🐂 —
+#                   this UNDERSTATES the brake on the core book (recorded).
+#
+# GATES (financing 5.8% base; §15 read windows on the daily QQQ path;
+# core book = universe B, 5y + 10y, modes hold + faithful, monthly NAV):
+#   #174 PASS ⇔ MOIC ≥ ratchet on ≥2 of 3 read windows AND worst
+#        equity/position (QQQ max path + every core cell) ≥ ratchet's.
+#   #175 PASS ⇔ worst equity/position on the core book ≥ ratchet's + 0.05
+#        AND MOIC ≥ 0.97 × ratchet on all 3 read windows.
+#   #170 PASS ⇔ worst equity/position on the core book ≥ ratchet's + 0.05
+#        AND MOIC ≥ 0.97 × ratchet on all 3 read windows AND brake fires
+#        ≤ 4 per year on average over the QQQ max path.
+#   Any FAIL → NULL, published with its numbers.
+
+def _rolled_below(dates, adj):
+    """{date: True} for QQQ days closing below the rolled 10m SMA."""
+    me = month_end_closes(dates, adj)
+    done = {}
+    hist = []
+    for k, c in me:
+        done[k] = list(hist)
+        hist.append(c)
+    out = {}
+    for d, c in zip(dates, adj):
+        h = done.get(month_key(d), [])
+        if len(h) >= 9:
+            out[d] = c < (sum(h[-9:]) + c) / 10.0
+    return out
+
+
+def _dd_by_month(dates, adj):
+    """month_key -> QQQ drawdown from its all-time high at the PRIOR close."""
+    out, ath, last, cur = {}, None, None, None
+    for d, c in zip(dates, adj):
+        k = month_key(d)
+        if k != cur:
+            cur = k
+            if last is not None:
+                out[k] = last / ath - 1.0
+        ath = c if ath is None else max(ath, c)
+        last = c
+    return out
+
+
+def run_policy(dates, adj, labels, policy, fin, *, L=1.30, ppy=252,
+               dd_by_month=None, below=None, below_months=None):
+    """One NAV path under a §5r policy. -> run_arm's dict + "fires"."""
+    from homily_leverage_backtest import M_MAINT as _M
+    eq, pos, debt = 1.0, 0.0, 0.0
+    peak, maxdd = 1.0, 0.0
+    breach, min_ratio, max_lev = None, 1.0, 0.0
+    cur_m, entered, braked, fires = None, False, False, 0
+    last_bear, prev_k = None, None
+    daily_fin = fin / float(ppy)
+    for i, d in enumerate(dates):
+        k = month_key(d)
+        if k != cur_m:
+            cur_m = k
+            lbl = labels.get(k, "BULL")
+            if lbl == "BEAR":
+                last_bear = k
+            tgt = target(L, lbl)
+            if breach is not None:
+                tgt = min(tgt, 1.0)
+            if policy == "counter":
+                since = (None if last_bear is None else
+                         (k[0] - last_bear[0]) * 12 + k[1] - last_bear[1])
+                deep = (dd_by_month or {}).get(k, 0.0) <= -0.15
+                ok = (lbl != "BEAR" and since is not None
+                      and 1 <= since <= 12 and deep and breach is None)
+                t2 = L if ok else 1.0
+                pos, debt = t2 * eq, max(0.0, t2 - 1.0) * eq
+            elif not entered:
+                pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+                if policy == "house":
+                    pos, debt = eq, 0.0           # no gains yet: H = 0
+            else:
+                if policy == "brake" and braked:
+                    if lbl == "BULL":
+                        braked = False
+                    else:
+                        pos, debt = eq, 0.0
+                if policy == "brake" and below_months is not None and \
+                        prev_k in below_months and lbl != "BULL" and debt:
+                    pos, debt = eq, 0.0
+                    fires += 1
+                if breach is not None or lbl == "BEAR":
+                    pos, debt = tgt * eq, max(0.0, tgt - 1.0) * eq
+                elif lbl == "BULL" and pos < tgt * eq and not braked:
+                    want = max(0.0, tgt - 1.0) * eq
+                    if policy == "house":
+                        want = min(want, max(debt, max(0.0, eq - 1.0)))
+                    if want > debt:
+                        pos, debt = eq + want, want
+            entered = True
+            prev_k = k
+        if i:
+            pos *= adj[i] / adj[i - 1]
+            debt *= 1.0 + daily_fin
+            eq = pos - debt if pos else eq
+        if policy == "brake" and below is not None and debt > 0 and \
+                below.get(d):
+            pos, debt, braked = eq, 0.0, True
+            fires += 1
+        if pos:
+            ratio = eq / pos
+            min_ratio = min(min_ratio, ratio)
+            if eq > 0:
+                max_lev = max(max_lev, pos / eq)
+            if ratio < _M and breach is None:
+                breach = d.isoformat()
+                pos, debt = eq, 0.0
+        peak = max(peak, eq)
+        maxdd = min(maxdd, eq / peak - 1.0)
+    yrs = (dates[-1] - dates[0]).days / 365.25
+    return {"moic": eq, "cagr": eq ** (1 / yrs) - 1 if yrs > 0 else 0.0,
+            "maxdd": maxdd, "breach": breach, "min_ratio": min_ratio,
+            "max_lev": max_lev, "fires": fires}
+
+
+ARMS_5R = ("ratchet", "counter", "house", "brake")
+
+
+def main_5r():
+    from homily_leverage_backtest import READ_WINDOWS, window_slice
+    qb, qa = fetch_series("QQQ", rng="max")
+    sb, sa = fetch_series("SPY", rng="max")
+    qd = [b[0] for b in qb]
+    labels = regime_by_month([b[0] for b in sb], sa, qd, qa)
+    below = _rolled_below(qd, qa)
+    below_m = {month_key(d) for d, v in below.items() if v}
+    ddm = _dd_by_month(qd, qa)
+    kw = {"dd_by_month": ddm}
+    print("§5r leverage arms — #174 counter · #175 house · #170 brake vs the"
+          " signed ladder (ratchet 1.30), base financing 5.8%")
+
+    # regression: run_policy("ratchet") == run_arm(policy="ratchet")
+    ref = run_arm(qd, qa, labels, 1.30, FIN_BASE, policy="ratchet")
+    mine = run_policy(qd, qa, labels, "ratchet", FIN_BASE, **kw)
+    drift = abs(ref["moic"] - mine["moic"]) + abs(ref["min_ratio"]
+                                                  - mine["min_ratio"])
+    print(f"  ratchet reimplementation drift vs run_arm: {drift:.2e}"
+          + ("" if drift < 1e-12 else "  ⚠ VOID"))
+    if drift >= 1e-12:
+        return
+
+    qqq = {}
+    rows = [(f"{s}+{m}m", window_slice(qd, s, m)) for s, m in READ_WINDOWS]
+    rows.append(("MAX", (0, len(qd))))
+    print(f"\n  QQQ daily path      " + "".join(f"{a:>22}" for a in ARMS_5R))
+    for name, sl in rows:
+        lo, hi = sl
+        line = f"  {name:<18}"
+        for arm in ARMS_5R:
+            r = run_policy(qd[lo:hi], qa[lo:hi], labels, arm, FIN_BASE,
+                           below=below if arm == "brake" else None, **kw)
+            qqq[(name, arm)] = r
+            line += (f"{r['moic']:>8.2f} dd{r['maxdd']*100:>4.0f}%"
+                     f" r{r['min_ratio']:.2f}"
+                     + (f" f{r['fires']}" if arm == "brake" else "   "))
+        print(line)
+    yrs = (qd[-1] - qd[0]).days / 365.25
+    fires_py = qqq[("MAX", "brake")]["fires"] / yrs
+
+    spy = fetch_daily("SPY", rng="max")
+    qqqd = fetch_daily("QQQ", rng="max")
+    data, dead = _fetch(UNIV_B, "max")
+    live = [n for n in UNIV_B if n in data]
+    core = {}
+    print(f"\n  core book, universe B ({len(live)} names, monthly NAV)")
+    for w0, w1, wl in WINDOWS_B:
+        for mode in ("hold", "faithful"):
+            dts, vals, _ = core_nav(live, data, spy, qqqd, mode, (w0, w1))
+            line = f"  {wl}/{mode:<9}        "
+            for arm in ARMS_5R:
+                r = run_policy(dts, vals, labels, arm, FIN_BASE, ppy=12,
+                               below_months=below_m if arm == "brake"
+                               else None, **kw)
+                core[(wl, mode, arm)] = r
+                line += (f"{r['moic']:>8.2f} dd{r['maxdd']*100:>4.0f}%"
+                         f" r{r['min_ratio']:.2f}"
+                         + (" ⚠CALL" if r["breach"] else "      "))
+            print(line)
+
+    def worst_core(arm):
+        return min(v["min_ratio"] for (w, m, a), v in core.items() if a == arm)
+
+    reads = [n for n, _ in rows if n != "MAX"]
+    inc = {n: qqq[(n, "ratchet")]["moic"] for n in reads}
+    print("\n== §5r READOUT (pre-registered gates) ==")
+    beat = sum(qqq[(n, "counter")]["moic"] >= inc[n] for n in reads)
+    w_c = min(worst_core("counter"), qqq[("MAX", "counter")]["min_ratio"])
+    w_r = min(worst_core("ratchet"), qqq[("MAX", "ratchet")]["min_ratio"])
+    ok174 = beat >= 2 and w_c >= w_r
+    print(f"  #174 counter: beats ratchet MOIC on {beat}/3 read windows; worst"
+          f" equity/position {w_c:.2f} vs {w_r:.2f} → "
+          + ("PASS" if ok174 else "NULL"))
+    for arm, item, extra in (("house", "#175", None),
+                             ("brake", "#170", fires_py)):
+        wc, wr = worst_core(arm), worst_core("ratchet")
+        ni = all(qqq[(n, arm)]["moic"] >= 0.97 * inc[n] for n in reads)
+        ok = wc >= wr + 0.05 and ni and (extra is None or extra <= 4.0)
+        print(f"  {item} {arm}: core worst equity/position {wc:.2f} vs"
+              f" {wr:.2f} (needs +0.05) · MOIC ≥0.97× on all reads: {ni}"
+              + (f" · fires {extra:.1f}/yr (≤4)" if extra is not None
+                 else "") + " → " + ("PASS" if ok else "NULL"))
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if sys.argv[1:] == ["--5r"]:
+        main_5r()
+    else:
+        main()

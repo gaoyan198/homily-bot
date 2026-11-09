@@ -3402,3 +3402,71 @@ names that may still be wrecks, staging in costs a few percent on average
 and roughly halves the damage in the worst cases** — which is a behaviour
 choice the owner can make with their own buys, recorded here with its
 price, not a rule this repo promotes.
+
+## 56 · §5r leverage arms — #174 counter-cyclical · #175 house-money · #170 intramonth brake (run 2026-11-09) — all three NULL; the brake misses by 0.0002
+
+`python homily_levdrift_backtest.py --5r`. Rules and gates were frozen in
+the file's §5r block before the first run. The incumbent is the signed
+ladder as LEVERAGE.md actually runs it (`ratchet` at 1.30). The
+reimplementation reproduces `run_arm(policy="ratchet")` to 1.4e-14, so
+every arm runs on the incumbent's exact arithmetic. Base financing 5.8%.
+
+**QQQ daily path** (MOIC · MaxDD · worst equity/position; brake fires):
+
+| window | ratchet (signed) | counter #174 | house #175 | brake #170 |
+|---|---|---|---|---|
+| 2020-07 +60m | 2.71 · −39% · 0.72 | 2.29 · −38% · 0.74 | 2.55 · −39% · 0.72 | **2.73** · −37% · 0.74 · 3 |
+| 2021-07 +60m | 2.40 · −39% · 0.72 | 2.16 · −38% · 0.74 | 2.21 · −36% · 0.73 | **2.45** · −37% · 0.74 · 4 |
+| 2016-07 +120m | 9.86 · −39% · 0.70 | 7.38 · −38% · 0.74 | 9.45 · −39% · 0.70 | 9.80 · −37% · 0.74 · 9 |
+| MAX 1999→ | 25.09 · −85% · 0.66 | 17.36 · −84% · 0.73 | 21.55 · −85% · 0.66 | 22.47 · −86% · 0.68 · 32 |
+
+**Core book, universe B, monthly NAV** (MOIC · MaxDD · worst equity/position):
+
+| cell | ratchet | counter | house | brake |
+|---|---|---|---|---|
+| 5y hold | 1.26 · −69% · 0.66 | 1.19 · −64% · 0.75 | 1.03 · −66% · 0.69 | **1.36** · −67% · 0.67 |
+| 5y faithful | 1.19 · −50% · 0.66 | 1.20 · −41% · 0.76 | 1.07 · −44% · 0.71 | **1.28** · −46% · 0.69 |
+| 10y hold | 19.41 · −79% · 0.62 | 11.03 · −74% · 0.73 | 18.43 · −79% · 0.62 | **22.18** · −77% · 0.67 |
+| 10y faithful | 9.06 · −60% · 0.63 | 5.62 · −51% · 0.76 | 8.60 · −60% · 0.63 | **10.09** · −56% · 0.68 |
+
+**Verdicts, exactly as pre-registered:**
+
+* **#174 counter-cyclical ("borrow at discounts, like Danny 2023") — NULL.**
+  It beats the signed ladder on **0 of 3** read windows (2.29 vs 2.71,
+  2.16 vs 2.40, 7.38 vs 9.86). It IS much safer: worst equity/position
+  0.73 vs 0.62, and core MaxDD −41…−51% vs −50…−60% when faithful. That is
+  the insurance shape the prior predicted. Levered months shrink to a few
+  dozen, and §15's edge came from staying levered through long bulls.
+  Priced trade-off, for the owner: about −15…−40% of terminal wealth for
+  about +0.11 of solvency margin.
+* **#175 house-money cap — NULL.** No solvency gain at all (core worst
+  0.62 = 0.62; the binding 10y-hold cell had gains to borrow against by
+  the time the drawdown came) and lower MOIC on every read (2.55/2.21/9.45
+  vs 2.71/2.40/9.86). On a lump-sum path it only delays leverage. Today's
+  live reading (allowed loan = 0 against an under-water book) stays a
+  *description* of the account, not a tested rule.
+* **#170 intramonth loan brake — NULL by 0.0002.** Core worst
+  equity/position **0.6690 vs the required 0.6691** (ratchet 0.6191 +
+  0.05). Every other prong passed: MOIC ≥0.97× on all three reads (and
+  HIGHER on two, 2.73/2.45 vs 2.71/2.40), fires 1.2/yr against a ≤4
+  limit, and it beat the ladder in all four core cells (1.36/1.28/22.18/
+  10.09 vs 1.26/1.19/19.41/9.06) at better MaxDD. It loses on the MAX QQQ
+  path (22.47 vs 25.09), where 32 fires in 27 years cost the dot-com
+  recovery legs. Per Part III rule 6 the threshold is not moved and the
+  verdict stands: **NULL, nothing ships.**
+
+**What the near-miss does and does not mean.** The monthly core path
+understates the brake by construction: it only sees a fire in month k−1
+if month k's label is not 🐂, so all intramonth protection is invisible
+(declared in the §5r block). A daily-NAV core path is the obvious next
+measurement, but proposing it now, after seeing 0.6690, is exactly the
+post-hoc re-test this file forbids. It may be proposed as a NEW
+pre-registered item with its own gate, and the gate must not be set from
+these numbers. Until then the account rule is unchanged: the signed
+ladder, plus #169's measured line, which already shows the
+if-the-month-closed-today cap that the brake would have acted on.
+
+Caveats that travel: lump-sum paths (no contributions, so #175's
+paydown-from-contributions mechanism cannot appear), monthly core NAV,
+m=25% (IBKR charges concentrated books more), survivorship in universe B
+on absolute numbers (§16b stands for the QQQ bar).
