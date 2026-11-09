@@ -3718,4 +3718,45 @@ assert not _tee_without_pipefail87(
 print("[87] #168 workflows: every `| tee` step sets pipefail (negative-tested)"
       "  PASS")
 
+# [88] #181 silent-failure audit — a SAFETY block may not vanish quietly.
+# (a) every exception skip in daily_run routes through _skipped() with a
+# classified tag (an unclassified or raw `print(... skipped: {e})` path fails);
+# (b) a SAFETY skip yields the ⚠️ line directly under the title + a marker
+# file, a DISPLAY-only skip changes nothing; (c) the workflow reddens AFTER
+# the commit/push and before the alive ping.
+import re as _re88
+import tempfile as _tf88
+_src88 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "daily_run.py")).read()
+_raw88 = _re88.findall(r'print\(f"\[[^\]]*\] skipped: \{', _src88)
+assert len(_raw88) == 1, f"[88] raw skip prints outside _skipped: {_raw88}"
+_tags88 = set(_re88.findall(r'_skipped\("([a-z\-]+)"', _src88))
+assert _tags88 and _tags88 <= set(daily_run.SKIP_CLASS), \
+    f"[88] unclassified skip tags: {_tags88 - set(daily_run.SKIP_CLASS)}"
+assert set(daily_run.SKIP_CLASS) - _tags88 == {"vault"}, \
+    f"[88] stale SKIP_CLASS tags: {set(daily_run.SKIP_CLASS) - _tags88}"
+assert set(daily_run.SKIP_CLASS.values()) == {"SAFETY", "DISPLAY"}
+_d88 = "<b>Homily × Danny digest — 2026-11-09</b>\n🐂 REGIME\nrow"
+_s88 = [("leverage", "KeyError"), ("chart", "OSError")]
+_o88 = daily_run.with_safety(_d88, _s88).split("\n")
+assert _o88[0] == _d88.split("\n")[0] and _o88[1].startswith("⚠️"), _o88
+assert "leverage (KeyError)" in _o88[1] and "chart" not in _o88[1], _o88[1]
+assert daily_run.with_safety(_d88, [("chart", "OSError")]) == _d88, \
+    "[88] a DISPLAY-only skip must leave the digest byte-identical"
+assert daily_run.with_safety(_d88, []) == _d88
+with _tf88.TemporaryDirectory() as _t88:
+    _f88 = os.path.join(_t88, "s.txt")
+    daily_run.write_safety_marker(_f88, [("chart", "OSError")])
+    assert not os.path.exists(_f88), "[88] DISPLAY skip wrote a marker"
+    daily_run.write_safety_marker(_f88, _s88)
+    assert open(_f88).read() == "leverage KeyError\n"
+_wf88 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          ".github", "workflows", "homily-daily.yml")).read()
+assert "HOMILY_SAFETY_FILE: ${{ runner.temp }}/safety_skips.txt" in _wf88
+assert "HOMILY_VAULT_OUTCOME: ${{ steps.vault.outcome }}" in _wf88
+assert _wf88.index("git push") < _wf88.index("Safety-block check (#181)") \
+    < _wf88.index("Watchdog ping — alive"), "[88] safety check mis-ordered"
+print("[88] #181 silent failures: every skip classified, SAFETY → ⚠️ under the "
+      "title + post-commit red, DISPLAY byte-identical  PASS")
+
 print("\nAll structural assertions passed.")

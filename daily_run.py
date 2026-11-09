@@ -282,6 +282,67 @@ ORDER = {"ACCUMULATE":0,"HOLD":1,"PULLBACK":2,"BOTTOMING":3,"CAUTION":4}
 VH_ARROW = {"BREAKOUT":"↑","BREAKDOWN":"↓","INSIDE":"◻"}
 
 
+# #181 silent-failure audit. Every non-fatal block below ends in a
+# `[tag] skipped: <e>` log line that only a CI log reader ever saw — the
+# ⚖️ leverage line could vanish from the digest and the owner would read
+# its absence as "nothing to say". SAFETY blocks (they gate money, warn of
+# risk or keep the record) now surface: a ⚠️ line under the digest title
+# naming the block + exception class, and a marker file the workflow turns
+# into a /fail ping AFTER the digest is sent and state committed. DISPLAY
+# blocks are counted in the CI log only. validate [88] fails on any skip
+# path that is not routed through _skipped() with a classified tag.
+SKIP_CLASS = {
+    "states": "SAFETY", "buyday": "SAFETY", "bearready": "SAFETY",
+    "household": "SAFETY", "promotions": "SAFETY", "cap-demotion": "SAFETY",
+    "coverage": "SAFETY", "swing": "SAFETY", "leverage": "SAFETY",
+    "cryptocycle": "SAFETY", "data-qa": "SAFETY", "bearish": "SAFETY",
+    "alerts": "SAFETY", "ledger": "SAFETY", "vault": "SAFETY",
+    "ops": "DISPLAY", "hype": "DISPLAY", "lens": "DISPLAY",
+    "dips": "DISPLAY", "turnover": "DISPLAY", "provisional": "DISPLAY",
+    "breakout": "DISPLAY", "shadow": "DISPLAY", "dashboard": "DISPLAY",
+    "chart": "DISPLAY", "week-diff": "DISPLAY",
+}
+_SKIPS = []                                   # [(tag, exception class name)]
+
+
+def _skipped(tag, e, label=None):
+    """Log a non-fatal block failure exactly as before, and remember it."""
+    print(f"[{label or tag}] skipped: {e}")
+    _SKIPS.append((tag, type(e).__name__))
+
+
+def safety_line(skips=None):
+    """-> the ⚠️ digest line for SAFETY skips, or "" when there were none."""
+    bad = [(t, c) for t, c in (_SKIPS if skips is None else skips)
+           if SKIP_CLASS.get(t) == "SAFETY"]
+    if not bad:
+        return ""
+    names = " · ".join(f"{t} ({c})" for t, c in bad)
+    return (f"⚠️ <b>SAFETY BLOCK FAILED TODAY:</b> {esc(names)} — that "
+            "section is MISSING below, not quiet. Check the CI log before "
+            "acting on this digest.")
+
+
+def with_safety(digest, skips=None):
+    """Insert safety_line() directly under the digest title (line 1)."""
+    line = safety_line(skips)
+    if not line:
+        return digest
+    head, _, rest = digest.partition("\n")
+    return f"{head}\n{line}\n{rest}" if rest else f"{head}\n{line}"
+
+
+def write_safety_marker(path=None, skips=None):
+    """Write SAFETY skips to $HOMILY_SAFETY_FILE for the workflow's post-
+    commit check (#181). No env var (local runs) = no file."""
+    path = path or os.getenv("HOMILY_SAFETY_FILE")
+    bad = [f"{t} {c}" for t, c in (_SKIPS if skips is None else skips)
+           if SKIP_CLASS.get(t) == "SAFETY"]
+    if path and bad:
+        with open(path, "w") as f:
+            f.write("\n".join(bad) + "\n")
+
+
 def digest_sort_key(sig, conv):
     """State groups in ORDER; ⭐ rows by RS12 descending inside their group
     (#24 promoted 2026-07-12 — the top-3 the buy-day splits across), every
@@ -800,7 +861,7 @@ def build_digest(flex_notes=None):
                    for s, c, _ in sigs]
                   + [homily_ledger.state_of(s, c, False) for s, c, _ in disco])
     except Exception as e:
-        print(f"[states] skipped: {e}")
+        _skipped("states", e)
     # #31 buy-day copilot: on the month's first run (per the ledger, D-31),
     # resolve BUY_BUDGET_USD into printed orders + the T2 basket CSV.
     # Non-fatal to the send, like everything downstream of the digest.
@@ -811,7 +872,7 @@ def build_digest(flex_notes=None):
                 states, POSITIONS, regime, today,
                 yahoo={**HOLDINGS, **WATCH, **UNIVERSE}, observe=OBSERVE)
     except Exception as e:
-        print(f"[buyday] skipped: {e}")
+        _skipped("buyday", e)
     # #30 bear-readiness rehearsal, first Monday of the month. Non-fatal.
     bearready = ""
     try:
@@ -819,14 +880,14 @@ def build_digest(flex_notes=None):
             bearready = homily_bearready.bearready_block(states, POSITIONS,
                                                          today)
     except Exception as e:
-        print(f"[bearready] skipped: {e}")
+        _skipped("bearready", e)
     # #99 ops-readiness: the owner's unset switches, one standing line (env
     # only, no fetch). Non-fatal, info-only.
     ops = ""
     try:
         ops = homily_ops.ops_line(os.environ, esc=esc)
     except Exception as e:
-        print(f"[ops] skipped: {e}")
+        _skipped("ops", e)
     # #94 household scorecard, first Monday of the month. Reads the same held
     # prices the digest already shows; fetches only QQQ (counterfactual) +
     # SGD=X (FX) inside its own shell. Non-fatal, info-only.
@@ -838,7 +899,7 @@ def build_digest(flex_notes=None):
             regime_label=(regime.label if regime is not None else ""),
             esc=esc)
     except Exception as e:
-        print(f"[household] skipped: {e}")
+        _skipped("household", e)
     # #69/#24: month-start promotions block — the frozen rs12-top3 window
     # read (promised through the 2026-10-01 read) + the rolling demotion
     # check for promoted entries. Same first-run-of-month test as the
@@ -849,7 +910,7 @@ def build_digest(flex_notes=None):
         if homily_buyday.is_buy_day(today, lrows):
             promos = homily_promotions.month_start_block(lrows, today, esc=esc)
     except Exception as e:
-        print(f"[promotions] skipped: {e}")
+        _skipped("promotions", e)
     # #92: the promoted add-cap's demotion watch — EVERY run, not just
     # month-start (a halving must surface the day it prints). Highs are the
     # max close since the promotion date, from bars already fetched.
@@ -863,7 +924,7 @@ def build_digest(flex_notes=None):
         if capdem:
             promos = f"{promos}\n\n{capdem}" if promos else capdem
     except Exception as e:
-        print(f"[cap-demotion] skipped: {e}")
+        _skipped("cap-demotion", e)
     # #70: surface recent runner misses (last ~2 weeks; the snapshot keeps
     # the full history so an old hole doesn't nag forever). Non-fatal.
     gaps = []
@@ -872,7 +933,7 @@ def build_digest(flex_notes=None):
         cutoff = (today - datetime.timedelta(days=14)).isoformat()
         gaps = [d for d in cov["missing"] if d >= cutoff]
     except Exception as e:
-        print(f"[coverage] skipped: {e}")
+        _skipped("coverage", e)
     # #90/#93: SWING sleeve state — paper block + LIVE status (A5) + the
     # month-start realized report. Pure reads of committed gambit state;
     # non-fatal, never fetches, never writes sleeve state (R3).
@@ -889,7 +950,7 @@ def build_digest(flex_notes=None):
             if mb:
                 swing = f"{swing}\n\n{mb}" if swing else mb
     except Exception as e:
-        print(f"[swing] skipped: {e}")
+        _skipped("swing", e)
     # #91: the leverage-ladder line (LEVERAGE.md §5) — pure render from the
     # regime label + the #30 MARGIN_ZERO flag; non-fatal.
     lev = ""
@@ -899,7 +960,7 @@ def build_digest(flex_notes=None):
                 "1", "true", "yes", "on")
             lev = homily_leverage.leverage_line(regime.label, mz, esc=esc)
     except Exception as e:
-        print(f"[leverage] skipped: {e}")
+        _skipped("leverage", e)
     # #148 (CRYPTO_SLEEVE.md): the crypto-cycle leverage watch. Pure compute
     # + render over BTC daily bars; non-fatal and additive — a failed fetch
     # leaves the digest byte-identical.
@@ -936,7 +997,7 @@ def build_digest(flex_notes=None):
             _hy = homily_cryptocycle.hype_line(
                 [(x[0], x[1], x[2], x[3], x[4]) for x in _hb], esc=esc)
         except Exception as _e:
-            print(f"[hype] skipped: {_e}")
+            _skipped("hype", _e)
         # #157: the crypto sleeve rides the STOCK BOOK's buy day — the first
         # digest run of the calendar month (homily_buyday.is_buy_day), so
         # there is one buy day and one routine rather than two.
@@ -959,7 +1020,7 @@ def build_digest(flex_notes=None):
             homily_cryptocycle.cycle_line(_cs, esc=esc),
             homily_cryptocycle.target_line(_ts, esc=esc), _hy) if x)
     except Exception as e:
-        print(f"[cryptocycle] skipped: {e}")
+        _skipped("cryptocycle", e)
     # #26 breadth + #29 concentration: both pure reads of already-fetched
     # bars; both non-fatal, both info-only.
     br, conc, cross_book = None, None, None
@@ -991,7 +1052,7 @@ def build_digest(flex_notes=None):
             cross_book = homily_clusters.combined_render(
                 homily_clusters.combined_view(conc, extra), esc)
     except Exception as e:
-        print(f"[lens] skipped: {e}")
+        _skipped("lens", e)
     # #78: dip-day counter for held/watch rows in an intact weekly RED.
     # Pure read of already-fetched bars; non-fatal, info-only.
     dips = {}
@@ -1000,7 +1061,7 @@ def build_digest(flex_notes=None):
                 for s, _c, _y in sigs
                 if s.weekly.circle == "RED" and s.ticker in all_bars}
     except Exception as e:
-        print(f"[dips] skipped: {e}")
+        _skipped("dips", e)
     # #60: data-QA on the benchmark tape everything keys off — freshness of
     # the SPY series this very run fetched + a Stooq second opinion on the
     # last common close. Non-fatal end to end; a dead Stooq costs nothing.
@@ -1029,7 +1090,7 @@ def build_digest(flex_notes=None):
         if fn114:
             dataqa.append(fn114)
     except Exception as e:
-        print(f"[data-qa] skipped: {e}")
+        _skipped("data-qa", e)
     # #88: top-3 turnover — how fragile the buy-day's point-in-time ⭐ set is
     # within the month. One footer line, needs ≥2 ledger runs; info-only.
     turnover = ""
@@ -1041,7 +1102,7 @@ def build_digest(flex_notes=None):
                         f"({' · '.join(t88['ref'])}) — high churn = fragile "
                         "snapshot, #87's question (info only, gates nothing)")
     except Exception as e:
-        print(f"[turnover] skipped: {e}")
+        _skipped("turnover", e)
     # #102: short-term bearish tells on held names — pure read of the sigs +
     # bars this run already fetched; prints only on >=2 concurrent tells.
     # Non-fatal, info-only, feeds nothing downstream.
@@ -1049,7 +1110,7 @@ def build_digest(flex_notes=None):
     try:
         bear = homily_bearish.block(sigs, all_bars, set(HOLDINGS), esc=esc)
     except Exception as e:
-        print(f"[bearish] skipped: {e}")
+        _skipped("bearish", e)
     # #106: which rows' trend engines read an unfinished bar today — per
     # name because HK/US session calendars differ. Display-only.
     prov = {}
@@ -1057,7 +1118,7 @@ def build_digest(flex_notes=None):
         prov = {tk: homily_provisional.marks(bs)
                 for tk, bs in all_bars.items()}
     except Exception as e:
-        print(f"[provisional] skipped: {e}")
+        _skipped("provisional", e)
     # #105 (§23): whale-confirmed shelf-break event day — the tested
     # 60d-edge entry, tagged ⤴ on the row. Corp-suspect names skip (their
     # chip histogram, hence the shelf reference, is poisoned — same rule
@@ -1067,7 +1128,7 @@ def build_digest(flex_notes=None):
         brkmap = {tk: homily_breakout.breakout_today(bs)
                   for tk, bs in all_bars.items() if tk not in suspect}
     except Exception as e:
-        print(f"[breakout] skipped: {e}")
+        _skipped("breakout", e)
     # #114: a run where any name came off a fallback source is a FOREIGN
     # tape day — the digest sends, but nothing that feeds a verdict is
     # written (ledger, snapshot, refine-J, alerts, dashboard). One flag,
@@ -1100,7 +1161,7 @@ def build_digest(flex_notes=None):
             alert = homily_alerts.format_alerts(
                 homily_alerts.build_alerts(states, regime, today), today)
     except Exception as e:
-        print(f"[alerts] skipped: {e}")
+        _skipped("alerts", e)
     # #65 shadow quarter: screen the mechanical universe.json names the hand
     # list does NOT already cover; their rows land in the ledger tagged
     # origin "shadow-screen" (no digest surface, no rank participation).
@@ -1116,7 +1177,7 @@ def build_digest(flex_notes=None):
         shadow = [(s, c) for s, c, _ in
                   screen(extra, [], spy, spy_adj)]
     except Exception as e:
-        print(f"[shadow] skipped: {e}")
+        _skipped("shadow", e)
     # #13 signals ledger + snapshot: record what the digest printed today.
     # Non-fatal to the send (the user always gets their digest); any history
     # corruption is caught hard by the validate gate (check [17]) that #16
@@ -1129,7 +1190,7 @@ def build_digest(flex_notes=None):
             homily_ledger.record(sigs, disco, regime, today, set(HOLDINGS),
                                  origins=ORIGINS, buyday=buyplan, shadow=shadow)
     except Exception as e:
-        print(f"[ledger] skipped: {e}")
+        _skipped("ledger", e)
     # #36/#83 nightly boards from the just-written snapshot + ledger + this
     # run's bars: the SMALL board (docs/dashboard.html — committed by the
     # workflow, R8) and the FULL searchable board (temp path, sent below,
@@ -1145,7 +1206,7 @@ def build_digest(flex_notes=None):
             homily_dashboard.write_dashboard(homily_dashboard.BOARD_FULL,
                                              bars_map=all_bars, full=True)
     except Exception as e:
-        print(f"[dashboard] skipped: {e}")
+        _skipped("dashboard", e)
     # #35 chart cards: top-3 actionable names rendered from the bars the
     # screen already fetched. Per-name try — one bad render never costs the
     # others, and never the digest.
@@ -1158,7 +1219,7 @@ def build_digest(flex_notes=None):
                                                 all_bars[s.ticker], s),
                            caption))
         except Exception as e:
-            print(f"[chart {s.ticker}] skipped: {e}")
+            _skipped("chart", e, label=f"chart {s.ticker}")
     return digest, alert, charts
 
 
@@ -1296,7 +1357,7 @@ def sunday_deepdive():
         if diff:
             summary = f"{summary}\n\n{diff}"
     except Exception as e:
-        print(f"[week-diff] skipped: {e}")
+        _skipped("week-diff", e)
     # #83: the committed board already carries Friday's candle charts (built
     # WITH bars by Friday's run); regenerating here without bars would strip
     # them. Only build a fresh one if the file is missing entirely.
@@ -1304,7 +1365,7 @@ def sunday_deepdive():
         try:
             homily_dashboard.write_dashboard()
         except Exception as e:
-            print(f"[dashboard] skipped: {e}")
+            _skipped("dashboard", e)
     send(summary)
     if os.path.exists(homily_dashboard.DASHBOARD):
         send_document(homily_dashboard.DASHBOARD,
@@ -1326,8 +1387,14 @@ if __name__ == "__main__":
         HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
         ORIGINS = {**{tk: "owner-request" for tk in {**WATCH, **UNIVERSE}},
                    **{tk: "holding" for tk in HOLDINGS}}
+    # #181: a vault step that failed (it runs continue-on-error before us)
+    # is a SAFETY skip too — the restore path is the data backstop.
+    if os.getenv("HOMILY_VAULT_OUTCOME", "").lower() == "failure":
+        _SKIPS.append(("vault", "StepFailed"))
     digest, alert, charts = build_digest(flex_notes)
+    digest = with_safety(digest)                # #181: missing ≠ quiet
     send(digest)
+    write_safety_marker()                       # #181: workflow pings /fail
     for _tk, png, caption in charts:    # #35: top-3 actionable chart cards
         send_photo(png, caption)
     if os.path.exists(homily_dashboard.DASHBOARD):   # #36: nightly dashboard

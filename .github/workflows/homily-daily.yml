@@ -40,6 +40,7 @@ jobs:
       # same morning. continue-on-error: a vault that cannot write today
       # retries tomorrow and must never delay or redden the digest (R4).
       - name: Bars vault — monthly snapshot (idempotent, never fatal)
+        id: vault
         continue-on-error: true
         timeout-minutes: 20
         run: python homily_vault.py
@@ -67,6 +68,10 @@ jobs:
           # step); the real use is a box running this job from cron (#118b)
           # with a synced folder.
           HOMILY_DELIVERY: ${{ vars.HOMILY_DELIVERY }}
+          # #181: SAFETY-block failures land here (and as a ⚠️ line in the
+          # digest); the post-commit check below turns them into /fail.
+          HOMILY_SAFETY_FILE: ${{ runner.temp }}/safety_skips.txt
+          HOMILY_VAULT_OUTCOME: ${{ steps.vault.outcome }}
         run: python daily_run.py
 
       - name: Commit refined champion + log
@@ -115,6 +120,19 @@ jobs:
       #
       # Ordering is load-bearing: this runs AFTER the commit/push step, so a
       # push that fails still withholds the ping. Pinned by validate [68].
+      # #181: a SAFETY block (leverage, regime-gated sheets, ledger, …) that
+      # raised today went out as a ⚠️ line, not silence — and it reddens the
+      # run HERE, after the digest is sent and state is committed, so the
+      # failure ping below fires instead of the alive ping. Never before the
+      # commit: losing the ledger row would be worse than the missing block.
+      - name: Safety-block check (#181) — red if a SAFETY block was skipped
+        run: |
+          f="$RUNNER_TEMP/safety_skips.txt"
+          if [ -s "$f" ]; then
+            echo "::error::SAFETY blocks skipped today:"; cat "$f"; exit 1
+          fi
+          echo "no SAFETY block skipped"
+
       - name: Watchdog ping — alive (skipped if secret unset)
         if: ${{ success() }}
         env:
