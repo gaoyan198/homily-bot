@@ -205,10 +205,18 @@ def cap_demotion_line(positions, prices, highs):
 A_TARGET = 0.50
 
 
-def bucket_a_value(positions, prices):
-    return sum(p["shares"] * prices[tk] for tk, p in (positions or {}).items()
-               if p.get("bucket") == "A" and tk in prices
-               and p.get("currency", "USD") == "USD")
+def bucket_a_value(positions, prices, fx=None):
+    """USD value of Bucket A. `fx` = {currency: USD per unit}; a non-USD
+    line without a rate is left out (reported low, never guessed)."""
+    total = 0.0
+    for tk, p in (positions or {}).items():
+        if p.get("bucket") != "A" or tk not in prices:
+            continue
+        cur = p.get("currency", "USD")
+        rate = 1.0 if cur == "USD" else (fx or {}).get(cur)
+        if rate:
+            total += p["shares"] * prices[tk] * rate
+    return total
 
 
 def bucket_a_route(a_usd, book_usd, loan_usd, monthly_usd):

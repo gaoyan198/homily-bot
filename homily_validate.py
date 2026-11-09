@@ -3860,6 +3860,15 @@ _pos91 = {"QQQM": {"shares": 10, "bucket": "A"}, "CSPX": {"shares": 2,
           "bucket": "A", "currency": "HKD"}}
 assert _hp91.bucket_a_value(_pos91, {"QQQM": 270.0, "CSPX": 800.0,
                                      "NVDA": 190.0, "9992": 150.0}) == 4300.0
+# an SGD line (XND on SGX) counts once it has a rate, never at a guess
+_pos91s = {"XND": {"shares": 10, "bucket": "A", "currency": "SGD"}}
+assert _hp91.bucket_a_value(_pos91s, {"XND": 80.0}) == 0.0
+assert abs(_hp91.bucket_a_value(_pos91s, {"XND": 80.0},
+                                {"SGD": 0.78}) - 624.0) < 1e-9
+import daily_run as _dr91
+assert "XND" not in _dr91.HOLDINGS or \
+    _dr91.POSITIONS["XND"].get("shares", 0) > 0, \
+    "[91] a 0-share pre-mapped entry must not screen as a held row"
 _r91 = _hp91.bucket_a_route(4312.0, 57761.0, 16572.0, 2325.0)
 assert _r91["months_loan"] == 8 and _r91["months_a"] == 22, _r91
 assert abs(_r91["share"] - 0.0747) < 1e-3
