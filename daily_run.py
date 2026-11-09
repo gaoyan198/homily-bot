@@ -52,7 +52,11 @@ import homily_deliver
 # 2026-07-10). POSITIONS carries the shares/cost/bucket #27 needs; HOLDINGS
 # stays the flat ticker->yahoo map every screen()/membership check expects.
 POSITIONS = homily_positions.load_positions()
-HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
+# A 0-share entry is PRE-MAPPED, not held (2026-11-09: XND/XNAS added before
+# the first buy so homily_flex.sync — which never adds symbols — can fill in
+# the shares). It must not print as a held row until it owns something.
+HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()
+            if v.get("shares", 0) > 0}
 # Owner-requested names not (yet) held — charted anyway, week after week
 WATCH = {"ASML":"ASML","ICE":"ICE","CDE":"CDE","QQQ":"QQQ",
          # SPCX RETURNED 2026-08-25 (owner request). It graduated OFF this
@@ -813,7 +817,12 @@ def bucket_a_line_now(sigs):
     gross (every position) else the tracked book, loan typed in
     contributions.json, budget from BUY_BUDGET_USD."""
     px = {s.ticker: s.chips.last for s, _c, _y in sigs}
-    a = homily_positions.bucket_a_value(POSITIONS, px)
+    fx = {}
+    if any(p.get("bucket") == "A" and p.get("currency", "USD") == "SGD"
+           and p.get("shares", 0) > 0 for p in POSITIONS.values()):
+        _sb, _ = homily_data.fetch_series("SGD=X", rng="1mo")   # SGD per USD
+        fx["SGD"] = 1.0 / _sb[-1][4]
+    a = homily_positions.bucket_a_value(POSITIONS, px, fx)
     book = homily_flex.ACCOUNT.get("gross_usd") or (
         homily_positions.stock_book_value(POSITIONS, px) + a)
     bal = (homily_household.load_contributions() or {}).get("balances") or {}
@@ -1460,7 +1469,8 @@ if __name__ == "__main__":
         for _d in flex_notes:
             print(f"[flex] {_d}")
         POSITIONS = homily_positions.load_positions()
-        HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()}
+        HOLDINGS = {k: v["yahoo"] for k, v in POSITIONS.items()
+                    if v.get("shares", 0) > 0}
         ORIGINS = {**{tk: "owner-request" for tk in {**WATCH, **UNIVERSE}},
                    **{tk: "holding" for tk in HOLDINGS}}
     # #181: a vault step that failed (it runs continue-on-error before us)
