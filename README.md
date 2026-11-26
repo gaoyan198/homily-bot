@@ -18,6 +18,9 @@ Every weekday at 09:00 SGT, `crash_bot.py` sends one Telegram message:
 - 📌 **why you own them**: your thesis for each satellite stock (Amazon, Anthropic,
   and a third to come), its distance from its peak (information only), and what
   would break the thesis. Sell only if the thesis breaks, never because the price dropped.
+- 🧪 **thesis score**: from a monthly check (cloud agent, the 1st of each month).
+  Each thesis line is judged holding, mixed or weakening, with sources; the score is
+  out of 10; 🚨 appears if one of your own sell conditions is met.
 - 🛒 **today's orders**: on the first weekday of the month, and for a week after a zone opens
 
 ## Your settings: `crash_plan.json`
@@ -48,6 +51,8 @@ So the rule is not an edge. It's a cheap way to stay disciplined and out of stoc
 |---|---|
 | `crash_bot.py` | the bot (stdlib only, no state; everything recomputed each run) |
 | `crash_validate.py` | offline self-test; a red test means no message goes out |
+| `thesis_check.py` | the monthly thesis check's contract: `--prompt` (lines to judge), `--verify` (strict schema); the score is computed here, not by the agent |
+| `thesis_scores.json` | the latest monthly check (written by the cloud routine on the 1st) |
 | `crash_backtest.py` | the test above, reproducible: `python3 crash_backtest.py` |
 | `.github/workflows/crash-daily.yml` | the weekday schedule |
 | `archive/` | the old stock-picking system, frozen but still runnable: `cd archive && python3 homily_validate.py` |
