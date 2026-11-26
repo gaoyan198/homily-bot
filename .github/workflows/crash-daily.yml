@@ -1,0 +1,30 @@
+name: crash-daily
+
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'      # 01:00 UTC = 09:00 SGT, Mon–Fri (after the US close)
+  workflow_dispatch: {}         # manual "Run workflow" button
+
+permissions:
+  contents: read                # the bot keeps no state — nothing to commit
+
+concurrency:
+  group: crash-daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # offline self-test first: a red test means no message goes out
+      - name: Self-test
+        run: python crash_validate.py
+      - name: Crash meter
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python crash_bot.py
