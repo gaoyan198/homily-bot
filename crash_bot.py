@@ -38,6 +38,8 @@ import time
 import urllib.parse
 import urllib.request
 
+import thesis_check
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 PLAN_FILE = os.path.join(HERE, "crash_plan.json")
 ZONE = -0.10                      # buy zone opens at 10% below the peak
@@ -169,7 +171,7 @@ def debt_line(debt, today):
 
 
 # -------------------------------------------------------------- render ----
-def render(today, legs, plan, sat_prices=None):
+def render(today, legs, plan, sat_prices=None, scores=None):
     """Pure. `legs` = [(sym, name, fund, meter_dict, pile_dict|None)];
     `sat_prices` = {ticker: series|None} for the satellite thesis block."""
     e = lambda x: html.escape(str(x), quote=False)
@@ -196,7 +198,8 @@ def render(today, legs, plan, sat_prices=None):
         lines.append("💰 <b>Cash pile:</b> set monthly_usd + start in "
                      "crash_plan.json")
     lines.append(debt_line(plan.get("debt") or {}, today))
-    lines += satellite_block(plan.get("satellite") or {}, sat_prices or {})
+    lines += satellite_block(plan.get("satellite") or {}, sat_prices or {},
+                             scores=scores, today=today)
 
     # 🛒 sheet: trigger day (deploy the pile) and/or the monthly buy day
     # the deploy instruction repeats for a week after the zone opens, so one
@@ -223,7 +226,8 @@ def render(today, legs, plan, sat_prices=None):
     return "\n".join(lines)
 
 
-def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False)):
+def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False),
+                    scores=None, today=None):
     """Pure. The daily thesis reminder. `sats` = crash_plan.json "satellite"
     ({ticker: {name, thesis[], breaks_if[]}}); `prices` = {ticker: series or
     None}. Distance from peak is INFORMATION ONLY — no buy zone for single
@@ -244,6 +248,9 @@ def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False)
         else:
             where = "price unavailable today"
         out.append(f"<b>{esc(c.get('name', tk))}</b> ({esc(tk)}) · {esc(where)}")
+        sl = thesis_check.line_for(tk, scores, today) if today else None
+        if sl:
+            out.append(sl)
         out += [f"  ✓ {esc(t)}" for t in c.get("thesis", [])]
         if c.get("bear_case"):
             out.append("  ⚠ <i>bear case: "
@@ -301,10 +308,11 @@ def main(today=None):
                + html.escape("; ".join(errors), quote=False)
                + "\nCheck the S&P/Nasdaq yourself before any buy.")
         if legs:
-            msg += "\n\n" + render(today, legs, plan, sat_prices)
+            msg += "\n\n" + render(today, legs, plan, sat_prices,
+                                     thesis_check.load_scores())
         send(msg)
         raise SystemExit(1)
-    send(render(today, legs, plan, sat_prices))
+    send(render(today, legs, plan, sat_prices, thesis_check.load_scores()))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline self-test for crash_bot.py — runs before every send (no network)."""
 import datetime
+import json
 
 import crash_bot as cb
 
@@ -112,5 +113,43 @@ full = cb.render(datetime.date(2026, 12, 2), legs, dict(plan, satellite=sats),
                  {"AAA": series([100, 120, 90])})
 assert "WHY YOU OWN THEM" in full and full.index("WHY YOU OWN") < full.index("not an edge")
 print("[6] satellite thesis: printed daily, info-only price, fail-soft ... PASS")
+
+# [7] thesis check: the CODE computes the score from per-line judgments;
+# --verify refuses rewritten/missing lines, bad statuses, no source; a met
+# break condition prints 🚨; a stale check says so
+import thesis_check as tc
+pl7 = {"satellite": {"AAA": {"thesis": ["t1", "t2"], "breaks_if": ["b1"]}}}
+def _row(line, **kw):
+    return dict(line=line, evidence="e", source="https://x.test", **kw)
+ok7 = {"checked": "2026-12-01", "stocks": {"AAA": {
+    "thesis": [_row("t1", status="holding"), _row("t2", status="mixed")],
+    "breaks": [_row("b1", triggered=False)], "summary": "fine"}}}
+assert tc.verify(ok7, pl7) == [], tc.verify(ok7, pl7)
+assert tc.score(ok7["stocks"]["AAA"]) == (8, 0, []), "2+1 of 4 -> 7.5 -> 8"
+bad = json.loads(json.dumps(ok7))
+bad["stocks"]["AAA"]["thesis"][0]["line"] = "t1 (reworded)"
+assert any("exactly" in p for p in tc.verify(bad, pl7)), "rewritten line refused"
+bad = json.loads(json.dumps(ok7))
+bad["stocks"]["AAA"]["thesis"][1]["status"] = "great"
+assert any("status" in p for p in tc.verify(bad, pl7))
+bad = json.loads(json.dumps(ok7))
+bad["stocks"]["AAA"]["breaks"][0]["source"] = ""
+assert any("source" in p for p in tc.verify(bad, pl7))
+assert any("missing" in p for p in tc.verify({"checked": "2026-12-01",
+                                             "stocks": {}}, pl7))
+d7 = datetime.date(2026, 12, 2)
+l7 = tc.line_for("AAA", ok7, d7)
+assert "thesis 8/10" in l7 and "checked 01 Dec" in l7 and "no break" in l7
+assert "STALE" in tc.line_for("AAA", ok7, datetime.date(2027, 2, 1))
+met = json.loads(json.dumps(ok7))
+met["stocks"]["AAA"]["breaks"][0]["triggered"] = True
+met["stocks"]["AAA"]["thesis"][0]["status"] = "weakening"
+assert "BREAK CONDITION MET" in tc.line_for("AAA", met, d7)
+assert tc.score(met["stocks"]["AAA"]) == (2, 1, ["b1"])
+assert tc.line_for("ZZZ", ok7, d7) is None and tc.line_for("AAA", None, d7) is None
+blk7 = "\n".join(cb.satellite_block({"AAA": {"name": "A", "thesis": ["t1"]}},
+                                    {}, scores=ok7, today=d7))
+assert "thesis 8/10" in blk7
+print("[7] thesis check: code-computed score, strict verify, 🚨 on break  PASS")
 
 print("\nAll crash_bot checks passed.")
