@@ -1,7 +1,44 @@
 {
- "_comment": "Owner settings for crash_bot.py. monthly_usd = total new money per month AFTER the debt is gone (split across the two legs below). start = first month the rule runs. debt.balance_sgd = what is left to repay; update it (and as_of) whenever you pay some off.",
+ "_comment": "Owner settings for crash_bot.py. monthly_usd = total new money per month AFTER the debt is gone (split across the two legs below). start = first month the rule runs. debt.balance_sgd = what is left to repay; update it (and as_of) whenever you pay some off. satellite = the stocks you hold on conviction: thesis is printed every day; breaks_if is what would make you sell (edit both in your own words; add the third company the same way).",
  "monthly_usd": null,
  "start": "2027-01-01",
- "split": {"SPY": 0.5, "QQQ": 0.5},
- "debt": {"target": "2026-12-31", "balance_sgd": null, "as_of": null}
+ "split": {
+  "SPY": 0.5,
+  "QQQ": 0.5
+ },
+ "debt": {
+  "target": "2026-12-31",
+  "balance_sgd": null,
+  "as_of": null
+ },
+ "satellite": {
+  "AMZN": {
+   "name": "Amazon",
+   "yahoo": "AMZN",
+   "thesis": [
+    "AWS: the first and the best cloud — nobody builds datacenters like Amazon",
+    "AI compute: AWS datacenters and Trainium chips run frontier labs like Anthropic and OpenAI; Bedrock sells their models to every AWS customer",
+    "Robotics: investing heavily, robots rolling out across its warehouses — the best at datacenters AND robotics"
+   ],
+   "breaks_if": [
+    "AWS growth trails Azure and Google Cloud for 4+ quarters in a row",
+    "Anthropic or OpenAI move their main compute off AWS",
+    "robotics spend never shows up as better retail margins"
+   ]
+  },
+  "ANT": {
+   "name": "Anthropic",
+   "yahoo": "ANT",
+   "thesis": [
+    "THE best AI models (Fable, Opus)",
+    "huge runway: fewer than 1% of Fortune 500 companies pay it >$1M/month (your figure, unverified)",
+    "more of corporate America will inevitably pay for the AI efficiency gains"
+   ],
+   "breaks_if": [
+    "revenue growth slows sharply for 2+ quarters",
+    "big enterprise customers switch to a rival model",
+    "a rival model is clearly better for a year or more"
+   ]
+  }
+ }
 }

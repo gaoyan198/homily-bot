@@ -47,7 +47,7 @@ HOSTS = ("query1.finance.yahoo.com", "query2.finance.yahoo.com")
 
 
 # ---------------------------------------------------------------- data ----
-def fetch(symbol, tries=4):
+def fetch(symbol, tries=4, min_bars=500):
     """-> [(date, adj_close)] full daily history from Yahoo. Raises after
     `tries` failures (the message then says so — never a silent skip)."""
     last = None
@@ -64,7 +64,7 @@ def fetch(symbol, tries=4):
             adj = res["indicators"]["adjclose"][0]["adjclose"]
             out = [(datetime.datetime.fromtimestamp(t, datetime.timezone.utc).date(), a)
                    for t, a in zip(ts, adj) if a is not None]
-            if len(out) < 500:
+            if len(out) < min_bars:
                 raise ValueError(f"{symbol}: only {len(out)} bars")
             return out
         except Exception as e:                    # noqa: BLE001 - retry
@@ -169,8 +169,9 @@ def debt_line(debt, today):
 
 
 # -------------------------------------------------------------- render ----
-def render(today, legs, plan):
-    """Pure. `legs` = [(sym, name, fund, meter_dict, pile_dict|None)]."""
+def render(today, legs, plan, sat_prices=None):
+    """Pure. `legs` = [(sym, name, fund, meter_dict, pile_dict|None)];
+    `sat_prices` = {ticker: series|None} for the satellite thesis block."""
     e = lambda x: html.escape(str(x), quote=False)
     lines = [f"🎯 <b>CRASH METER — {today:%a %d %b %Y}</b>"]
     for sym, name, fund, m, _ in legs:
@@ -195,6 +196,7 @@ def render(today, legs, plan):
         lines.append("💰 <b>Cash pile:</b> set monthly_usd + start in "
                      "crash_plan.json")
     lines.append(debt_line(plan.get("debt") or {}, today))
+    lines += satellite_block(plan.get("satellite") or {}, sat_prices or {})
 
     # 🛒 sheet: trigger day (deploy the pile) and/or the monthly buy day
     # the deploy instruction repeats for a week after the zone opens, so one
@@ -219,6 +221,34 @@ def render(today, legs, plan):
                  "(worst decade −7%) — the price of the discipline. Never "
                  "with borrowed money.</i>")
     return "\n".join(lines)
+
+
+def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False)):
+    """Pure. The daily thesis reminder. `sats` = crash_plan.json "satellite"
+    ({ticker: {name, thesis[], breaks_if[]}}); `prices` = {ticker: series or
+    None}. Distance from peak is INFORMATION ONLY — no buy zone for single
+    stocks: waiting for single-name dips lost to scheduled buying every time
+    the old repo tested it (archive/BACKTEST_RESULTS §5f/§17/§30), and a
+    single company, unlike the index, can fall and never come back."""
+    if not sats:
+        return []
+    out = ["", "📌 <b>WHY YOU OWN THEM</b> — sell only if the thesis breaks, "
+           "never because the price dropped"]
+    for tk, c in sats.items():
+        s = prices.get(tk)
+        if s:
+            peak = max(p for _, p in s)
+            where = f"{(s[-1][1] / peak - 1) * 100:+.0f}% from its peak"
+            if len(s) < 250:                  # under a year of history
+                where += f" since listing ({s[0][0]:%d %b %Y})"
+        else:
+            where = "price unavailable today"
+        out.append(f"<b>{esc(c.get('name', tk))}</b> ({esc(tk)}) · {esc(where)}")
+        out += [f"  ✓ {esc(t)}" for t in c.get("thesis", [])]
+        if c.get("breaks_if"):
+            out.append("  ✗ <i>would break if: "
+                       + esc(" · ".join(c["breaks_if"])) + "</i>")
+    return out
 
 
 def load_plan(path=PLAN_FILE):
@@ -255,15 +285,23 @@ def main(today=None):
         p = (pile(s, start, plan["monthly_usd"] * plan["split"][sym])
              if plan.get("monthly_usd") and start else None)
         legs.append((sym, name, fund, meter(s), p))
+    # satellite prices are context only: a failed fetch prints "price
+    # unavailable" on that name and never blocks the message
+    sat_prices = {}
+    for tk, c in (plan.get("satellite") or {}).items():
+        try:
+            sat_prices[tk] = fetch(c.get("yahoo", tk), tries=2, min_bars=1)
+        except Exception:                         # noqa: BLE001
+            sat_prices[tk] = None
     if errors:
         msg = ("⚠️ <b>CRASH METER FAILED TODAY</b> — price data unavailable: "
                + html.escape("; ".join(errors), quote=False)
                + "\nCheck the S&P/Nasdaq yourself before any buy.")
         if legs:
-            msg += "\n\n" + render(today, legs, plan)
+            msg += "\n\n" + render(today, legs, plan, sat_prices)
         send(msg)
         raise SystemExit(1)
-    send(render(today, legs, plan))
+    send(render(today, legs, plan, sat_prices))
 
 
 if __name__ == "__main__":

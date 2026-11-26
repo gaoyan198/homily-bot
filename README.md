@@ -15,6 +15,9 @@ Every weekday at 09:00 SGT, `crash_bot.py` sends one Telegram message:
 - 🎯 **deal meter**: how far each index is from its peak, and whether its zone is open
 - 💰 **cash pile**: what should be waiting, per index, if you followed every sheet
 - 🧾 **debt countdown**: what's left to repay before 31 Dec 2026
+- 📌 **why you own them**: your thesis for each satellite stock (Amazon, Anthropic,
+  and a third to come), its distance from its peak (information only), and what
+  would break the thesis. Sell only if the thesis breaks, never because the price dropped.
 - 🛒 **today's orders**: on the first weekday of the month, and for a week after a zone opens
 
 ## Your settings: `crash_plan.json`
@@ -25,6 +28,7 @@ Every weekday at 09:00 SGT, `crash_bot.py` sends one Telegram message:
 | `start` | first month the rule runs (default 2027-01-01) |
 | `split` | S&P vs Nasdaq share (default 50/50) |
 | `debt.balance_sgd` / `as_of` | what's left to repay; update it when you pay some off |
+| `satellite` | per stock: `thesis` (printed daily) and `breaks_if` (your sell conditions), in your own words |
 
 ## Honesty
 
