@@ -251,6 +251,8 @@ def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False)
         sl = thesis_check.line_for(tk, scores, today) if today else None
         if sl:
             out.append(sl)
+            if c.get("conflict_note"):
+                out.append(f"  <i>⚖ {esc(c['conflict_note'])}</i>")
         out += [f"  ✓ {esc(t)}" for t in c.get("thesis", [])]
         if c.get("bear_case"):
             out.append("  ⚠ <i>bear case: "

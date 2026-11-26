@@ -3,16 +3,22 @@
 Monthly thesis check — the contract between the checker agent and the bot.
 =========================================================================
 
-A cloud routine (Sonnet, the 1st of each month) researches each satellite
-stock and writes `thesis_scores.json`: for every thesis line a status
-(holding / mixed / weakening) with evidence and a source URL, and for every
-"would break if" line whether it has been met. The agent JUDGES LINES; this
-file COMPUTES THE SCORE, so the number can't be talked up:
+A cloud routine (Sonnet, monthly) researches each satellite stock and
+writes `thesis_scores.json`, judging EVERY line the owner wrote:
+  thesis    holding / mixed / weakening            (bull case)
+  bear_case not_happening / partly / happening     (bear case)
+  breaks_if triggered true / false                 (the owner's sell rule)
+each with evidence and a source URL. The agent JUDGES LINES; this file
+COMPUTES the scores and the verdict, so neither can drift with the agent:
 
-    score = 10 × Σ points / (2 × lines)   holding = 2 · mixed = 1 · weakening = 0
-
-Any break condition met → 🚨 in the daily message ("review — your own sell
-rule says so"). A check older than 45 days prints as stale.
+  bull = 10 × Σ / (2 × lines)   holding 2 · mixed 1 · weakening 0
+  bear = 10 × Σ / (2 × lines)   happening 2 · partly 1 · not_happening 0
+  🚨 SELL                 any break condition met (the owner's own rule)
+  🔴 CONSIDER SELLING     bull ≤ 3 or bear ≥ 7 (thesis mostly broken)
+  🟢 HOLD                 bull ≥ 6 and bear ≤ 4
+  🟡 HOLD, WATCH CLOSELY  anything in between
+The agent's one-sentence `summary` is printed as the "why". A check older
+than 45 days prints as stale. Information, not advice: the owner decides.
 
     python3 thesis_check.py --prompt   the exact lines to check (JSON) for the agent
     python3 thesis_check.py --verify   schema check; exit 1 on any problem
@@ -31,6 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PLAN_FILE = os.path.join(HERE, "crash_plan.json")
 SCORES_FILE = os.path.join(HERE, "thesis_scores.json")
 POINTS = {"holding": 2, "mixed": 1, "weakening": 0}
+BEAR_POINTS = {"happening": 2, "partly": 1, "not_happening": 0}
 STALE_DAYS = 45
 
 
@@ -64,6 +71,7 @@ def verify(scores, plan):
             probs.append(f"{tk}: missing")
             continue
         for kind, key, field in (("thesis", "thesis", "status"),
+                                 ("bear", "bear_case", "bear_status"),
                                  ("breaks", "breaks_if", "triggered")):
             rows = s.get(kind) or []
             lines = [r.get("line") for r in rows]
@@ -71,9 +79,12 @@ def verify(scores, plan):
                 probs.append(f"{tk}.{kind}: lines must match crash_plan.json "
                              "exactly, once each")
             for r in rows:
-                v = r.get(field)
+                v = r.get("status" if field == "bear_status" else field)
                 if field == "status" and v not in POINTS:
                     probs.append(f"{tk}: status {v!r} not in {sorted(POINTS)}")
+                if field == "bear_status" and v not in BEAR_POINTS:
+                    probs.append(f"{tk}: bear status {v!r} not in "
+                                 f"{sorted(BEAR_POINTS)}")
                 if field == "triggered" and not isinstance(v, bool):
                     probs.append(f"{tk}: triggered must be true/false")
                 if not (r.get("evidence") or "").strip():
@@ -88,31 +99,49 @@ def verify(scores, plan):
     return probs
 
 
+def _ten(rows, pts):
+    return round(10 * sum(pts.get(r.get("status"), 0) for r in rows)
+                 / (2 * len(rows))) if rows else None
+
+
 def score(stock):
-    """-> (0..10 int, n_weakening, [met break lines]) for one stock entry."""
-    rows = stock.get("thesis") or []
-    pts = sum(POINTS.get(r.get("status"), 0) for r in rows)
-    sc = round(10 * pts / (2 * len(rows))) if rows else 0
-    weak = sum(r.get("status") == "weakening" for r in rows)
+    """-> dict(bull 0..10, bear 0..10|None, weak n, met [lines], verdict)."""
+    bull = _ten(stock.get("thesis") or [], POINTS) or 0
+    bear = _ten(stock.get("bear") or [], BEAR_POINTS)
+    weak = sum(r.get("status") == "weakening" for r in stock.get("thesis") or [])
     met = [r["line"] for r in stock.get("breaks") or [] if r.get("triggered")]
-    return sc, weak, met
+    b = bear if bear is not None else 0
+    if met:
+        verdict = "🚨 SELL — your own sell rule fired"
+    elif bull <= 3 or b >= 7:
+        verdict = "🔴 CONSIDER SELLING — thesis mostly broken"
+    elif bull >= 6 and b <= 4:
+        verdict = "🟢 HOLD"
+    else:
+        verdict = "🟡 HOLD, WATCH CLOSELY"
+    return {"bull": bull, "bear": bear, "weak": weak, "met": met,
+            "verdict": verdict}
 
 
 def line_for(tk, scores, today, esc=lambda x: html.escape(str(x), quote=False)):
-    """-> the one daily-message line for `tk`, or None if never checked."""
+    """-> the daily-message lines for `tk` (one string, may hold a newline),
+    or None if never checked."""
     if not scores or tk not in (scores.get("stocks") or {}):
         return None
-    sc, weak, met = score(scores["stocks"][tk])
+    st = scores["stocks"][tk]
+    r = score(st)
     checked = datetime.date.fromisoformat(scores["checked"])
-    age = (today - checked).days
-    when = f"checked {checked:%d %b}" + (" — STALE, the monthly check didn't run"
-                                         if age > STALE_DAYS else "")
-    if met:
-        return (f"  🚨 <b>BREAK CONDITION MET</b> — {esc(' · '.join(met))} — "
-                f"review: your own sell rule says so ({esc(when)})")
-    return (f"  🧪 thesis {sc}/10 ({esc(when)})"
-            + (f" · {weak} point{'s' * (weak != 1)} weakening" if weak else "")
-            + " · no break condition met")
+    when = f"checked {checked:%d %b}" + (
+        " — STALE, the monthly check didn't run"
+        if (today - checked).days > STALE_DAYS else "")
+    bear = f" · bear {r['bear']}/10" if r["bear"] is not None else ""
+    head = (f"  <b>{esc(r['verdict'])}</b> — bull {r['bull']}/10{bear} ("
+            f"{esc(when)})")
+    if r["met"]:
+        head += f"\n  🚨 sell condition met: {esc(' · '.join(r['met']))}"
+    if st.get("summary"):
+        head += f"\n  <i>why: {esc(st['summary'])}</i>"
+    return head
 
 
 def load_scores(path=SCORES_FILE):
@@ -135,7 +164,8 @@ if __name__ == "__main__":
         if probs:
             sys.exit(1)
         for tk, s in sc["stocks"].items():
-            print(tk, score(s))
+            r = score(s)
+            print(tk, f"bull {r['bull']}/10 · bear {r['bear']}/10 · {r['verdict']}")
         print("thesis_scores.json OK")
     else:
         print(__doc__)

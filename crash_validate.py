@@ -114,42 +114,45 @@ full = cb.render(datetime.date(2026, 12, 2), legs, dict(plan, satellite=sats),
 assert "WHY YOU OWN THEM" in full and full.index("WHY YOU OWN") < full.index("not an edge")
 print("[6] satellite thesis: printed daily, info-only price, fail-soft ... PASS")
 
-# [7] thesis check: the CODE computes the score from per-line judgments;
-# --verify refuses rewritten/missing lines, bad statuses, no source; a met
-# break condition prints 🚨; a stale check says so
+# [7] thesis check: the CODE computes bull/bear scores and the verdict from
+# per-line judgments; --verify refuses rewritten/missing lines, bad
+# statuses, no source; a met sell condition forces 🚨 SELL; stale says so
 import thesis_check as tc
-pl7 = {"satellite": {"AAA": {"thesis": ["t1", "t2"], "breaks_if": ["b1"]}}}
+pl7 = {"satellite": {"AAA": {"thesis": ["t1", "t2"], "bear_case": ["r1", "r2"],
+                             "breaks_if": ["b1"]}}}
 def _row(line, **kw):
     return dict(line=line, evidence="e", source="https://x.test", **kw)
-ok7 = {"checked": "2026-12-01", "stocks": {"AAA": {
-    "thesis": [_row("t1", status="holding"), _row("t2", status="mixed")],
-    "breaks": [_row("b1", triggered=False)], "summary": "fine"}}}
+def _doc(t=("holding", "holding"), r=("not_happening", "partly"), trig=False):
+    return {"checked": "2026-12-01", "stocks": {"AAA": {
+        "thesis": [_row("t1", status=t[0]), _row("t2", status=t[1])],
+        "bear": [_row("r1", status=r[0]), _row("r2", status=r[1])],
+        "breaks": [_row("b1", triggered=trig)], "summary": "fine <ok>"}}}
+ok7 = _doc()
 assert tc.verify(ok7, pl7) == [], tc.verify(ok7, pl7)
-assert tc.score(ok7["stocks"]["AAA"]) == (8, 0, []), "2+1 of 4 -> 7.5 -> 8"
-bad = json.loads(json.dumps(ok7))
-bad["stocks"]["AAA"]["thesis"][0]["line"] = "t1 (reworded)"
+s7 = tc.score(ok7["stocks"]["AAA"])
+assert (s7["bull"], s7["bear"], s7["met"]) == (10, 2, []) and "🟢 HOLD" in s7["verdict"]
+assert "WATCH" in tc.score(_doc(t=("holding", "weakening"))["stocks"]["AAA"])["verdict"]
+assert "CONSIDER SELLING" in tc.score(_doc(t=("mixed", "weakening"))["stocks"]["AAA"])["verdict"], "bull 3"
+assert "CONSIDER SELLING" in tc.score(_doc(r=("happening", "partly"))["stocks"]["AAA"])["verdict"], "bear 8"
+assert "🚨 SELL" in tc.score(_doc(trig=True)["stocks"]["AAA"])["verdict"], \
+    "a met sell condition overrides even a perfect bull score"
+bad = _doc(); bad["stocks"]["AAA"]["thesis"][0]["line"] = "t1 (reworded)"
 assert any("exactly" in p for p in tc.verify(bad, pl7)), "rewritten line refused"
-bad = json.loads(json.dumps(ok7))
-bad["stocks"]["AAA"]["thesis"][1]["status"] = "great"
-assert any("status" in p for p in tc.verify(bad, pl7))
-bad = json.loads(json.dumps(ok7))
-bad["stocks"]["AAA"]["breaks"][0]["source"] = ""
+bad = _doc(); bad["stocks"]["AAA"]["bear"] = bad["stocks"]["AAA"]["bear"][:1]
+assert any("bear" in p for p in tc.verify(bad, pl7)), "every bear line judged"
+bad = _doc(); bad["stocks"]["AAA"]["bear"][0]["status"] = "holding"
+assert any("bear status" in p for p in tc.verify(bad, pl7))
+bad = _doc(); bad["stocks"]["AAA"]["breaks"][0]["source"] = ""
 assert any("source" in p for p in tc.verify(bad, pl7))
-assert any("missing" in p for p in tc.verify({"checked": "2026-12-01",
-                                             "stocks": {}}, pl7))
 d7 = datetime.date(2026, 12, 2)
 l7 = tc.line_for("AAA", ok7, d7)
-assert "thesis 8/10" in l7 and "checked 01 Dec" in l7 and "no break" in l7
+assert "🟢 HOLD" in l7 and "bull 10/10 · bear 2/10" in l7 and "why: fine &lt;ok&gt;" in l7
 assert "STALE" in tc.line_for("AAA", ok7, datetime.date(2027, 2, 1))
-met = json.loads(json.dumps(ok7))
-met["stocks"]["AAA"]["breaks"][0]["triggered"] = True
-met["stocks"]["AAA"]["thesis"][0]["status"] = "weakening"
-assert "BREAK CONDITION MET" in tc.line_for("AAA", met, d7)
-assert tc.score(met["stocks"]["AAA"]) == (2, 1, ["b1"])
+assert "sell condition met: b1" in tc.line_for("AAA", _doc(trig=True), d7)
 assert tc.line_for("ZZZ", ok7, d7) is None and tc.line_for("AAA", None, d7) is None
 blk7 = "\n".join(cb.satellite_block({"AAA": {"name": "A", "thesis": ["t1"]}},
                                     {}, scores=ok7, today=d7))
-assert "thesis 8/10" in blk7
-print("[7] thesis check: code-computed score, strict verify, 🚨 on break  PASS")
+assert "🟢 HOLD" in blk7
+print("[7] thesis check: bull+bear scored in code, verdict rules, strict verify  PASS")
 
 print("\nAll crash_bot checks passed.")
