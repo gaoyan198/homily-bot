@@ -91,4 +91,23 @@ r4 = cb.render(t, legs, dict(plan, start="2027-01-01"))
 assert "starts 2027-01-01" in r4 and "🛒" not in r4, "nothing to buy before start"
 print("[5] render: per-leg sheet, week-long deploy reminder, escaped .... PASS")
 
+# [6] satellite thesis block: every thesis + break line printed, price is
+# info only (no zone, no order), a failed fetch never drops the thesis,
+# short histories say "since listing", HTML-escaped
+sats = {"AAA": {"name": "A & Co", "thesis": ["moat <wide>", "growth"],
+                "breaks_if": ["margins fall"]},
+        "BBB": {"name": "Bee", "thesis": ["x"]}}
+blk = "\n".join(cb.satellite_block(sats, {"AAA": series([100, 120, 90]),
+                                          "BBB": None}))
+assert "WHY YOU OWN THEM" in blk and "A &amp; Co" in blk and "moat &lt;wide&gt;" in blk
+assert "✓ growth" in blk and "would break if: margins fall" in blk
+assert "-25% from its peak since listing" in blk, blk
+assert "Bee</b> (BBB) · price unavailable today" in blk and "✓ x" in blk
+assert "BUY" not in blk and "zone" not in blk.lower(), "single stocks get no buy zone"
+assert cb.satellite_block({}, {}) == []
+full = cb.render(datetime.date(2026, 12, 2), legs, dict(plan, satellite=sats),
+                 {"AAA": series([100, 120, 90])})
+assert "WHY YOU OWN THEM" in full and full.index("WHY YOU OWN") < full.index("not an edge")
+print("[6] satellite thesis: printed daily, info-only price, fail-soft ... PASS")
+
 print("\nAll crash_bot checks passed.")
