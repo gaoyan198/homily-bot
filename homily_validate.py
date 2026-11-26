@@ -699,45 +699,48 @@ _yh27 = {"CSPX": "CSPX.L", "BIG": "BIG", "SML": "SML", "NEW": "NEW",
 _st27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD", tier="fails"),
          _bs("BIG", 10, "F:3/3", 5), _bs("SML", 10, "F:1/3", 50),
          _bs("NEW", 30, "F:2/3", 1), _bs("0700", 50, "F:—", 99),
-         # #125: a CONVICTION name on a HOLD day is now eligible (ranked by
-         # the same RS12), while a fails-tier ⭐ no longer buys anything —
-         # the tier picks the name, not the at-support label
+         # 2026-11-26 demotions: a CONVICTION name on a HOLD day is NOT
+         # eligible again (#125 `hold-adds` demoted), and a fails-tier ⭐ IS
+         # (the pre-#125 line has no tier test)
          _bs("HLD", 20, "F:2/3", 0.5, state="HOLD"),
          _bs("JNK", 10, "F:1/3", 80, tier="fails")]
 
-# ordering (PLAYBOOK §3.4 as promoted — #24, 2026-07-12): RS12 descending,
-# no F grouping (SML's F:1/3 no longer demotes it below the F:2+ names);
-# the HK name splits off as manual (R12), however strong its RS.
-# Eligibility per #125 (2026-07-25): CONVICTION tier, ACCUMULATE or HOLD —
-# JNK (fails-tier ⭐, RS 80) is OUT, HLD (CONVICTION HOLD) is IN.
+# ordering (PLAYBOOK §3.4 as restored by the rs12-top3 demotion,
+# 2026-11-26): F:2+ names first, RS12 descending within each group — so
+# BIG (F:3, RS 5) and NEW (F:2, RS 1) lead JNK (RS 80) and SML (RS 50).
+# Eligibility = state ACCUMULATE, any tier: HLD (HOLD) is OUT, JNK is IN.
+# The HK name splits off as manual (R12), however strong its RS.
 _usd27, _man27 = homily_buyday.star_candidates(_st27, _pos27, _yh27)
-assert [s["ticker"] for s in _usd27] == ["SML", "BIG", "NEW", "HLD"], \
-    f"#125 eligibility + RS12 order: {[s['ticker'] for s in _usd27]}"
+assert [s["ticker"] for s in _usd27] == ["BIG", "NEW", "JNK", "SML"], \
+    f"⭐-only eligibility + F:2+-first order: {[s['ticker'] for s in _usd27]}"
 assert [s["ticker"] for s in _man27] == ["0700"], "non-USD -> manual (R12)"
+assert homily_buyday.MAX_STARS == 5, "rs12-top3 demotion restores max-5"
 
-# SRS covers the index (PRD §9.4): whole $1,000 to stars. Stock book =
-# BIG 900 + SML 10 = 910 (bucket A out); post-deploy denom 1910 -> 25% cap
-# (#92, 2026-07-12) $477.50/name. BIG (at $900) is STILL fully capped —
-# the cap keeps binding, just later; equal split 333.33/name, BIG's share
-# redistributes to SML/NEW (500 each), SML caps at 477.50-10=467.50 -> 46
-# shares, NEW caps at 477.50 -> 15 whole shares; the rest is leftover.
+# SRS covers the index (PRD §9.4): whole $1,000 to stars, split across all
+# four (max 5). Stock book = BIG 900 + SML 10 = 910 (bucket A out);
+# post-deploy denom 1910 -> 25% cap (#92) $477.50/name. BIG (at $900) is
+# fully capped -> skipped loudly; its share redistributes, the other three
+# get 333.33 each (all under their caps): NEW 11 sh @30, JNK 33 @10,
+# SML 33 @10 -> spent 990, leftover 10.
 _p27 = homily_buyday.plan(1000, _st27, _pos27, "BULL",
                           srs_covers_index=True, yahoo=_yh27)
 assert _p27["mode"] == "normal" and _p27["index_amt"] == 0
 _ord27 = {tk: n for tk, n, _px, _nt in _p27["orders"]}
-assert _ord27 == {"SML": 46, "NEW": 15}, f"cap + whole-share floor: {_ord27}"
+assert _ord27 == {"NEW": 11, "JNK": 33, "SML": 33}, \
+    f"equal split + cap + whole-share floor: {_ord27}"
 assert any(s.startswith("BIG:") for s in _p27["skipped"]), \
     "a name at the 25% cap is skipped loudly, not silently dropped"
-assert abs(_p27["spent"] - 910) < 1e-9 and abs(_p27["leftover"] - 90) < 1e-9
+assert abs(_p27["spent"] - 990) < 1e-9 and abs(_p27["leftover"] - 10) < 1e-9
 assert _p27["manual"] == ["0700"]
 
 # normal path: half to Bucket A (5 × CSPX@100), half to stars
 _pn27 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27)
 assert _pn27["orders"][0][:2] == ("CSPX", 5) and _pn27["index_amt"] == 500
 
-# no candidate -> full amount to Bucket A (§3.5); 🐻 -> same reroute (§4.6)
-# (#125: the index row is fails-tier — a HOLD state alone never qualifies)
-_flat27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD", tier="fails")]
+# no ⭐ -> full amount to Bucket A (§3.5); 🐻 -> same reroute (§4.6)
+# (a HOLD state never qualifies, whatever its tier)
+_flat27 = [_bs("CSPX", 100, "F:—", 0, state="HOLD", tier="fails"),
+           _bs("HLD", 20, "F:2/3", 0.5, state="HOLD")]
 for _states, _reg, _mode in ((_flat27, "BULL", "nostars"),
                              (_st27, "BEAR", "bear")):
     _px27 = homily_buyday.plan(1000, _states, _pos27, _reg, yahoo=_yh27)
@@ -747,7 +750,7 @@ for _states, _reg, _mode in ((_flat27, "BULL", "nostars"),
 
 # render leads with 🛒, prints IBKR-ready lines, never places (§7)
 _txt27 = homily_buyday.render(_p27, _d27)
-assert _txt27.startswith("🛒") and "BUY  46 SML" in _txt27 \
+assert _txt27.startswith("🛒") and "BUY  33 SML" in _txt27 \
     and "printed, never placed" in _txt27 and "manual: 0700" in _txt27, _txt27
 
 # T2 basket CSV: same orders, IBKR BasketTrader header, USD-only rows
@@ -756,7 +759,7 @@ with tempfile.TemporaryDirectory() as _tmp27:
     assert os.path.basename(_path27) == "orders_2026-08.csv"
     _rows27 = list(csv.reader(open(_path27)))
     assert _rows27[0][:4] == ["Action", "Quantity", "Symbol", "SecType"]
-    assert (sorted(r[2] for r in _rows27[1:]) == ["NEW", "SML"]
+    assert (sorted(r[2] for r in _rows27[1:]) == ["JNK", "NEW", "SML"]
             and all(r[5] == "USD" for r in _rows27[1:])), _rows27
     # no orders -> no file (a bear month with no CSPX price writes nothing)
     assert homily_buyday.write_basket(
@@ -765,8 +768,8 @@ with tempfile.TemporaryDirectory() as _tmp27:
 # no BUY_BUDGET_USD configured -> the copilot stays dark, digest unchanged
 os.environ.pop("BUY_BUDGET_USD", None)
 assert homily_buyday.buyday_block(_st27, _pos27, None, _d27) == ("", None)
-print("[27] Buy-day copilot: detection, #125 CONVICTION ACC|HOLD eligibility, "
-      "RS12-top3 order, cap, basket CSV  PASS")
+print("[27] Buy-day copilot: detection, ⭐-only eligibility, F:2+-first "
+      "max-5 equal split (both 2026-11-26 demotions), cap, basket CSV  PASS")
 
 # --- 28. Chart cards (#35): valid PNG, deterministic pixels, top-3 pick ----
 # The gate D-35 pre-committed: a deterministic pixel-hash on fixture bars.
@@ -2814,8 +2817,8 @@ print("[70] #136 F-ratio: 12 tag boundaries + trim_flags + one definition .. PAS
 # ---------------------------------------------------------------------------
 # [71] 👁 observation fence (owner, 2026-08-17) — a name may be screened,
 # ranked and ledgered while still being barred from the order sheet. It is a
-# SCOPE control, not a signal change: it must not touch #125 eligibility or
-# #24's RS12 ordering, and it must be inert unless explicitly passed, or the
+# SCOPE control, not a signal change: it must not touch ⭐ eligibility or
+# the §3.4 ordering, and it must be inert unless explicitly passed, or the
 # fence itself becomes an untested edit to the money path.
 _obs71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27)
 assert _obs71 == homily_buyday.plan(1000, _st27, _pos27, "BULL",
@@ -2825,18 +2828,19 @@ assert _obs71 == homily_buyday.plan(1000, _st27, _pos27, "BULL",
 # ranking is untouched: star_candidates never sees the fence, so the pool it
 # returns is identical and the fence is applied strictly AFTER the ranking
 assert [s["ticker"] for s in homily_buyday.star_candidates(
-    _st27, _pos27, _yh27)[0]] == ["SML", "BIG", "NEW", "HLD"], \
-    "[71] fence leaked into star_candidates — ordering is #24's, not ours"
+    _st27, _pos27, _yh27)[0]] == ["BIG", "NEW", "JNK", "SML"], \
+    "[71] fence leaked into star_candidates — ordering is §3.4's, not ours"
 
-# rank-1 fenced: it must not buy, must be named, and the next name promotes
+# a buying name fenced: it must not buy, must be named, and the rest of the
+# pool still buys (the equal split re-divides across what is left)
 _f71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", srs_covers_index=True,
                           yahoo=_yh27, observe={"SML"})
 assert all(tk != "SML" for tk, *_ in _f71["orders"]), \
     "[71] a fenced name reached the order sheet"
 assert any(s.startswith("SML:") and "👁" in s for s in _f71["skipped"]), \
     "[71] fenced names are reported by name, never silently dropped"
-assert "BIG" in {tk for tk, *_ in _f71["orders"]} | {
-    s.split(":")[0] for s in _f71["skipped"]}, "[71] rank 2 did not promote"
+assert {"NEW", "JNK"} <= {tk for tk, *_ in _f71["orders"]}, \
+    "[71] the unfenced names stopped buying"
 
 # the fence also withholds a non-USD name — `manual:` is still an instruction
 _m71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27,
@@ -2846,7 +2850,7 @@ assert any(s.startswith("0700:") for s in _m71["skipped"]), "[71] and unnamed"
 
 # fencing the whole pool is a §3.5 nostars day — index, never cash
 _all71 = homily_buyday.plan(1000, _st27, _pos27, "BULL", yahoo=_yh27,
-                            observe={"SML", "BIG", "NEW", "HLD", "0700"})
+                            observe={"SML", "BIG", "NEW", "JNK", "0700"})
 assert _all71["mode"] == "nostars" and _all71["orders"] == \
     [("CSPX", 10, 100, "Bucket A index leg")], \
     "[71] an emptied pool must reroute to Bucket A, not hold cash"
@@ -3647,7 +3651,9 @@ assert len(_rows85) == len(_hb85.modules()) <= _reg85["cap"]
 # negative: synthetic registry against a synthetic census date
 _fake85 = json.loads(json.dumps(_reg85))
 _fake85["registry"].pop("homily_accum_backtest")
-_fake85["registry"]["homily_selection_backtest"]["read"] = "2026-01-01"
+# (the fixture sets the status itself: #24's real read closed 2026-11-26)
+_fake85["registry"]["homily_selection_backtest"].update(
+    status="pending", read="2026-01-01")
 _fake85["registry"]["homily_poc_backtest"]["archive_by"] = "2026-01-01"
 _fake85["cap"] = 10
 _, _p85 = _hb85.census(datetime.date(2026, 9, 11), _fake85)

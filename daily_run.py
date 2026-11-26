@@ -351,7 +351,7 @@ def write_safety_marker(path=None, skips=None):
 
 def digest_sort_key(sig, conv):
     """State groups in ORDER; ⭐ rows by RS12 descending inside their group
-    (#24 promoted 2026-07-12 — the top-3 the buy-day splits across), every
+    (#24's top-3 rule, demoted 2026-11-26 — kept as display order), every
     other state alphabetical as before."""
     rs = -conv.rs12 if sig.state == "ACCUMULATE" else 0.0
     return (ORDER[sig.state], rs, sig.ticker)
@@ -789,10 +789,9 @@ def render_digest(sigs, disco, proxy, regime, refine, errs, today,
               " timing input) · Q1/Q2/Q3 = sticky quality tier (quarterly"
               " EDGAR read + 3y RS, frozen between refreshes — business"
               " quality that does not move with the tape; info only)"
-              " · RS#n = today's ⭐ RS12 rank; the buy-day splits across the"
-              " top-3 (#24 promoted 2026-07-12 by owner override AHEAD of"
-              " its live forward-check — the check keeps publishing at each"
-              " month-start through 2026-10, demotion mandatory on FAIL)"
+              " · RS#n = today's ⭐ RS12 rank, information only — the"
+              " buy-day splits equally across up to 5 ⭐ again (#24's"
+              " top-3 rule DEMOTED 2026-11-26 by its own live check)"
               " · † = not held</i>",
               "", "<b>Algo health (auto-refine, OOS-gated):</b>",
               f"champion <code>{esc(champ['params'])}</code> since "

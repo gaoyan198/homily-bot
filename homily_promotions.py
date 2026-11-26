@@ -198,6 +198,21 @@ def _fmt_check(r):
             f"n={r['n_other']} mean {mo})")
 
 
+def _live(e):
+    """Promoted and still in force (incl. -on-probation)."""
+    return e["status"].startswith("promoted")
+
+
+def _watched(e):
+    """Entries whose rolling read prints monthly: live ones (mandatory) and
+    demoted ones (information only — 2026-11-26, rs12-top3 + hold-adds)."""
+    return _live(e) or e["status"] == "demoted"
+
+
+_DEMOTED_NOTE = ("　<i>demoted — read is information only; re-promotion "
+                 "is a fresh gated change, never a revert</i>")
+
+
 def month_start_block(rows, day, esc=lambda x: x):
     """The month-start digest block (wired 2026-07-12 as a condition of the
     rs12-top3 early promotion). Two reads per entry, both mandatory-by-rule:
@@ -216,7 +231,7 @@ def month_start_block(rows, day, esc=lambda x: x):
         fc = e["forward_check"]
         if fc.get("type") == "custom":
             lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
-                         + (f" {esc(e['promoted'])}"
+                         + (f" {esc(e.get('demoted') or e['promoted'])}"
                             if e.get("promoted") else "")
                          + f" · custom watch: {esc(fc['checker'])}")
             # #125: this custom checker lives HERE, so it runs here — the
@@ -226,8 +241,11 @@ def month_start_block(rows, day, esc=lambda x: x):
             # `startswith` not `==`: #125 moved to "promoted-on-probation"
             # after the §31 honest re-test, and a probationary entry needs
             # its demotion watch MORE than a settled one, not less.
+            # a DEMOTED entry keeps printing its read as information (the
+            # evidence a future re-promotion session would need) — never
+            # with the mandatory-demote line, which only a live entry earns
             if fc.get("checker_fn") == "hold_adds_check" \
-                    and e["status"].startswith("promoted"):
+                    and _watched(e):
                 lo = (day - datetime.timedelta(days=183)).isoformat()
                 r = hold_adds_check(rows, lo, day.isoformat())
                 lines.append(
@@ -238,23 +256,29 @@ def month_start_block(rows, day, esc=lambda x: x):
                     if r["status"] != "INSUFFICIENT" else
                     f"　demotion check (rolling 6m): INSUFFICIENT "
                     f"(new n={r['n_new']} · old n={r['n_old']})")
-                if r["status"] == "FAIL":
+                if r["status"] == "FAIL" and _live(e):
                     lines.append("　<b>FAIL = demote, mandatory (registry "
                                  "demotion_rule)</b>")
+                elif not _live(e):
+                    lines.append(_DEMOTED_NOTE)
             continue
         frozen = forward_check(e, rows)
         lines.append(f"[{esc(e['id'])}] {esc(e['status'])}"
-                     + (f" {esc(e['promoted'])}" if e.get("promoted") else "")
+                     + (f" {esc(e.get('demoted') or e['promoted'])}"
+                        if e.get("promoted") else "")
                      + f" · frozen window {esc(fc['window'][0])}→"
                      f"{esc(fc['window'][1])}: {esc(_fmt_check(frozen))}")
-        if e["status"].startswith("promoted"):     # incl. -on-probation
+        if _watched(e):                 # promoted / -on-probation / demoted
             lo = (day - datetime.timedelta(days=183)).isoformat()
             rolling = forward_check(_windowed(e, lo, day.isoformat()), rows)
             lines.append(f"　demotion check (rolling 6m): "
                          f"{esc(_fmt_check(rolling))}"
                          + (" — <b>FAIL = demote, mandatory (registry "
                             "demotion_rule)</b>"
-                            if rolling["status"] == "FAIL" else ""))
+                            if rolling["status"] == "FAIL" and _live(e)
+                            else ""))
+            if not _live(e):
+                lines.append(_DEMOTED_NOTE)
     return "\n".join(lines)
 
 
