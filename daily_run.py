@@ -1192,7 +1192,12 @@ def build_digest(flex_notes=None):
     # Non-fatal, info-only, feeds nothing downstream.
     bear = ""
     try:
-        bear = homily_bearish.block(sigs, all_bars, set(HOLDINGS), esc=esc)
+        # #79: the distribution tell reaches held SATELLITES only — never
+        # Bucket A (index) or an owner-set Bucket-B earned-core name
+        sats = {tk for tk, p in (POSITIONS or {}).items()
+                if p.get("bucket") not in ("A", "B")}
+        bear = homily_bearish.block(sigs, all_bars, set(HOLDINGS), esc=esc,
+                                    satellites=sats)
     except Exception as e:
         _skipped("bearish", e)
     # #106: which rows' trend engines read an unfinished bar today — per

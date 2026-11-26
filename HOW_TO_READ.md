@@ -174,6 +174,7 @@ itself — receipts in `BACKTEST_RESULTS.md`):
 | 🐳 accumulation | gate PASSED → the one ⚪ exception (§5h) |
 | dip/run counters, % in profit, Q/F labels | info-only, gate nothing |
 | ⚠️🐻 bearish-tells block (digest, #102) | confluence of the tells above on a held name — pure context for manual/margin decisions; its components measured null-or-context individually, and it gates nothing |
+| `whale-dist + monthly LH/LL` (inside the ⚠️🐻 block, #79, 2026-11-26) | held **satellites only** (never the index or a Bucket-B core name): a rally day with big holders selling into it, while the monthly chart makes lower highs and lower lows. The one bearish tell that measured weak forward returns (§10: fwd 120d −0.3% vs +19.6% for all days) — but mostly on the 2021-wreck names, not on winners. Rare (once in 250 days across the 2026 book). Context for a manual trim decision; never a sell signal or a copilot input |
 | conviction tier labels | null (§11) — read the number, not the label |
 
 ## 8 · Looking up any stock

@@ -411,6 +411,17 @@ own future gated session, preferring the +mLHLL variant, and any veto
 behaviour queues behind R10 (Q4 is #24's natural slot; this waits its
 turn).
 
+**2026-11-26: SHIPPED, info-only, +mLHLL variant only.** The tell joins
+the #102 ⚠️🐻 block as `whale-dist + monthly LH/LL`, on held SATELLITES
+only (holdings.json bucket not A/B). It calls this study's own
+`dist_footprints` / `monthly_lhll` and the `scan` rally test (R6), and
+validate [93] pins live == study day-for-day. Live check at ship: on the
+2026 book (11 satellites × 250 days) live matched `scan` on every day
+(0 mismatches) and fired once (HOOD, 2026-04-28). Not shipped: the
+🚀-candidacy veto (a behaviour change; R10 selection slot, 2027-Q2
+earliest). `homily_dist_backtest.py` is now live through the import
+graph.
+
 ---
 
 ## 11 · #20 conviction-score backtest (run 2026-07-11) — the score ranks; the tiers don't
@@ -989,6 +1000,15 @@ WHALE-DIP framing at most; budget, copilot and engines untouched — and
 any money-flow change would additionally need an R10 slot (next free
 2027-Q2).** *Shipped 2026-07-19 — `homily_breakout.py`, validate [63],
 HOW_TO_READ row with the limits attached.*
+
+*2026-11-26 — the money-flow half CLOSED, not shipped.* The ship-or-close
+date (2026-12-31, #116) forced the call. No pre-registered test of a
+breakout-add allocation exists, the next R10 selection slot is 2027-Q2,
+and the 10-01 read just demoted both selection changes made this year
+(§59) — a third untested selection change would repeat that pattern.
+The ⤴ tag stays live and this file stays its gate of record. Re-opening
+needs a new item with a frozen rule, tested against the restored
+equal-split-max-5 incumbent.
 
 ## 24 · #109 whale-level thresholds (run 2026-07-19) — NULL; his 0–100 scale is not reachable from OHLCV
 

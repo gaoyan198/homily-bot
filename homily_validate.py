@@ -3941,4 +3941,55 @@ assert "no-sheet months" in _sc92.render(
 print("[92] #171 scorecard: BOT = committed sheets, CYPH fills = IBKR 2,140, "
       "sell mirroring + NO-SELL arithmetic, no-sheet ≠ breach  PASS")
 
+# ---------------------------------------------------------------------------
+# [93] #79 whale-distribution tell (shipped 2026-11-26, info-only). Three
+# clauses: (a) the live tag IS the study — `homily_bearish.distribution_mlhll`
+# fires on exactly the days `homily_dist_backtest.scan` tagged
+# `tagged + monthly LH/LL`, day for day, on a seeded series that fires;
+# (b) scope guard verbatim: the tell reaches held SATELLITES only — off by
+# default, never on a non-satellite, and daily_run excludes buckets A and B;
+# (c) it never gates anything: it lives in the info-only ⚠️🐻 block only.
+import random as _rnd93
+import homily_dist_backtest as _hd93
+def _ser93(seed, n=520):
+    r = _rnd93.Random(seed); px = 100.0; out = []
+    d = datetime.date(2024, 1, 1)
+    for i in range(n):
+        drift = -0.0012 if (i // 60) % 2 == 0 else 0.0004
+        c = px * (1 + drift + r.gauss(0, 0.022))
+        h = max(px, c) * (1 + abs(r.gauss(0, 0.01)))
+        l = min(px, c) * (1 - abs(r.gauss(0, 0.01)))
+        v = 1e6 * (1 + abs(r.gauss(0, 0.4))) * (3 if r.random() < 0.06 else 1)
+        out.append((d, px, h, l, c, v)); px = c
+        d += datetime.timedelta(days=1)
+    return out
+_b93 = _ser93(6)
+_tm93 = set(_hd93.scan("X", _b93)[2])
+assert _tm93, "[93] fixture no longer fires — the parity test would be vacuous"
+_live93 = {i for i in range(_hd93.WARMUP, len(_b93) - 1)
+           if homily_bearish.distribution_mlhll(_b93[:i + 1])}
+assert _live93 == _tm93, f"[93] live tag != study: {_live93 ^ _tm93}"
+assert not homily_bearish.distribution_mlhll(_b93[:_hd93.WARMUP]), \
+    "[93] warm-up bars must never tag"
+_i93 = min(_tm93)
+_bx93 = _b93[:_i93 + 1]
+_s93 = danny_signal("SAT", _bx93)
+assert homily_bearish.DIST_TELL in homily_bearish.tells(
+    _s93, _bx93, satellite=True), "[93] satellite on a tag day must carry it"
+assert homily_bearish.DIST_TELL not in homily_bearish.tells(_s93, _bx93), \
+    "[93] the tell must be OFF unless the caller applies the scope guard"
+for _sats93 in (frozenset(), {"OTHER"}):
+    assert homily_bearish.DIST_TELL not in homily_bearish.block(
+        [(_s93, None, False)], {"SAT": _bx93}, {"SAT"}, satellites=_sats93), \
+        "[93] a non-satellite held name received the distribution tell"
+_src93 = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "daily_run.py")).read()
+assert 'p.get("bucket") not in ("A", "B")' in _src93 \
+    and "satellites=sats" in _src93, "[93] daily_run scope guard moved"
+assert "distribution_mlhll" not in open(os.path.join(os.path.dirname(
+    os.path.abspath(__file__)), "homily_buyday.py")).read(), \
+    "[93] the info-only tell reached the copilot"
+print(f"[93] #79 whale-dist tell: live == study on {len(_tm93)} tag days, "
+      "satellites-only, info-only  PASS")
+
 print("\nAll structural assertions passed.")
