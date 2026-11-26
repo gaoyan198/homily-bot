@@ -1,5 +1,5 @@
 {
- "_comment": "Owner settings for crash_bot.py. monthly_usd = total new money per month AFTER the debt is gone (split across the two legs below). start = first month the rule runs. debt.balance_sgd = what is left to repay; update it (and as_of) whenever you pay some off. satellite = the stocks you hold on conviction: thesis is printed every day; breaks_if is what would make you sell (edit both in your own words; add the third company the same way).",
+ "_comment": "Owner settings for crash_bot.py. monthly_usd = total new money per month AFTER the debt is gone (split across the two legs below). start = first month the rule runs. debt.balance_sgd = what is left to repay; update it (and as_of) whenever you pay some off. satellite = the stocks you hold on conviction: thesis is printed every day; bear_case is printed daily too (the other side, so you never only hear the bull story); breaks_if is what would make you sell (edit both in your own words; add the third company the same way).",
  "monthly_usd": null,
  "start": "2027-01-01",
  "split": {
@@ -49,6 +49,14 @@
     "revenue growth slows sharply for 2+ quarters",
     "big enterprise customers switch to a rival model",
     "a rival model is clearly better for a year or more"
+   ],
+   "bear_case": [
+    "the 'best model' lead changes hands every few months (OpenAI, Google), and cheap open-weight models push prices down",
+    "huge compute bills — tens of billions committed to Google, Amazon, Microsoft; not expected profitable until ~2028, so more cash burn and possible new shares",
+    "a big slice of revenue reportedly comes from a few customers (coding tools like Cursor, GitHub Copilot)",
+    "fresh AI IPO: high price vs revenue, big swings; insider lockup likely ends ~May 2027 (selling pressure)",
+    "public benefit company: its trust can put safety ahead of shareholders",
+    "overlaps your Amazon bet — Amazon owns a big stake and earns from it through AWS"
    ]
   }
  }

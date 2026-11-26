@@ -95,12 +95,15 @@ print("[5] render: per-leg sheet, week-long deploy reminder, escaped .... PASS")
 # info only (no zone, no order), a failed fetch never drops the thesis,
 # short histories say "since listing", HTML-escaped
 sats = {"AAA": {"name": "A & Co", "thesis": ["moat <wide>", "growth"],
+                "bear_case": ["capex burn", "dilution"],
                 "breaks_if": ["margins fall"]},
         "BBB": {"name": "Bee", "thesis": ["x"]}}
 blk = "\n".join(cb.satellite_block(sats, {"AAA": series([100, 120, 90]),
                                           "BBB": None}))
 assert "WHY YOU OWN THEM" in blk and "A &amp; Co" in blk and "moat &lt;wide&gt;" in blk
 assert "✓ growth" in blk and "would break if: margins fall" in blk
+assert "⚠ <i>bear case: capex burn · dilution</i>" in blk
+assert blk.index("bear case") < blk.index("would break if"), "bear case before the sell rule"
 assert "-25% from its peak since listing" in blk, blk
 assert "Bee</b> (BBB) · price unavailable today" in blk and "✓ x" in blk
 assert "BUY" not in blk and "zone" not in blk.lower(), "single stocks get no buy zone"

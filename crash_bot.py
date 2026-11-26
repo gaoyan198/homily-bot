@@ -245,6 +245,9 @@ def satellite_block(sats, prices, esc=lambda x: html.escape(str(x), quote=False)
             where = "price unavailable today"
         out.append(f"<b>{esc(c.get('name', tk))}</b> ({esc(tk)}) · {esc(where)}")
         out += [f"  ✓ {esc(t)}" for t in c.get("thesis", [])]
+        if c.get("bear_case"):
+            out.append("  ⚠ <i>bear case: "
+                       + esc(" · ".join(c["bear_case"])) + "</i>")
         if c.get("breaks_if"):
             out.append("  ✗ <i>would break if: "
                        + esc(" · ".join(c["breaks_if"])) + "</i>")
