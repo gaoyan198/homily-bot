@@ -222,6 +222,8 @@ it, and a FAIL demotes to equal-split-max-5 mechanically. The honesty box
 above stands unchanged — the measured lift is modest and one-window; the
 live rows now referee a change that is already spending money.
 
+**2026-11-26: the live rows FAILED it — DEMOTED by rule. See §59.**
+
 ---
 
 ## 5 · #18 total-return correctness — the RS12 delta (run 2026-07-10)
@@ -3553,3 +3555,67 @@ behaviour is measured-safe and unchanged). Exiting them on the same
 signal is not supported. The concentration that made them 64% of
 October's loss is an owner decision (#164) and a sizing question, not a
 missing sell rule.
+
+---
+
+## 59 · #24 read + two live demotions (2026-11-26) — rs12-top3 and #125 both FAIL on the ledger; buy-day back to ⭐-only, equal-split, max 5
+
+**Plain version:** both selection changes made this summer did worse than
+the rules they replaced, on real forward data. Buying only the top-3
+strongest ⭐ names lost to buying the other ⭐ names, and widening the buy
+list to CONVICTION names on 🟢 HOLD days lost to plain ⭐ buys. Both had
+demotion rules written before promotion; both rules fired; both are now
+reverted. The buy-day sheet from 2026-12-01 splits equally across up to 5
+⭐ names, F:2+ first.
+
+**Data:** the #13 ledger (`homily_signals_log.csv`, 16,475 rows as of
+2026-11-26), read by `homily_promotions.forward_check` /
+`hold_adds_check` exactly as frozen in `promotions.json`. Metric: mean
+forward-21-ledger-row raw-close return.
+
+| check | window | live rule | n | mean | comparator | n | mean | result |
+|---|---|---|---|---|---|---|---|---|
+| rs12-top3, FROZEN | 07-10 → 09-30 | top-3 ⭐ | 174 | +2.04% | other ⭐ | 1416 | +2.14% | **FAIL** |
+| rs12-top3, rolling 6m @ 11-02 | → 11-02 | top-3 ⭐ | 180 | +1.21% | other ⭐ | 1482 | +1.90% | **FAIL** |
+| rs12-top3, rolling 6m @ 11-26 | → 11-26 | top-3 ⭐ | 231 | −6.62% | other ⭐ | 1995 | −1.37% | **FAIL** |
+| hold-adds, rolling 6m @ 10-01 | → 10-01 | CONVICTION ACC\|HOLD | 288 | −1.46% | ⭐ any tier | 1916 | −0.42% | **FAIL** |
+| hold-adds, rolling 6m @ 11-02 | → 11-02 | CONVICTION ACC\|HOLD | 676 | −3.94% | ⭐ any tier | 3125 | −0.14% | **FAIL** |
+| hold-adds, rolling 6m @ 11-26 | → 11-26 | CONVICTION ACC\|HOLD | 941 | −8.07% | ⭐ any tier | 3929 | −2.44% | **FAIL** |
+
+(The month-start rows are replays on the ledger truncated to that date.)
+
+**Three honest notes.**
+
+1. *The 2026-10-01 read looked like a pass and wasn't.* On 10-01 the frozen
+   window printed PASS (+5.13% vs +0.69%, n=114) because September's rows
+   had not yet had 21 forward rows. Once they matured, the same frozen
+   window turned FAIL by 0.1 pt. The frozen window alone is a coin flip;
+   the rolling read is not — the gap widened every month (−0.7 pt →
+   −5.3 pt) as the market pulled back and the strongest names fell
+   hardest.
+2. *The demotions were late by process, not by rule.* The digest printed
+   **FAIL = demote, mandatory** in bold at the 10-01 (hold-adds) and 11-02
+   (both) month-starts. No session acted until 2026-11-26, so one buy day
+   (2026-11-02) ran on rules that had already failed.
+3. *This is a short, one-regime sample* (~4.5 months, mostly a pullback).
+   That does not rescue the promotions — both demotion rules were written
+   precisely so a short adverse sample decides without debate — but it
+   means this section is not evidence that equal-split is *better*, only
+   that the promoted rules did not earn their place live. §29's in-sample
+   gain for #125 had already failed to replicate in §31.
+
+**Shipped (same commit):** `homily_buyday.MAX_STARS` 3→5; eligibility
+`state == ACCUMULATE` (no tier test); order F:2+ first, then RS12;
+validate [27]/[71] fixtures moved; PLAYBOOK §3.4/§3.5, README,
+HOW_TO_READ and the digest legend re-worded; goldens re-pinned (legend
+line only). Kept as information: the `rs12_rank` ledger column, the
+digest `RS#n` marks, and both entries' monthly reads (now labelled
+*information only*, never with the mandatory-demote line).
+
+**Still open from the 10-01 read:** the five-way selection harness
+(#80 whale-top3 · #89 rs6 / blend) was never built. `whale-top3`'s
+informational forward read is the only arm that PASSED its window
+(+3.55% vs +1.95%, n=174) — a lead, not a gate; its pre-registered gate is
+the backtest on the three honest windows, which has not run.
+`homily_selection_backtest.py` moves from *pending* to *gate* (the #120
+fixture).

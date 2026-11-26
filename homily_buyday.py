@@ -14,12 +14,12 @@ CSV, `docs/orders_YYYY-MM.csv`, committed by the workflow (R8).
 Allocation (D-31, PLAYBOOK §3):
   budget → index leg (50%; 0% if `SRS_COVERS_INDEX` — PRD §9.4: the
   owner's SRS contributions ARE the index half; 100% on 🐻 per §4.6 or
-  when there is no candidate per §3.5) → star leg split across the TOP-3
-  by RS12 among CONVICTION-tier names in ACCUMULATE **or HOLD** (#125
-  promoted 2026-07-25, owner-directed; was ⭐-only — the 3y walk-forward
-  replay showed the at-support gate SUBTRACTS return on the same-quality
-  names, BACKTEST_RESULTS §29; promotions.json carries basis + demotion
-  rule. #24's RS12 top-3 ranking itself is unchanged) → per name the
+  when there is no ⭐ per §3.5) → star leg EQUAL-split across today's ⭐
+  names (holdings + discovery, max 5; order: F:2+ first, then RS12
+  descending). BOTH promotions that had replaced this were DEMOTED
+  2026-11-26 by their pre-registered rules (promotions.json): #24's
+  rs12-top3 (rolling-6m check FAIL since the 2026-11-02 month-start) and
+  #125's CONVICTION ⭐|🟢 widening (FAIL since 2026-10-01) → per name the
   post-buy value is capped at CAP_PCT of the post-deploy stock book
   (#27's constant — 25% since the #92 promotion, 2026-07-12), overflow redistributed to the remaining stars → round DOWN
   to whole shares → leftover printed, rolls to next month.
@@ -40,6 +40,7 @@ Engines stay frozen (EXECUTION.md §0): this module only reads the
 state_of() dicts the digest already computed, plus holdings.json prices.
 """
 import os
+import re
 import csv
 import html
 import datetime
@@ -52,9 +53,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DOCS = os.path.join(HERE, "docs")
 
 INDEX_TICKER = "CSPX"        # the Bucket A sleeve (PLAYBOOK §1)
-MAX_STARS = 3                # #24 promoted 2026-07-12: top-3 by RS12
-                             # (was 5, equal-split; a FAIL on the registry's
-                             # rolling demotion check restores max-5)
+MAX_STARS = 5                # PLAYBOOK §3.4 — restored 2026-11-26 by the
+                             # rs12-top3 demotion rule (was 3, top-3 by RS12,
+                             # 2026-07-12 → 2026-11-26)
 INDEX_FRAC = 0.5             # PLAYBOOK §3.3: half to index, half to stars
 CAP_FRAC = homily_positions.CAP_PCT / 100.0   # one cap constant (D-27 interlock)
 CAP_PCT_INT = int(homily_positions.CAP_PCT)   # for printed messages
@@ -71,32 +72,34 @@ def is_buy_day(day, ledger_rows):
                    for r in ledger_rows)
 
 
+def _fpasses(ftag):
+    m = re.match(r"F:(\d)", ftag or "")
+    return int(m.group(1)) if m else -1
+
+
 def star_candidates(states, positions, yahoo):
-    """Today's buy-day candidate set split into (usd, manual). Eligibility
-    per #125 (promoted 2026-07-25): CONVICTION tier, state ACCUMULATE or
-    HOLD — the tier picks the name, the trend states are interchangeable
-    entry days (the replay says HOLD days are the BETTER ones; the old
-    ⭐-only gate waited for a fade to support that subtracted return,
-    BACKTEST_RESULTS §29). Demotion (promotions.json `hold-adds`) restores
-    the ⭐-only line below. `manual` = non-USD names the orders must
-    exclude (R12): held names by their holdings.json currency, unheld
-    discovery names by a suffixed Yahoo symbol (0700.HK, D05.SI — every
-    USD name in the universe maps to a bare symbol). Sort order per
-    PLAYBOOK §3.4 as promoted (#24, 2026-07-12): RS12 descending, ticker
-    tie-break — the same ranking homily_ledger.rs12_ranks pins for the
-    forward check."""
+    """Today's ⭐ set split into (usd, manual). Eligibility = state
+    ACCUMULATE, any tier — the pre-#125 line, restored 2026-11-26 by the
+    `hold-adds` demotion rule (the CONVICTION ⭐|🟢 widening FAILED its
+    rolling-6m live check at every month-start from 2026-10-01). `manual` =
+    non-USD names the orders must exclude (R12): held names by their
+    holdings.json currency, unheld discovery names by a suffixed Yahoo
+    symbol (0700.HK, D05.SI — every USD name in the universe maps to a bare
+    symbol). Sort order per PLAYBOOK §3.4 as restored by the `rs12-top3`
+    demotion (2026-11-26): F:2+ names first, RS12 descending within each
+    group, ticker tie-break."""
     usd, manual = [], []
     for s in states:
-        if not (s.get("conv_tier") == "CONVICTION"
-                and s["state"] in ("ACCUMULATE", "HOLD")):
-            continue          # demotion rule: restore `!= "ACCUMULATE"` only
+        if s["state"] != "ACCUMULATE":
+            continue
         p = positions.get(s["ticker"])
         if p is not None:
             foreign = p.get("currency", "USD") != "USD"
         else:
             foreign = "." in yahoo.get(s["ticker"], s["ticker"])
         (manual if foreign else usd).append(s)
-    usd.sort(key=lambda s: (-s.get("rs12", 0.0), s["ticker"]))
+    usd.sort(key=lambda s: (0 if _fpasses(s.get("ftag")) >= 2 else 1,
+                            -s.get("rs12", 0.0), s["ticker"]))
     return usd, manual
 
 
@@ -136,7 +139,7 @@ def plan(budget, states, positions, regime_label, *, srs_covers_index=False,
     `observe` (default empty — goldens byte-identical with the fence off) is
     the owner's observation fence: tickers that stay fully screened, ranked
     and ledgered but may NOT receive an order. It is a scope control, not a
-    signal change — the #125 eligibility rule and the #24 RS12 ordering are
+    signal change — the ⭐ eligibility rule and the §3.4 ordering are
     untouched, the fenced names are simply removed from the pool after
     ranking and reported by name on the buy-day block. Emptying the pool
     this way is a legitimate `nostars` day (§3.5: the budget goes to the
@@ -231,9 +234,8 @@ def render(p, day, skim_usd=0.0):
         lines.append("<i>🐻 regime: entire budget → Bucket A "
                      "(PLAYBOOK §4.6 — buy the index through the bear)</i>")
     elif p["mode"] == "nostars":
-        lines.append("<i>no CONVICTION-tier name today (#125) → full amount "
-                     "to Bucket A (§3.5: cash waiting costs more than it "
-                     "saves)</i>")
+        lines.append("<i>no ⭐ today → full amount to Bucket A (§3.5: cash "
+                     "waiting costs more than it saves)</i>")
     elif p["srs_covers_index"]:
         lines.append("<i>SRS covers the index leg (§9.4) — cash 100% to ⭐</i>")
     if p["orders"]:

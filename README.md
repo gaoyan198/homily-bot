@@ -55,12 +55,13 @@ of Danny's analysis): a new-60d-low volatility cluster printed as a zone;
 (note only, see honesty point 3), ◻ = still inside, unresolved.
 
 ⭐ rows are ordered by 12-month relative strength and the top-3 carry an
-`RS#n` mark — the names the buy-day copilot splits the stock half across
-(#24, promoted **2026-07-12 by owner override, ahead of its live
-forward-check**; honesty: the measured lift was modest and one-window
-— BACKTEST_RESULTS §4 — so the pre-registered Jul–Sep check still
-publishes at every month-start through 2026-10-01, and a FAIL demotes
-back to equal-split-max-5 mechanically per `promotions.json`).
+`RS#n` mark — **information only since 2026-11-26.** #24 (buy only the
+top-3, promoted 2026-07-12 by owner override ahead of its live check)
+FAILED that check — the top-3 did worse than the other ⭐ names on live
+rows — and was demoted by its own rule: the buy-day copilot splits the
+stock half equally across up to 5 ⭐ names again. #125 (also buy
+CONVICTION names on 🟢 HOLD days) failed its live check the same way and
+was demoted the same day (`promotions.json`).
 
 Weekly-RED rows also print the historical base rate next to the run's age —
 `wk RED/4 (8w · med run 8w)` — the median completed weekly-RED spell across
@@ -276,8 +277,8 @@ Without secrets the job still runs and prints the digest (no send). Without
 `BUY_BUDGET_USD` the buy-day copilot stays dark. Honesty note: the copilot
 *prints* orders and writes an importable basket CSV — it never places an
 order (PRD §7); allocation follows PLAYBOOK §3 (half index / the stock
-half split across the top-3 ⭐ by RS12 since #24's 2026-07-12 promotion,
-10% cap, non-USD names excluded from order lines per R12).
+half split equally across up to 5 ⭐ — #24's top-3 rule was demoted
+2026-11-26 — 25% cap, non-USD names excluded from order lines per R12).
 
 ## Run locally
 ```

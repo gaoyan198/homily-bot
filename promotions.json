@@ -4,7 +4,7 @@
  "entries": [
   {
    "id": "rs12-top3",
-   "status": "promoted",
+   "status": "demoted",
    "promoted": "2026-07-12",
    "promotion_basis": "OWNER OVERRIDE, recorded 2026-07-12: promoted with NEITHER pre-registered condition met — the forward check had not matured (window runs to 2026-09-30) and earliest_promotion (2026-10-01, Q4's R10 slot) had not arrived. The owner directed the promotion and accepted the risk explicitly ('I can take the risk of promoting without live data'). The frozen forward-check window is UNCHANGED and its read publishes at every month-start digest check through and including 2026-10-01 regardless of this promotion; the rolling demotion rule below is armed from the promotion date and a FAIL demotes mechanically. R10 accounting: Q4-2026's promotion slot is SPENT by this early promotion (Q3's went to 🐳 WHALE-DIP, 2026-07-06); no further promoted signal-behaviour change before 2027-Q1.",
    "what": "concentrate the monthly stock-half into the top-3 ⭐ candidates by 12m relative strength (PRD §5j)",
@@ -22,7 +22,9 @@
     "criterion": "mean forward-21-ledger-row raw-close return of ⭐ rows with rank<=3 must EXCEED the mean of ⭐ rows with rank>3 over the window; fewer than min_measured_rows on either side = INSUFFICIENT, decision deferred, no promotion"
    },
    "if_promoted": "digest orders ⭐ rows by RS12 with top-3 marked; PLAYBOOK §3.4 becomes split-across-top-3; homily_buyday allocates top-3 (MAX_STARS/ordering); one session, one commit",
-   "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion"
+   "demotion_rule": "if promoted: demote back to equal-split max-5 when top-3 ⭐ rows underperform other-⭐ rows on the same mean forward-21-row metric over any rolling 6-month ledger window ending after promotion; checked by homily_promotions.py at each month-start; demotion is mandatory on a failed check, not a discussion",
+   "demoted": "2026-11-26",
+   "demotion_basis": "MANDATORY, by the demotion_rule above (no discussion, per that rule). Read 2026-11-26 on the #13 ledger: the FROZEN 2026-07-10→09-30 window FAILS (top-3 ⭐ n=174 mean +2.04% vs other ⭐ n=1416 mean +2.14%, fwd 21 rows) — the 2026-10-01 month-start read had printed PASS (+5.13% vs +0.69%) only because September's rows had not yet matured; the rolling-6m demotion check FAILED at the 2026-11-02 month-start (+1.21% vs +1.90%) and again on 2026-11-26 (n=231 −6.62% vs n=1995 −1.37%). The digest printed 'FAIL = demote, mandatory' in bold on 11-02 and nothing acted on it for 24 days — this entry closes that gap. Restored: homily_buyday.MAX_STARS 3→5, equal split, order F:2+ first then RS12 (the exact pre-2026-07-12 line). The rs12_rank ledger column, the digest RS#n marks and this entry's monthly read stay live as INFORMATION; re-promotion is a fresh gated change in an R10 selection slot, never a revert of this one."
   },
   {
    "id": "add-cap-25",
@@ -79,7 +81,7 @@
   },
   {
    "id": "hold-adds",
-   "status": "promoted-on-probation",
+   "status": "demoted",
    "promoted": "2026-07-25",
    "promotion_basis": "OWNER-DIRECTED, recorded 2026-07-25: the owner ran the 3y walk-forward replay study (105,848 signals, replay validated 99.5% state-match against the live log), reviewed the result and directed implementation in the same day ('implement it'). Part III rule 5 note: study and ship happened in one session by explicit owner decision. R10 accounting, continuing the PRD §8.5 ledger: 2027-Q2's selection slot is SPENT by this promotion (Q3-2026 whale-dip · Q4-2026 rs12-top3 · 2027-Q1 add-cap-25, all early); next free selection slot 2027-Q3; #14/#14a/#85 reads now split FOUR promotion epochs.",
    "what": "buy-day candidate set widened from state==ACCUMULATE (any tier) to conv_tier==CONVICTION AND state in (ACCUMULATE, HOLD) — the tier picks the name, ACC/HOLD are interchangeable entry days; #24's RS12 top-3 ranking unchanged",
@@ -94,7 +96,9 @@
    },
    "if_promoted": "homily_buyday.star_candidates eligibility line + PLAYBOOK §3.4/§3.5 + validate [27] fixtures; one session, one commit",
    "demotion_rule": "restore the ⭐-only eligibility line in homily_buyday.star_candidates (state==ACCUMULATE, no tier test — the exact pre-#125 line is quoted in the star_candidates comment) when hold_adds_check returns FAIL on the rolling 6-month window at any month-start after promotion; demotion is mandatory on a failed check, not a discussion",
-   "post_hoc_note": "2026-07-26, owner-requested honest re-test (BACKTEST_RESULTS §31, homily_holdadds_honest.py): on the hype-2021 control universe the #125 rule LOSES to the pre-#125 star-only rule at 5y (MOIC 1.51 vs 1.74) and ties at 10y (2.50 vs 2.52), and both lose to DCA QQQ at 10y (2.86). The 'CONVICTION too strict on a small universe' excuse was checked and fails — median 4 eligible names/month for BOTH arms on B. §29's advantage therefore looks like a survivorship artifact of the 2026-07-11 universe replayed backwards. This does NOT demote the entry (post-hoc tests never reverse a promotion here; the monthly hold_adds_check on live ledger rows is the only mechanism that can). Status moved to promoted-on-probation so no future session quotes §29 as validated evidence without §31."
+   "post_hoc_note": "2026-07-26, owner-requested honest re-test (BACKTEST_RESULTS §31, homily_holdadds_honest.py): on the hype-2021 control universe the #125 rule LOSES to the pre-#125 star-only rule at 5y (MOIC 1.51 vs 1.74) and ties at 10y (2.50 vs 2.52), and both lose to DCA QQQ at 10y (2.86). The 'CONVICTION too strict on a small universe' excuse was checked and fails — median 4 eligible names/month for BOTH arms on B. §29's advantage therefore looks like a survivorship artifact of the 2026-07-11 universe replayed backwards. This does NOT demote the entry (post-hoc tests never reverse a promotion here; the monthly hold_adds_check on live ledger rows is the only mechanism that can). Status moved to promoted-on-probation so no future session quotes §29 as validated evidence without §31.",
+   "demoted": "2026-11-26",
+   "demotion_basis": "MANDATORY, by the demotion_rule above. hold_adds_check (rolling 6m) FAILED at the 2026-10-01 month-start (new-eligible n=288 mean −1.46% vs old ⭐ n=1916 −0.42%), the 2026-11-02 month-start (n=676 −3.94% vs n=3125 −0.14%) and on 2026-11-26 (n=941 −8.07% vs n=3929 −2.44%). Printed in bold both month-starts; not acted on until 2026-11-26. Restored: star_candidates eligibility = state ACCUMULATE, no tier test (the exact pre-#125 line). This entry was already on probation (§31: the edge did not replicate on the honest re-test) — the live rows agree with §31, not §29."
   }
  ]
 }

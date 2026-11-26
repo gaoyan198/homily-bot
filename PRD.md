@@ -1358,6 +1358,22 @@ and #62 (ledger append-only hash check).
 `EXECUTION.md` requires that a session which finds the plan wrong records it
 here rather than improvising around it. Newest first.
 
+**2026-11-26 (execution) · two mandatory demotions executed 24–56 days
+late.** The #24 read was due 2026-10-01 and the session never ran. The
+month-start digest DID print the bold "FAIL = demote, mandatory" line —
+for `hold-adds` (#125) from 2026-10-01 and for `rs12-top3` (#24) from
+2026-11-02 — and nothing acted on it, so the 2026-11-02 buy day ran on
+two failed rules. Both reverted today exactly per their registry rules
+(buy-day = ⭐ ACCUMULATE any tier, equal split, max 5, F:2+ first;
+BACKTEST_RESULTS §59). What the plan got wrong: it assumed a bold digest
+line was enough to make a "mandatory" rule happen. It wasn't. A mandatory
+demotion now has no enforcement beyond a human reading the month-start
+block — flagged to the owner as an open process gap rather than wired
+into validate here, because validate gates the daily digest and a red
+build would silence the very message that carries the warning. The
+five-way selection harness the same read was to host (#80 · #89) was
+also never built; it stays open.
+
 **2026-09-11 (planning era, execution) · #116 mechanics built in
 September; the prune itself stays July's.** The row is a July cadence
 riding #40, but its rule ("every module holds one of {live consumer ·
